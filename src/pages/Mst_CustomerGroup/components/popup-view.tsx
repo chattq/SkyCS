@@ -21,6 +21,7 @@ import {
   checkDataPopPup,
   dataFormAtom,
   dataTableAtom,
+  fileAtom,
   flagEdit,
   showDetail,
   showPopup,
@@ -60,10 +61,12 @@ export const PopupView = ({
   const setPopupVisible = useSetAtom(showPopup);
   const [value, setValue] = useState("");
   const [avt, setAvt] = useAtom(avatar);
+  const setFile = useSetAtom(fileAtom);
 
   const api = useClientgateApi();
 
   const handleCancel = () => {
+    setFile(undefined);
     setPopupVisible(false);
   };
 

@@ -1,6 +1,6 @@
 import React, { memo, useEffect, useMemo, useRef, useState } from "react";
-import { AvatarData, showDetail, viewingDataAtom } from "./store";
-import { useAtomValue, useSetAtom } from "jotai";
+import { AvatarData, fileAtom, showDetail, viewingDataAtom } from "./store";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 
 export const getAvatarUrl = (avatarName: any) => {
   if (avatarName) {
@@ -13,7 +13,8 @@ export const getAvatarUrl = (avatarName: any) => {
 export default function UploadAvatar({ data, setAvt }: any) {
   const detailForm = useAtomValue(showDetail);
   const imgRef = useRef<any>();
-  const [file, setFile] = useState<any>();
+  const [file, setFile] = useAtom(fileAtom);
+
   const previewImage = useMemo(() => {
     return file ? URL.createObjectURL(file) : "";
   }, [file]);
@@ -23,8 +24,8 @@ export default function UploadAvatar({ data, setAvt }: any) {
   const handleFake = () => {};
   const onFileChange = (event: any) => {
     const fileFromLocal = event.target.files?.[0];
-    setFile(fileFromLocal);
     setAvt(fileFromLocal);
+    setFile(fileFromLocal);
   };
 
   return (
@@ -36,7 +37,7 @@ export default function UploadAvatar({ data, setAvt }: any) {
         <img
           alt=""
           className="w-full h-full object-cover"
-          src={previewImage || getAvatarUrl(data)}
+          src={getAvatarUrl(data || previewImage)}
         />
         <input type="file" ref={imgRef} hidden onChange={onFileChange} />
       </div>

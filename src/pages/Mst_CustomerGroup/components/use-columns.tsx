@@ -14,6 +14,7 @@ import { LinkCell } from "@packages/ui/link-cell";
 import {
   avatar,
   dataFormAtom,
+  flagEdit,
   showDetail,
   showPopup,
   viewingDataAtom,
@@ -51,7 +52,10 @@ UseBankDealerGridColumnsProps) => {
   const api = useClientgateApi();
   const setDataForm = useSetAtom(dataFormAtom);
   const setAvt = useSetAtom(avatar);
+  const setFlag = useSetAtom(flagEdit);
+
   const viewRow = async (rowIndex: number, data: any) => {
+    setFlag(false);
     setShowDetail(true);
     setPopupVisible(true);
     const resp = await api.Mst_CustomerGroup_GetByCustomerGrpCode(

@@ -7,6 +7,7 @@ import {
 import { SysUserData, Sys_GroupController } from "@/packages/types";
 import { showPopupUser } from "@/pages/User_Mananger/components/store";
 import { useAtomValue, useSetAtom } from "jotai";
+import { showInfoObjAtom } from "./store";
 
 interface Mst_DepartmentControlColumnsProps {
   data: any;
@@ -17,9 +18,10 @@ export const useFormSettings = ({
 }: Mst_DepartmentControlColumnsProps) => {
   const { t } = useI18n("Sys_Group");
   const setPopup = useSetAtom(showPopupUser);
+  const setShowInfoObj = useSetAtom(showInfoObjAtom);
 
   const viewRow = (data: any) => {
-    console.log("a");
+    setShowInfoObj(false);
     setPopup(true);
     // setShowDetail(true);
   };

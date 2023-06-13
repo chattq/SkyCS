@@ -20,6 +20,7 @@ export const keywordAtom = atom<string>("");
 export const flagEdit = atom<boolean>(false);
 export const checkDataPopPup = atom<boolean>(true);
 export const avatar = atom<any>(undefined);
+export const fileAtom = atom<any>(undefined);
 
 export const viewingDataAtom = atom(
   (get) => {

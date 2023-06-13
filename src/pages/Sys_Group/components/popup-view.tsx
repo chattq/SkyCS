@@ -79,7 +79,7 @@ export const PopupViewDetail = ({
 
   const backUpColumns = useRef<any>();
   useEffect(() => {
-    if (dataFuntion) {
+    if (dataFuntion && showInfoObj === false) {
       setSelectItems(dataFuntion);
       backUpColumns.current = dataFuntion;
     }
@@ -88,7 +88,7 @@ export const PopupViewDetail = ({
       backUpColumns.current = [];
       // setDataTable([]);
     }
-    // dataGrid.current.instance.deselectAll();
+
     if (listGroup?.Data && detailForm === true) {
       setSelectItems(listGroup?.Data?.Lst_Sys_Access);
       setDataTable(listGroup?.Data?.Lst_Sys_UserInGroup);
@@ -99,15 +99,9 @@ export const PopupViewDetail = ({
       });
     }
   }, [dataFuntion, detailForm, listGroup?.Data, showInfoObj]);
-  // useEffect(() => {
-  //   setDataTable(listGroup?.Data?.Lst_Sys_UserInGroup);
-  //   setDataForm({
-  //     ...listGroup?.Data?.Sys_Group,
-  //     FlagActive: listGroup?.Data?.Sys_Group.FlagActive === "1" ? true : false,
-  //   });
-  // }, [listGroup?.Data]);
 
   const handleCancel = () => {
+    dataGrid.current.instance.deselectAll();
     setPopupVisible(false);
   };
   const handleCancelUser = () => {
@@ -247,6 +241,28 @@ export const PopupViewDetail = ({
     setSelectItems(
       Array.from(new Set([...e.selectedRowsData, ...backUpColumns.current])) // lọc trùng dữ liệu
     );
+  };
+
+  // console.log(255, dataTable);
+  const onEditorPreparing = (e: any) => {
+    if (e.dataField === "Email") {
+      // console.log(255, e);
+      // e.editorOptions.dataSource = e.editorOptions.dataSource?.filter(
+      //   (item: any) => {
+      //     return !dataTable?.some(
+      //       (newItem: any) => newItem?.UserCode === item?.UserCode
+      //     );
+      //   }
+      // );
+      // console.log(
+      //   254,
+      //   e.editorOptions.dataSource.filter((item: any) => {
+      //     return !dataTable.some(
+      //       (newItem: any) => newItem.UserCode === item.UserCode
+      //     );
+      //   })
+      // );
+    }
   };
 
   return (
@@ -478,6 +494,8 @@ export const PopupViewDetail = ({
             id="gridContainer"
             dataSource={dataTable}
             keyExpr="UserCode"
+            // key={viewingItem?.rowIndex}
+            onEditorPreparing={onEditorPreparing}
             onSaved={innerSavingRowHandler}
             noDataText={t("There is no data")}
             remoteOperations={false}

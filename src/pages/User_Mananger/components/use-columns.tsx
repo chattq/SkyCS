@@ -11,6 +11,7 @@ import { LinkCell } from "@packages/ui/link-cell";
 import {
   avatar,
   dataFormAtom,
+  flagEdit,
   showDetail,
   showPopup,
   viewingDataAtom,
@@ -45,9 +46,11 @@ export const useDealerGridColumns = ({ data }: UseDealerGridColumnsProps) => {
   const api = useClientgateApi();
   const setDataForm = useSetAtom(dataFormAtom);
   const setAvt = useSetAtom(avatar);
+  const setFlag = useSetAtom(flagEdit);
 
   const viewRow = async (rowIndex: number, data: any) => {
     setShowDetail(true);
+    setFlag(false);
     const resp = await api.Sys_User_Data_GetByUserCode(data.UserCode);
     if (resp.isSuccess) {
       setAvt(resp?.Data?.Avatar);

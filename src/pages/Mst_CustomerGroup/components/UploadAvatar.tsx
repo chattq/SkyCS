@@ -34,7 +34,7 @@ export default function UploadAvatar({ data, setAvt }: any) {
         <img
           alt=""
           className="w-full h-full object-cover"
-          src={previewImage || getAvatarUrl(data)}
+          src={getAvatarUrl(data || previewImage)}
         />
         <input type="file" ref={imgRef} hidden onChange={onFileChange} />
       </div>

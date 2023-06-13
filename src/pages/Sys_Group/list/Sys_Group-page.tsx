@@ -118,6 +118,7 @@ export const Sys_GroupPage = () => {
   };
 
   const handleOnEditRow = async (e: any) => {
+    setShowInfoObj(false);
     setFlag(false);
     setShowDetail(false);
     setPopupVisible(true);
