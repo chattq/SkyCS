@@ -16,9 +16,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ToolbarItemProps } from "@/packages/ui/base-gridview";
 import { logger } from "@/packages/logger";
 import {
-  AvatarData,
   avatar,
-  checkDataPopPup,
   dataFormAtom,
   dataTableAtom,
   fileAtom,
@@ -28,9 +26,6 @@ import {
   viewingDataAtom,
 } from "./store";
 import { useClientgateApi } from "@/packages/api";
-import { useQuery } from "@tanstack/react-query";
-
-import { Icon } from "@/packages/ui/icons";
 import UploadAvatar from "./UploadAvatar";
 
 export interface DealerPopupViewProps {
@@ -47,7 +42,6 @@ export const PopupView = ({
   title,
 }: DealerPopupViewProps) => {
   const popupVisible = useAtomValue(showPopup);
-  const dataAvt = useAtomValue(AvatarData);
   const flagCheckCRUD = useAtomValue(flagEdit);
   const formRef = useRef<any>();
   const ref = useRef<any>();
@@ -55,7 +49,6 @@ export const PopupView = ({
   const { t } = useI18n("Common");
   const dataRef = useRef<any>(null);
   const detailForm = useAtomValue(showDetail);
-  const [viewingItem, setViewingItem] = useAtom(viewingDataAtom);
   const [dataTable, setDataTable] = useAtom(dataTableAtom);
   const [dataForm, setDataForm] = useAtom(dataFormAtom);
   const setPopupVisible = useSetAtom(showPopup);
@@ -193,7 +186,10 @@ export const PopupView = ({
       <ScrollView height={"100%"}>
         <div className="flex justify-between">
           <div>
-            <UploadAvatar data={flagCheckCRUD ? avt : avt} setAvt={setAvt} />
+            <UploadAvatar
+              data={flagCheckCRUD ? undefined : avt}
+              setAvt={setAvt}
+            />
           </div>
           <div className="w-[77%]">
             <form action="" ref={formRef} onSubmit={handleSubmitPopup}>

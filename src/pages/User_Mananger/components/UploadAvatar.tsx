@@ -24,8 +24,8 @@ export default function UploadAvatar({ data, setAvt }: any) {
   const handleFake = () => {};
   const onFileChange = (event: any) => {
     const fileFromLocal = event.target.files?.[0];
-    setAvt(fileFromLocal);
     setFile(fileFromLocal);
+    setAvt(fileFromLocal);
   };
 
   return (
@@ -37,7 +37,7 @@ export default function UploadAvatar({ data, setAvt }: any) {
         <img
           alt=""
           className="w-full h-full object-cover"
-          src={getAvatarUrl(data || previewImage)}
+          src={getAvatarUrl(previewImage || data)}
         />
         <input type="file" ref={imgRef} hidden onChange={onFileChange} />
       </div>

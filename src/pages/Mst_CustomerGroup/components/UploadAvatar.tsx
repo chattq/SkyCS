@@ -1,9 +1,6 @@
-import { useClientgateApi } from "@/packages/api";
-import { useMutation } from "@tanstack/react-query";
-
-import React, { memo, useEffect, useMemo, useRef, useState } from "react";
-import { AvatarData, viewingDataAtom } from "./store";
-import { useAtomValue, useSetAtom } from "jotai";
+import React, { useMemo, useRef } from "react";
+import { fileAtom } from "./store";
+import { useAtom } from "jotai";
 
 export const getAvatarUrl = (avatarName: any) => {
   if (avatarName) {
@@ -15,7 +12,7 @@ export const getAvatarUrl = (avatarName: any) => {
 
 export default function UploadAvatar({ data, setAvt }: any) {
   const imgRef = useRef<any>();
-  const [file, setFile] = useState<any>();
+  const [file, setFile] = useAtom(fileAtom);
   const previewImage = useMemo(() => {
     return file ? URL.createObjectURL(file) : "";
   }, [file]);
@@ -34,7 +31,7 @@ export default function UploadAvatar({ data, setAvt }: any) {
         <img
           alt=""
           className="w-full h-full object-cover"
-          src={getAvatarUrl(data || previewImage)}
+          src={getAvatarUrl(previewImage || data)}
         />
         <input type="file" ref={imgRef} hidden onChange={onFileChange} />
       </div>

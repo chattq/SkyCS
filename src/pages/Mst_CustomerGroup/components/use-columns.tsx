@@ -55,8 +55,8 @@ UseBankDealerGridColumnsProps) => {
   const setFlag = useSetAtom(flagEdit);
 
   const viewRow = async (rowIndex: number, data: any) => {
-    setFlag(false);
     setShowDetail(true);
+    setFlag(false);
     setPopupVisible(true);
     const resp = await api.Mst_CustomerGroup_GetByCustomerGrpCode(
       data.CustomerGrpCode,

@@ -64,24 +64,11 @@ export const PopupView = ({
   const [avt, setAvt] = useAtom(avatar);
 
   const api = useClientgateApi();
-  // const { data: listUser } = useQuery(
-  //   ["listMst_DepartmentControl", viewingItem.item?.UserCode],
-  //   () => api.Sys_User_Data_GetByUserCode(viewingItem.item?.UserCode)
-  // );
+
   const { data: listUserActive } = useQuery(
     ["listMst_DepartmentControl"],
     () => api.Sys_User_GetAllActive() as any
   );
-
-  // useEffect(() => {
-  //   setDataTable(listUser?.Data);
-  //   setDataForm({
-  //     ...listUser?.Data,
-  //     FlagNNTAdmin: listUser?.Data?.FlagNNTAdmin === "1" ? true : false,
-  //     FlagSysAdmin: listUser?.Data?.FlagSysAdmin === "1" ? true : false,
-  //   });
-  //   setAvt(listUser?.Data?.Avatar);
-  // }, [listUser?.Data]);
 
   const handleCancel = () => {
     setFile(undefined);
