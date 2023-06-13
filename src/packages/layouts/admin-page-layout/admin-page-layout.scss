@@ -1,0 +1,12 @@
+@import '../../../themes/variables.common.scss';
+
+.dms {
+  .drawer {
+    height: calc(100% - $header-bar-height);
+  }
+  #navigation-header {
+    .dx-toolbar-items-container {
+        height: $toolbar-height;
+    }
+  }
+}

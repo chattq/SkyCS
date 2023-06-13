@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .page-title {
+    font-style: normal;
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 17px;
+    color: #0E223D;
+  }
+  .error-title {
+    position: absolute;
+    font-family: 'Inter', sans-serif;
+    font-style: normal;
+    font-weight: 700;
+    font-size: 15px;
+    line-height: 18px;
+    color: #0E223D;
+  }
+  .error-body {
+    overflow: scroll;
+  }
+  .error__main {
+      margin: 10px;
+  }
+  .error__detail {
+    border-top: 1px solid #DFDFDF;
+    padding: 10px;
+    color: #5F7D95;
+  }
+  .status-text {
+    font-family: 'Inter', sans-serif;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 11px;
+    line-height: 13px;
+    text-align: center;
+  }
+  .separator {
+    height: 8px;
+    background: #F5F5F5;
+  }
+}

@@ -1,0 +1,42 @@
+.header {
+  padding-left: 10px;
+  padding-right: 10px;
+  width: 100%;
+  align-items: center;
+  padding-top: 13px;
+  padding-bottom: 13px;
+}
+
+.breakcrumb {
+  display: flex;
+  align-items: center;
+}
+
+.breakcrumb p {
+  padding-right: 10px;
+}
+
+.d-flex {
+  display: flex;
+}
+
+.justify-space-between {
+  justify-content: space-between;
+}
+
+.list-button {
+  display: flex;
+}
+
+.list-button .dx-button {
+  padding: 10px 15px;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+.dx-form-group-caption {
+  display: none;
+}
+
+.overflow-auto {
+  overflow: auto;
+}

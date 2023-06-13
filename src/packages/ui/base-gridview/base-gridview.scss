@@ -1,0 +1,76 @@
+/* header filter */
+.dx-header-filter-menu {
+  .dx-overlay-content {
+    .dx-popup-content {
+      border-bottom: none;
+      padding: 10px;
+    }
+  }
+
+  .dx-popup-bottom {
+    border-top: 1px solid #dfdfdf;
+  }
+
+  &.dx-popup-wrapper {
+    .dx-list-search {
+      .dx-texteditor-input-container {
+        .dx-placeholder {
+          &:before {
+            padding: 0 0 0 32px;
+          }
+        }
+      }
+    }
+  }
+}
+
+.base-gridview {
+  #gridContainer {
+    .dx-popup-content {
+      padding: 4px;
+    }
+
+    .dx-datagrid {
+      background: #FFFFFF;
+
+      .dx-datagrid-header-panel {
+        background: #FFFFFF;
+
+        .dx-toolbar {
+          background: #FFFFFF;
+        }
+      }
+
+      .dx-datagrid-table {
+        .dx-col-fixed {
+          background: #FFFFFF;
+
+        }
+      }
+    }
+  }
+
+  .dx-datagrid-header-panel {
+    .dx-toolbar {
+      .dx-toolbar-after {
+        .dx-toolbar-item {
+          &:nth-last-child(2) {
+            margin-right: 60px;
+
+            .dx-toolbar-item-content {
+            }
+          }
+
+          &:last-child {
+            width: 60px;
+
+            .dx-toolbar-item-content {
+              display: flex;
+              justify-content: center;
+            }
+          }
+        }
+      }
+    }
+  }
+}
