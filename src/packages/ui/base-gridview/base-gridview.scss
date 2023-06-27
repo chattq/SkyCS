@@ -23,6 +23,9 @@
     }
   }
 }
+.dx-header-filter-menu .dx-popup-bottom.dx-toolbar .dx-toolbar-after {
+  flex-direction: inherit !important;
+}
 
 .base-gridview {
   #gridContainer {
@@ -31,20 +34,19 @@
     }
 
     .dx-datagrid {
-      background: #FFFFFF;
+      background: #ffffff;
 
       .dx-datagrid-header-panel {
-        background: #FFFFFF;
+        background: #ffffff;
 
         .dx-toolbar {
-          background: #FFFFFF;
+          background: #ffffff;
         }
       }
 
       .dx-datagrid-table {
         .dx-col-fixed {
-          background: #FFFFFF;
-
+          background: #ffffff;
         }
       }
     }

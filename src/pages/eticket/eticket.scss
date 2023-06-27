@@ -1,0 +1,559 @@
+@import "../../themes/generated/variables.base";
+
+.eticket {
+  .sep-bottom-3 {
+    border-bottom: solid 3px #eee;
+  }
+
+  .sep-bottom-5 {
+    border-bottom: solid 5px #eee;
+  }
+
+  .sep-bottom-7 {
+    border-bottom: solid 7px #eee;
+  }
+
+  .avatar {
+    border-radius: 50%;
+    border: solid 1px #f5f5f5;
+    background-color: #f5f5f5;
+    display: inline-block;
+    padding: 0;
+    text-transform: uppercase;
+    color: $base-accent;
+    text-align: center;
+    font-weight: 600;
+  }
+
+  .avatar-sm {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+    line-height: 32px;
+  }
+
+  .avatar-sx {
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    font-size: 10px;
+  }
+
+  .avatar-name {
+    line-height: 30px;
+    display: inline-block;
+  }
+
+  .avatar-name .name {
+    line-height: 30px;
+  }
+
+  .detail {
+    .sp-warning {
+      background: #ffdcdc;
+      color: #ff618a;
+      display: inline-block;
+    }
+
+    .btn-msg-action {
+      min-width: 24px;
+      min-height: 24px;
+      width: 24px !important;
+      height: 24px !important;
+
+      border-color: #ccc;
+      color: #666;
+
+      i {
+        width: 12px;
+        height: 12px;
+      }
+    }
+
+    .message-type {
+      position: absolute;
+      left: -12px;
+      top: calc(50% - 12px);
+      width: 24px;
+      height: 24px;
+      line-height: 24px;
+      display: block;
+      background: #f9f9f9;
+      text-align: center;
+      border-radius: 4px;
+
+      i {
+        margin-top: 3px;
+        width: 16px;
+        height: 16px;
+        background-image: url(/images/icons/files/gif.svg);
+        background-repeat: no-repeat;
+        background-position: center center;
+        background-size: contain;
+        display: inline-block;
+      }
+    }
+
+    .message-type.call.in {
+      background-color: #d5f9e8;
+      i {
+        background-image: url(/images/icons/call_in.svg);
+      }
+    }
+    .message-type.call.out {
+      background-color: #d1e8ff;
+      i {
+        background-image: url(/images/icons/call_out.svg);
+      }
+    }
+    .message-type.call.missed {
+      background-color: #ffe8ee;
+      i {
+        background-image: url(/images/icons/call_missed.svg);
+      }
+    }
+    .message-type.call.noanswer {
+      background-color: #ffeae1;
+      i {
+        background-image: url(/images/icons/call_noanswer.svg);
+      }
+    }
+
+    .message-type.email.in {
+      background-color: #ffeae1;
+      i {
+        background-image: url(/images/icons/email_in.svg);
+      }
+    }
+
+    .message-type.email.out {
+      background-color: #d1e8ff;
+      i {
+        background-image: url(/images/icons/email_out.svg);
+      }
+    }
+
+    .message-type.note {
+      background-color: #ffeae1;
+      i {
+        background-image: url(/images/icons/files/txt.svg);
+      }
+    }
+    .message-reply {
+      .input-area {
+        background: #fff;
+        padding: 10px;
+        border-top: solid 1px #ccc;
+        border-bottom: solid 1px #ccc;
+
+        .buttons {
+          span {
+            cursor: pointer;
+            color: #666;
+          }
+        }
+      }
+
+      textarea {
+        border: none;
+        background: transparent;
+        outline: none;
+        width: 100%;
+        resize: none;
+      }
+
+      textarea:focus,
+      input:focus {
+        outline: none;
+      }
+
+      textarea:focus {
+        outline: none;
+        -webkit-box-shadow: none;
+        box-shadow: none;
+        border: none;
+      }
+    }
+  }
+
+  .text-gray {
+    color: #888;
+  }
+
+  .text-red {
+    color: #f00;
+  }
+
+  .status {
+    display: inline-block;
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+
+  .processing {
+    background: #e48203;
+    color: #fff;
+  }
+
+  .dx-texteditor {
+    height: 25px;
+  }
+
+  .dx-dropdownbox {
+    border: none !important;
+    text-decoration: none;
+  }
+
+  .dx-dropdowneditor-input-wrapper {
+    border-bottom: none !important;
+    text-decoration: none;
+  }
+
+  .dx-texteditor-container {
+    background: #fff;
+    border: solid 1px #444;
+    border-radius: 2px;
+    text-decoration: none;
+    outline: none;
+  }
+
+  .dx-texteditor-input-container {
+    background: #fff;
+    border: none;
+    outline: none;
+  }
+
+  .dx-dropdowneditor-input-wrapper {
+    border: none;
+    outline: none;
+  }
+
+  .dx-placeholder {
+    color: #333 !important;
+  }
+
+  .dx-texteditor-label {
+    color: #333;
+  }
+
+  .dx-texteditor-input {
+    background: #fff;
+    border: none;
+    outline: none;
+  }
+
+  .dx-texteditor-input:focus {
+    outline: none;
+  }
+
+  .dx-button {
+    height: 25px;
+    min-height: 25px;
+  }
+
+  .dx-button-content {
+    height: 25px;
+  }
+
+  .dx-button-has-icon {
+    border-radius: 0 !important;
+  }
+
+  .dx-button-text {
+    text-transform: none !important;
+  }
+
+  .tag-list {
+    .tag {
+      display: inline-block;
+      border-radius: 5px;
+      color: #fff;
+      background-color: #999;
+      padding-left: 5px;
+      padding-right: 5px;
+    }
+
+    .tag:nth-child(1) {
+      background-color: #3abfbf;
+    }
+
+    .tag:nth-child(2) {
+      background-color: #b07cc9;
+    }
+
+    .tag:nth-child(3) {
+      background-color: #dbcf60;
+    }
+
+    .tag:nth-child(4) {
+      background-color: #e0e;
+    }
+  }
+
+  .tab-ctn-1 {
+    color: $base-bg;
+
+    .dx-tabs {
+      background-color: transparent;
+    }
+
+    .dx-item-content {
+      background-color: $header-bg;
+      color: $base-text-color;
+
+      height: 30px;
+
+      .menu-item {
+        height: 30px;
+      }
+    }
+
+    .dx-tab {
+      background-color: $header-bg;
+      color: $base-text-color;
+
+      padding-bottom: 4px;
+
+      &.dx-item {
+        .dx-tab-text {
+          border-bottom: solid 2px transparent;
+          font-weight: bold;
+          font-size: 1.1em;
+        }
+      }
+    }
+
+    .dx-tab-selected {
+      &:before {
+        content: none;
+      }
+
+      border: none;
+      background-color: #fff;
+      border-bottom: solid 2px $base-accent;
+
+      .dx-tab-content {
+        border: none;
+        background-color: #fff;
+        color: $base-accent;
+
+        .dx-tab-text {
+          background-color: #fff;
+        }
+      }
+    }
+  }
+
+  .tab-ctn-2 {
+    color: $base-bg;
+
+    .dx-tabs {
+      background-color: transparent;
+    }
+
+    .dx-item-content {
+      background-color: transparent;
+      color: $base-text-color;
+      height: 30px;
+    }
+
+    .dx-tab {
+      background-color: transparent;
+      color: $base-text-color;
+
+      padding-bottom: 4px;
+
+      &.dx-item {
+        .dx-tab-text {
+          margin-top: 10px;
+          border-bottom: none;
+          font-weight: bold;
+          font-size: 1.1em;
+          background-color: transparent;
+        }
+      }
+    }
+
+    .dx-tab-selected {
+      &:before {
+        content: none;
+      }
+
+      border: none;
+
+      .dx-tab-content {
+        border: none;
+        background-color: transparent;
+        color: $base-accent;
+
+        .dx-tab-text {
+          background-color: #eaf9f2;
+          padding-left: 10px;
+          padding-right: 10px;
+        }
+      }
+    }
+  }
+
+  .attachment {
+    background-color: #eee;
+    position: relative;
+    border-radius: 3px;
+    display: inline-block;
+    max-width: 150px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    padding: 3px 17px 3px 7px;
+
+    white-space: nowrap;
+
+    a {
+      color: #333;
+    }
+
+    a:hover {
+      opacity: 0.7;
+    }
+
+    a.remove {
+      position: absolute;
+      right: 3px;
+      top: 5px;
+    }
+  }
+}
+
+//custom icons
+
+.dx-icon-custom-reply {
+  background-image: url(/images/icons/reply.svg);
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: contain;
+  display: inline-block;
+  height: 1rem;
+  width: 1rem;
+}
+
+.dx-icon-custom-file-doc {
+  background-image: url(/images/icons/files/doc.svg);
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: contain;
+  display: inline-block;
+  height: 1rem;
+  width: 1rem;
+}
+
+.dx-icon-custom-file-docx {
+  background-image: url(/images/icons/files/docx.svg);
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: contain;
+  display: inline-block;
+  height: 1rem;
+  width: 1rem;
+}
+
+.dx-icon-custom-file-xls {
+  background-image: url(/images/icons/files/xls.svg);
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: contain;
+  display: inline-block;
+  height: 1rem;
+  width: 1rem;
+}
+
+.dx-icon-custom-file-xlsx {
+  background-image: url(/images/icons/files/xlsx.svg);
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: contain;
+  display: inline-block;
+  height: 1rem;
+  width: 1rem;
+}
+
+.dx-icon-custom-file-zip {
+  background-image: url(/images/icons/files/zip.svg);
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: contain;
+  display: inline-block;
+  height: 1rem;
+  width: 1rem;
+}
+
+.dx-icon-custom-file-pdf {
+  background-image: url(/images/icons/files/pdf.svg);
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: contain;
+  display: inline-block;
+  height: 1rem;
+  width: 1rem;
+}
+
+.dx-icon-custom-file-rar {
+  background-image: url(/images/icons/files/rar.svg);
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: contain;
+  display: inline-block;
+  height: 1rem;
+  width: 1rem;
+}
+
+.dx-icon-custom-file-txt {
+  background-image: url(/images/icons/files/txt.svg);
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: contain;
+  display: inline-block;
+  height: 1rem;
+  width: 1rem;
+}
+
+.dx-icon-custom-file-ppt {
+  background-image: url(/images/icons/files/ppt.svg);
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: contain;
+  display: inline-block;
+  height: 1rem;
+  width: 1rem;
+}
+
+.dx-icon-custom-file-pptx {
+  background-image: url(/images/icons/files/pptx.svg);
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: contain;
+  display: inline-block;
+  height: 1rem;
+  width: 1rem;
+}
+
+.dx-icon-custom-file-gif {
+  background-image: url(/images/icons/files/gif.svg);
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: contain;
+  display: inline-block;
+  height: 1rem;
+  width: 1rem;
+}
+
+.eticket-list {
+  .dx-layout-manager .dx-field-item {
+    padding-bottom: 0px;
+  }
+
+  .dx-item.dx-list-item {
+    .dx-box-flex {
+      display: flex;
+      flex-direction: row;
+    }
+  }
+}

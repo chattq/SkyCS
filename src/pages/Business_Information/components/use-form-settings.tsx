@@ -115,7 +115,7 @@ export const useFormSettings = ({ data, dataProvince }: any) => {
           cssClass: "",
           items: [
             {
-              dataField: "mp_ProvinceCode",
+              dataField: "ProvinceCode",
               editorOptions: {
                 placeholder: t("Input"),
                 dataSource: dataProvince,
@@ -123,10 +123,10 @@ export const useFormSettings = ({ data, dataProvince }: any) => {
                 valueExpr: "ProvinceCode",
               },
               editorType: "dxSelectBox",
-              caption: t("mp_ProvinceName"),
+              caption: t("ProvinceName"),
               visible: true,
               label: {
-                text: t("mp_ProvinceName"),
+                text: t("ProvinceName"),
               },
             },
             {
@@ -174,7 +174,7 @@ export const useFormSettings = ({ data, dataProvince }: any) => {
                 placeholder: t("Input"),
               },
               editorType: "dxSwitch",
-              caption: t("FirstName"),
+              caption: t("FlagActive"),
               visible: true,
             },
           ],

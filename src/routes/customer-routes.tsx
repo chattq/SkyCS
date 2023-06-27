@@ -1,7 +1,8 @@
 import { AdminPage } from "@/pages";
 import { Mst_CustomerPage } from "@/pages/Mst_Customer";
 import Customer_AddNew from "@/pages/Mst_Customer/components/Customer/AddNew";
-import DetailComponent from "@/pages/Mst_Customer/components/Customer/Detail/detail";
+import Customer from "@/pages/Mst_Customer/components/Customer/Customer/Customer";
+import Customer_Detail from "@/pages/Mst_Customer/components/Customer/Detail/Detal_Customer/Customer_Detail";
 import { RouteItem } from "@/types";
 
 export const customerRoutes: RouteItem[] = [
@@ -18,6 +19,7 @@ export const customerRoutes: RouteItem[] = [
     path: "customer/Mst_CustomerPage",
     subMenuTitle: "Mst_CustomerPage",
     mainMenuKey: "customer",
+    permissionCode: "",
     getPageElement: () => <Mst_CustomerPage />,
   },
   {
@@ -28,17 +30,25 @@ export const customerRoutes: RouteItem[] = [
     getPageElement: () => <Customer_AddNew />,
   },
   {
-    key: "Customer_AddNew",
-    path: "customer/Customer_AddNew/:CustomerCodeSys",
-    subMenuTitle: "",
-    mainMenuKey: "customer",
-    getPageElement: () => <Customer_AddNew />,
-  },
-  {
     key: "Customer_Detail",
     path: "customer/Customer_Detail/:CustomerCodeSys",
     subMenuTitle: "",
     mainMenuKey: "customer",
-    getPageElement: () => <DetailComponent />,
+    getPageElement: () => <Customer_Detail />,
+  },
+  // {
+  //   key: "Customer_Detail",
+  //   path: "customer/Customer_Detail/:CustomerCodeSys",
+  //   subMenuTitle: "",
+  //   mainMenuKey: "customer",
+  //   getPageElement: () => <DetailComponent />,
+  // },
+
+  {
+    key: "CustomerDetail",
+    path: "customer/Detail",
+    subMenuTitle: "Detail",
+    mainMenuKey: "customer",
+    getPageElement: () => <Customer />,
   },
 ];

@@ -14,22 +14,6 @@ import { LinkCell } from "@packages/ui/link-cell";
 import { viewingDataAtom } from "./store";
 import NavNetworkLink from "@/components/Navigate";
 
-const flagEditorOptions = {
-  searchEnabled: true,
-  valueExpr: "value",
-  displayExpr: "text",
-  items: [
-    {
-      value: "1",
-      text: "1",
-    },
-    {
-      value: "0",
-      text: "0",
-    },
-  ],
-};
-
 interface UseBankDealerGridColumnsProps {
   data?: Mst_CustomerGroupData[] | any;
 }
@@ -66,11 +50,6 @@ UseBankDealerGridColumnsProps) => {
           >
             {data.CampaignTypeName}
           </NavNetworkLink>
-          // <LinkCell
-          //   key={nanoid()}
-          //   onClick={() => viewRow(rowIndex, data)}
-          //   value={value}
-          // />
         );
       },
     },

@@ -1,4 +1,5 @@
 @import "../../../themes/generated/variables.base";
+
 .menu-bar-drop-down {
   &.dx-overlay-wrapper {
     .dx-overlay-content {
@@ -8,32 +9,41 @@
     }
   }
 }
+
 .menu-bar-container {
   color: $base-bg;
+
   .view-more {
     .dx-button-content {
       background: #FFFFFF;
       border-radius: 2px;
+
       .dx-icon {
-        color: #00703C;
+        color: $base-text-color;
       }
     }
   }
+
   .dx-item-content {
-    background-color: $base-accent;
+    background-color: $header-bg;
+    color: $base-text-color;
+
     height: 30px;
+
     .menu-item {
       height: 30px;
     }
   }
 
   .dx-tab {
-    background-color: $base-accent;
-    color: $base-bg;
+    background-color: $header-bg;
+    color: $base-text-color;
 
     padding-bottom: 4px;
+
     &.dx-item {
       width: 100px;
+
       .dx-tab-text {
         border-bottom: solid 2px transparent;
         font-weight: bold;
@@ -46,9 +56,17 @@
     &:before {
       content: none;
     }
+
+    border:none;
+    background-color: $header-bg;
+
     .dx-tab-content {
+      border: none;
+      background-color: $header-bg;
+      color: $base-accent;
       .dx-tab-text {
-        border-bottom: solid 2px white;
+        border: none;
+        background-color: $header-bg;
       }
     }
   }

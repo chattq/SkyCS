@@ -1,25 +1,25 @@
+import { useI18n } from "@/i18n/useI18n";
+import { showErrorAtom } from "@/packages/store";
+import { AdminContentLayout } from "@layouts/admin-content-layout";
+import { useClientgateApi } from "@packages/api";
+import { logger } from "@packages/logger";
+import { MdMetaColGroup, MdMetaColGroupSpecDto } from "@packages/types";
+import { Icon } from "@packages/ui/icons";
+import { useQuery } from "@tanstack/react-query";
 import { Accordion, CheckBox, LoadPanel, Switch } from "devextreme-react";
 import Button from "devextreme-react/button";
-import { useAtomValue, useSetAtom } from "jotai";
-import { currentItemAtom, flagAtom, showPopupAtom } from "./components/store";
-import { EditForm } from "./components/edit-form";
-import React, { useMemo, useReducer } from "react";
 import List, { ItemDragging } from "devextreme-react/list";
-import { Icon } from "@packages/ui/icons";
-import "./list.scss";
-import { useQuery } from "@tanstack/react-query";
-import { useClientgateApi } from "@packages/api";
-import { MdMetaColGroup, MdMetaColGroupSpecDto } from "@packages/types";
-import { showErrorAtom } from "@/packages/store";
 import { confirm } from "devextreme/ui/dialog";
-import { AdminContentLayout } from "@layouts/admin-content-layout";
+import { useSetAtom } from "jotai";
 import { nanoid } from "nanoid";
-import {logger} from "@packages/logger";
-import {toast} from "react-toastify";
-import {useI18n} from "@/i18n/useI18n";
+import { useMemo, useReducer } from "react";
+import { toast } from "react-toastify";
+import { EditForm } from "./components/edit-form";
+import { currentItemAtom, flagAtom, showPopupAtom } from "./components/store";
+import "./list.scss";
 
 export const CustomFieldListPage = () => {
-  const {t} = useI18n("CustomField")
+  const { t } = useI18n("CustomField");
   const showError = useSetAtom(showErrorAtom);
 
   const api = useClientgateApi();
@@ -40,7 +40,10 @@ export const CustomFieldListPage = () => {
     refetch,
   } = useQuery({
     queryFn: async () => {
-      const resp = await api.MdMetaColGroupSpec_Search({});
+      const resp = await api.MdMetaColGroupSpec_Search(
+        {},
+        "SCRTPLCODESYS.2023"
+      );
       if (resp.isSuccess) {
         const fields = resp.DataList ?? [];
         return fields?.map((item: any) => {
@@ -96,7 +99,7 @@ export const CustomFieldListPage = () => {
         const resp = await api.MDMetaColGroupSpec_Delete(data);
         if (resp.isSuccess) {
           await refetch();
-          toast.success(t("common.deleteSuccess"))
+          toast.success(t("common.deleteSuccess"));
         } else {
           showError({
             message: resp.errorCode,
@@ -167,7 +170,7 @@ export const CustomFieldListPageContent = ({
   const setPopupVisible = useSetAtom(showPopupAtom);
   const setCurrentItem = useSetAtom(currentItemAtom);
   const handleSave = async (data: MdMetaColGroupSpecDto) => {
-    logger.debug('saved item:', data)
+    logger.debug("saved item:", data);
     onSaved(data);
     setPopupVisible(false);
   };
@@ -178,10 +181,13 @@ export const CustomFieldListPageContent = ({
       ...item,
       ListOption: JSON.parse(item.JsonListOption),
     };
-    if(item.ColDataType === "MASTERDATA") {
+    if (item.ColDataType === "MASTERDATA") {
       obj.DataSource = JSON.parse(item.JsonListOption)[0].Value;
     }
-    logger.debug('obj:', obj)
+    if (item.ColDataType === "MASTERDATASELECTMULTIPLE") {
+      obj.DataSource = JSON.parse(item.JsonListOption)[0].Value;
+    }
+    logger.debug("obj:", obj);
     setFlag("update");
     setCurrentItem(obj);
     setPopupVisible(true);
@@ -198,10 +204,10 @@ export const CustomFieldListPageContent = ({
         FlagIsNotNull: "0",
         IsUnique: false,
         FlagIsCheckDuplicate: "0",
-        IsSearchable: false,
-        FlagIsQuery: "0",
+        IsSearchable: true,
+        FlagIsQuery: "1",
         Enabled: true,
-        FlagActive: "1"
+        FlagActive: "1",
       });
       setPopupVisible(true);
     }
@@ -210,6 +216,28 @@ export const CustomFieldListPageContent = ({
   const handleDelete = async (item: MdMetaColGroupSpecDto) => {
     onDelete(item);
   };
+  const showError = useSetAtom(showErrorAtom);
+  const handleItemReordered = async ({component: listComponent}: any) => {
+    const data = listComponent.instance().option("items")
+    let newOrderedData: any[] = []
+    for(let i = 0; i < data.length; i++) {
+      newOrderedData.push({
+        ...data[i],
+        OrderIdx: i
+      })
+    }
+    console.log('newOrderedData', newOrderedData)
+    const resp = await api.MDMetaColGroupSpec_UpdateOrderIdx(newOrderedData)
+    if(resp.isSuccess) {
+      toast.success("common.updateSuccess");
+    } else {
+      showError({
+        message: resp.errorCode,
+        debugInfo: resp.debugInfo,
+        errorInfo: resp.errorInfo,
+      });
+    }
+  }
 
   return (
     <AdminContentLayout>
@@ -243,6 +271,7 @@ export const CustomFieldListPageContent = ({
                   dataSource={fieldByGroup[buildKey(item.ColGrpCodeSys)]}
                   keyExpr="ColCodeSys"
                   allowItemDeleting={false}
+                  onItemReordered={handleItemReordered}
                   itemRender={(item) => {
                     return (
                       <div className={"w-full flex items-center"}>
@@ -297,7 +326,7 @@ export const CustomFieldListPageContent = ({
                     );
                   }}
                 >
-                  <ItemDragging allowReordering={true}></ItemDragging>
+                  <ItemDragging allowReordering={true} ></ItemDragging>
                 </List>
               );
             }}

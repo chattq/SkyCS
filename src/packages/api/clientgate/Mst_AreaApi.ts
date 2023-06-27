@@ -1,6 +1,10 @@
 import { ApiResponse, Mst_Area, SearchParam } from "@/packages/types";
 import { AxiosInstance } from "axios";
 
+interface Props {
+  Url: string;
+}
+
 export const useMst_AreaApi = (apiBase: AxiosInstance) => {
   return {
     Mst_Area_GetAllActive: async (): Promise<ApiResponse<Mst_Area>> => {
@@ -9,9 +13,7 @@ export const useMst_AreaApi = (apiBase: AxiosInstance) => {
         {}
       );
     },
-    Mst_Area_Search: async (
-      params: SearchParam
-    ): Promise<ApiResponse<Mst_Area>> => {
+    Mst_Area_Search: async (params: SearchParam): Promise<ApiResponse<any>> => {
       return await apiBase.post<SearchParam, ApiResponse<Mst_Area>>(
         "/MstArea/Search",
         {
@@ -72,7 +74,6 @@ export const useMst_AreaApi = (apiBase: AxiosInstance) => {
     Mst_Area_ImportExcel: async (file: File): Promise<ApiResponse<any>> => {
       const form = new FormData();
       form.append("file", file); // file is the file you want to upload
-
       return await apiBase.post<File, ApiResponse<any>>(
         "/MstArea/Import",
         form,
@@ -84,8 +85,8 @@ export const useMst_AreaApi = (apiBase: AxiosInstance) => {
       );
     },
 
-    Mst_Area_ExportTemplate: async (): Promise<ApiResponse<any>> => {
-      return await apiBase.post<Partial<Mst_Area>, ApiResponse<string>>(
+    Mst_Area_ExportTemplate: async (): Promise<ApiResponse<string>> => {
+      return await apiBase.post<Partial<Mst_Area>, ApiResponse<any>>(
         "/MstArea/ExportTemplate",
         {}
       );

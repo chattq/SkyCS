@@ -43,7 +43,7 @@ const Layout = ({
       <Col ratio={2}></Col>
       <Item>
         <Location row={0} col={0} />
-        <div className={"w-full flex items-center"}>
+        <div className={"w-full flex items-center header-layout"}>
           <ToggleSidebarButton />
           <HeaderTemplate />
         </div>

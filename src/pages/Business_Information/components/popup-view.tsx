@@ -18,12 +18,14 @@ import {
   dataTableAtom,
   flagEdit,
   readOnly,
+  selectedItemsAtom,
   showDetail,
   showPopup,
   viewingDataAtom,
 } from "./store";
 import { useClientgateApi } from "@/packages/api";
 import { useQuery } from "@tanstack/react-query";
+import { dataGridAtom } from "@/packages/ui/base-gridview/store/normal-grid-store";
 
 export interface DealerPopupViewProps {
   onEdit: any;
@@ -41,7 +43,7 @@ export const PopupView = ({
   const popupVisible = useAtomValue(showPopup);
   // const valueBotton = useAtomValue(dataBotton);
   // console.log(valueBotton);
-
+  const selectedItems = useAtomValue(selectedItemsAtom);
   const formRef = useRef<any>();
   const ref = useRef<any>();
   const validateRef = useRef<any>();
@@ -52,6 +54,7 @@ export const PopupView = ({
   const [dataTable, setDataTable] = useAtom(dataTableAtom);
   const [dataForm, setDataForm] = useAtom(dataFormAtom);
   const flagCheckCRUD = useAtomValue(flagEdit);
+  const dataGrid = useAtomValue(dataGridAtom);
   const detailForm = useAtomValue(showDetail);
   const readonly = useAtomValue(readOnly);
 
@@ -65,9 +68,9 @@ export const PopupView = ({
     setDataTable(listNNT?.Data);
     setDataForm(listNNT?.Data);
   }, [listNNT?.Data]);
-
   const handleCancel = () => {
     setPopupVisible(false);
+    dataGrid.current?.instance.deselectRows(selectedItems[0]);
   };
 
   const toolbarItems: ToolbarItemProps[] = [
@@ -97,8 +100,6 @@ export const PopupView = ({
     validateRef.current.instance.validate();
     const dataSave = {
       ...dataSaveForm,
-      ProvinceCode: dataSaveForm.mp_ProvinceName ?? "",
-      MSTParent: "",
     };
     if (flagCheckCRUD) {
       onCreate(dataSave);
@@ -134,6 +135,9 @@ export const PopupView = ({
       item.editorOptions.readOnly = true;
     } else if (["MST"].includes(item.dataField) && readonly === true) {
       item.editorOptions.readOnly = false;
+    }
+    if (item.dataField === "FlagActive") {
+      item.editorOptions.value = true;
     }
   };
 

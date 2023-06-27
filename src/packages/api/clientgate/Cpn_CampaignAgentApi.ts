@@ -8,7 +8,7 @@ import { AxiosInstance } from "axios";
 export const useCpn_CampaignAgentApi = (apiBase: AxiosInstance) => {
   return {
     Cpn_CampaignAgent_Search: async (
-      params: Cpn_CampaignAgentParam
+      params: Partial<Cpn_CampaignAgentParam>
     ): Promise<ApiResponse<Cpn_CampaignAgentData | any>> => {
       return await apiBase.post<
         Cpn_CampaignAgentParam,
@@ -16,6 +16,14 @@ export const useCpn_CampaignAgentApi = (apiBase: AxiosInstance) => {
       >("/CpnCampaignAgent/Search", {
         ...params,
       });
+    },
+    Cpn_CampaignAgent_GetActive: async (): Promise<
+      ApiResponse<Cpn_CampaignAgentData | any>
+    > => {
+      return await apiBase.post<
+        Cpn_CampaignAgentParam,
+        ApiResponse<Cpn_CampaignAgentData>
+      >("/CpnCampaign/GetAllCampaignCode", {});
     },
   };
 };

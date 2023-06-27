@@ -46,10 +46,12 @@ export default function CustomColumnChooser(props: CustomColumnChooserProps) {
     onHiding();
   }, [onHiding]);
 
-  const [selectedItems, setSelectedItems] = useState<ColumnOptions[]>(actualColumns.filter((c) => c.visible));
+  const [selectedItems, setSelectedItems] = useState<ColumnOptions[]>(
+    actualColumns.filter((c) => c.visible)
+  );
   useEffect(() => {
     // selected columns are not the same as actual columns
-    setSelectedItems(actualColumns.filter(c => c.visible));
+    setSelectedItems(actualColumns.filter((c) => c.visible));
     backUpColumns.current = actualColumns;
   }, [actualColumns]);
 
@@ -107,7 +109,8 @@ export default function CustomColumnChooser(props: CustomColumnChooserProps) {
       ...c,
       visible: true,
     }));
-  }, [columns])
+  }, [columns]);
+
   return (
     <Popup
       container={container}
@@ -122,62 +125,64 @@ export default function CustomColumnChooser(props: CustomColumnChooserProps) {
       visible={visible}
       onHiding={onPopupHiding}
     >
-      <Position at={`${position} top`} my={`${position} top`} of={`${container} ${button}`} />
-        <div className={"w-full flex flex-row max-h-[400px]"}>
-          <ScrollView className={"flex-1"}
-                      height={350}
-                      showScrollbar={'always'}
-          >
-            <List
-              ref={listRef}
-              dataSource={availableColumns}
-              displayExpr={"caption"}
-              keyExpr={"dataField"}
-              searchEnabled={true}
-              searchExpr={"dataField"}
-              selectionMode="all"
-              selectAllText={selectAllText}
-              showSelectionControls={true}
-              selectedItems={selectedItems}
-              selectedItemKeys={selectedItems.map((item) => item.dataField)}
-              onSelectionChanged={onSelectionChanged}
-              pageLoadMode={"scrollBottom"}
-            />
-          </ScrollView>
-          <ScrollView className={"flex-1"} height={350} showScrollbar={'always'}>
-            <div className="px-4 py-2 flex  items-center justify-center">
-              <div className="font-bold">
-                {`${t("Selected")} (${!!selectedItems ? selectedItems.length : 0
-                  })`}
-              </div>
-              <div className="ml-auto cursor-pointer text-[#FF0000]">
-                <span
-                  className="text-red"
-                  onClick={() => removeAllSelectedItem()}
-                >
-                  {t("RemoveAll")}
-                </span>
-              </div>
+      <Position
+        at={`${position} top`}
+        my={`${position} top`}
+        of={`${container} ${button}`}
+      />
+      <div className={"w-full flex flex-row max-h-[400px]"}>
+        <ScrollView className={"flex-1"} height={350} showScrollbar={"always"}>
+          <List
+            ref={listRef}
+            dataSource={availableColumns}
+            displayExpr={"caption"}
+            keyExpr={"dataField"}
+            searchEnabled={true}
+            searchExpr={"dataField"}
+            selectionMode="all"
+            selectAllText={selectAllText}
+            showSelectionControls={true}
+            selectedItems={selectedItems}
+            selectedItemKeys={selectedItems.map((item) => item.dataField)}
+            onSelectionChanged={onSelectionChanged}
+            pageLoadMode={"scrollBottom"}
+          />
+        </ScrollView>
+        <ScrollView className={"flex-1"} height={350} showScrollbar={"always"}>
+          <div className="px-4 py-2 flex  items-center justify-center">
+            <div className="font-bold">
+              {`${t("Selected")} (${
+                !!selectedItems ? selectedItems.length : 0
+              })`}
             </div>
-            <List
-              dataSource={selectedItems}
-              itemDragging={{
-                allowReordering: true,
-                rtlEnabled: true,
-              }}
-              pageLoadMode={"scrollBottom"}
-              itemRender={(item: any) => {
-                return (
-                  <SelectedColumn
-                    onClick={() => removeSelectedItem(item)}
-                    item={item}
-                  />
-                );
-              }}
-              onItemReordered={handleChangeOrder}
-            />
-          </ScrollView>
-        </div>
+            <div className="ml-auto cursor-pointer text-[#FF0000]">
+              <span
+                className="text-red"
+                onClick={() => removeAllSelectedItem()}
+              >
+                {t("RemoveAll")}
+              </span>
+            </div>
+          </div>
+          <List
+            dataSource={selectedItems}
+            itemDragging={{
+              allowReordering: true,
+              rtlEnabled: true,
+            }}
+            pageLoadMode={"scrollBottom"}
+            itemRender={(item: any) => {
+              return (
+                <SelectedColumn
+                  onClick={() => removeSelectedItem(item)}
+                  item={item}
+                />
+              );
+            }}
+            onItemReordered={handleChangeOrder}
+          />
+        </ScrollView>
+      </div>
 
       <ToolbarItem
         widget="dxButton"

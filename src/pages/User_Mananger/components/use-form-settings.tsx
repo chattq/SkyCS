@@ -58,12 +58,31 @@ export const useFormSettings = ({
               visible: true,
             },
             {
+              dataField: "UserPassword",
+              editorOptions: {
+                placeholder: t("Input"),
+              },
+              editorType: "dxTextBox",
+              caption: t("UserPassword"),
+              visible: true,
+              validationRules: [RequiredField(t("UserPasswordIsRequired"))],
+            },
+            {
+              dataField: "REUserPassword",
+              editorOptions: {
+                placeholder: t("Input"),
+              },
+              editorType: "dxTextBox",
+              label: {
+                text: t("Re-Enter the password"),
+              },
+              caption: t("REUserPassword"),
+              visible: true,
+            },
+            {
               dataField: "ACLanguage",
               editorOptions: {
-                dataSource: [
-                  { text: t("Tiếng Việt"), value: "vn" },
-                  { text: t("Tiếng Anh"), value: "en" },
-                ],
+                dataSource: [{ text: t("Tiếng Việt"), value: "vn" }],
                 displayExpr: "text",
                 valueExpr: "value",
                 placeholder: t("Input"),
@@ -72,6 +91,14 @@ export const useFormSettings = ({
               caption: t("ACLanguage"),
               visible: true,
             },
+          ],
+        },
+        {
+          itemType: "group",
+          caption: t("BASIC_INFORMATION"),
+          colSpan: 2,
+          cssClass: "",
+          items: [
             {
               dataField: "ACTimeZone",
               editorOptions: {
@@ -84,14 +111,6 @@ export const useFormSettings = ({
               caption: t("ACTimeZone"),
               visible: true,
             },
-          ],
-        },
-        {
-          itemType: "group",
-          caption: t("BASIC_INFORMATION"),
-          colSpan: 2,
-          cssClass: "",
-          items: [
             {
               dataField: "MST",
               editorOptions: {
@@ -103,6 +122,7 @@ export const useFormSettings = ({
               editorType: "dxSelectBox",
               caption: t("MST"),
               visible: true,
+              validationRules: [RequiredField(t("MSTisRequired"))],
             },
             {
               dataField: "DepartmentName",

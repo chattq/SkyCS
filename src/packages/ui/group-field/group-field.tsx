@@ -14,7 +14,7 @@ export const GroupField = ({
 }: GroupFieldProps) => {
   const control = useVisibilityControl({ defaultVisible: true });
 
-  console.log("item ", item);
+  // console.log("item ", item);
 
   return (
     <div className={"form-group"}>

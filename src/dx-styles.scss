@@ -336,3 +336,70 @@ body {
 * {
   box-sizing: border-box;
 }
+
+
+
+
+.dx-dropdownbox {
+  border: none !important;
+  text-decoration: none;
+}
+
+.dx-dropdowneditor-input-wrapper {
+  border-bottom: none !important;
+  text-decoration: none;
+}
+
+.dx-texteditor-container {
+  background: #fff;
+  border: solid 1px #444;
+  border-radius: 2px;
+  text-decoration: none;
+  outline: none;
+
+}
+
+.dx-texteditor-input-container {
+  background: #fff;
+  border: none;
+  outline: none;
+
+}
+
+.dx-dropdowneditor-input-wrapper {
+  border: none;
+  outline: none;
+}
+
+.dx-placeholder {
+  color: #333 !important;
+}
+
+.dx-texteditor-label {
+  color: #333;
+}
+
+.dx-texteditor-input {
+  background: #fff;
+  border: none;
+  outline: none;
+
+
+}
+
+.dx-texteditor-input:focus {
+  outline: none;
+}
+
+
+.dx-button-has-icon {
+  border-radius: 0 !important;
+}
+
+.dx-button-text {
+  text-transform: none !important;
+}
+
+.breakcrumb {
+  display: flex;
+}

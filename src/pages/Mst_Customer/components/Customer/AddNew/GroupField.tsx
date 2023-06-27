@@ -1,6 +1,7 @@
 import { useVisibilityControl } from "@packages/hooks";
 import { GroupHeader } from "@packages/ui/group-header";
-import Form, { Item, SimpleItem } from "devextreme-react/form";
+import Form, { GroupItem, Item } from "devextreme-react/form";
+import { nanoid } from "nanoid";
 
 export interface GroupFieldProps {
   item: any;
@@ -29,7 +30,18 @@ export const GroupField = ({
         onInitialized={() => {}}
       >
         {item.items?.map((subItem: any, subIndex: number) => {
-          return <SimpleItem {...subItem} key={subIndex} />;
+          return (
+            <GroupItem
+              colCount={subItem.colCount}
+              key={subIndex}
+              cssClass={subItem.cssClass}
+              itemType={subItem.itemType}
+            >
+              {subItem?.items.map((c: any) => {
+                return <Item {...c} key={nanoid()} />;
+              })}
+            </GroupItem>
+          );
         })}
       </Form>
     </div>

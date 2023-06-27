@@ -51,6 +51,7 @@ import { PopupGridPageNavigator } from "@packages/ui/base-gridview/components/po
 import { PopupGridPageSummary } from "@packages/ui/base-gridview/components/popup-grid-page-summary";
 import { useSetAtom } from "jotai";
 import { popupGridStateAtom } from "@packages/ui/base-gridview/store/popup-grid-store";
+import { GridCustomToolbar } from "@packages/ui/base-gridview/components/grid-custom-toolbar";
 
 interface GridViewProps {
   defaultPageSize?: number;
@@ -69,6 +70,7 @@ interface GridViewProps {
   popupSettings?: IPopupOptions;
   formSettings?: IFormOptions;
   toolbarItems?: ToolbarItemProps[];
+  customToolbarItems?: any[];
   onEditRowChanges?: (changes: any) => void;
   onEditingStart?: (e: EditingStartEvent) => void;
   stateStoring?: IStateStoringProps;
@@ -95,9 +97,9 @@ const GridViewRaw = ({
   onEditingStart,
   storeKey,
   onEditRow,
+  customToolbarItems,
 }: GridViewProps) => {
   const dataGridRef = useRef<DataGrid | null>(null);
-
   const popupSettingsMemo = useMemo(() => popupSettings, [popupSettings]);
   const formSettingsPopup = useRef<any>();
   useEffect(() => {
@@ -239,12 +241,15 @@ const GridViewRaw = ({
     ...(toolbarItems || []),
     {
       location: "before",
+      render: () => <GridCustomToolbar items={customToolbarItems} />,
+    },
+    {
+      location: "before",
       widget: "dxButton",
       options: {
         text: t("Delete"),
         onClick: handleConfirmDelete,
         visible: selectionKeys.length >= 1,
-        // visible: false,
         stylingMode: "contained",
         type: "default",
       },
@@ -350,6 +355,7 @@ const GridViewRaw = ({
               pageSize: dataGridRef.current?.instance.pageSize() ?? 0,
               pageCount: dataGridRef.current?.instance.pageCount() ?? 0,
               totalCount: dataGridRef.current?.instance.totalCount() ?? 0,
+              ref: dataGridRef.current,
             });
           }}
           allowColumnResizing

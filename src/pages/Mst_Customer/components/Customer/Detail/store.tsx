@@ -1,5 +1,4 @@
 import { useI18n } from "@/i18n/useI18n";
-import Detail_Customer from "./Detal_Customer/Detail_Customer";
 import { Form } from "devextreme-react";
 import {
   GroupItem,
@@ -7,6 +6,7 @@ import {
   TabPanelOptions,
   TabbedItem,
 } from "devextreme-react/form";
+import Customer_Detail from "./Detal_Customer/Customer_Detail";
 
 interface tabInterface {
   title: string;
@@ -35,7 +35,7 @@ const Tabs = () => {
     },
     {
       title: t("Detail Customer"),
-      component: <Detail_Customer />,
+      component: <Customer_Detail />,
     },
     {
       title: t("List_Contract"),

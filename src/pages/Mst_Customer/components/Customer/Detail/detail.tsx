@@ -46,7 +46,7 @@ const DetailComponent = () => {
   const { data: listStaticField, refetch: refetchStaticField } = useQuery({
     queryKey: ["ListStaticField"],
     queryFn: async () => {
-      const response = await api.MdMetaColGroupSpec_Search({});
+      const response = await api.MdMetaColGroupSpec_Search({} , "SCRTPLCODESYS.2023");
       if (response.isSuccess) {
         console.log("respone ", response);
         const data = response?.DataList ?? [];
@@ -71,6 +71,12 @@ const DetailComponent = () => {
     refetchStaticField();
     refetch();
   }, []);
+
+  const tabs = [
+    {
+      
+    }
+  ]
 
   console.log("detailCustomer ", detailCustomer);
   console.log("listStaticField ", listStaticField);

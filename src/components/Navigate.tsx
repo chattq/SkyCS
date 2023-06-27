@@ -9,4 +9,3 @@ export default function NavNetworkLink({ to, children, ...params }: any) {
     </NavLink>
   );
 }
-

@@ -1,6 +1,6 @@
 import React from "react";
 export const getAvatarUrl = (avatarName: any) => {
-  if (avatarName) {
+  if (avatarName || avatarName === "") {
     return avatarName;
   } else {
     return "https://tse2.mm.bing.net/th?id=OIP.udoq18uxDpu6UHi2H__97gAAAA&pid=Api&P=0&h=180";

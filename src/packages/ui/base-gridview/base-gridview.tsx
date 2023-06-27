@@ -6,13 +6,13 @@ import {
   Button as DxButton,
   Editing,
   HeaderFilter,
+  IStateStoringProps,
+  Pager,
   Paging,
+  Scrolling,
   Selection,
   Toolbar,
   Item as ToolbarItem,
-  Pager,
-  Scrolling,
-  IStateStoringProps,
 } from "devextreme-react/data-grid";
 
 import { PageSize } from "@packages/ui/page-size";
@@ -31,14 +31,8 @@ import ScrollView from "devextreme-react/scroll-view";
 import "./base-gridview.scss";
 
 import { useI18n } from "@/i18n/useI18n";
-import { logger } from "@/packages/logger";
 import { useVisibilityControl } from "@packages/hooks";
 import { useWindowSize } from "@packages/hooks/useWindowSize";
-import CustomColumnChooser from "@packages/ui/column-toggler/custom-column-chooser";
-import { IFormOptions } from "devextreme-react/form";
-import { IPopupOptions } from "devextreme-react/popup";
-import { EditorPreparingEvent } from "devextreme/ui/data_grid";
-import { ColumnOptions, ToolbarItemProps } from "./types";
 import {
   gridStateAtom,
   normalGridDeleteMultipleConfirmationBoxAtom,
@@ -46,15 +40,20 @@ import {
   normalGridSelectionKeysAtom,
   normalGridSingleDeleteItemAtom,
 } from "@packages/ui/base-gridview/store/normal-grid-store";
+import CustomColumnChooser from "@packages/ui/column-toggler/custom-column-chooser";
+import { IFormOptions } from "devextreme-react/form";
+import { IPopupOptions } from "devextreme-react/popup";
+import { EditorPreparingEvent } from "devextreme/ui/data_grid";
 import { useSetAtom } from "jotai";
 import {
-  DeleteMultipleConfirmationBox,
   DeleteButton,
-  NormalGridPageSummary,
-  NormalGridPageNavigator,
-  useSavedState,
+  DeleteMultipleConfirmationBox,
   DeleteSingleConfirmationBox,
+  NormalGridPageNavigator,
+  NormalGridPageSummary,
+  useSavedState,
 } from "./components";
+import { ColumnOptions, ToolbarItemProps } from "./types";
 
 interface GridViewProps {
   defaultPageSize?: number;
@@ -78,6 +77,8 @@ interface GridViewProps {
   storeKey?: string;
   stateStoring?: IStateStoringProps;
   onCustomerEditing?: Function;
+  editable?: boolean;
+  hidePagination?: boolean;
 }
 
 const GridViewRaw = ({
@@ -100,6 +101,8 @@ const GridViewRaw = ({
   storeKey,
   stateStoring,
   onCustomerEditing,
+  editable = true,
+  hidePagination = false,
 }: GridViewProps) => {
   const datagridRef = useRef<DataGrid | null>(null);
   const windowSize = useWindowSize();
@@ -145,6 +148,7 @@ const GridViewRaw = ({
       setColumnsState(outputColumns);
     }
   }, []);
+
   const onHiding = useCallback(() => {
     chooserVisible.close();
   }, []);
@@ -195,6 +199,7 @@ const GridViewRaw = ({
       e.component.option("headerFilter.visible", true);
     }
   };
+
   const handleEditingStart = (e: any) => {
     if (onCustomerEditing) {
       onCustomerEditing(e);
@@ -202,6 +207,7 @@ const GridViewRaw = ({
       switchEditMode(e, true);
     }
   };
+
   const handleEditCancelled = (e: any) => {
     switchEditMode(e, false);
   };
@@ -228,6 +234,7 @@ const GridViewRaw = ({
     setConfirmBoxVisible(false);
     setDeleteSingleConfirmBoxVisible(false);
   };
+
   const onDeleteSingle = async (key: string) => {
     setDeleteSingleConfirmBoxVisible(false);
     const result = await onDeleteRows?.([key]);
@@ -235,6 +242,7 @@ const GridViewRaw = ({
       setDeletingId("");
     }
   };
+
   const onDeleteMultiple = async (keys: string[]) => {
     setConfirmBoxVisible(false);
     console.log("keys ", keys);
@@ -243,6 +251,7 @@ const GridViewRaw = ({
       setSelectionKeysAtom([]);
     }
   };
+
   const setConfirmBoxVisible = useSetAtom(
     normalGridDeleteMultipleConfirmationBoxAtom
   );
@@ -262,6 +271,7 @@ const GridViewRaw = ({
       />
     );
   }, []);
+
   const renderPageNavigator = useCallback(() => {
     return <NormalGridPageNavigator onPageChanged={onChangePageIndex} />;
   }, []);
@@ -284,7 +294,7 @@ const GridViewRaw = ({
     );
   }, [chooserVisible, realColumns, columns]);
   const allToolbarItems: ToolbarItemProps[] = useMemo(() => {
-    return [
+    const items = [
       ...(toolbarItems || []),
       {
         location: "before",
@@ -292,25 +302,28 @@ const GridViewRaw = ({
           return <DeleteButton onClick={handleConfirmDelete} />;
         },
       },
-      {
-        location: "after",
-        render: renderPageSize,
-      },
-      {
-        location: "after",
-        render: renderPageNavigator,
-      },
-      {
-        location: "after",
-        render: () => {
-          return <NormalGridPageSummary />;
-        },
-      },
-      {
+    ]
+      if(!hidePagination) {
+        items.push({
+          location: "after",
+          render: renderPageSize,
+        })
+        items.push({
+          location: "after",
+            render: renderPageNavigator,
+        })
+        items.push({
+          location: "after",
+          render: () => {
+            return <NormalGridPageSummary />;
+          },
+        })
+      }
+      items.push({
         location: "after",
         render: renderColumnChooser,
-      },
-    ];
+      })
+    return items;
   }, [chooserVisible, realColumns, columns]);
 
   const handleEditorPreparing = (e: any) => {
@@ -361,6 +374,7 @@ const GridViewRaw = ({
           repaintChangesOnly
           showBorders
           onContentReady={(e) => {
+            console.log("e ", e);
             setGridAtom({
               pageIndex: e.component.pageIndex() ?? 0,
               pageSize: e.component.pageSize() ?? 0,
@@ -387,17 +401,10 @@ const GridViewRaw = ({
           onSaving={innerSavingRowHandler}
           stateStoring={stateStoring}
         >
-          <ColumnChooser enabled={true} />
           <ColumnFixing enabled={true} />
-          <Paging enabled={true} defaultPageSize={defaultPageSize} />
-          <Pager
-            visible={false}
-            showInfo={true}
-            displayMode={"adaptive"}
-            showPageSizeSelector
-          />
+          <Paging enabled={!hidePagination} defaultPageSize={defaultPageSize} />
+          <Pager visible={false} />
           <ColumnChooser enabled={true} />
-          <ColumnFixing enabled={true} />
           <HeaderFilter allowSearch={true} />
           <Scrolling
             renderAsync={true}
@@ -415,6 +422,7 @@ const GridViewRaw = ({
                 );
               })}
           </Toolbar>
+
           <Editing
             mode={inlineEditMode}
             useIcons={true}
@@ -427,7 +435,7 @@ const GridViewRaw = ({
             onChangesChange={onEditRowChanges ? onEditRowChanges : () => {}}
           ></Editing>
           <Column
-            visible
+            visible={editable}
             type="buttons"
             width={100}
             fixed={false}
@@ -454,7 +462,11 @@ const GridViewRaw = ({
               icon={"/images/icons/refresh.svg"}
             />
           </Column>
-          <Selection mode="multiple" selectAllMode="page" />
+          <Selection
+            mode="multiple"
+            selectAllMode="page"
+            showCheckBoxesMode={editable}
+          />
           {realColumns.map((col: any) => (
             <Column key={col.dataField} {...col} />
           ))}

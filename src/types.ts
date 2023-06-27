@@ -1,5 +1,5 @@
-import dxTreeView, { ItemClickEvent } from 'devextreme/ui/tree_view';
-import { EventInfo } from 'devextreme/events';
+import dxTreeView, { ItemClickEvent } from "devextreme/ui/tree_view";
+import { EventInfo } from "devextreme/events";
 import { ClickEvent } from "devextreme/ui/button";
 import { ClientGateInfo, IOrg, IUser, Row } from "@packages/types";
 import { IFormOptions, IItemProps } from "devextreme-react/form";
@@ -17,7 +17,12 @@ export interface AuthState {
 export interface AuthContextData {
   auth: AuthState;
   loggedIn: boolean;
-  login: (accessToken: string, user?: IUser, orgData?: IOrg, clientGate?: ClientGateInfo) => void;
+  login: (
+    accessToken: string,
+    user?: IUser,
+    orgData?: IOrg,
+    clientGate?: ClientGateInfo
+  ) => void;
   logout: () => void;
   selectNetwork: (networkId: string) => void;
   setClientGateInfo: (clientGate: ClientGateInfo) => void;
@@ -61,7 +66,7 @@ export interface SideNavigationMenuProps {
 }
 
 export interface UserPanelProps {
-  menuMode: 'context' | 'list';
+  menuMode: "context" | "list";
 }
 
 export interface SideNavToolbarProps {
@@ -88,7 +93,6 @@ export type ValidationType = {
   value: string;
 };
 
-
 export interface CellInfo<T> {
   data: T;
   row: Row;
@@ -106,12 +110,13 @@ export interface RouteItem {
   subMenuKey?: string;
   permissionCode?: string;
   getPageElement: Function;
+  children?: RouteItem[];
 }
 
 export interface ExItem extends IItemProps {
   disableCollapsible?: boolean;
 }
-export interface FormOptions extends Omit<IFormOptions, 'items'> {
+export interface FormOptions extends Omit<IFormOptions, "items"> {
   items: ExItem[];
 }
 
@@ -121,6 +126,7 @@ export interface ColumnOptions extends IColumnProps {
   groupKey?: string;
   isSearchable?: boolean;
   order?: number;
+  colSpan?: number;
 }
 
 export interface ToolbarItemProps extends IToolbarItemProps {

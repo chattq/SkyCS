@@ -1,24 +1,19 @@
-import { ColumnOptions } from "@packages/ui/base-gridview";
-import { requiredType } from "@packages/common/Validation_Rules";
-import { filterByFlagActive, uniqueFilterByDataField } from "@packages/common";
-import { StatusButton } from "@packages/ui/status-button";
-import { useI18n } from "@/i18n/useI18n";
-import { useSetAtom } from "jotai";
-import { viewingDataAtom } from "@/pages/Mst_Customer/components/store";
 import NavNetworkLink from "@/components/Navigate";
+import { useI18n } from "@/i18n/useI18n";
 import { flagCustomer } from "@/pages/Mst_Customer/components/Customer/store";
+import { viewingDataAtom } from "@/pages/Mst_Customer/components/store";
+import { ColumnOptions } from "@packages/ui/base-gridview";
+import { useSetAtom } from "jotai";
 interface UseDealerGridColumnsProps {
   data: any[];
   dataField: any[];
-  dataGroup: any;
+  dataGroup: any[];
 }
 export const useColumn = ({
-  data,
   dataField,
   dataGroup,
 }: UseDealerGridColumnsProps) => {
   const setFlagCustomer = useSetAtom(flagCustomer);
-
   const setViewingItem = useSetAtom(viewingDataAtom);
   const viewRow = (rowIndex: number, data: any) => {
     setViewingItem({
@@ -29,7 +24,7 @@ export const useColumn = ({
 
   const getColumnFieldByGroup = dataGroup
     .map((item: any) => {
-      const listField = dataField.filter(
+      const listField = dataField?.filter(
         (itemField) => itemField.ColGrpCodeSys === item.ColGrpCodeSys
       );
       return {
@@ -54,21 +49,34 @@ export const useColumn = ({
       cellRender: ({ data }: any) => {
         if (item.FlagIsColDynamic === "1") {
           if (item.ColDataType === "MASTERDATA") {
-            const dataJson = JSON.parse(data.JsonCustomerInfo).find(
-              (itemJson: any) => itemJson.ColCodeSys === item.ColCodeSys
-            );
-            if (dataJson) {
-              console.log("dataJSOn ", dataJson, dataJson.ColValueNameOfMaster);
-              return <>{dataJson.ColValueNameOfMaster ?? dataJson.ColValue}</>;
+            if (Array.isArray(JSON.parse(data.JsonCustomerInfo))) {
+              const dataJson = JSON.parse(data.JsonCustomerInfo)?.find(
+                (itemJson: any) => itemJson.ColCodeSys === item.ColCodeSys
+              );
+              if (dataJson) {
+                // console.log("dataJSOn ", dataJson, dataJson.ColValueNameOfMaster);
+                return (
+                  <>{dataJson.ColValueNameOfMaster ?? dataJson.ColValue}</>
+                );
+              } else {
+                return <></>;
+              }
             } else {
               return <></>;
             }
           } else {
-            const dataJson = JSON.parse(data.JsonCustomerInfo).find(
-              (itemJson: any) => itemJson.ColCodeSys === item.ColCodeSys
-            );
-            if (dataJson) {
-              return <>{dataJson.ColValue}</>;
+            if (Array.isArray(JSON.parse(data.JsonCustomerInfo))) {
+              const dataJson = JSON.parse(data.JsonCustomerInfo)?.find(
+                (itemJson: any) => itemJson.ColCodeSys === item.ColCodeSys
+              );
+              if (dataJson) {
+                if (typeof dataJson.ColValue === "string") {
+                  return <>{dataJson.ColValue}</>;
+                }
+                return <>{JSON.stringify(dataJson.ColValue)}</>;
+              } else {
+                return <></>;
+              }
             } else {
               return <></>;
             }

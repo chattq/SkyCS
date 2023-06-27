@@ -4,26 +4,38 @@ import axios, { AxiosError } from "axios";
 import { useAuth } from "../contexts/auth";
 import { useGetForCurrentUser } from "./clientgate/Api_GetForCurrentUser";
 // import { useMst_CostTypeApi } from "./clientgate/Mst_CostTypeApi";
-import { FlagActiveConvertor } from "@packages/api/interceptors/flag-active-convertor";
-import { useMst_DealerType } from "./clientgate/Mst_DealerTypeApi";
-import { useMst_Province_api } from "./clientgate/Mst_ProvinceApi";
-import { useDealerApi } from "./clientgate/Mst_Dealer-api";
-import { useMst_AreaApi } from "./clientgate/Mst_AreaApi";
-import { useMst_CarModelApi } from "./clientgate/Mst_CarModelApi";
+import { useCustomFieldApi } from "@packages/api/clientgate/CustomFieldApi";
 import { useMdMetaColGroupSpecApi } from "@packages/api/clientgate/MDMetaColGroupSpecApi";
 import { useMdMetaColGroupApi } from "@packages/api/clientgate/MdMetaColGroupApi";
-import { useCustomFieldApi } from "@packages/api/clientgate/CustomFieldApi";
-import { useMst_DepartmentControlApi } from "./clientgate/Mst_DepartmentApi";
-import { useSys_UserApi } from "./clientgate/Sys_UserApi";
-import { useMst_Customer } from "./clientgate/Mst_CustomerApi";
-import { useMst_NNTControllerApi } from "./clientgate/Mst_NNTControllerApi";
+import { FlagActiveConvertor } from "@packages/api/interceptors/flag-active-convertor";
+import { useCpn_CampaignAgentApi } from "./clientgate/Cpn_CampaignAgentApi";
+import { useCpn_Campaign } from "./clientgate/Cpn_CampaignApi";
+import { useFileApi } from "./clientgate/FileApi";
+import { useMst_AreaApi } from "./clientgate/Mst_AreaApi";
 import { useMst_CampaignColumnConfig } from "./clientgate/Mst_CampaignColumnConfigApi";
+import { use_MstCampaignTypeApi } from "./clientgate/Mst_CampaignTypeApi";
+import { useMst_CarModelApi } from "./clientgate/Mst_CarModelApi";
+import { useMst_ContentApi } from "./clientgate/Mst_ContentApi";
+import { useMst_Customer } from "./clientgate/Mst_CustomerApi";
+import { useMst_CustomerGroupApi } from "./clientgate/Mst_CustomerGroupApi";
+import { useMst_CustomerHist } from "./clientgate/Mst_CustomerHistApi";
+import { useDealerApi } from "./clientgate/Mst_Dealer-api";
+import { useMst_DealerType } from "./clientgate/Mst_DealerTypeApi";
+import { useMst_DepartmentControlApi } from "./clientgate/Mst_DepartmentApi";
+import { useMst_NNTControllerApi } from "./clientgate/Mst_NNTControllerApi";
+import { useMst_PaymentTermControllerApi } from "./clientgate/Mst_PaymentTermControllerApi";
+import { useMst_Province_api } from "./clientgate/Mst_ProvinceApi";
+import { useMst_SLAApi } from "./clientgate/Mst_SLAApi";
+import { useMst_TicketEstablishInfoApi } from "./clientgate/Mst_TicketEstablishInfoApi";
+import { useRpt_CpnCampaignResultCallApi } from "./clientgate/Rpt_CpnCampaignResultCallApi";
+import { useRpt_CpnCampaignResultCtmFeedbackApi } from "./clientgate/Rpt_CpnCampaignResultCtmFeedbackApi";
+import { useRpt_CpnCampaignStatisticCallApi } from "./clientgate/Rpt_CpnCampaignStatisticCallApi";
 import { useSys_GroupControllerApi } from "./clientgate/SysGroupControllerApi";
 import { useSys_AccessApi } from "./clientgate/Sys_AccessApi";
-import { useMst_CustomerGroupApi } from "./clientgate/Mst_CustomerGroupApi";
-import { useMst_PaymentTermControllerApi } from "./clientgate/Mst_PaymentTermControllerApi";
-import { use_MstCampaignTypeApi } from "./clientgate/Mst_CampaignTypeApi";
-import { useCpn_CampaignAgentApi } from "./clientgate/Cpn_CampaignAgentApi";
+import { useSys_UserApi } from "./clientgate/Sys_UserApi";
+
+import { use_MstTicketColumnConfigApi } from "./clientgate/Mst_TicketColumnConfigApi";
+import { useETTicket } from "./clientgate/ET_TicketApi";
 // report end
 
 /**
@@ -230,10 +242,35 @@ export const createClientGateApi = (
   const sysGroupControllerApi = useSys_GroupControllerApi(apiBase);
   const sysAccessApi = useSys_AccessApi(apiBase);
   const mstCustomerGroupApi = useMst_CustomerGroupApi(apiBase);
+
+  const mstCustomerHist = useMst_CustomerHist(apiBase);
+
   const mstPaymentTermControllerApi = useMst_PaymentTermControllerApi(apiBase);
   const mstCampaignTypeApi = use_MstCampaignTypeApi(apiBase);
+  const useCpnCampaign = useCpn_Campaign(apiBase);
   const cpnCampaignAgentApi = useCpn_CampaignAgentApi(apiBase);
+  const rpt_CpnCampaignResultCallApi = useRpt_CpnCampaignResultCallApi(apiBase);
+  const rpt_CpnCampaignStatisticCallApi =
+    useRpt_CpnCampaignStatisticCallApi(apiBase);
+  const fileApi = useFileApi(apiBase);
+  const rpt_CpnCampaignResultCtmFeedbackApi =
+    useRpt_CpnCampaignResultCtmFeedbackApi(apiBase);
+  const useMstTicketColumnConfigApi = use_MstTicketColumnConfigApi(apiBase);
+  // eticket
+  const useMst_TicketEstablishInfo = useMst_TicketEstablishInfoApi(apiBase);
+  const mstSLAApi = useMst_SLAApi(apiBase);
+  const useETicket = useETTicket(apiBase);
+  // const mst_BizColumn = useMst_BizColumnApi(apiBase);
+  const mst_ContentApi = useMst_ContentApi(apiBase);
   return {
+    ...useMstTicketColumnConfigApi,
+    // ...mst_BizColumn,
+    ...mst_ContentApi,
+    ...rpt_CpnCampaignResultCtmFeedbackApi,
+    ...fileApi,
+    ...rpt_CpnCampaignStatisticCallApi,
+    ...rpt_CpnCampaignResultCallApi,
+    ...useCpnCampaign,
     ...cpnCampaignAgentApi,
     ...mstCampaignTypeApi,
     ...mstPaymentTermControllerApi,
@@ -254,6 +291,11 @@ export const createClientGateApi = (
     ...mdMetaColGroupSpecApi,
     ...mdMetaColGroupApi,
     ...customFieldApi,
+    ...mstCustomerHist,
+    // eticket
+    ...useMst_TicketEstablishInfo,
+    ...mstSLAApi,
+    ...useETicket,
   };
 };
 

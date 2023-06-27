@@ -1,11 +1,10 @@
+import { useI18n } from "@/i18n/useI18n";
 import { MdMetaColGroupSpec } from "@/packages/types";
 import {
   mapCustomOptions,
   mapEditorOption,
   mapEditorType,
-  mapValidationRules,
 } from "./Customer/AddNew/util";
-import { useI18n } from "@/i18n/useI18n";
 
 interface Columns {
   listColumn: MdMetaColGroupSpec[];
@@ -27,7 +26,10 @@ export const useColumnsSearch = ({ listColumn, listMapField }: Columns) => {
           text: field.ColCaption,
         },
         validationMessagePosition: "bottom",
-        editorOptions: mapEditorOption(field, listMapField ?? {}),
+        editorOptions: mapEditorOption({
+          field: field,
+          listDynamic: listMapField ?? {},
+        }),
         // validationRules: mapValidationRules(field),
         ...mapCustomOptions(field),
       };

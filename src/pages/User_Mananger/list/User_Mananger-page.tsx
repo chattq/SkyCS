@@ -2,7 +2,7 @@ import { useI18n } from "@/i18n/useI18n";
 import { AdminContentLayout } from "@layouts/admin-content-layout";
 import { useClientgateApi } from "@packages/api";
 import { GridViewPopup } from "@packages/ui/base-gridview";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { PopupView } from "@/pages/User_Mananger/components";
 import {
@@ -41,7 +41,7 @@ import { showPopup } from "@/pages/User_Mananger/components/store";
 import { PageHeaderLayout } from "@/packages/layouts/page-header-layout";
 import { HeaderPart } from "../components/header-part";
 import { toast } from "react-toastify";
-import { ColumnOptions } from "@/types";
+import { CustomToolbar } from "@/pages/User_Mananger/components/custom-toolbar";
 
 export const UserManangerPage = () => {
   const { t } = useI18n("User_Mananger");
@@ -99,14 +99,12 @@ export const UserManangerPage = () => {
     setSelectedItems(rows);
   };
   const handleAddNew = () => {
-    // console.log("a");
-    setFlag(true);
+    setShowDetail(false);
     setAvt(undefined);
+    setFlag(true);
     setDataTable([]);
     setDataForm([]);
     setPopupVisible(true);
-    setShowDetail(false);
-    // gridRef.current?._instance?.addRow();
   };
 
   // toggle search panel
@@ -138,6 +136,8 @@ export const UserManangerPage = () => {
   };
   const handleOnEditRow = async (e: any) => {
     setShowDetail(false);
+    setFlag(false);
+    setPopupVisible(true);
     const resp = await api.Sys_User_Data_GetByUserCode(e.row.data.UserCode);
     if (resp.isSuccess) {
       setAvt(resp?.Data?.Avatar);
@@ -147,8 +147,6 @@ export const UserManangerPage = () => {
         FlagSysAdmin: resp.Data?.FlagSysAdmin === "1" ? true : false,
       });
     }
-    setFlag(false);
-    setPopupVisible(true);
   };
 
   const popupSettings: IPopupOptions = {
@@ -181,7 +179,12 @@ export const UserManangerPage = () => {
   };
 
   const onModifyNew = async (data: SysUserData) => {
-    if (data.EMail !== "" && data.UserCode !== "") {
+    if (
+      data.EMail !== "" &&
+      data.UserCode !== "" &&
+      data.UserPassword !== "" &&
+      data.MST
+    ) {
       const resp = await api.Sys_User_Update({
         ...data,
         FlagNNTAdmin: data.FlagNNTAdmin === "true" ? "1" : "0",
@@ -204,7 +207,12 @@ export const UserManangerPage = () => {
   // Section: CRUD operations
   const onCreateNew = async (data: SysUserData & { __KEY__: string }) => {
     const { __KEY__, ...rest } = data;
-    if (data.EMail !== "" && data.UserCode !== "") {
+    if (
+      data.EMail !== "" &&
+      data.UserCode !== "" &&
+      data.UserPassword !== "" &&
+      data.MST
+    ) {
       const resp = await api.Sys_User_Create({
         ...rest,
         FlagNNTAdmin: rest.FlagNNTAdmin === "true" ? "1" : "0",
@@ -290,6 +298,23 @@ export const UserManangerPage = () => {
   };
   const handleUploadFile = () => {};
   const handleDownloadTemplate = () => {};
+  const toolbarItems = [
+    {
+      location: "before",
+      // widget: "dxButton",
+      render: (e: any) => {
+        return <CustomToolbar />;
+      },
+      // options: {
+      //   text: t("Delete 2"),
+      //   stylingMode: "contained",
+      //   // visible: selectedItems?.length > 0,
+      //   type: "default",
+      // },
+    },
+  ];
+
+  console.log("grid ", gridRef);
 
   return (
     <AdminContentLayout className={"User_Mananger"}>
@@ -324,6 +349,25 @@ export const UserManangerPage = () => {
           onDeleteRows={handleDeleteRows}
           onEditRow={handleOnEditRow}
           storeKey={"User-Manager-columns"}
+          // customToolbarItems={[{
+          //   text: 'show if any',
+          //   shouldShow: (ref: any) => {
+          //     return ref.instance.getSelectedRowKeys().length > 0;
+          //   },
+          //   onClick: (e: any, ref: any) => {
+          //     console.log(ref)
+          //   }
+          // },
+          //   {
+          //     text: 'show only 1',
+          //     shouldShow: (ref: any) => {
+          //       return ref.instance.getSelectedRowKeys().length === 1;
+          //     },
+          //     onClick: (e: any, ref: any) => {
+          //       console.log(ref)
+          //     }
+          //   }
+          // ]}
         />
         <PopupView
           onCreate={onCreateNew}

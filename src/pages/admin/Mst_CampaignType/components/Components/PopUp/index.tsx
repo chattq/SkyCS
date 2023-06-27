@@ -126,6 +126,7 @@ export const EditForm = ({
         const checked = listValue.find((item: any) => {
           return item.CampaignColCfgCodeSys === data.CampaignColCfgCodeSys;
         });
+        console.log("listValue", listValue);
         console.log("checked ", checked);
         if (!checked) {
           setListValue([...listValue, data]);
@@ -393,7 +394,6 @@ export const EditForm = ({
                     required: true,
                   }
                 );
-                console.log("field ", field);
                 const { onChange: onDefaultChange, ...restDefaultField } =
                   register(`ListOption.${index}.IsDefault` as const, {});
                 return (

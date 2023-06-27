@@ -15,6 +15,11 @@ export const useHeaderItems = () => {
   const menuBarItems = useMemo<{ mainItems: MenuBarItem[], extraItems: MenuBarItem[]; }>(() => {
     let mainItems: MenuBarItem[] = [
       {
+        text: t('eTicket'),
+        path: `/eticket/detail`,
+        permissionCode: ""
+      },
+      {
         text: t('Sales'),
         path: `/sales`,
         permissionCode: "MNU_SALES"

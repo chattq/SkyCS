@@ -24,6 +24,7 @@ import { useAuth } from "@/packages/contexts/auth";
 import { toast } from "react-toastify";
 import { EditForm } from "./PopUp";
 import { useParams } from "react-router-dom";
+import { array_move } from "@/components/ulti";
 
 const Customize = () => {
   const api = useClientgateApi();
@@ -163,9 +164,6 @@ const Customize = () => {
       const responese = await api.Mst_CampaignType_Update(buildParam);
       if (responese.isSuccess) {
         toast.success("Update Campaign");
-        // setListValue([]);
-        // setDataRow(getDefaultValue);
-        // reset();
       } else {
         showError({
           message: t(responese.errorCode),
@@ -247,6 +245,31 @@ const Customize = () => {
       // setFormValue({});
     }
   }, [flagSelecter]);
+
+  const handleReorder = (e: any) => {
+    const list = [...listValue];
+    const getItem = list[e.fromIndex];
+    console.log("e. ", e.toIndex, "form ", e.fromIndex);
+    if (e.toIndex <= e.fromIndex) {
+      list.splice(e.toIndex, 0, getItem);
+      list.splice(e.fromIndex, 0);
+      const lastValue = list.filter((item, index) => {
+        return index !== e.fromIndex + 1;
+      });
+      console.log("min ", lastValue);
+      setListValue(lastValue);
+      return;
+    } else {
+      list.splice(e.toIndex + 1, 0, getItem);
+      list.splice(e.fromIndex, 0);
+      const lastValue = list.filter((item, index) => {
+        return index !== e.fromIndex;
+      });
+      console.log("max ", lastValue);
+      setListValue(lastValue);
+      return;
+    }
+  };
   return (
     <AdminContentLayout>
       <AdminContentLayout.Slot name={"Header"}>
@@ -429,6 +452,7 @@ const Customize = () => {
               dataSource={listValue}
               itemRender={(item) => {
                 console.log("item ", item);
+
                 return (
                   <div className={"w-full flex flex-column items-center"}>
                     <Form
@@ -487,21 +511,33 @@ const Customize = () => {
                           editorType="dxCheckBox"
                           editorOptions={{
                             disabled: true,
-                            value:
-                              item?.FlagRequired === "1" ||
-                              item?.FlagRequired === true,
+                            value: item?.FlagRequired
+                              ? item?.FlagRequired === "1" ||
+                                item?.FlagRequired === true
+                              : false,
                           }}
                           // validationRules={[requiredType]}
                         ></SimpleItem>
                       </GroupItem>
                     </Form>
-                    {/* );
-                    })} */}
                   </div>
                 );
               }}
             >
-              <ItemDragging allowReordering={true}></ItemDragging>
+              <ItemDragging
+                allowReordering={true}
+                // onReorder={handleOrder}
+                // onDragStart={(e: any) => {
+                //   console.log("dragStart", e);
+                // }}
+                // onAdd={(e: any) => {
+                //   console.log("add", e);
+                // }}
+                // onRemove={(e: any) => {
+                //   console.log("remove ", e);
+                // }}
+                onReorder={handleReorder}
+              ></ItemDragging>
             </List>
             <Button
               type={"default"}
@@ -511,7 +547,6 @@ const Customize = () => {
               focusStateEnabled={false}
               onClick={() => {
                 setVisiable(true);
-                // setFlagSelector("add");
               }}
               className={"flex items-center"}
             >

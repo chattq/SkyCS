@@ -324,10 +324,6 @@ export const Cpn_CampaignAgentPage = () => {
               ]}
               storeKey={"Cpn_CampaignAgent-columns"}
             />
-            <PopupViewComponent
-              onEdit={handleEdit}
-              formSettings={formSettings}
-            />
           </ContentSearchPanelLayout.Slot>
         </ContentSearchPanelLayout>
       </AdminContentLayout.Slot>

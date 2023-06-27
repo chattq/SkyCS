@@ -38,7 +38,7 @@ export function Header({ menuToggleEnabled, title, toggleMenu, extraItems, items
           text={title}
           visible={!!title}
         />
-        {!!items &&
+        {!!items && items.length>0 &&
           <Item
             location={'before'}
             cssClass='header-menu-bar'

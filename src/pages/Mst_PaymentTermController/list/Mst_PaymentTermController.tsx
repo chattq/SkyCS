@@ -69,6 +69,9 @@ export const Mst_PaymentTermControllerPage = () => {
     {
       caption: t("KeyWord"),
       dataField: "KeyWord",
+      label: {
+        text: t("PaymentTermName"),
+      },
       editorType: "dxTextBox",
       editorOptions: {
         placeholder: t("Input"),

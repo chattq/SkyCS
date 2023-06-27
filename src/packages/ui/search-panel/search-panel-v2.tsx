@@ -92,10 +92,7 @@ export const SearchPanelV2 = ({
   const formRef = useRef<Form | null>(null);
   const settingPopupVisible = useVisibilityControl({ defaultVisible: false });
   const handleSearch = (e: any) => {
-    console.log("e ", e);
-
     const data = formRef.current?.instance?.option("formData");
-    console.log("data ", data);
     onSearch?.(data);
     e.preventDefault();
   };

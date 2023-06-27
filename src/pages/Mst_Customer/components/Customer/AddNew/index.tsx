@@ -1,26 +1,21 @@
+import { useI18n } from "@/i18n/useI18n";
 import { useClientgateApi } from "@/packages/api";
 import { AdminContentLayout } from "@/packages/layouts/admin-content-layout";
 import { authAtom, showErrorAtom } from "@/packages/store";
-import { useQuery } from "@tanstack/react-query";
-import { Button, Form, LoadPanel, Switch } from "devextreme-react";
-import { useAtomValue, useSetAtom } from "jotai";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import "./style.scss";
-import { GroupField } from "./GroupField";
-import { nanoid } from "nanoid";
-import { fakeValue } from "./value";
-import { GroupItem, IItemProps } from "devextreme-react/form";
-import {
-  mapCustomOptions,
-  mapEditorOption,
-  mapEditorType,
-  mapValidationRules,
-} from "@/pages/Mst_Customer/components/Customer/AddNew/util";
-import { toast } from "react-toastify";
 import { MdMetaColGroupSpec } from "@/packages/types";
-import { flagCustomer } from "../store";
-import { useI18n } from "@/i18n/useI18n";
+import { useQuery } from "@tanstack/react-query";
+import { Button, Form, LoadPanel } from "devextreme-react";
+import { GroupItem } from "devextreme-react/form";
+import { useAtomValue, useSetAtom } from "jotai";
+import { nanoid } from "nanoid";
+import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
+import { flagCustomer } from "../store";
+
+import { getListField } from "@/utils/customer-common";
+import { toast } from "react-toastify";
+import { GroupField } from "./GroupField";
+import "./style.scss";
 const Customer_AddNew = () => {
   const param = useParams();
   const { t } = useI18n("Mst_Customer");
@@ -39,14 +34,18 @@ const Customer_AddNew = () => {
   } = useQuery({
     queryKey: ["ListCodeField"],
     queryFn: async () => {
-      const response = await api.MdMetaColGroupSpec_Search({});
+      const response: any = await api.MdMetaColGroupSpec_Search(
+        {},
+        "ScrTplCodeSys.2023"
+      );
       if (response.isSuccess) {
         if (response?.DataList) {
           const listDynamicFields: any[] = response?.DataList.filter(
-            (item: MdMetaColGroupSpec) => item?.ColDataType === "MASTERDATA"
+            (item: MdMetaColGroupSpec) =>
+              item?.ColDataType === "MASTERDATA" ||
+              item?.ColDataType === "MASTERDATASELECTMULTIPLE"
           ).map((item: MdMetaColGroupSpec) => item?.ColCodeSys);
           if (listDynamicFields.length) {
-            // console.log("dynamicFields ", dynamicFields);
             setDynamicFields(listDynamicFields);
           }
         }
@@ -90,7 +89,7 @@ const Customer_AddNew = () => {
       }
     },
   });
-  // console.log("listDynamic", listDynamic);
+
   const {
     data: listGroupCode,
     isLoading: isLoadingGroupCode,
@@ -114,7 +113,7 @@ const Customer_AddNew = () => {
   const {
     data: getCustomerValueFollowParam,
     isLoading: isLoadingCustomerValue,
-    refetch,
+    refetch: getCustomerValue,
   } = useQuery({
     queryKey: ["CustomerValue", param],
     queryFn: async () => {
@@ -133,26 +132,16 @@ const Customer_AddNew = () => {
               (acc: any, item: any) => {
                 return {
                   ...acc,
-                  CustomerAvatarPath: customer["CustomerAvatarPath"] ?? null,
-                  CUSTOMERAVATARPATH: customer["CustomerAvatarPath"] ?? null,
-                  CustomerAvatarName: customer["CustomerAvatarName"] ?? null,
-                  CUSTOMERAVATARNAME: customer["CustomerAvatarName"] ?? null,
-                  CUSTOMERCODE: customer["CustomerCode"],
-                  CustomerCode: customer["CustomerCode"],
-                  CUSTOMERNAME: customer["CustomerName"],
-                  CustomerName: customer["CustomerName"],
-                  CUSTOMERNAMEEN: customer["CustomerNameEN"] ?? null,
-                  CustomerNameEN: customer["CustomerNameEN"] ?? null,
                   [item.ColCodeSys]: item.ColValue ?? "",
                 };
               },
               {}
             );
+
             const obj = {
               ...response.DataList[0],
               ...valueJson,
             };
-            console.log("obj ", obj);
             setFormValue(obj);
           }
         } else {
@@ -168,23 +157,25 @@ const Customer_AddNew = () => {
     },
   });
 
-  const getFormField = useCallback(() => {
+  // console.log(formValue);
+  useEffect(() => {
+    refetchCodeField();
+    refetchGroupCode();
+    refetchDynamic();
+    getCustomerValue();
+  }, []);
+
+  const [loadingKey, reloading] = useReducer(() => nanoid(), "0");
+
+  const getFormField = useMemo(() => {
     if (!isLoadingCodeField && !isLoadingGroupCode) {
       // console.log("=================================", listDynamic);
-      const listField = listCodeField?.map((field: any) => {
-        return {
-          FlagIsColDynamic: field.FlagIsColDynamic,
-          groupKeys: field.ColGrpCodeSys,
-          dataField: field.ColCodeSys,
-          editorType: mapEditorType(field.ColDataType!),
-          label: {
-            text: field.ColCaption,
-          },
-          validationMessagePosition: "bottom",
-          editorOptions: mapEditorOption(field, listDynamic ?? {}),
-          validationRules: mapValidationRules(field),
-          ...mapCustomOptions(field),
-        };
+      const listField = getListField({
+        listField: listCodeField,
+        listDynamic: listDynamic,
+        customOptions: {
+          editType: "",
+        },
       });
 
       const buildDynamicForm = listGroupCode?.map((groupItem: any) => {
@@ -198,7 +189,9 @@ const Customer_AddNew = () => {
               itemType: "group",
               colCount: 2,
               items: listField
-                ?.filter((item) => item.groupKeys === groupItem.ColGrpCodeSys)
+                ?.filter(
+                  (item: any) => item.groupKeys === groupItem.ColGrpCodeSys
+                )
                 .sort(function (a: any, b: any) {
                   return a.OrderIdx - b.OrderIdx;
                 }),
@@ -212,13 +205,7 @@ const Customer_AddNew = () => {
     } else {
       return [];
     }
-  }, [isLoadingCodeField, isLoadingGroupCode, listDynamic]);
-
-  useEffect(() => {
-    refetchCodeField();
-    refetchGroupCode();
-    refetchDynamic();
-  }, []);
+  }, [isLoadingCodeField, isLoadingGroupCode, listDynamic, loadingKey]);
 
   const handleSave = async () => {
     if (formRef.current.validate().isValid) {
@@ -229,15 +216,21 @@ const Customer_AddNew = () => {
         ?.filter((item: any) => item.FlagIsColDynamic !== "1")
         .map((item: any) => item.ColCodeSys);
 
-      const getStaticValue = staticField?.reduce((acc, item) => {
+      const getStaticValue = staticField?.reduce((acc: any, item: any) => {
         return {
           ...acc,
           [item]: formValue[item],
         };
       }, {});
+
       const getDynamicValue = dynamicField
-        ?.map((item) => {
-          if (formValue[item]) {
+        ?.map((item: any) => {
+          if (
+            formValue[item] &&
+            (item != "ZaloUserFollowerId" ||
+              item != "CtmEmail" ||
+              item != "CtmPhoneNo")
+          ) {
             return {
               ColCodeSys: item,
               ColValue: formValue[item] ?? null,
@@ -246,76 +239,43 @@ const Customer_AddNew = () => {
             return null;
           }
         })
-        .filter((item) => item);
+        .filter((item: any) => item);
+
+      const repsUpload = await api.SysUserData_UploadFile(formValue?.AVATAR);
+
+      const avatarField = {
+        ColCodeSys: listCodeField?.find((item: any) => item.ColCode == "AVATAR")
+          ?.ColCodeSys,
+        ColValue: repsUpload?.Data?.FileUrlFS,
+      };
+
+      const currentDynamicValue = [...getDynamicValue, avatarField];
 
       const param = {
         ...getStaticValue,
         OrgID: auth.orgId,
         NetworkID: auth.networkId,
-        JsonCustomerInfo: getDynamicValue?.length
-          ? JSON.stringify(getDynamicValue)
+        JsonCustomerInfo: currentDynamicValue?.length
+          ? JSON.stringify(currentDynamicValue)
           : null,
       };
 
-      if (flagCustomerValue === "add") {
-        console.log("param ", param);
-        const response = await api.Mst_Customer_Create(
-          param,
-          "SCRTPLCODESYS.2023"
-        );
-        if (response.isSuccess) {
-          toast.success(t("Thêm thành công"));
-        } else {
-          showError({
-            message: response?.errorCode,
-            debugInfo: response?.debugInfo,
-            errorInfo: response?.errorInfo,
-          });
-        }
+      // console.log("param ", param);
+      const response = await api.Mst_Customer_Create(
+        param,
+        formValue["ZaloUserFollowerId"] ?? [],
+        formValue["CtmEmail"] ?? [],
+        formValue["CtmPhoneNo"] ?? [],
+        "SCRTPLCODESYS.2023"
+      );
+      if (response.isSuccess) {
+        toast.success(t("Thêm thành công"));
       } else {
-        console.log("getStaticField ", getStaticValue);
-
-        const value = getDynamicValue?.map((item: any) => {
-          return item.ColCodeSys;
+        showError({
+          message: response?.errorCode,
+          debugInfo: response?.debugInfo,
+          errorInfo: response?.errorInfo,
         });
-
-        // const valueStatic = getStaticValue
-        const objParam = {
-          OrgID: auth.orgId,
-          NetworkID: auth.networkId,
-          CustomerCodeSys: formValue.CustomerCodeSys,
-          CustomerCode: formValue["CUSTOMERCODE"],
-          CustomerName: formValue["CUSTOMERNAME"],
-          CustomerAvatarName: formValue["CUSTOMERAVATARNAME"] ?? null,
-          CustomerAvatarPath: formValue["CUSTOMERAVATARPATH"] ?? null,
-          CustomerNameEN: formValue["CUSTOMERNAMEEN"] ?? null,
-          ...param,
-        };
-
-        delete objParam.CUSTOMERCODE;
-        delete objParam.CUSTOMERAVATARNAME;
-        delete objParam.CUSTOMERAVATARPATH;
-        delete objParam.CUSTOMERNAMEEN;
-        delete objParam.CUSTOMERNAME;
-
-        console.log("formValue", formValue);
-        console.log("value param ", param);
-        console.log("objParam ", objParam);
-
-        const response = await api.Mst_Customer_Update(
-          objParam,
-          value ?? [],
-          "SCRTPLCODESYS.2023"
-        );
-        if (response.isSuccess) {
-          toast.success("Customer updated successfully");
-        } else {
-          showError({
-            message: response?.errorCode,
-            debugInfo: response?.debugInfo,
-            errorInfo: response?.errorInfo,
-          });
-        }
       }
     } else {
       toast.error("Vui lòng nhập đủ trường");
@@ -366,7 +326,7 @@ const Customer_AddNew = () => {
               onInitialized={handleInitialization}
               showValidationSummary={true}
             >
-              {getFormField()?.map((item: any) => {
+              {getFormField?.map((item: any) => {
                 return (
                   <GroupItem
                     key={nanoid()}

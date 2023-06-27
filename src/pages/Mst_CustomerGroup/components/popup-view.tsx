@@ -94,7 +94,7 @@ export const PopupView = ({
         ...dataSaveForm,
         CustomerGrpImage: repsUpload?.Data?.FileUrlFS
           ? repsUpload?.Data?.FileUrlFS
-          : avt,
+          : "",
       };
       if (flagCheckCRUD) {
         onCreate(formSubmit);

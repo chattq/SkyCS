@@ -35,7 +35,6 @@ export interface IOrg {
   UserList: any[] | null;
   InviteList: any[] | null;
   CurrentUserRole: number;
-
 }
 export interface ISession {
   CurrentUser: IUser;
@@ -49,8 +48,8 @@ export interface Response<T> {
   ErrorData: null;
 }
 export interface OrgInfo {
-  NetworkId: string,
-  OrgId: string,
+  NetworkId: string;
+  OrgId: string;
   OrgData?: IOrg;
 }
 
@@ -60,4 +59,3 @@ export interface LocaleData {
     value: string;
   }[];
 }
-

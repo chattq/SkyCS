@@ -5,34 +5,36 @@ import { GridViewPopup } from "@packages/ui/base-gridview";
 import { useRef, useState } from "react";
 
 import { DealerPopupView } from "@/pages/dealer/components";
-import {selectedItemsAtom} from "@/pages/dealer/components/dealer-store";
+import { selectedItemsAtom } from "@/pages/dealer/components/dealer-store";
 import { HeaderPart } from "@/pages/dealer/components/header-part";
 import {
   ContentSearchPanelLayout,
   searchPanelVisibleAtom,
 } from "@layouts/content-searchpanel-layout";
-import {useConfiguration, useVisibilityControl} from "@packages/hooks";
+import { useConfiguration, useVisibilityControl } from "@packages/hooks";
 import { logger } from "@packages/logger";
 import { showErrorAtom } from "@packages/store";
 import { FlagActiveEnum, Mst_Dealer, SearchDealerParam } from "@packages/types";
 import { useQuery } from "@tanstack/react-query";
 import { IPopupOptions } from "devextreme-react/popup";
 import { EditorPreparingEvent } from "devextreme/ui/data_grid";
-import {useSetAtom} from "jotai";
+import { useSetAtom } from "jotai";
 import { toast } from "react-toastify";
 import "./dealer-management.scss";
-import {IItemProps} from "devextreme-react/form";
-import {SearchPanelV2} from "@packages/ui/search-panel";
-import {useDealerGridColumns} from "../components/use-columns";
-import {useFormSettings} from "../components/use-form-settings";
-import {DataGrid, LoadPanel} from "devextreme-react";
+import { IItemProps } from "devextreme-react/form";
+import { SearchPanelV2 } from "@packages/ui/search-panel";
+import { useDealerGridColumns } from "../components/use-columns";
+import { useFormSettings } from "../components/use-form-settings";
+import { DataGrid, LoadPanel } from "devextreme-react";
 
 export const DealerManagementPage = () => {
   const { t } = useI18n("Dealer");
   let gridRef: any = useRef<DataGrid | null>(null);
   const config = useConfiguration();
   const showError = useSetAtom(showErrorAtom);
-  const [searchCondition, setSearchCondition] = useState<Partial<SearchDealerParam>>({
+  const [searchCondition, setSearchCondition] = useState<
+    Partial<SearchDealerParam>
+  >({
     FlagActive: FlagActiveEnum.All,
     Ft_PageIndex: 0,
     Ft_PageSize: config.MAX_PAGE_ITEMS,
@@ -80,7 +82,7 @@ export const DealerManagementPage = () => {
     items: [
       {
         value: "",
-        text: t("All")
+        text: t("All"),
       },
       {
         value: "1",
@@ -93,8 +95,8 @@ export const DealerManagementPage = () => {
     ],
   };
 
-  const columns = useDealerGridColumns({data: data?.DataList??[]})
-  
+  const columns = useDealerGridColumns({ data: data?.DataList ?? [] });
+
   const handleSelectionChanged = (rows: string[]) => {
     setSelectedItems(rows);
   };
@@ -130,9 +132,9 @@ export const DealerManagementPage = () => {
     }
   };
   const handleOnEditRow = (e: any) => {
-    const {row, column} = e;
+    const { row, column } = e;
     handleEdit(row.rowIndex);
-  }
+  };
 
   const popupSettings: IPopupOptions = {
     showTitle: true,
@@ -162,8 +164,12 @@ export const DealerManagementPage = () => {
       },
     ],
   };
-  const formSettings = useFormSettings({columns, provinceDs: provinceDs?.DataList, dealerTypeDs: dealerTypeDs?.DataList});
-  
+  const formSettings = useFormSettings({
+    columns,
+    provinceDs: provinceDs?.DataList,
+    dealerTypeDs: dealerTypeDs?.DataList,
+  });
+
   const onModify = async (id: string, data: Mst_Dealer) => {
     logger.debug("id:", id);
     const resp = await api.Mst_Dealer_Update(id, {
@@ -240,76 +246,76 @@ export const DealerManagementPage = () => {
   const handleSearch = async (data: any) => {
     setSearchCondition({
       ...searchCondition,
-      ...data
-    })
+      ...data,
+    });
     // await refetch();
   };
   const handleEditRowChanges = () => {};
   const searchConditions: IItemProps[] = [
     {
       caption: t("Dealer Code"),
-      dataField: 'DealerCode',
-      editorType: 'dxTextBox',
+      dataField: "DealerCode",
+      editorType: "dxTextBox",
       editorOptions: {
-        placeholder: t('Input'),
-      }
+        placeholder: t("Input"),
+      },
     },
     {
-      dataField: 'DealerName',
+      dataField: "DealerName",
       caption: t("Dealer Name"),
-      editorType: 'dxTextBox',
+      editorType: "dxTextBox",
       editorOptions: {
-        placeholder: t('Input'),
-      }
+        placeholder: t("Input"),
+      },
     },
     {
-      dataField: 'FlagAutoLXX',
+      dataField: "FlagAutoLXX",
       caption: t("Flag Auto LXX"),
-      editorType: 'dxSelectBox',
-      editorOptions: flagFilterOptions
+      editorType: "dxSelectBox",
+      editorOptions: flagFilterOptions,
     },
     {
-      dataField: 'FlagAutoMapVIN',
+      dataField: "FlagAutoMapVIN",
       caption: t("Flag Auto Map VIN"),
-      editorType: 'dxSelectBox',
-      editorOptions: flagFilterOptions
+      editorType: "dxSelectBox",
+      editorOptions: flagFilterOptions,
     },
     {
-      dataField: 'FlagAutoSOAppr',
+      dataField: "FlagAutoSOAppr",
       caption: t("Flag Auto SO Appr"),
-      editorType: 'dxSelectBox',
-      editorOptions: flagFilterOptions
+      editorType: "dxSelectBox",
+      editorOptions: flagFilterOptions,
     },
     {
-      dataField: 'FlagActive',
+      dataField: "FlagActive",
       caption: t("Flag Active"),
-      editorType: 'dxSelectBox',
+      editorType: "dxSelectBox",
       editorOptions: {
         searchEnabled: true,
-        valueExpr: 'value',
-        displayExpr: 'text',
+        valueExpr: "value",
+        displayExpr: "text",
         items: [
           {
-            value: '',
-            text: t('All')
+            value: "",
+            text: t("All"),
           },
           {
             value: "1",
-            text: t('Active')
+            text: t("Active"),
           },
           {
-            value: '0',
-            text: t('Inactive')
-          }
-        ]
-      }
+            value: "0",
+            text: t("Inactive"),
+          },
+        ],
+      },
     },
-  ]
-  const loadingControl = useVisibilityControl({defaultVisible: false})
+  ];
+  const loadingControl = useVisibilityControl({ defaultVisible: false });
   const handleDeleteRows = async (ids: string[]) => {
-    loadingControl.open()
+    loadingControl.open();
     const resp = await api.Mst_Dealer_DeleteMultiple(ids);
-    loadingControl.close()
+    loadingControl.close();
     if (resp.isSuccess) {
       toast.success(t("Delete Successfully"));
       await refetch();
@@ -321,7 +327,7 @@ export const DealerManagementPage = () => {
       errorInfo: resp.errorInfo,
     });
     throw new Error(resp.errorCode);
-  }
+  };
   return (
     <AdminContentLayout className={"dealer-management"}>
       <AdminContentLayout.Slot name={"Header"}>
@@ -331,11 +337,11 @@ export const DealerManagementPage = () => {
         <ContentSearchPanelLayout>
           <ContentSearchPanelLayout.Slot name={"SearchPanel"}>
             <div className={"w-[200px]"}>
-              <SearchPanelV2 
-                conditionFields={searchConditions} 
-                data={searchCondition} 
+              <SearchPanelV2
+                conditionFields={searchConditions}
+                data={searchCondition}
                 onSearch={handleSearch}
-                storeKey={'dealer-search-panel'}
+                storeKey={"dealer-search-panel"}
               />
             </div>
           </ContentSearchPanelLayout.Slot>
@@ -343,7 +349,7 @@ export const DealerManagementPage = () => {
             <LoadPanel
               container={".dx-viewport"}
               shadingColor="rgba(0,0,0,0.4)"
-              position={'center'}
+              position={"center"}
               visible={loadingControl.visible}
               showIndicator={true}
               showPane={true}
@@ -377,9 +383,9 @@ export const DealerManagementPage = () => {
                   ]}
                   storeKey={"dealer-management-columns"}
                 />
-                <DealerPopupView 
-                         onEdit={handleEdit}
-                         formSettings={formSettings}
+                <DealerPopupView
+                  onEdit={handleEdit}
+                  formSettings={formSettings}
                 />
               </>
             )}

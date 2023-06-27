@@ -10,9 +10,14 @@ import { HeaderNewForm } from "@/packages/ui/headerNew-form/headerNew-form";
 interface HeaderPartProps {
   onAddNew?: () => void;
   refetch: any;
+  handleOnEditRow?: any;
 }
 
-export const HeaderPart = ({ onAddNew, refetch }: HeaderPartProps) => {
+export const HeaderPart = ({
+  onAddNew,
+  refetch,
+  handleOnEditRow,
+}: HeaderPartProps) => {
   const { t } = useI18n("Common");
 
   const selectedItems = useAtomValue(selectedItemsAtom);
@@ -64,6 +69,7 @@ export const HeaderPart = ({ onAddNew, refetch }: HeaderPartProps) => {
       onExportExcel={handleExportExcel}
       selectedItems={selectedItems}
       onDelete={handleDeleteRow}
+      handleOnEditRow={handleOnEditRow}
     />
   );
 };

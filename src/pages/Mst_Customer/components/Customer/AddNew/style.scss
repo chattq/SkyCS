@@ -29,14 +29,22 @@
 }
 
 .list-button .dx-button {
-  padding: 10px 15px;
-  margin-left: 10px;
-  margin-right: 10px;
+  padding: 6px 15px;
+  margin-left: 5px;
 }
 .dx-form-group-caption {
-  display: none;
+  display: block;
+  width: 100%;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  overflow: hidden;
 }
 
 .overflow-auto {
   overflow: auto;
+}
+
+.dx-tagbox {
+  height: auto !important;
 }

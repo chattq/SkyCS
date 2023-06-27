@@ -3,7 +3,7 @@ import DropDownButton, {
   Item as DropDownButtonItem,
 } from "devextreme-react/drop-down-button";
 import TextBox from "devextreme-react/text-box";
-import { atom, useAtom } from "jotai";
+import { atom, useAtom, useAtomValue } from "jotai";
 
 import { useI18n } from "@/i18n/useI18n";
 import { logger } from "@/packages/logger";
@@ -12,6 +12,7 @@ import { ExportConfirmBox } from "@packages/ui/modal";
 import { useLayoutEffect, useState } from "react";
 import { UploadDialog } from "../upload-dialog/upload-dialog";
 import "./headerNew-form.scss";
+import { SelectionKeyAtom } from "../base-gridview/store/normal-grid-store";
 
 const keywordAtom = atom("");
 
@@ -25,9 +26,11 @@ export interface HeaderFormProps {
   selectedItems?: string[];
   hidenExportExcel: boolean;
   hidenImportExcel: boolean;
+  handleOnEditRow?: any;
 }
 
 export const HeaderNewForm = ({
+  handleOnEditRow,
   onAddNew,
   onSearch,
   onUploadFile,
@@ -43,6 +46,7 @@ export const HeaderNewForm = ({
   const handleSearch = () => {
     onSearch(keyword);
   };
+  const selectionKeys = useAtomValue(SelectionKeyAtom);
   useLayoutEffect(() => {}, [selectedItems]);
   const [uploadDialogVisible, showUploadDialog] = useState(false);
   const controlExportBoxVisible = useVisibilityControl({
@@ -59,6 +63,9 @@ export const HeaderNewForm = ({
   };
   const handleExportExcel = () => {
     controlExportBoxVisible.open();
+  };
+  const handleEdit = () => {
+    handleOnEditRow(selectedItems);
   };
 
   return (
@@ -89,7 +96,11 @@ export const HeaderNewForm = ({
           onClick={onAddNew}
         />
       </div>
-      <div className="headerform__menu">
+      <div
+        className={`headerform__menu ${
+          selectionKeys?.length >= 1 ? "" : "hidden"
+        }`}
+      >
         <DropDownButton
           showArrowIcon={false}
           keyExpr={"id"}
@@ -135,6 +146,7 @@ export const HeaderNewForm = ({
             }}
           />
           <DropDownButtonItem
+            visible={hidenExportExcel}
             render={(item: any) => {
               return (
                 <div>
@@ -143,6 +155,20 @@ export const HeaderNewForm = ({
                     hoverStateEnabled={false}
                     onClick={handleExportExcel}
                     text={t("Export Excel")}
+                  />
+                </div>
+              );
+            }}
+          />
+          <DropDownButtonItem
+            render={(item: any) => {
+              return (
+                <div>
+                  <Button
+                    stylingMode="text"
+                    hoverStateEnabled={false}
+                    onClick={handleEdit}
+                    text={t("Edit")}
                   />
                 </div>
               );

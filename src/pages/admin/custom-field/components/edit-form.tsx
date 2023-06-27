@@ -1,29 +1,24 @@
-import { Popup, ToolbarItem } from "devextreme-react/popup";
-import { useAtomValue, useSetAtom } from "jotai";
-import { currentItemAtom, flagAtom, showPopupAtom } from "./store";
-import Button from "devextreme-react/button";
-import { useEffect, useMemo, useRef } from "react";
-import { Controller, useFieldArray, useForm } from "react-hook-form";
-import TextBox from "devextreme-react/text-box";
-import { Icon } from "@packages/ui/icons";
-import ScrollView from "devextreme-react/scroll-view";
-import { useClientgateApi } from "@packages/api";
-import { useQuery } from "@tanstack/react-query";
-import {
-  MdMetaColGroup,
-  MdMetaColGroupSpecDto,
-  MdMetaColumnDataType,
-} from "@packages/types";
-import { SelectboxField } from "@/pages/admin/custom-field/components/selectbox-field";
-import "./edit-form.scss";
-import { CheckboxField } from "@/pages/admin/custom-field/components/checkbox-field";
-import { TextboxField } from "@/pages/admin/custom-field/components/textbox-field";
-import { useAuth } from "@packages/contexts/auth";
-import { showErrorAtom } from "@/packages/store";
-import { toast } from "react-toastify";
-import { CheckBox, LoadPanel } from "devextreme-react";
-import { logger } from "@packages/logger";
 import { useI18n } from "@/i18n/useI18n";
+import { showErrorAtom } from "@/packages/store";
+import { CheckboxField } from "@/pages/admin/custom-field/components/checkbox-field";
+import { SelectboxField } from "@/pages/admin/custom-field/components/selectbox-field";
+import { TextboxField } from "@/pages/admin/custom-field/components/textbox-field";
+import { useClientgateApi } from "@packages/api";
+import { useAuth } from "@packages/contexts/auth";
+import { MdMetaColGroupSpecDto } from "@packages/types";
+import { Icon } from "@packages/ui/icons";
+import { useQuery } from "@tanstack/react-query";
+import { CheckBox, LoadPanel } from "devextreme-react";
+import Button from "devextreme-react/button";
+import { Popup, ToolbarItem } from "devextreme-react/popup";
+import ScrollView from "devextreme-react/scroll-view";
+import TextBox from "devextreme-react/text-box";
+import { useAtomValue, useSetAtom } from "jotai";
+import { useEffect, useRef } from "react";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
+import { toast } from "react-toastify";
+import "./edit-form.scss";
+import { currentItemAtom, flagAtom, showPopupAtom } from "./store";
 
 interface EditFormProps {
   onCancel: () => void;
@@ -34,7 +29,7 @@ const isSearchableType = (dataType: string) => {
   return "FLAG" !== dataType;
 };
 
-const SelectOneField = ({
+export const SelectOneField = ({
   control,
   setValue,
   getValues,
@@ -52,9 +47,8 @@ const SelectOneField = ({
   };
 
   const choiceValues = watch("ListOption");
-  const defaultIndexValue = choiceValues.find(
-    (item: any) => item.IsSelected
-  )?.OrderIdx;
+  const defaultIndexValue =
+    choiceValues.find((item: any) => item.IsSelected)?.OrderIdx || 0;
   const {
     fields: singleChoiceValuesFields,
     append,
@@ -92,6 +86,8 @@ const SelectOneField = ({
     required: true,
   });
 
+  // console.log(singleChoiceValuesFields, defaultIndexValue);
+
   return (
     <div className={"w-full ml-[150px]"}>
       {singleChoiceValuesFields.map((field, index) => {
@@ -111,6 +107,7 @@ const SelectOneField = ({
               value={index}
               onChange={async (e: any) => {
                 setValue("DefaultIndex", e.target.value);
+                setValue(`ListOption.${index}.IsSelected`, true);
                 await onChange({
                   target: {
                     name: defaultIndexField.name,
@@ -267,15 +264,19 @@ export const EditForm = ({ onCancel, onSave }: EditFormProps) => {
   }, [currentItem]);
 
   const handleSave = async (data: MdMetaColGroupSpecDto) => {
+    console.log(data);
+
     if (Object.keys(errors).length === 0) {
-      if(!data.ColDataType) {
+      if (!data.ColDataType) {
         setError("ColDataType", {
           message: "Please select at least one option",
         });
         return;
       }
       if (
-        ["SELECTONERADIO", "SELECTONEDROPBOX", "SELECTMULTIPLESELECTBOX", "SELECTMULTIPLEDROPBOX"].includes(data.ColDataType) &&
+        ["SELECTONERADIO", "SELECTONEDROPBOX", "SELECTONEDROPDOWN"].includes(
+          data.ColDataType
+        ) &&
         (!data.ListOption || data.ListOption.length === 0)
       ) {
         setError("ColDataType", {
@@ -283,7 +284,7 @@ export const EditForm = ({ onCancel, onSave }: EditFormProps) => {
         });
         return;
       }
-      if(data.IsSearchable && !data.ColOperatorType) {
+      if (data.IsSearchable && !data.ColOperatorType) {
         setError("ColOperatorType", {
           message: "Please select at least one option",
         });
@@ -399,6 +400,9 @@ export const EditForm = ({ onCancel, onSave }: EditFormProps) => {
                   displayExpr={"ColGrpName"}
                   error={errors.ColGrpCodeSys}
                   required={true}
+                  readonly={
+                    flag !== "add" && currentItem.FlagIsColDynamic != "1"
+                  }
                 />
               );
             }}
@@ -421,7 +425,11 @@ export const EditForm = ({ onCancel, onSave }: EditFormProps) => {
               );
             }}
             rules={{
-              required: { value: true, message: "FieldCodeIsRequired" },
+              required: {value: true, message: "FieldCodeIsRequired"},
+              pattern: {
+                value: /^[a-zA-Z0-9_-]+$/,
+                message: "Invalid Field Code",
+              }
             }}
           />
           <Controller
@@ -434,6 +442,9 @@ export const EditForm = ({ onCancel, onSave }: EditFormProps) => {
                   label={"Field Name"}
                   required={true}
                   error={errors.ColCaption}
+                  disabled={
+                    flag !== "add" && currentItem.FlagIsColDynamic != "1"
+                  }
                 />
               );
             }}
@@ -445,14 +456,30 @@ export const EditForm = ({ onCancel, onSave }: EditFormProps) => {
             name={"IsRequired"}
             control={control}
             render={({ field }) => {
-              return <CheckboxField field={field} label={"Is Required"} />;
+              return (
+                <CheckboxField
+                  field={field}
+                  label={"Is Required"}
+                  readonly={
+                    flag !== "add" && currentItem.FlagIsColDynamic != "1"
+                  }
+                />
+              );
             }}
           />
           <Controller
             name={"IsUnique"}
             control={control}
             render={({ field }) => {
-              return <CheckboxField field={field} label={"Is Unique"} />;
+              return (
+                <CheckboxField
+                  field={field}
+                  label={"Is Unique"}
+                  readonly={
+                    flag !== "add" && currentItem.FlagIsColDynamic != "1"
+                  }
+                />
+              );
             }}
           />
           <Controller
@@ -465,7 +492,10 @@ export const EditForm = ({ onCancel, onSave }: EditFormProps) => {
                   label={"Data Type"}
                   dataSource={listDataType}
                   required
-                  readonly={flag !== "add"}
+                  readonly={
+                    flag == "update" ||
+                    (flag !== "add" && currentItem.FlagIsColDynamic != "1")
+                  }
                   error={errors.ColDataType}
                   valueExpr={"ColDataType"}
                   displayExpr={"ColDataTypeDesc"}
@@ -501,7 +531,7 @@ export const EditForm = ({ onCancel, onSave }: EditFormProps) => {
           {(dataTypeValue === "SELECTMULTIPLEDROPDOWN" ||
             dataTypeValue === "SELECTMULTIPLESELECTBOX") && (
             <div className={"w-full ml-[150px]"}>
-              {singleChoiceValuesFields.map((field, index) => {
+              {singleChoiceValuesFields.map((field: any, index: any) => {
                 const { ref, onChange, ...restField } = register(
                   `ListOption.${index}.Value` as const,
                   {
@@ -515,14 +545,16 @@ export const EditForm = ({ onCancel, onSave }: EditFormProps) => {
                     <CheckBox
                       className={"mr-2"}
                       {...restDefaultField}
-                      value={field?.IsSelected ?? false}
+                      value={getValues(`ListOption.${index}.IsSelected`)}
                       onValueChanged={async (e: any) => {
-                        await onDefaultChange({
-                          target: {
-                            name: restDefaultField.name,
-                            value: e.value,
-                          },
-                        });
+                        // setValue("DefaultIndex", index);
+                        setValue(`ListOption.${index}.IsSelected`, e.value);
+                        // await onDefaultChange({
+                        //   target: {
+                        //     name: restDefaultField.name,
+                        //     value: e.value,
+                        //   },
+                        // });
                       }}
                     />
                     <TextBox
@@ -586,6 +618,37 @@ export const EditForm = ({ onCancel, onSave }: EditFormProps) => {
                     error={errors.DataSource}
                     displayExpr={"Value"}
                     valueExpr={"Key"}
+                    readonly={
+                      flag !== "add" && currentItem.FlagIsColDynamic != "1"
+                    }
+                  />
+                );
+              }}
+            />
+          )}
+          {dataTypeValue === "MASTERDATASELECTMULTIPLE" && (
+            <Controller
+              name={"DataSource"}
+              control={control}
+              render={({ field }) => {
+                const jsonListOption = getValues("JsonListOption");
+                const options = JSON.parse(jsonListOption ?? "[]");
+                // console.log(jsonListOption, options, listMasterData);
+                return (
+                  <SelectboxField
+                    field={field}
+                    label={"Data Source"}
+                    dataSource={listMasterData}
+                    defaultValue={
+                      options.length > 0 ? options?.[0].Value : null
+                    }
+                    required
+                    error={errors.DataSource}
+                    displayExpr={"Value"}
+                    valueExpr={"Key"}
+                    readonly={
+                      flag !== "add" && currentItem.FlagIsColDynamic != "1"
+                    }
                   />
                 );
               }}
@@ -596,7 +659,15 @@ export const EditForm = ({ onCancel, onSave }: EditFormProps) => {
               name={"IsSearchable"}
               control={control}
               render={({ field }) => {
-                return <CheckboxField field={field} label={"Can search"} />;
+                return (
+                  <CheckboxField
+                    field={field}
+                    label={"Can search"}
+                    readonly={
+                      flag !== "add" && currentItem.FlagIsColDynamic != "1"
+                    }
+                  />
+                );
               }}
             />
           )}
@@ -615,6 +686,9 @@ export const EditForm = ({ onCancel, onSave }: EditFormProps) => {
                     dataSource={listOperators}
                     valueExpr={"ColOperatorType"}
                     displayExpr={"ColOperatorTypeDesc"}
+                    readonly={
+                      flag !== "add" && currentItem.FlagIsColDynamic != "1"
+                    }
                   />
                 );
               }}
@@ -628,7 +702,9 @@ export const EditForm = ({ onCancel, onSave }: EditFormProps) => {
                 <CheckboxField
                   field={field}
                   label={t("IsActive")}
-                  readonly={flag === "add"}
+                  readonly={
+                    flag !== "add" && currentItem.FlagIsColDynamic != "1"
+                  }
                 />
               );
             }}
@@ -642,13 +718,16 @@ export const EditForm = ({ onCancel, onSave }: EditFormProps) => {
         </form>
       </ScrollView>
       <ToolbarItem toolbar={"bottom"} location={"center"}>
-        <Button
-          text={"Save"}
-          type={"default"}
-          stylingMode={"contained"}
-          onClick={handleSaveClick}
-          className={"mx-2 w-[100px]"}
-        />
+        {(flag === "add" || currentItem.FlagIsColDynamic == "1") && (
+          <Button
+            text={"Save"}
+            type={"default"}
+            stylingMode={"contained"}
+            onClick={handleSaveClick}
+            className={"mx-2 w-[100px]"}
+          />
+        )}
+
         <Button
           text={"Cancel"}
           stylingMode={"outlined"}

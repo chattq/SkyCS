@@ -6,7 +6,6 @@ import {
   MdMetaColGroupSpecListOption,
   MdMetaColGroupSpecSearchParam,
   MdMetaColumnDataType,
-  MdMetaColumnOperatorType,
   MdOptionValue,
 } from "@/packages/types";
 import { AxiosInstance } from "axios";
@@ -16,7 +15,10 @@ export const useCustomFieldApi = (apiBase: AxiosInstance) => {
     MDMetaColGroupSpec_GetListOption: async (
       colCodes: (string | undefined)[]
     ): Promise<ApiResponse<MdMetaColGroupSpecListOption[]>> => {
-      return await apiBase.post<{}, ApiResponse<MdMetaColGroupSpecListOption[]>>(
+      return await apiBase.post<
+        {},
+        ApiResponse<MdMetaColGroupSpecListOption[]>
+      >(
         "MDMetaColGroupSpec/GetListOption",
         {
           ColCodeSys: colCodes.join(","),
@@ -31,7 +33,10 @@ export const useCustomFieldApi = (apiBase: AxiosInstance) => {
       );
     },
     Seq_GetColCodeSys: async (): Promise<ApiResponse<string>> => {
-      return await apiBase.post<{}, ApiResponse<string>>("Seq/GetColCodeSys", {});
+      return await apiBase.post<{}, ApiResponse<string>>(
+        "Seq/GetColCodeSys",
+        {}
+      );
     },
     MdMetaColGroupSpec_Delete: async (
       param: Partial<MdMetaColGroupSpec>
@@ -44,7 +49,8 @@ export const useCustomFieldApi = (apiBase: AxiosInstance) => {
       });
     },
     MdMetaColGroupSpec_Search: async (
-      param: Partial<MdMetaColGroupSpecSearchParam>
+      param: Partial<MdMetaColGroupSpecSearchParam>,
+      ScrTplCodeSys?: string
     ): Promise<ApiResponse<MdMetaColGroupSpec[]>> => {
       return await apiBase.post<
         MdMetaColGroupSpecSearchParam,
@@ -52,6 +58,7 @@ export const useCustomFieldApi = (apiBase: AxiosInstance) => {
       >("/MDMetaColGroupSpec/Search", {
         ...param,
         Ft_PageSize: 1000,
+        ScrTplCodeSys: ScrTplCodeSys ?? "",
       });
     },
     MDMetaColumnOperatorType_GetAllActive: async (): Promise<
@@ -145,6 +152,9 @@ export const useCustomFieldApi = (apiBase: AxiosInstance) => {
       if (param.ColDataType === "MASTERDATA") {
         outParam.JsonListOption = JSON.stringify([{ Value: param.DataSource }]);
       }
+      if (param.ColDataType === "MASTERDATASELECTMULTIPLE") {
+        outParam.JsonListOption = JSON.stringify([{ Value: param.DataSource }]);
+      }
       return await apiBase.post<
         MdMetaColGroupSpecDto,
         ApiResponse<MdMetaColGroupSpec>
@@ -185,25 +195,28 @@ export const useCustomFieldApi = (apiBase: AxiosInstance) => {
         FlagActive: param.Enabled ? "1" : "0",
         JsonListOption: listOption
           ? JSON.stringify(
-            listOption.map((item, index) => {
-              return {
-                ...item,
-                OrderIdx: index,
-              };
-            })
-          )
+              listOption.map((item, index) => {
+                return {
+                  ...item,
+                  OrderIdx: index,
+                };
+              })
+            )
           : "[]",
       };
       if (param.ColDataType === "MASTERDATA") {
         outParam.JsonListOption = JSON.stringify([{ Value: param.DataSource }]);
       }
+      if (param.ColDataType === "MASTERDATASELECTMULTIPLE") {
+        outParam.JsonListOption = JSON.stringify([{ Value: param.DataSource }]);
+      }
       delete outParam.Enabled;
-      delete outParam.IsRequired
-      delete outParam.IsUnique
-      delete outParam.IsSearchable
-      delete outParam.ListOption
-      delete outParam.DefaultIndex
-      
+      delete outParam.IsRequired;
+      delete outParam.IsUnique;
+      delete outParam.IsSearchable;
+      delete outParam.ListOption;
+      delete outParam.DefaultIndex;
+
       return await apiBase.post<
         MdMetaColGroupSpecDto,
         ApiResponse<MdMetaColGroupSpec>
@@ -235,6 +248,16 @@ export const useCustomFieldApi = (apiBase: AxiosInstance) => {
         ApiResponse<MdMetaColGroupSpec>
       >("MDMetaColGroupSpec/Delete", {
         strJson: JSON.stringify(outParam),
+      });
+    },
+    MDMetaColGroupSpec_UpdateOrderIdx: async (
+      columns: MdMetaColGroupSpecDto[]
+    ) => {
+      return await apiBase.post<
+        MdMetaColGroupSpecDto[],
+        ApiResponse<MdMetaColGroupSpec[]>
+      >("MDMetaColGroupSpec/UpdateOrderIdx", {
+        strJson: JSON.stringify(columns),
       });
     },
   };

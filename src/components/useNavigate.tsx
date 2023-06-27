@@ -5,7 +5,7 @@ export const useNetworkNavigate = () => {
   const auth = useAtomValue(authAtom);
   const navi = useNavigate();
   const navigate = (str: string) => {
-    console.log("str", str);
+    // console.log("str", str);
     navi(`/${auth.networkId}/${str}`);
   };
 

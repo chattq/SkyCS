@@ -284,7 +284,6 @@ export const Mst_CampaignTypePage = () => {
               onSaveRow={handleSavingRow}
               onEditorPreparing={handleEditorPreparing}
               onEditRow={handleOnEditRow}
-              // allowInlineEdit={false}
               onEditRowChanges={handleEditRowChanges}
               onDeleteRows={handleDeleteRows}
               toolbarItems={[

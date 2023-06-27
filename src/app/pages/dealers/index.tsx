@@ -1,13 +1,9 @@
-import DataGrid, {
-  Column,
-  Editing, Paging, Button
-} from 'devextreme-react/data-grid';
+import DataGrid, { Button, Column, Editing } from "devextreme-react/data-grid";
 import ODataStore from "devextreme/data/odata/store";
-import React from "react";
 
 export const ListDealersPage = () => {
   return (
-    <div className={'page'}>
+    <div className={"page"}>
       <DataGrid
         id="gridContainer"
         dataSource={dealers}
@@ -15,54 +11,46 @@ export const ListDealersPage = () => {
         keyExpr="id"
         showBorders
         allowColumnResizing
-        columnResizingMode={'widget'}
+        columnResizingMode={"widget"}
       >
         <Column
           caption="STT"
-          alignment={'center'}
+          alignment={"center"}
           width={100}
           allowResizing={false}
           allowEditing={false}
-          cellRender={({rowIndex}) => <>{rowIndex}</>}
+          cellRender={({ rowIndex }) => <>{rowIndex}</>}
         />
-        <Editing
-          mode="row"
-          useIcons={true}
-          allowUpdating={true}
-        />
-        <Column caption={'Actions'} type="buttons" width={110}
-                allowResizing={false}
+        <Editing mode="row" useIcons={true} allowUpdating={true} />
+        <Column
+          caption={"Actions"}
+          type="buttons"
+          width={110}
+          allowResizing={false}
         >
           <Button name="edit" />
           <Button name="delete" />
         </Column>
-        <Column dataField={'dealerCode'}
-                width={150}
-                alignment={'center'}
-        />
-        <Column
-          dataField={'cityCode'}
-          width={150}
-          alignment={'center'}
-        />
-        <Column dataField={'dealerName'} />
-        <Column dataField={'size'} width={100} dataType={'number'} />
-        <Column dataField={'taxCode'} />
-        <Column dataField={'manager'} />
-        <Column dataField={'sellingRegion'} />
-        <Column dataField={'serviceRegion'} />
+        <Column dataField={"dealerCode"} width={150} alignment={"center"} />
+        <Column dataField={"cityCode"} width={150} alignment={"center"} />
+        <Column dataField={"dealerName"} />
+        <Column dataField={"size"} width={100} dataType={"number"} />
+        <Column dataField={"taxCode"} />
+        <Column dataField={"manager"} />
+        <Column dataField={"sellingRegion"} />
+        <Column dataField={"serviceRegion"} />
       </DataGrid>
     </div>
-  )
-}
+  );
+};
 
 const dealers = new ODataStore({
-  url: '/dealers',
-  key: 'id',
+  url: "/dealers",
+  key: "id",
   version: 3,
-  beforeSend: options => {
-    console.log(options)
+  beforeSend: (options) => {
+    // console.log(options)
   },
-  keyType: 'Single'
-})
-export default ListDealersPage
+  keyType: "Single",
+});
+export default ListDealersPage;

@@ -36,6 +36,19 @@ export const useMst_CampaignColumnConfig = (apiBase: AxiosInstance) => {
       >("/Seq/GetCampaignColCfgCodeSys", {});
     },
 
+    Mst_CampaignColumnConfig_GetListOption: async (
+      CampaignColCfgCodeSys: string[]
+    ): Promise<
+      ApiResponse<Mst_CampaignColumnConfig_GetCampaignColCfgCodeSys>
+    > => {
+      return await apiBase.post<
+        any,
+        ApiResponse<Mst_CampaignColumnConfig_GetCampaignColCfgCodeSys>
+      >("/MstCampaignColumnConfig/GetListOption", {
+        CampaignColCfgCodeSys: CampaignColCfgCodeSys.join(","),
+      });
+    },
+
     Mst_CampaignColumnConfig_Create: async (
       param: any
     ): Promise<ApiResponse<Partial<Mst_CampaignColumnConfig>>> => {

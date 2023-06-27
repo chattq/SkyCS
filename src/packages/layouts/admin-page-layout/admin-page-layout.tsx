@@ -109,7 +109,7 @@ export const AdminPageLayout = () => {
     );
   }, [sidebarItems, toggleSidebar]);
   return (
-    <div className={'dms w-full h-full'}>
+    <div className={'skycs w-full h-full'}>
       {header}
       <Drawer
         className={['main-sidebar', 'drawer', patchCssClass].join(' ')}

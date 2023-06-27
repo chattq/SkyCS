@@ -101,7 +101,9 @@ export const PopupViewDetail = ({
   }, [dataFuntion, detailForm, listGroup?.Data, showInfoObj]);
 
   const handleCancel = () => {
-    dataGrid.current.instance.deselectAll();
+    if (!detailForm) {
+      dataGrid.current.instance.deselectAll();
+    }
     setPopupVisible(false);
   };
   const handleCancelUser = () => {
@@ -273,6 +275,7 @@ export const PopupViewDetail = ({
       width={870}
       onHiding={handleCancel}
       showCloseButton={true}
+      hideOnOutsideClick={true}
       wrapperAttr={{
         class: "popup-form-department",
       }}

@@ -17,10 +17,10 @@ export const useSys_UserApi = (apiBase: AxiosInstance) => {
         ...param,
       });
     },
-    Sys_User_GetAllActive: async (): Promise<ApiResponse<SysUserData>> => {
+    Sys_User_GetAllActive: async (): Promise<ApiResponse<SysUserData[]>> => {
       return await apiBase.post<
         SearchUserControlParam,
-        ApiResponse<SysUserData>
+        ApiResponse<SysUserData[]>
       >("/SysUser/GetAllActive", {});
     },
     Sys_User_Export: async (
@@ -57,7 +57,6 @@ export const useSys_UserApi = (apiBase: AxiosInstance) => {
     Sys_User_Create: async (
       data: Partial<SysUserData>
     ): Promise<ApiResponse<Partial<SysUserData>>> => {
-      console.log(47, data);
       return apiBase.post<Partial<SysUserData>, ApiResponse<SysUserData>>(
         "/SysUser/Create",
         {
@@ -69,7 +68,6 @@ export const useSys_UserApi = (apiBase: AxiosInstance) => {
     Sys_User_Update: async (
       data: Partial<SysUserData>
     ): Promise<ApiResponse<SysUserData>> => {
-      console.log(62, data);
       return await apiBase.post("/SysUser/Update", {
         strJson: JSON.stringify({
           ...data,

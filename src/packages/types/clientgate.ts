@@ -18,9 +18,59 @@ export interface ClientGateInfo {
 
 export interface Mst_CampaignColumnConfig_GetCampaignColCfgCodeSys {
   Success: true;
-  Data: "CCF.D69.10002";
+  Data: string;
   DataList: null;
   ErrorData: null;
+}
+
+export interface Cpn_Campaign {
+  CampaignCode: string;
+  OrgID: string;
+  NetworkID: string;
+  CampaignTypeCode: string;
+  CampaignName: string;
+  CampaignDesc: string;
+  DTimeStart: string;
+  DTimeEnd: string;
+  MaxCall: string;
+  CallRate: string;
+  CustomerRate: string;
+  CampaignStatus: string;
+  CreateDTimeUTC: string;
+  CreateBy: string;
+  ApproveDTimeUTC: string;
+  AprroveBy: string;
+  StartDTimeUTC: string;
+  StartBy: string;
+  PauseDTimeUTC: string;
+  PauseBy: string;
+  FinishDTimeUTC: string;
+  FinishBy: string;
+  LogLUDTimeUTC: string;
+  LogLUBy: string;
+  QtyCustomer: string;
+}
+
+export interface Mst_TicketEstablishInfo {
+  OrgID: string;
+  TicketStatus: string;
+  NetworkID: string;
+  AgentTicketStatusName: string;
+  CustomerTicketStatusName: string;
+  FlagUseType: string;
+  FlagActive: string;
+  Remark: string;
+  LogLUDTimeUTC: string;
+  LogLUBy: string;
+}
+
+export interface Cpn_Campaign_GetByCode {
+  Lst_Cpn_Campaign: Cpn_Campaign[];
+  Lst_Cpn_CampaignAgent: any[];
+  Lst_Cpn_CampaignAttachFile: any[];
+  Lst_Cpn_CampaignCustomer: any[];
+  MySummaryTable: any | null;
+  c_K_DT_Sys: any | null;
 }
 
 export interface Mst_CarModel {
@@ -234,6 +284,40 @@ export interface DeleteBankAccountParam {
   BankCode: string;
 }
 
+export interface Rpt_CpnCampaignResultCallData {
+  Rpt_Cpn_CampaignResultCall?: any;
+  CampaignCode: string;
+  OrgID: string;
+  CampaignName: string;
+  CreateDTimeUTC: string;
+  CampaignStatus: string;
+  QtySumCtm: number;
+  QtyCtmNew: number;
+  QtyPending: number;
+  QtyDone: number;
+  QtyFailed: number;
+  QtyNoAnswer: number;
+  QtyCallAgain: number;
+  QtyNoAnswerRetry: number;
+  QtyDoNotCall: number;
+  QtyFailedRetry: number;
+}
+export interface Rpt_CpnCampaignStatisticCallData {
+  Rpt_Cpn_CampaignStatisticCall?: any;
+  CampaignCode: string;
+  OrgID: string;
+  CampaignName: string;
+  CreateDTimeUTC: string;
+  CampaignStatus: string;
+  QtySumCtm: number;
+  QtyCtmNew: number;
+  QtySumCall: number;
+  QtyCallDone: number;
+  QtyCallFailed: number;
+  QtySumCallTime: number;
+  CallTimeAverage: number;
+}
+
 export interface Mst_Area {
   OrgID: string;
   AreaCode: string;
@@ -250,6 +334,25 @@ export interface Mst_Area {
   LogLUBy: string;
   SolutionCode: string;
   FunctionActionType: string;
+}
+export interface MstBizColumnData {
+  BizType: string;
+  BizCol: string;
+  NetworkID: string;
+  BizColName: string;
+  FlagActive: string;
+  LogLUDTimeUTC: string;
+  LogLUBy: string;
+}
+export interface MstSubmissionFormData {
+  SubFormCode: string;
+  SubFormName: string;
+  ChannelType: string;
+  BulletinType: string;
+  IDZNS: string;
+  FlagActive: string;
+  strJsonZNS: any;
+  Lst_Mst_SubmissionForm?: any;
 }
 export interface Cpn_CampaignAgentData {
   Data?: any;
@@ -395,9 +498,49 @@ export interface SearchParam {
   Ft_PageSize: number;
   Ft_PageIndex: number;
 }
+export interface Rpt_CpnCampaignResultCallSearchParam {
+  AgentCodeConditionList: string;
+  CampaignCodeConditionList: string;
+  ReportDTimeTo: string;
+  ReportDTimeFrom: string;
+}
+export interface Rpt_CpnCampaignResultCtmFeedbackSearchParam {
+  CampaignCodeConditionList: string;
+  CampaignTypeCode: string;
+  ReportDTimeTo: string;
+  ReportDTimeFrom: string;
+}
+export interface Rpt_CpnCampaignResultCtmFeedbackData {
+  CAMPAIGNCODE: string;
+  ORGID: string;
+  CAMPAIGNNAME: string;
+  CREATEDTIMEUTC: string;
+  CAMPAIGNSTATUS: string;
+  QTYSUMCTM: string;
+  QTYDONE: string;
+  "Quan tâm": "1 - 0.5%";
+  "Không quan tâm": "1 - 0.5%";
+}
+export interface Rpt_CpnCampaignStatisticCallSearchParam {
+  AgentCodeConditionList: string;
+  CampaignCodeConditionList: string;
+  ReportDTimeTo: string;
+  ReportDTimeFrom: string;
+}
 export interface Cpn_CampaignAgentParam {
   AgentCode: string;
   CampaignCode: FlagActiveEnum;
+}
+
+export interface Cpn_CampaignSearch extends SearchParam {
+  CreateDTimeUTCFrom: string;
+  CreateDTimeUTCTo: string;
+  StartDTimeUTCFrom: string;
+  StartDTimeUTCTo: string;
+  FinishDTimeUTCFrom: string;
+  FinishDTimeUTCTo: string;
+  CampaignStatus: string;
+  CampaignTypeCode: string;
 }
 
 export interface Mst_CampaignType {
@@ -611,6 +754,79 @@ export interface MdMetaColGroupSearchParam extends ISearchParam {
   ScrTplCodeSys: string;
 }
 
+export interface MstTicketColumnConfig {
+  TicketColCfgCodeSys: string;
+  OrgID: string;
+  TicketColCfgCode: string;
+  NetworkID: string;
+  TicketColCfgDataType: string;
+  TicketColCfgName: string;
+  TicketColCfgDateUse: string;
+  JsonListOption: string;
+  FlagCheckDuplicate: string;
+  FlagCheckRequire: string;
+  FlagIsDynamic: string;
+  FlagActive: string;
+  LogLUDTimeUTC: string;
+  LogLUBy: string;
+}
+
+export interface MstTicketColumnConfigParam {
+  TicketColCfgCodeSys: string;
+  OrgID: string;
+  TicketColCfgCode: string;
+  NetworkID: string;
+  TicketColCfgDataType: string;
+  TicketColCfgName: string;
+  TicketColCfgDateUse: string;
+  JsonListOption: string;
+  FlagCheckDuplicate: Boolean;
+  FlagCheckRequire: Boolean;
+  FlagIsDynamic: Boolean;
+  FlagActive: Boolean;
+  LogLUDTimeUTC: string;
+  LogLUBy: string;
+}
+
+export interface MstTicketColumnConfigDtoParamV {
+  TicketColCfgCodeSys: string;
+  OrgID: string;
+  TicketColCfgCode: string;
+  NetworkID: string;
+  TicketColCfgDataType: string;
+  TicketColCfgName: string;
+  TicketColCfgDateUse: string;
+  JsonListOption: string;
+  FlagCheckDuplicate: string;
+  FlagCheckRequire: string;
+  FlagIsDynamic: string;
+  FlagActive: string;
+  LogLUDTimeUTC: string;
+  LogLUBy: string;
+}
+
+export interface MstTicketColumnConfigDtoParam
+  extends MstTicketColumnConfigDtoParamV {
+  ListOption: any[];
+  // incase of select one
+  DefaultIndex?: string;
+  IsRequired: boolean;
+  Enabled: boolean;
+  IsUnique: boolean;
+  IsSearchable: boolean;
+  DataSource?: string;
+}
+
+export interface MstTicketColumnConfigDto extends MstTicketColumnConfigParam {
+  ListOption: any[];
+  DefaultIndex?: string;
+  IsRequired: boolean;
+  Enabled: boolean;
+  IsUnique: boolean;
+  IsSearchable: boolean;
+  DataSource?: string;
+}
+
 export interface MdMetaColGroup {
   OrgID: string;
   ColGrpCodeSys: string;
@@ -673,4 +889,67 @@ export interface MdMetaColGroupSpecListOption {
     Value: string;
     OrderIdx: string;
   }[];
+}
+export interface UploadedFile {
+  FileId: string;
+  NodeID: string;
+  NetworkID: string;
+  SolutionCode: string;
+  FileUrlLocal: string;
+  FileUrlFS: string;
+  FileFullName: string;
+  FileType: string;
+  FileSize: number;
+  FileContent: string;
+  RefNo: string;
+  RefType: string;
+  FileIdDelete: string;
+  CreateDTimeUTC: string;
+  CreateBy: string;
+  LUDTimeUTC: string;
+  LUBy: string;
+  UpdDTimeUTC: string;
+  UpdBy: string;
+  DeleteDTimeUTC: string;
+  DeleteBy: string;
+  FlagIsDeleted: string;
+  FlagIsRecycle: string;
+  LogLUDTimeUTC: string;
+  LogLUBy: string;
+  isUploading?: boolean;
+}
+
+export interface Mst_CustomerHist {
+  AutoId: number | string;
+  OrgID: string;
+  CustomerCodeSys: string;
+  NetworkID: string;
+  JsonCustomerInfoHist: any;
+  LUDTimeUTC: any;
+  LUBy: string | undefined;
+  LUByName: string | undefined;
+  LogLUDTimeUTC: any;
+  LogLUBy: string | undefined;
+}
+
+export interface Mst_SLA {
+  SLAID: string;
+  OrgID: string;
+  NetworkID: string;
+  SLALevel: string;
+  SLADesc: string;
+  FirstResTime: string;
+  EveryResTime: string;
+  ResolutionTime: string;
+  SLAStatus: string;
+  ANDConditionDetails: string;
+  ORConditionDetails: string;
+  LogLUDTimeUTC: string;
+  LogLUBy: string;
+}
+
+export interface SearchSLAParams extends SearchParam {
+  SLALevel: string;
+  SLADesc: string;
+  SLAStatus: string;
 }

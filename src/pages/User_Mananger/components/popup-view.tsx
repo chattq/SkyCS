@@ -100,61 +100,32 @@ export const PopupView = ({
       validateRef.current.instance.validate();
       const dataForm = new FormData(formRef.current);
       const dataSaveForm: any = Object.fromEntries(dataForm.entries()); // chuyển thành form chính
-
-      // randomPassword
-      const length = 10; // Specify the desired length of the password
-      const charset =
-        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()";
-      let newPassword = "";
-
-      for (let i = 0; i < length; i++) {
-        const randomIndex = Math.floor(Math.random() * charset.length);
-        newPassword += charset.charAt(randomIndex);
-      }
       const repsUpload = await api.SysUserData_UploadFile(avt);
+      const dataSave = {
+        ...dataSaveForm,
+        Avatar: repsUpload?.Data?.FileUrlFS ?? "",
+        UserPassword: dataSaveForm.UserPassword ?? "",
+        UserCode: dataSaveForm.EMail.split("@")[0] ?? "",
+        Lst_Sys_UserMapDepartment: derpartmentTag.map((item: any) => {
+          return {
+            UserCode: dataSaveForm.EMail.split("@")[0] ?? "",
+            DepartmentCode: item,
+          };
+        }),
+        Lst_Sys_UserInGroup: groupTag.map((item: any) => {
+          return {
+            UserCode: dataSaveForm.EMail.split("@")[0] ?? "",
+            GroupCode: item,
+          };
+        }),
+      };
       if (flagCheckCRUD) {
-        onCreate({
-          ...dataSaveForm,
-          Avatar: repsUpload?.Data?.FileUrlFS ?? "",
-          UserPassword: newPassword,
-          UserCode: dataSaveForm.EMail.split("@")[0] ?? "",
-          Lst_Sys_UserMapDepartment: derpartmentTag.map((item: any) => {
-            return {
-              UserCode: dataSaveForm.EMail.split("@")[0] ?? "",
-              DepartmentCode: item,
-            };
-          }),
-          Lst_Sys_UserInGroup: groupTag.map((item: any) => {
-            return {
-              UserCode: dataSaveForm.EMail.split("@")[0] ?? "",
-              GroupCode: item,
-            };
-          }),
-        });
+        onCreate(dataSave);
       } else {
-        onEdit({
-          ...dataSaveForm,
-          Avatar: repsUpload?.Data?.FileUrlFS
-            ? repsUpload?.Data?.FileUrlFS
-            : avt,
-          UserPassword: newPassword,
-          UserCode: dataSaveForm.EMail.split("@")[0] ?? "",
-          Lst_Sys_UserMapDepartment: derpartmentTag.map((item: any) => {
-            return {
-              UserCode: dataSaveForm.EMail.split("@")[0] ?? "",
-              DepartmentCode: item,
-            };
-          }),
-          Lst_Sys_UserInGroup: groupTag.map((item: any) => {
-            return {
-              UserCode: dataSaveForm.EMail.split("@")[0] ?? "",
-              GroupCode: item,
-            };
-          }),
-        });
+        onEdit(dataSave);
       }
     },
-    [avt]
+    [avt, flagCheckCRUD]
   );
 
   const handleDatatable = (e: any) => {
@@ -193,14 +164,17 @@ export const PopupView = ({
         }
       }
       if (item.dataField === "EMail") {
-        if (flagCheckCRUD === false) {
-          item.editorOptions.readOnly = true;
-        } else {
+        if (flagCheckCRUD === true) {
           item.editorOptions.readOnly = false;
+        } else {
+          item.editorOptions.readOnly = true;
         }
       }
+      if (["FlagSysAdmin", "FlagNNTAdmin"].includes(item.dataField)) {
+        item.editorOptions.value = true;
+      }
     },
-    [value, flagCheckCRUD, detailForm]
+    [flagCheckCRUD, detailForm]
   );
 
   const handleFieldDataChanged = useCallback(

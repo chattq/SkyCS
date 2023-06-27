@@ -39,9 +39,12 @@ import {
 } from "@/pages/Business_Information/components/store";
 import { PageHeaderLayout } from "@/packages/layouts/page-header-layout";
 import { toast } from "react-toastify";
+import { GridViewCustomize } from "@/packages/ui/base-gridview/gridview-customize";
+import { dataGridAtom } from "@/packages/ui/base-gridview/store/normal-grid-store";
 
 export const Business_InformationPage = () => {
   const { t } = useI18n("Business_Information");
+
   let gridRef: any = useRef<DataGrid | null>(null);
   const config = useConfiguration();
   const showError = useSetAtom(showErrorAtom);
@@ -130,10 +133,11 @@ export const Business_InformationPage = () => {
     }
   };
   const handleOnEditRow = async (e: any) => {
+    console.log(134, e);
     setFlag(false);
     setReadOnly(false);
     setShowDetail(false);
-    const resp = await api.Mst_NNTController_GetNNTCode(e.row.data.MST);
+    const resp = await api.Mst_NNTController_GetNNTCode(e[0]);
     if (resp.isSuccess) {
       setDataForm(resp.Data);
     }
@@ -170,12 +174,13 @@ export const Business_InformationPage = () => {
   };
 
   const onModifyNew = async (data: any) => {
-    if (data.NNTFullName !== "" && data.MST !== "") {
+    if (data.NNTFullName !== "") {
       const resp = await api.Mst_NNTController_Update({
         ...data,
         FlagActive: data.FlagActive ? "1" : "0",
       });
       if (resp.isSuccess) {
+        // dataGrid.current?.instance.deselectRows(data.MST);
         toast.success(t("Update Successfully"));
         setPopupVisible(false);
         await refetch();
@@ -193,7 +198,10 @@ export const Business_InformationPage = () => {
   // Section: CRUD operations
   const onCreateNew = async (data: Mst_NNTController & { __KEY__: string }) => {
     const { __KEY__, ...rest } = data;
-    if (data.NNTFullName !== "" && data.MST !== "") {
+    if (
+      data.NNTFullName !== "" &&
+      data.MST.match(/[^a-zA-Z0-9_]/g)?.length === undefined
+    ) {
       const resp = await api.Mst_NNTController_Create({
         ...rest,
         FlagActive: rest.FlagActive ? "1" : "0",
@@ -210,6 +218,9 @@ export const Business_InformationPage = () => {
         errorInfo: resp.errorInfo,
       });
       throw new Error(resp.errorCode);
+    }
+    if (data.MST.match(/[^a-zA-Z0-9_]/g)?.length !== undefined) {
+      toast.warning(t("MST không được chứa các ký tự đặc biệt"));
     }
   };
   const onCreate = (data: any) => {};
@@ -252,6 +263,7 @@ export const Business_InformationPage = () => {
   // End Section: CRUD operations
 
   const handleEditRowChanges = () => {};
+  const handleOnEditRowOld = () => {};
 
   const loadingControl = useVisibilityControl({ defaultVisible: false });
   const handleDeleteRows = async (ids: any) => {
@@ -279,12 +291,16 @@ export const Business_InformationPage = () => {
             </div>
           </PageHeaderLayout.Slot>
           <PageHeaderLayout.Slot name={"Center"}>
-            <HeaderPart refetch={refetch} onAddNew={handleAddNew} />
+            <HeaderPart
+              refetch={refetch}
+              onAddNew={handleAddNew}
+              handleOnEditRow={handleOnEditRow}
+            />
           </PageHeaderLayout.Slot>
         </PageHeaderLayout>
       </AdminContentLayout.Slot>
       <AdminContentLayout.Slot name={"Content"}>
-        <GridViewPopup
+        <GridViewCustomize
           isLoading={isLoading}
           dataSource={data?.isSuccess ? data?.DataList ?? [] : []}
           columns={columns}
@@ -298,8 +314,9 @@ export const Business_InformationPage = () => {
           onEditorPreparing={handleEditorPreparing}
           onEditRowChanges={handleEditRowChanges}
           onDeleteRows={handleDeleteRows}
-          onEditRow={handleOnEditRow}
+          onEditRow={handleOnEditRowOld}
           storeKey={"Business_Information-columns"}
+          isSingleSelection
         />
         <PopupView
           onEdit={onModifyNew}

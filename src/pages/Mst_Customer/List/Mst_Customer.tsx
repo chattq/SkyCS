@@ -1,3 +1,4 @@
+import { distinguish } from "@/components/ulti";
 import { useI18n } from "@/i18n/useI18n";
 import { useClientgateApi } from "@/packages/api";
 import {
@@ -16,25 +17,22 @@ import {
   MdMetaColGroupSpec,
   Mst_Customer,
 } from "@/packages/types";
-import { BaseGridView, GridViewPopup } from "@/packages/ui/base-gridview";
+import { BaseGridView } from "@/packages/ui/base-gridview";
+import { SearchPanelV2 } from "@/packages/ui/search-panel";
+import { flagCustomer } from "@/pages/Mst_Customer/components/Customer/store";
 import { selecteItemsAtom } from "@/pages/Mst_Customer/components/store";
 import { useQuery } from "@tanstack/react-query";
+import { DataGrid, LoadPanel } from "devextreme-react";
 import { IPopupOptions } from "devextreme-react/popup";
+import { EditorPreparingEvent } from "devextreme/ui/data_grid";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useRef, useState } from "react";
-import HeaderPart from "../components/header-part";
-import { EditorPreparingEvent } from "devextreme/ui/data_grid";
-import { PopupViewComponent } from "../components";
 import { toast } from "react-toastify";
-import { DataGrid, LoadPanel } from "devextreme-react";
+import { PopupViewComponent } from "../components";
+import HeaderPart from "../components/header-part";
 import { useColumn } from "../components/use-columns";
-import { useFormSettings } from "../components/use-form-settings";
-import { convertDate, flagEditorOptions } from "@/packages/common";
-import { SearchPanelV2 } from "@/packages/ui/search-panel";
-import { IItemProps } from "devextreme-react/form";
-import { flagCustomer } from "@/pages/Mst_Customer/components/Customer/store";
 import { useColumnsSearch } from "../components/use-columns-search";
-import { distinguish } from "@/components/ulti";
+import { useFormSettings } from "../components/use-form-settings";
 
 interface DataFilter {
   staticField: MdMetaColGroupSpec[];
@@ -44,9 +42,12 @@ interface DataFilter {
   listQuery: MdMetaColGroupSpec[];
 }
 
-interface SearchParam {}
+interface Props {
+  bePopUp?: boolean;
+  isHideHeader?: Boolean;
+}
 
-export const Mst_CustomerPage = () => {
+export const Mst_CustomerPage = ({ bePopUp, isHideHeader = false }: Props) => {
   const navigate = useNetworkNavigate();
   const [formValue, setFormValue] = useState({});
   const setSearchPanelVisibility = useSetAtom(searchPanelVisibleAtom); // state lưu trữ trạng thái đóng mở của nav search
@@ -102,7 +103,10 @@ export const Mst_CustomerPage = () => {
   } = useQuery({
     queryKey: ["ListColumn"],
     queryFn: async () => {
-      const response = await api.MdMetaColGroupSpec_Search({});
+      const response = await api.MdMetaColGroupSpec_Search(
+        {},
+        "SCRTPLCODESYS.2023"
+      );
       if (response.isSuccess) {
         if (response?.DataList) {
           let objField: any = {
@@ -113,19 +117,19 @@ export const Mst_CustomerPage = () => {
             listQuery: [],
           };
           response?.DataList.forEach((item) => {
-            if (item.ColDataType === "MASTERDATA") {
+            if (item?.ColDataType === "MASTERDATA") {
               objField.listMasterField.push(item);
             }
-            if (item.FlagIsQuery === "1") {
+            if (item?.FlagIsQuery === "1") {
               objField.listQuery.push(item);
             }
-            if (item.FlagIsColDynamic === "1") {
+            if (item?.FlagIsColDynamic === "1") {
               objField.dynamicFields.push(item);
             }
-            if (item.FlagIsColDynamic === "0") {
+            if (item?.FlagIsColDynamic === "0") {
               objField.staticField.push(item);
             }
-            if (item.FlagIsQuery === "1") {
+            if (item?.FlagIsQuery === "1") {
               objField.listSearchRange.push(item);
             }
           });
@@ -256,13 +260,15 @@ export const Mst_CustomerPage = () => {
       JsonColDynamicSearch: JSON.stringify(value),
     };
 
-    delete obj?.CUSTOMERCODE;
-    delete obj?.CUSTOMERNAME;
+    // delete obj?.CUSTOMERCODE;
+    // delete obj?.CUSTOMERNAME;
 
     console.log("obj ", obj);
 
     setFormValue(obj);
   };
+
+  console.log(listColumn);
 
   // các cột của gridview
   const columns = useColumn({
@@ -270,6 +276,8 @@ export const Mst_CustomerPage = () => {
     dataField: listColumn ?? [],
     dataGroup: listGroup ?? [],
   });
+
+  // console.log(columns);
 
   // hàm thêm cột ở trong trường hợp popup thì là mở popup
   const handleAddNew = () => {
@@ -395,14 +403,16 @@ export const Mst_CustomerPage = () => {
 
   const getColumn = useColumnsSearch({
     listColumn: listColumn ?? [],
-    listMapField: listDynamic,
+    listMapField: listDynamic ?? {},
   });
+
+  console.log(getColumn);
 
   const handleCustomerEdit = (e: any) => {
     const { data } = e;
     const { CustomerCodeSys } = data;
     setFlagCustomer("update");
-    navigate(`/customer/Customer_AddNew/${CustomerCodeSys}`);
+    navigate(`/customer/Customer_Detail/${CustomerCodeSys}`);
   };
 
   return (
