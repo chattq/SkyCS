@@ -75,11 +75,12 @@ export const useETTicket = (apiBase: AxiosInstance) => {
     ET_Ticket_Search: async (
       param: SearchParamEticket
     ): Promise<ApiResponse<ETICKET_REPONSE[]>> => {
+      console.log("param ", param);
       return await apiBase.post<
         SearchParamEticket,
         ApiResponse<ETICKET_REPONSE[]>
       >("ETTicket/Search", {
-        param,
+        ...param,
       });
     },
   };

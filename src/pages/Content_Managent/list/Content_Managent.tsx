@@ -13,6 +13,7 @@ import { showErrorAtom } from "@packages/store";
 import { EditorPreparingEvent } from "devextreme/ui/data_grid";
 import { searchPanelVisibleAtom } from "@layouts/content-searchpanel-layout";
 import {
+  checkUIZNSAtom,
   refetchAtom,
   selectedItemsAtom,
   valueIDAtom,
@@ -30,6 +31,7 @@ export const Content_ManagentPage = () => {
   const showError = useSetAtom(showErrorAtom);
   const setValueID = useSetAtom(valueIDAtom);
   const refetchData = useAtomValue(refetchAtom);
+  const setcheckUIZNS = useSetAtom(checkUIZNSAtom);
 
   const [searchCondition] = useState<any>({
     FlagActive: FlagActiveEnum.All,
@@ -43,7 +45,7 @@ export const Content_ManagentPage = () => {
   const api = useClientgateApi();
 
   const { data, isLoading, refetch } = useQuery(
-    ["Content_Managent", JSON.stringify(searchCondition)],
+    ["Content_Managent", JSON.stringify(searchCondition), refetchData],
     () =>
       api.Mst_SubmissionForm_Search({
         ...searchCondition,
@@ -57,25 +59,7 @@ export const Content_ManagentPage = () => {
 
   const columns = useBankDealerGridColumns({ data: data?.DataList || [] });
 
-  const formItems: IItemProps[] = [
-    {
-      caption: t("KeyWord"),
-      dataField: "KeyWord",
-      editorType: "dxTextBox",
-      editorOptions: {
-        placeholder: t("Input"),
-      },
-    },
-    {
-      dataField: "FlagActive",
-      caption: t("Flag Active"),
-      editorType: "dxSelectBox",
-      editorOptions: flagEditorOptionsSearch,
-    },
-  ];
-
   const handleDeleteRows = async (rows: any) => {};
-
   const handleSelectionChanged = (rows: string[]) => {
     setSelectedItems(rows);
   };
@@ -219,6 +203,10 @@ export const Content_ManagentPage = () => {
     handleEdit(row.rowIndex);
   };
   const handleEditRowChanges = () => {};
+  const handleAddnew = () => {
+    setValueID(false);
+    setcheckUIZNS(false);
+  };
 
   return (
     <AdminContentLayout className={"Content_Managent"}>
@@ -227,7 +215,7 @@ export const Content_ManagentPage = () => {
           <div className="py-1 flex justify-end px-4">
             <div
               className="cursor-pointer px-4 py-[7px] rounded border-[#078850] font-semibold border-[2px] shadow-lg bg-[#078850] text-white"
-              onClick={() => setValueID(false)}
+              onClick={handleAddnew}
             >
               {t("Add new")}
             </div>

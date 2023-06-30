@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { match } from "ts-pattern";
 
-export const AvatarField = ({ component, formData, field }: any) => {
+export const AvatarField = ({ component, formData, field, editType }: any) => {
   const defaultAvatar =
     "https://tse2.mm.bing.net/th?id=OIP.udoq18uxDpu6UHi2H__97gAAAA&pid=Api&P=0&h=180";
 
@@ -39,7 +39,10 @@ export const AvatarField = ({ component, formData, field }: any) => {
     <>
       <div
         className="overflow-hidden h-[100px] w-[100px] rounded-lg shadow-xl mt-[10px] ml-[10px] cursor-pointer"
-        style={{ borderRadius: "50%" }}
+        style={{
+          borderRadius: "50%",
+          pointerEvents: editType == "detail" ? "none" : "unset",
+        }}
       >
         <div className="h-full w-full" onClick={handleUpload}>
           <img alt="" className="w-full h-full object-cover" src={avatar} />

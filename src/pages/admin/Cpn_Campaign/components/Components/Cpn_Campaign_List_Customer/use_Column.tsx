@@ -1,10 +1,8 @@
 import { useI18n } from "@/i18n/useI18n";
-import {
-  mapEditorOption,
-  mapEditorType,
-} from "@/pages/Mst_Customer/components/Customer/AddNew/util";
-import { useAtomValue } from "jotai";
+
 import { listCampaignAgentAtom } from "@/pages/admin/Cpn_Campaign/components/store";
+import { mapEditorOption, mapEditorType } from "@/utils/customer-common";
+import { useAtomValue } from "jotai";
 interface Props {
   dataSource: any;
   dynamicField: any[];

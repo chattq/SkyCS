@@ -15,6 +15,7 @@ export const valueIDZNSAtom = atom<any>(undefined);
 export const zaloTemplatetom = atom<any>(undefined);
 export const dataFormAtom = atom<any>(undefined);
 export const refetchAtom = atom<any>(false);
+export const checkUIZNSAtom = atom<any>(false);
 
 export const viewingDataAtom = atom(
   (get) => {

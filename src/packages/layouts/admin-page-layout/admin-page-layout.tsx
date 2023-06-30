@@ -12,7 +12,7 @@ import { Sidebar } from "@packages/ui/sidebar";
 import Toolbar, { Item as ToolbarItem } from "devextreme-react/toolbar";
 import { protectedRoutes } from "@/app-routes";
 
-import './admin-page-layout.scss';
+import "./admin-page-layout.scss";
 import { MenuBarItem, SidebarItem } from "@/types";
 import { Header } from "@packages/ui/header";
 import { useAtomValue, useSetAtom } from "jotai";
@@ -31,6 +31,7 @@ export const AdminPageLayout = () => {
   const location = useLocation();
   const isSidebarOpen = useAtomValue(sidebarAtom);
   const setSidebarOpen = useSetAtom(sidebarAtom);
+
   const toggleSidebar = () => {
     setSidebarOpen(!isSidebarOpen);
   };
@@ -39,33 +40,42 @@ export const AdminPageLayout = () => {
   };
   const { hasMenuPermission } = usePermissions();
   const sidebarItems = useMemo(() => {
-    const mainKey = location.pathname.split('/')[2];
+    const mainKey = location.pathname.split("/")[2];
     return protectedRoutes
-      .filter(route =>
-        route.key !== route.mainMenuKey
-        && route.mainMenuKey === mainKey
-        && !!route.subMenuTitle
+      .filter(
+        (route) =>
+          route.key !== route.mainMenuKey &&
+          route.mainMenuKey === mainKey &&
+          !!route.subMenuTitle
       )
-      .filter(route => !route.permissionCode || (route.permissionCode && hasMenuPermission(route.permissionCode)))
-      .map(route => ({
-        text: route.subMenuTitle,
-        path: route.path,
-        key: route.key,
-      } as SidebarItem))
-      ;
+      .filter(
+        (route) =>
+          !route.permissionCode ||
+          (route.permissionCode && hasMenuPermission(route.permissionCode))
+      )
+      .map(
+        (route) =>
+          ({
+            text: route.subMenuTitle,
+            path: route.path,
+            key: route.key,
+          } as SidebarItem)
+      );
   }, [location]);
 
-  const onNavigationChanged = useCallback(({ itemData, event, node }: ItemClickEvent) => {
-    if (!itemData?.path || node?.selected) {
-      event?.preventDefault();
-      return;
-    }
-    navigate(itemData.path);
-    scrollViewRef.current?.instance.scrollTo(0);
-    toggleSidebar();
-  }, [navigate, isLarge]);
-  const temporaryOpenMenu = useCallback(() => {
-  }, []);
+  const onNavigationChanged = useCallback(
+    ({ itemData, event, node }: ItemClickEvent) => {
+      if (!itemData?.path || node?.selected) {
+        event?.preventDefault();
+        return;
+      }
+      navigate(itemData.path);
+      scrollViewRef.current?.instance.scrollTo(0);
+      toggleSidebar();
+    },
+    [navigate, isLarge]
+  );
+  const temporaryOpenMenu = useCallback(() => {}, []);
   const navigateItem = useCallback((item: MenuBarItem) => {
     navigate(item.path);
     openSidebar();
@@ -77,15 +87,15 @@ export const AdminPageLayout = () => {
       <Header
         logo={true}
         menuToggleEnabled={false}
-        title={t('SkyCS')}
+        title={t("SkyCS")}
         items={items}
         extraItems={extraItems}
         onMenuItemClick={navigateItem}
       />
     );
   }, [t, navigateItem, items]);
-
   const sidebarElement = useMemo(() => {
+    // console.log("sidebarItems ",sidebarItems)
     return (
       <Sidebar
         compactMode={!isSidebarOpen}
@@ -94,40 +104,34 @@ export const AdminPageLayout = () => {
         onMenuReady={onMenuReady}
         items={sidebarItems}
       >
-        <Toolbar id={'navigation-header'}>
-          {
-            !isXSmall &&
-            <ToolbarItem
-              location={'before'}
-              cssClass={'menu-button'}
-            >
+        <Toolbar id={"navigation-header"}>
+          {!isXSmall && (
+            <ToolbarItem location={"before"} cssClass={"menu-button"}>
               <Button icon="menu" stylingMode="text" onClick={toggleSidebar} />
             </ToolbarItem>
-          }
+          )}
         </Toolbar>
       </Sidebar>
     );
   }, [sidebarItems, toggleSidebar]);
   return (
-    <div className={'skycs w-full h-full'}>
+    <div className={"skycs w-full h-full"}>
       {header}
       <Drawer
-        className={['main-sidebar', 'drawer', patchCssClass].join(' ')}
-        position={'before'}
-        openedStateMode={isLarge ? 'shrink' : 'overlap'}
-        revealMode={isXSmall ? 'slide' : 'expand'}
+        className={["main-sidebar", "drawer", patchCssClass].join(" ")}
+        position={"before"}
+        openedStateMode={isLarge ? "shrink" : "overlap"}
+        revealMode={isXSmall ? "slide" : "expand"}
         minSize={0}
         maxSize={250}
         shading={false}
         opened={isSidebarOpen}
-        template={'menu'}
+        template={"menu"}
       >
-        <div className={'w-full h-full'}>
+        <div className={"w-full h-full"}>
           <Outlet />
         </div>
-        <Template name={'menu'}>
-          {sidebarElement}
-        </Template>
+        <Template name={"menu"}>{sidebarElement}</Template>
       </Drawer>
     </div>
   );

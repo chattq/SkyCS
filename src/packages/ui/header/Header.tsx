@@ -14,6 +14,7 @@ export function Header({ menuToggleEnabled, title, toggleMenu, extraItems, items
       <MenuBar items={items??[]} extraItems={extraItems??[]} onClick={onMenuItemClick} />
     )
   }, [items])
+  
   return (
     <header className={'header-component'}>
       <Toolbar className={'header-toolbar'}>

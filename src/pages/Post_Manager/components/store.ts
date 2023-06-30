@@ -10,6 +10,10 @@ export enum ViewMode {
 
 export const viewingRowAtom = atom<number | undefined>(undefined);
 export const viewingItemAtom = atom<Mst_PaymentTermData | undefined>(undefined);
+export const currentInfo = atom<any>({
+  CampaignAgent: [],
+  uploadFiles: [],
+});
 
 export const viewingDataAtom = atom(
   (get) => {

@@ -1,1 +1,1 @@
-export * from "./List/Mst_Customer";
+export * from "./list/Mst_CustomerList";

@@ -5,6 +5,7 @@ import { viewingDataAtom } from "@/pages/Mst_Customer/components/store";
 import { ColumnOptions } from "@packages/ui/base-gridview";
 import { useSetAtom } from "jotai";
 import { nanoid } from "nanoid";
+import React , {memo} from 'react'
 export const useColumn = () => {
   const setViewingItem = useSetAtom(viewingDataAtom);
   const viewRow = (rowIndex: number, data: any) => {
@@ -14,16 +15,8 @@ export const useColumn = () => {
     });
   };
 
-  const listStatus = [
-    "NEW",
-    "OPEN",
-    "PROCESSING",
-    "ON HOLD",
-    "WATING ON CUSTOMER",
-    "WAITING ON THIRD PARTY",
-    "SOLVED",
-    "CLOSED",
-  ];
+
+  // thiếu tương tác mới mới nhất, tên khách hàng , phụ trách
 
   const { t } = useI18n("Mst_Customer");
   const columns: ColumnOptions[] = [
@@ -38,13 +31,13 @@ export const useColumn = () => {
       editorType: "dxTextBox",
     },
     {
-      dataField: "TicketID", // Phân loại
-      caption: t("TicketID"),
+      dataField: "TicketType", // Phân loại
+      caption: t("TicketType"),
       editorType: "dxTextBox",
     },
     {
-      dataField: "TicketID", // tên KH
-      caption: t("TicketID"),
+      dataField: "CustomerCodeSys", // tên KH
+      caption: t("CustomerCodeSys"),
       editorType: "dxTextBox",
     },
     {
@@ -58,12 +51,12 @@ export const useColumn = () => {
       editorType: "dxTextBox",
     },
     {
-      dataField: "TicketID", // Thời điểm tiếp nhận
-      caption: t("TicketID"),
+      dataField: "ReceptionDTimeUTC", // Thời điểm tiếp nhận
+      caption: t("ReceptionDTimeUTC"),
       editorType: "dxTextBox",
     },
     {
-      dataField: "TicketDeadline", // DeadLine
+      dataField: "TicketDeadline", // Deadline
       caption: t("TicketDeadline"),
       editorType: "dxTextBox",
     },
@@ -74,4 +67,4 @@ export const useColumn = () => {
     },
   ];
   return columns;
-};
+}

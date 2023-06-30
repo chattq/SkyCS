@@ -1,4 +1,10 @@
-import {Button, CheckBox, DataGrid, LoadPanel} from "devextreme-react";
+import {
+  Button,
+  CheckBox,
+  DataGrid,
+  LoadPanel,
+  SelectBox,
+} from "devextreme-react";
 import {
   Button as DxButton,
   Column,
@@ -21,7 +27,8 @@ import { PageSize } from "@packages/ui/page-size";
 import CustomStore from "devextreme/data/custom_store";
 import {
   ForwardedRef,
-  forwardRef, RefObject,
+  forwardRef,
+  RefObject,
   useCallback,
   useEffect,
   useMemo,
@@ -51,26 +58,38 @@ import { PopupGridPageNavigator } from "@packages/ui/base-gridview/components/po
 import { PopupGridPageSummary } from "@packages/ui/base-gridview/components/popup-grid-page-summary";
 import { useSetAtom } from "jotai";
 import { popupGridStateAtom } from "@packages/ui/base-gridview/store/popup-grid-store";
-import { GridCustomerToolBarItem, GridCustomToolbar } from "@packages/ui/base-gridview/components/grid-custom-toolbar";
+import {
+  GridCustomerToolBarItem,
+  GridCustomToolbar,
+} from "@packages/ui/base-gridview/components/grid-custom-toolbar";
 import { SelectionKeyAtom, dataGridAtom } from "./store/normal-grid-store";
-const SelectionCheckBox = ({key, gridRef, rowIndex, isSelected}: {
+const SelectionCheckBox = ({
+  key,
+  gridRef,
+  rowIndex,
+  isSelected,
+}: {
   key: string;
   gridRef: RefObject<DataGrid>;
   rowIndex: number;
-  isSelected: boolean
+  isSelected: boolean;
 }) => {
   return (
-    <CheckBox defaultValue={isSelected} data-key={key} onValueChanged={(e: any) => {
-      console.log('select event:', e, gridRef)
-      const {component, value, previousValue} = e;
+    <CheckBox
+      defaultValue={isSelected}
+      data-key={key}
+      onValueChanged={(e: any) => {
+        console.log("select event:", e, gridRef);
+        const { component, value, previousValue } = e;
 
-      if (value) {
-        gridRef.current?.instance?.selectRowsByIndexes([rowIndex])
-        gridRef.current?.instance.refresh()
-      }
-    }}/>
-  )
-}
+        if (value) {
+          gridRef.current?.instance?.selectRowsByIndexes([rowIndex]);
+          gridRef.current?.instance.refresh();
+        }
+      }}
+    />
+  );
+};
 
 interface GridViewProps {
   isHidenHeaderFilter?: boolean;
@@ -96,7 +115,8 @@ interface GridViewProps {
   stateStoring?: IStateStoringProps;
   storeKey: string;
   onEditRow?: (e: any) => void;
-  isSingleSelection?: boolean
+  isSingleSelection?: boolean;
+  isShowEditting?: boolean;
 }
 
 const GridViewRaw = ({
@@ -119,8 +139,9 @@ const GridViewRaw = ({
   onEditingStart,
   storeKey,
   onEditRow,
+  isShowEditting = false,
   customToolbarItems,
-  isSingleSelection=false
+  isSingleSelection = false,
 }: GridViewProps) => {
   const dataGridRef = useRef<DataGrid | null>(null);
   const setDataGrid = useSetAtom(dataGridAtom);
@@ -216,7 +237,7 @@ const GridViewRaw = ({
     setSelectionKeys(e.selectedRowKeys);
     onSelectionChanged?.(e.selectedRowKeys);
   }, []);
-
+  const [currentOption, setCurrentOption] = useState<string>("table");
   const handleEditingStart = useCallback((e: EditingStartEvent) => {
     logger.debug("e:", e);
     onEditingStart?.(e);
@@ -253,6 +274,17 @@ const GridViewRaw = ({
   // const controlDeleteSingleConfirmBox = useVisibilityControl({
   //   defaultVisible: false,
   // });
+  const listOption = [
+    {
+      display: t("Card View"),
+      value: "card",
+    },
+    {
+      display: t("Table View"),
+      value: "table",
+    },
+  ];
+
   const handlePageChanged = useCallback((pageIndex: number) => {
     dataGridRef.current?.instance.pageIndex(pageIndex);
   }, []);
@@ -261,6 +293,27 @@ const GridViewRaw = ({
     {
       location: "before",
       render: () => <GridCustomToolbar items={customToolbarItems} />,
+    },
+    {
+      location: "after",
+      render: () => {
+        return (
+          <div className="flex items-center">
+            {t("Layout")}
+            <SelectBox
+              id="custom-templates"
+              dataSource={listOption}
+              displayExpr="display"
+              className="ml-2 w-[120px]"
+              valueExpr="value"
+              defaultValue={listOption[1].value}
+              onValueChanged={(e: any) => {
+                setCurrentOption(e.value);
+              }}
+            />
+          </div>
+        );
+      },
     },
     isHidenHeaderFilter === true
       ? {
@@ -432,7 +485,7 @@ const GridViewRaw = ({
                 })}
             </Toolbar>
           )}
-          {/* <Editing
+          {isShowEditting && <Editing
             mode={"popup"}
             useIcons={true}
             allowUpdating={true}
@@ -451,60 +504,72 @@ const GridViewRaw = ({
               ok={t("OK")}
               cancel={t("Cancel")}
             />
-          </Editing> */}
-          {/* <Column
-            visible={allowInlineEdit}
-            type="buttons"
-            width={110}
-            fixed={false}
-            allowResizing={false}
-          >
-            <DxButton
-              cssClass={"mx-1 cursor-pointer"}
-              name="edit"
-              icon={"/images/icons/edit.svg"}
-              onClick={(e: any) => {
-                onEditRow?.(e);
-              }}
-            />
-            <DxButton
-              cssClass={"mx-1 cursor-pointer"}
-              name="delete"
-              icon={"/images/icons/trash.svg"}
-            />
-            <DxButton
-              cssClass={"mx-1 cursor-pointer"}
-              name="save"
-              icon={"/images/icons/save.svg"}
-            />
-            <DxButton
-              cssClass={"mx-1 cursor-pointer"}
-              name="cancel"
-              icon={"/images/icons/refresh.svg"}
-            />
-          </Column> */}
+          </Editing> }
 
+          {isShowEditting && (
+            <Column
+              visible={allowInlineEdit}
+              type="buttons"
+              width={110}
+              fixed={false}
+              allowResizing={false}
+            >
+              <DxButton
+                cssClass={"mx-1 cursor-pointer"}
+                name="edit"
+                icon={"/images/icons/edit.svg"}
+                onClick={(e: any) => {
+                  onEditRow?.(e);
+                }}
+              />
+              <DxButton
+                cssClass={"mx-1 cursor-pointer"}
+                name="delete"
+                icon={"/images/icons/trash.svg"}
+              />
+              <DxButton
+                cssClass={"mx-1 cursor-pointer"}
+                name="save"
+                icon={"/images/icons/save.svg"}
+              />
+              <DxButton
+                cssClass={"mx-1 cursor-pointer"}
+                name="cancel"
+                icon={"/images/icons/refresh.svg"}
+              />
+            </Column>
+          )}
           {isHidenHeaderFilter && (
             <Selection mode="multiple" selectAllMode="page" />
           )}
+          {isSingleSelection && <Selection mode={"none"} />}
           {isSingleSelection && (
-            <Selection mode={'none'} />
-            
-          )}
-          {isSingleSelection && (
-            <Column dataField={'fake'} caption={t('')}
-                    showInColumnChooser={false}
-                    allowFiltering={false}
-                    allowSearch={false}
-                    allowResizing={false}
-                    cellRender={(e: any) => {
-                      console.log(e)
-                      const {data, row: {isSelected, rowIndex}, value, key} = e
-                      return <SelectionCheckBox isSelected={isSelected} key={key} gridRef={dataGridRef} rowIndex={rowIndex}/>
-                    }}
-                    dataType={'boolean'}
-            >
-            </Column>
+            <Column
+              dataField={"fake"}
+              caption={t("")}
+              showInColumnChooser={false}
+              allowFiltering={false}
+              allowSearch={false}
+              allowResizing={false}
+              cellRender={(e: any) => {
+                console.log(e);
+                const {
+                  data,
+                  row: { isSelected, rowIndex },
+                  value,
+                  key,
+                } = e;
+                return (
+                  <SelectionCheckBox
+                    isSelected={isSelected}
+                    key={key}
+                    gridRef={dataGridRef}
+                    rowIndex={rowIndex}
+                  />
+                );
+              }}
+              dataType={"boolean"}
+            ></Column>
           )}
           {isHidenHeaderFilter && (
             <Scrolling
@@ -520,18 +585,6 @@ const GridViewRaw = ({
           ))}
         </DataGrid>
       </ScrollView>
-      {/* <DeleteConfirmationBox
-        control={controlConfirmBoxVisible}
-        title={t("Are you sure to delete selected records")}
-        onYesClick={onDelete}
-        onNoClick={onCancelDelete}
-      />
-      <DeleteConfirmationBox
-        control={controlDeleteSingleConfirmBox}
-        title={tf("Are you sure to delete this {0} record?", deletingId)}
-        onYesClick={onDeleteSingle}
-        onNoClick={onCancelDelete}
-      /> */}
     </div>
   );
 };

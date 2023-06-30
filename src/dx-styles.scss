@@ -10,7 +10,6 @@
       align-items: center;
       padding: 14px;
       background: #ececec;
-      
     }
   }
   .dx-popup-bottom {
@@ -402,4 +401,12 @@ body {
 
 .breakcrumb {
   display: flex;
+}
+
+.dx-toolbar-item-content {
+  div {
+    .dx-button {
+      margin-right: 5px;
+    }
+  }
 }

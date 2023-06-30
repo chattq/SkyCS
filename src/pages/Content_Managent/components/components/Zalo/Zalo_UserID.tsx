@@ -1,3 +1,4 @@
+import { useI18n } from "@/i18n/useI18n";
 import { useClientgateApi } from "@/packages/api";
 import { useQuery } from "@tanstack/react-query";
 import { ScrollView } from "devextreme-react";
@@ -9,7 +10,8 @@ import HtmlEditor, {
 } from "devextreme-react/html-editor";
 import React, { useRef } from "react";
 
-export default function Zalo_UserID({ formRef }: any) {
+export default function Zalo_UserID({ formRef, markup }: any) {
+  const { t } = useI18n("Content_Managent");
   const editorRef = useRef<any>();
   const cursorPositionRef = useRef<any>(0);
   const sizeValues = ["8pt", "10pt", "12pt", "14pt", "18pt", "24pt", "36pt"];
@@ -46,7 +48,7 @@ export default function Zalo_UserID({ formRef }: any) {
   return (
     <div className="flex px-6">
       <div className="w-[80%]">
-        <div className="mb-[15px]">Nội dung tin nhắn</div>
+        <div className="mb-[15px]">{t("Message Content")}</div>
         <HtmlEditor
           valueType="html"
           height="300px"
@@ -54,6 +56,7 @@ export default function Zalo_UserID({ formRef }: any) {
           ref={editorRef}
           onValueChanged={valueChanged}
           onFocusOut={onFocusOut}
+          defaultValue={markup?.Lst_Mst_SubmissionFormMessage[0]?.Message || ""}
         >
           <MediaResizing enabled={true} />
           <ImageUpload tabs={["file"]} fileUploadMode="base64" />
@@ -105,9 +108,10 @@ export default function Zalo_UserID({ formRef }: any) {
         <div className="border pl-2 max-h-[300px] overflow-hidden">
           <ScrollView height={300} showScrollbar="always">
             <div>
-              {listMst_BizColumn?.DataList?.map((item: any) => {
+              {listMst_BizColumn?.DataList?.map((item: any, index: any) => {
                 return (
                   <div
+                    key={index}
                     className="flex hover:text-red-500 cursor-pointer"
                     onClick={() => handleCLick(item)}
                   >

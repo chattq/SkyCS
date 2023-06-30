@@ -37,9 +37,11 @@ import { SearchPanelV2 } from "@/packages/ui/search-panel";
 
 import { nanoid } from "nanoid";
 import { CheckBox, DateBox, SelectBox } from "devextreme-react";
-import Post_detail from "../components/components/Post_detail";
+import Post_detail from "../components/components/Post_add";
 import FilterDropdown from "@/packages/ui/base-gridview/FilterDropdown";
 import { set } from "date-fns";
+import NavNetworkLink from "@/components/Navigate";
+import { GridViewCustomize } from "@/packages/ui/base-gridview/gridview-customize";
 
 function generateMonthData(): Date[] {
   const startYear = 1990;
@@ -85,7 +87,7 @@ export const Post_ManagerPage = () => {
   const { data, isLoading, refetch } = useQuery(
     ["Post_Manager", JSON.stringify(searchCondition)],
     () =>
-      api.Mst_Area_Search({
+      api.KB_Post_Search({
         ...searchCondition,
       })
   );
@@ -274,17 +276,24 @@ export const Post_ManagerPage = () => {
   ];
 
   const handleDeleteRows = async (rows: any) => {
-    // const resp = await api.Mst_Area_Delete(rows);
-    // if (resp.isSuccess) {
-    //   toast.success(t("Delete Successfully"));
-    //   await refetch();
-    // } else {
-    //   showError({
-    //     message: t(resp.errorCode),
-    //     debugInfo: resp.debugInfo,
-    //     errorInfo: resp.errorInfo,
-    //   });
-    // }
+    const dataDelete = {
+      KB_Post: {
+        ...rows[0],
+      },
+      Lst_KB_PostAttachFile: [],
+    };
+    console.log(279, dataDelete);
+    const resp = await api.KB_PostData_Delete(dataDelete);
+    if (resp.isSuccess) {
+      toast.success(t("Delete Successfully"));
+      await refetch();
+    } else {
+      showError({
+        message: t(resp.errorCode),
+        debugInfo: resp.debugInfo,
+        errorInfo: resp.errorInfo,
+      });
+    }
   };
   const [checkTab, setCheckTab] = useState(false);
 
@@ -359,47 +368,12 @@ export const Post_ManagerPage = () => {
   });
 
   const onModify = async (id: any, data: Partial<Mst_Area>) => {
-    const resp = await api.Mst_Area_Update({
-      ...id,
-      ...data,
-    });
-    if (resp.isSuccess) {
-      toast.success(t("Update Successfully"));
-      await refetch();
-      return true;
-    }
-    showError({
-      message: t(resp.errorCode),
-      debugInfo: resp.debugInfo,
-      errorInfo: resp.errorInfo,
-    });
-    throw new Error(resp.errorCode);
-  };
-  // Section: CRUD operations
-  const onCreate = async (data: Mst_Area & { __KEY__: string }) => {
-    const { __KEY__, ...rest } = data;
-    // console.log(230, data);
-    const resp = await api.Mst_Area_Create({
-      ...rest,
-      FlagActive: rest.FlagActive ? "1" : "0",
-    });
-    if (resp.isSuccess) {
-      toast.success(t("Create Successfully"));
-      await refetch();
-      return true;
-    }
-    showError({
-      message: t(resp.errorCode),
-      debugInfo: resp.debugInfo,
-      errorInfo: resp.errorInfo,
-    });
-    throw new Error(resp.errorCode);
-  };
-
-  const onDelete = async (id: any) => {
-    // const resp = await api.Mst_BankDealer_Delete(id);
+    // const resp = await api.Mst_Area_Update({
+    //   ...id,
+    //   ...data,
+    // });
     // if (resp.isSuccess) {
-    //   toast.success(t("Delete Successfully"));
+    //   toast.success(t("Update Successfully"));
     //   await refetch();
     //   return true;
     // }
@@ -410,6 +384,28 @@ export const Post_ManagerPage = () => {
     // });
     // throw new Error(resp.errorCode);
   };
+  // Section: CRUD operations
+  const onCreate = async (data: Mst_Area & { __KEY__: string }) => {
+    // const { __KEY__, ...rest } = data;
+    // // console.log(230, data);
+    // const resp = await api.Mst_Area_Create({
+    //   ...rest,
+    //   FlagActive: rest.FlagActive ? "1" : "0",
+    // });
+    // if (resp.isSuccess) {
+    //   toast.success(t("Create Successfully"));
+    //   await refetch();
+    //   return true;
+    // }
+    // showError({
+    //   message: t(resp.errorCode),
+    //   debugInfo: resp.debugInfo,
+    //   errorInfo: resp.errorInfo,
+    // });
+    // throw new Error(resp.errorCode);
+  };
+
+  const onDelete = async (id: any) => {};
   const handleSavingRow = (e: any) => {
     // console.log(e);
     // stop grid behaviour
@@ -438,16 +434,52 @@ export const Post_ManagerPage = () => {
     handleEdit(row.rowIndex);
   };
   const handleEditRowChanges = () => {};
-  const handleFilterHeader = () => {};
+  const activeRef = useRef<any>(false);
+  const handleFilterHeader = (tab: any) => {
+    activeRef.current = true;
+    console.log(440, "a");
+  };
+  const filterHeader = [
+    {
+      id: "timecreate",
+      text: t("Time Create"),
+    },
+    {
+      id: "timeupdate",
+      text: t("Time Update"),
+    },
+    {
+      id: "ascending",
+      text: t("Sắp xếp tăng dần"),
+    },
+    {
+      id: "descending",
+      text: t("Sắp xếp giảm dần"),
+    },
+  ];
   const genFilterBlock = (onClose: any) => {
     return (
       <div className="w-[200px] bg-white shadow-md p-1 rounded-md absolute">
-        <div className="bg-red-200 px-2 py-1 rounded-md">Thời gian tạo</div>
-        <div className="bg-red-200 px-2 py-1 rounded-md">
+        {filterHeader.map((item: any) => {
+          return (
+            <div
+              key={item.id}
+              className={
+                activeRef.current === false
+                  ? "bg-red-200"
+                  : "bg-slate-500 px-2 py-1 rounded-md cursor-pointer"
+              }
+              onClick={() => handleFilterHeader(item.id)}
+            >
+              {item.text}
+            </div>
+          );
+        })}
+        {/* <div className="bg-red-200 px-2 py-1 rounded-md">
           Thời gian cập nhật
         </div>
         <div className="bg-red-200 px-2 py-1 rounded-md">Sắp xếp tăng dần</div>
-        <div className="bg-red-200 px-2 py-1 rounded-md">Sắp xếp giảm dần</div>
+        <div className="bg-red-200 px-2 py-1 rounded-md">Sắp xếp giảm dần</div> */}
       </div>
     );
   };
@@ -455,10 +487,8 @@ export const Post_ManagerPage = () => {
   return (
     <AdminContentLayout className={"Post_Manager"}>
       <AdminContentLayout.Slot name={"Header"}>
-        <HeaderPart
-          onAddNew={handleAddNew}
-          searchCondition={searchCondition}
-        ></HeaderPart>
+        {/* <NavNetworkLink to={"/admin/Post_Manager/addNew"}> */}
+        <HeaderPart />
       </AdminContentLayout.Slot>
       <AdminContentLayout.Slot name={"Content"}>
         <ContentSearchPanelLayout>
@@ -477,7 +507,7 @@ export const Post_ManagerPage = () => {
               isLoading={isLoading}
               dataSource={data?.isSuccess ? data.DataList ?? [] : []}
               columns={columns}
-              keyExpr={"CampaignCode"}
+              keyExpr={["PostCode", "OrgID"]}
               popupSettings={popupSettings}
               formSettings={formSettings}
               onReady={(ref) => (gridRef = ref)}
@@ -485,10 +515,11 @@ export const Post_ManagerPage = () => {
               onSelectionChanged={handleSelectionChanged}
               onSaveRow={handleSavingRow}
               onEditorPreparing={handleEditorPreparing}
-              // allowInlineEdit={false}
+              allowInlineEdit={false}
               onEditRowChanges={handleEditRowChanges}
               onDeleteRows={handleDeleteRows}
               inlineEditMode="row"
+              showCheck="always"
               toolbarItems={[
                 {
                   location: "before",

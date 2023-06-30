@@ -10,16 +10,22 @@ import "../../list/Content_Managent.scss";
 import { useNavigate } from "react-router-dom";
 
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { valueIDAtom, valueIDZNSAtom, zaloTemplatetom } from "../store";
+import {
+  checkUIZNSAtom,
+  refetchAtom,
+  valueIDAtom,
+  valueIDZNSAtom,
+  zaloTemplatetom,
+} from "../store";
 import { useQuery } from "@tanstack/react-query";
-import { showErrorAtom } from "@/packages/store";
+import { authAtom, showErrorAtom } from "@/packages/store";
 import Zalo_Parent from "./Zalo_Parent";
 import Content_SMS from "./Content_SMS";
 import Content_Email from "./Content_Email";
 import { toast } from "react-toastify";
 
 export default function Content_Edit() {
-  const { t } = useI18n("Content_Edit");
+  const { t } = useI18n("Content_Managent");
   const navigate = useNavigate();
   const validateRef = useRef<any>();
   const formRef = useRef<any>();
@@ -28,8 +34,9 @@ export default function Content_Edit() {
   const showError = useSetAtom(showErrorAtom);
   const [valueSelect, setValueSelect] = useState("");
   const [valueID, setValueID] = useAtom(valueIDAtom);
+  const setcheckUIZNS = useSetAtom(checkUIZNSAtom);
   const [saveFormType, setSaveFormType] = useState("");
-
+  const setRefetchAtom = useSetAtom(refetchAtom);
   const setZaloTemplateAtom = useSetAtom(zaloTemplatetom);
   const dataTabChanel = [
     {
@@ -124,6 +131,7 @@ export default function Content_Edit() {
                     );
                     if (resp.isSuccess) {
                       setValueID(true);
+                      setcheckUIZNS(false);
                       setZaloTemplateAtom(resp.Data);
                     } else {
                       showError({
@@ -202,19 +210,25 @@ export default function Content_Edit() {
           ([key, value]: any) => {
             return {
               SubFormCode: dataSaveForm.SubFormCode ?? "",
-              ParamValue: null,
-              ...value,
+              ParamValue:
+                value.SourceDataType === "INPUT" ? value.ParamSFCode : null,
+              ParamSFCode:
+                value.SourceDataType === "SYS" ? value.ParamSFCode : null,
+              SourceDataType: value.SourceDataType,
+              ParamSFCodeZNS: value.ParamSFCodeZNS,
             };
           }
         );
         const dataSave = {
           ...dataSaveForm,
-          FlagActive: dataSaveForm.FlagActive === true ? "1" : "0",
+          FlagActive: dataSaveForm.FlagActive === "true" ? "1" : "0",
           ...{ strJsonZNS: JSON.stringify(newData) },
         };
         const resp = await api.MstSubmissionForm_Save(dataSave);
         if (resp.isSuccess) {
+          setRefetchAtom(true);
           toast.success(t("Create Successfully"));
+          navigate(`/${auth.networkId}/admin/Content_Managent`);
           // await refetch();
           return true;
         }
@@ -241,7 +255,9 @@ export default function Content_Edit() {
         };
         const resp = await api.MstSubmissionForm_Save(dataSave);
         if (resp.isSuccess) {
+          setRefetchAtom(true);
           toast.success(t("Create Successfully"));
+          navigate(`/${auth.networkId}/admin/Content_Managent`);
           // await refetch();
           return true;
         }
@@ -268,7 +284,9 @@ export default function Content_Edit() {
         };
         const resp = await api.MstSubmissionForm_Save(dataSave);
         if (resp.isSuccess) {
+          setRefetchAtom(true);
           toast.success(t("Create Successfully"));
+          navigate(`/${auth.networkId}/admin/Content_Managent`);
           // await refetch();
           return true;
         }
@@ -296,7 +314,9 @@ export default function Content_Edit() {
         };
         const resp = await api.MstSubmissionForm_Save(dataSave);
         if (resp.isSuccess) {
+          setRefetchAtom(true);
           toast.success(t("Create Successfully"));
+          navigate(`/${auth.networkId}/admin/Content_Managent`);
           // await refetch();
           return true;
         }
@@ -334,6 +354,7 @@ export default function Content_Edit() {
     //   setIdZNS(changedData.value);
     // }
   }, []);
+  const auth = useAtomValue(authAtom);
 
   return (
     <AdminContentLayout className={"Content_Managent"}>
@@ -347,7 +368,9 @@ export default function Content_Edit() {
           </div>
           <div
             className="cursor-pointer px-4 py-[7px] rounded font-semibold border-[2px] shadow-md bg-white text-black"
-            onClick={() => navigate(-1)}
+            onClick={() =>
+              navigate(`/${auth.networkId}/admin/Content_Managent`)
+            }
           >
             {t("Cancel")}
           </div>

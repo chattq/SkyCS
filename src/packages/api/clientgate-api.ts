@@ -36,6 +36,8 @@ import { useSys_UserApi } from "./clientgate/Sys_UserApi";
 
 import { use_MstTicketColumnConfigApi } from "./clientgate/Mst_TicketColumnConfigApi";
 import { useETTicket } from "./clientgate/ET_TicketApi";
+import { useKB_PostApi } from "./clientgate/KB_Post_ControllerApi";
+import { useMst_Channel } from "./clientgate/Mst_ChannelApi";
 // report end
 
 /**
@@ -262,7 +264,12 @@ export const createClientGateApi = (
   const useETicket = useETTicket(apiBase);
   // const mst_BizColumn = useMst_BizColumnApi(apiBase);
   const mst_ContentApi = useMst_ContentApi(apiBase);
+  const KB_Post = useKB_PostApi(apiBase);
+  const mst_Channel = useMst_Channel(apiBase);
+
   return {
+    ...mst_Channel,
+    ...KB_Post,
     ...useMstTicketColumnConfigApi,
     // ...mst_BizColumn,
     ...mst_ContentApi,

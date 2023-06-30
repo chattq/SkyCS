@@ -362,6 +362,7 @@ export const Rpt_CpnCampaignResultCallPage = () => {
               onEditRowChanges={handleEditRowChanges}
               onDeleteRows={handleDeleteRows}
               inlineEditMode="row"
+              showCheck="always"
               toolbarItems={[
                 {
                   location: "before",

@@ -14,6 +14,7 @@ import { LinkCell } from "@packages/ui/link-cell";
 import { viewingDataAtom } from "./store";
 import { Link } from "react-router-dom";
 import NavNetworkLink from "@/components/Navigate";
+import StatusPost from "./components/StatusPost";
 
 const flagEditorOptions = {
   searchEnabled: true,
@@ -51,8 +52,8 @@ UseBankDealerGridColumnsProps) => {
   const columns: ColumnOptions[] = [
     {
       groupKey: "BASIC_INFORMATION",
-      dataField: "OrgID", // Mã ngân hàng
-      caption: t("OrgID"),
+      dataField: "Title", // Mã ngân hàng
+      caption: t("Title"),
       editorType: "dxTextBox",
       validationRules: [requiredType],
       editorOptions: {
@@ -63,8 +64,8 @@ UseBankDealerGridColumnsProps) => {
     },
     {
       groupKey: "BASIC_INFORMATION",
-      dataField: "AreaCode", // Mã ngân hàng
-      caption: t("AreaCode"),
+      dataField: "kbc_CategoryName", // Mã ngân hàng
+      caption: t("kbc_CategoryName"),
       editorType: "dxTextBox",
       validationRules: [requiredType],
       editorOptions: {
@@ -83,8 +84,8 @@ UseBankDealerGridColumnsProps) => {
 
     {
       groupKey: "BASIC_INFORMATION",
-      dataField: "AreaName", // Tên ngân hàng
-      caption: t("AreaName"),
+      dataField: "Detail", // Tên ngân hàng
+      caption: t("Detail"),
       editorType: "dxTextBox",
       editorOptions: {
         readOnly: false,
@@ -94,8 +95,8 @@ UseBankDealerGridColumnsProps) => {
     },
     {
       groupKey: "BASIC_INFORMATION",
-      dataField: "AreaCodeParent", // Mã đại lý
-      caption: t("AreaCodeParent"),
+      dataField: "CreateDTimeUTC", // Mã đại lý
+      caption: t("CreateDTimeUTC"),
       editorType: "dxTextBox",
       editorOptions: {
         readOnly: false,
@@ -104,28 +105,27 @@ UseBankDealerGridColumnsProps) => {
       columnIndex: 2,
     },
     {
-      groupKey: "BASIC_INFORMATION",
-      dataField: "AreaDesc", // Mã đại lý
-      caption: t("AreaDesc"),
-      editorOptions: {
-        readOnly: false,
-        placeholder: t("Input"),
-      },
+      dataField: "PostStatus",
+      caption: t("PostStatus"),
       editorType: "dxTextBox",
-      columnIndex: 2,
-    },
-    {
-      dataField: "FlagActive",
-      caption: t("FlagActive"),
-      editorType: "dxSwitch",
       alignment: "center",
       columnIndex: 1,
       groupKey: "BASIC_INFORMATION",
       visible: true,
-      width: 100,
       cellRender: ({ data }: any) => {
-        return <StatusButton key={nanoid()} isActive={data.FlagActive} />;
+        return <StatusPost key={nanoid()} isActive={data.PostStatus} />;
       },
+    },
+    {
+      groupKey: "BASIC_INFORMATION",
+      dataField: "ShareType", // Mã đại lý
+      caption: t("ShareType"),
+      editorOptions: {
+        readOnly: false,
+        placeholder: t("Input"),
+      },
+      editorType: "dxTextBox",
+      columnIndex: 2,
     },
   ];
   // return array of the first item only

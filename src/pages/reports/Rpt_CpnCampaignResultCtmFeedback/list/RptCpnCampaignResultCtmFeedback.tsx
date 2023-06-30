@@ -387,6 +387,7 @@ export const RptCpnCampaignResultCtmFeedbackPage = () => {
               onEditRowChanges={handleEditRowChanges}
               onDeleteRows={handleDeleteRows}
               // inlineEditMode="row"
+
               toolbarItems={[
                 {
                   location: "before",

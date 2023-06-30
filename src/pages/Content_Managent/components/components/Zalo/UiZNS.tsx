@@ -1,10 +1,12 @@
 import { useI18n } from "@/i18n/useI18n";
 import { useClientgateApi } from "@/packages/api";
 import { useQuery } from "@tanstack/react-query";
-import { SelectBox, TextBox } from "devextreme-react";
+import { Form, SelectBox, TextBox } from "devextreme-react";
 import { useSetAtom } from "jotai";
-import React, { useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { valueIDZNSAtom } from "../../store";
+import { requiredType } from "@/packages/common/Validation_Rules";
+import { GroupItem, SimpleItem } from "devextreme-react/form";
 
 export default function UiZNS({
   item,
@@ -15,7 +17,7 @@ export default function UiZNS({
 }: any) {
   const { t } = useI18n("Content_Managent");
   const [valueSelect, setValueSelect] = useState(undefined);
-
+  const validateRef = useRef<any>();
   const api = useClientgateApi();
   const { data: listSubmissionForm } = useQuery(["listSubmissionForm"], () =>
     api.Mst_SubmissionForm_GetAllActive()
@@ -31,46 +33,194 @@ export default function UiZNS({
     };
     onChange(obj);
   };
+
+  const formSettings: any = [
+    {
+      colCount: 1,
+      labelLocation: "left",
+      typeForm: "textForm",
+      hidden: false,
+      items: [
+        {
+          itemType: "group",
+          caption: t("BASIC_INFORMATION"),
+          colSpan: 1,
+          cssClass: "",
+          items: [
+            {
+              dataField: "name",
+              editorOptions: {
+                readOnly: true,
+              },
+              editorType: "dxTextBox",
+              caption: t("ChannelType"),
+              visible: true,
+              validationRules: [requiredType],
+            },
+          ],
+        },
+      ],
+    },
+  ];
+  const formSettingsA: any = [
+    {
+      colCount: 2,
+      labelLocation: "left",
+      typeForm: "textForm",
+      hidden: false,
+      items: [
+        {
+          itemType: "group",
+          caption: t("BASIC_INFORMATION"),
+          colSpan: 1,
+          cssClass: "",
+          items: [
+            {
+              dataField: "SourceDataType",
+              editorOptions: {
+                dataSource: listMstBulletinType || [],
+                displayExpr: "SourceDataTypeName",
+                valueExpr: "SourceDataType",
+                onValueChanged: (e: any) => setValueSelect(e.value),
+              },
+              editorType: "dxSelectBox",
+              caption: t("BulletinType"),
+              visible: true,
+              validationRules: [requiredType],
+            },
+          ],
+        },
+        {
+          itemType: "group",
+          caption: t("BASIC_INFORMATION"),
+          colSpan: 1,
+          cssClass: "",
+          items: [
+            {
+              dataField: "ParamSFCode",
+              editorOptions: {
+                placeholder:
+                  valueSelect === undefined
+                    ? t("Vui lòng chọn dữ liệu")
+                    : valueSelect === "INPUT"
+                    ? t("input")
+                    : t("select"),
+                dataSource: listSubmissionForm?.DataList || [],
+                valueExpr: "ParamSFCode",
+                displayExpr: "ParamSFName",
+                readOnly: valueSelect === undefined ? true : false,
+                onValueChanged: (e: any) =>
+                  handleChangeValue(e.value, item.name, valueSelect),
+              },
+              editorType: valueSelect === "INPUT" ? "dxTextBox" : "dxSelectBox",
+              caption: t("ParamSFCode"),
+              visible: true,
+              validationRules: [requiredType],
+            },
+          ],
+        },
+      ],
+    },
+  ];
+
+  const customizeItem = useCallback(
+    (item: any) => {
+      if (["ParamSFCode"].includes(item.dataField)) {
+        if (valueSelect === "INPUT") {
+          item.editorOptions.value = "";
+        }
+        // console.log(126, value);
+      }
+    },
+    [valueSelect]
+  );
+  const handleFieldDataChanged = useCallback((changedData: any) => {
+    // Handle the changed field data
+    // if (changedData.dataField === "ParamSFCode") {
+    //   console.log(137, changedData.value);
+    // }
+  }, []);
   return (
-    <div className="flex justify-between mt-3" key={key}>
+    <div className="flex gap-y-2" key={key}>
       <div>
-        <TextBox readOnly={true} value={item.name} />
-      </div>
-      <div>
-        <SelectBox
-          dataSource={listMstBulletinType || []}
-          displayExpr="SourceDataTypeName"
-          valueExpr="SourceDataType"
+        <Form
+          key={key}
+          className="form_detail_post"
+          ref={validateRef}
+          validationGroup="PostData"
+          onInitialized={(e) => {
+            validateRef.current = e.component;
+          }}
           readOnly={false}
-          onValueChanged={(e) => setValueSelect(e.value)}
-        />
+          formData={item}
+          labelLocation="left"
+          labelMode="hidden"
+          customizeItem={customizeItem}
+          onFieldDataChanged={handleFieldDataChanged}
+        >
+          {formSettings
+            .filter((item: any) => item.typeForm === "textForm")
+            .map((value: any, index: any) => {
+              return (
+                <GroupItem key={index} colCount={value.colCount}>
+                  {value.items.map((items: any, index: any) => {
+                    return (
+                      <GroupItem key={index} colSpan={items.colSpan}>
+                        {items.items.map((valueFrom: any) => {
+                          return (
+                            <SimpleItem
+                              key={valueFrom.caption}
+                              {...valueFrom}
+                            />
+                          );
+                        })}
+                      </GroupItem>
+                    );
+                  })}
+                </GroupItem>
+              );
+            })}
+        </Form>
       </div>
       <div>
-        {valueSelect === "INPUT" ? (
-          <TextBox
-            placeholder={t("Nhập")}
-            onValueChanged={(e) =>
-              handleChangeValue(e.value, item.name, valueSelect)
-            }
-          />
-        ) : (
-          <SelectBox
-            items={listSubmissionForm?.DataList || []}
-            placeholder={
-              valueSelect === undefined
-                ? t("Vui lòng chọn dữ liệu")
-                : t("Select")
-            }
-            displayExpr="ParamSFName"
-            valueExpr="ParamSFCode"
-            searchEnabled={true}
-            onValueChanged={(e) =>
-              handleChangeValue(e.value, item.name, valueSelect)
-            }
-            defaultValue={listSubmissionForm?.DataList[0].ParamSFCode}
-            readOnly={valueSelect === undefined ? true : false}
-          />
-        )}
+        <Form
+          key={key}
+          className="form_detail"
+          ref={validateRef}
+          validationGroup="PostData"
+          onInitialized={(e) => {
+            validateRef.current = e.component;
+          }}
+          readOnly={false}
+          formData={item}
+          labelLocation="left"
+          labelMode="hidden"
+          // customizeItem={customizeItem}
+          // onFieldDataChanged={handleFieldDataChanged}
+        >
+          {formSettingsA
+            .filter((item: any) => item.typeForm === "textForm")
+            .map((value: any, index: any) => {
+              return (
+                <GroupItem key={index} colCount={value.colCount}>
+                  {value.items.map((items: any, index: any) => {
+                    return (
+                      <GroupItem key={index} colSpan={items.colSpan}>
+                        {items.items.map((valueFrom: any) => {
+                          return (
+                            <SimpleItem
+                              key={valueFrom.caption}
+                              {...valueFrom}
+                            />
+                          );
+                        })}
+                      </GroupItem>
+                    );
+                  })}
+                </GroupItem>
+              );
+            })}
+        </Form>
       </div>
     </div>
   );

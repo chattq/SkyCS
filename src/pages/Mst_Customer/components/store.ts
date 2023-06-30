@@ -27,3 +27,4 @@ export const viewingDataAtom = atom(
     }
   }
 );
+export const flagCustomer = atom<string>("add");

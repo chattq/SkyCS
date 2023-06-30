@@ -1,4 +1,5 @@
 import { AdminPage, EticketDetailPage } from "@/pages";
+import EticketAdd from "@/pages/eticket/Add/EticketAdd";
 import { Eticket_Custom_Field_Dynamic } from "@/pages/eticket/Manager_Customer/Customer_DynamicField/list";
 import Mst_TicketEstablishInfo_Save from "@/pages/eticket/Mst_TicketEstablishInfo/components/Mst_TicketEstablishInfo_Save";
 import SLA_List from "@/pages/eticket/SLA/list/SLA_List";
@@ -12,7 +13,7 @@ export const eticketRoutes: RouteItem[] = [
     key: "eticket_Main",
     path: "eticket",
     mainMenuTitle: "eticket",
-    mainMenuKey: "eticket_Main",
+    mainMenuKey: "eticket",
     permissionCode: "",
     getPageElement: () => <AdminPage />,
   },
@@ -31,7 +32,6 @@ export const eticketRoutes: RouteItem[] = [
     permissionCode: "",
     getPageElement: () => <EticketDetailPage />,
   },
-
   {
     key: "eticket_Custom_Field_Dynamic",
     path: "eticket/Eticket_Custom_Field_Dynamic",
@@ -39,13 +39,20 @@ export const eticketRoutes: RouteItem[] = [
     mainMenuKey: "eticket",
     getPageElement: () => <Eticket_Custom_Field_Dynamic />,
   },
-
   {
     key: "Mst_TicketEstablishInfo_Save",
     path: "eticket/Mst_TicketEstablishInfo_Save",
     subMenuTitle: "Mst_TicketEstablishInfo_Save",
     mainMenuKey: "eticket",
     getPageElement: () => <Mst_TicketEstablishInfo_Save />,
+  },
+
+  {
+    key: "eticket_add",
+    path: "eticket/Add",
+    subMenuTitle: "eticket_add",
+    mainMenuKey: "eticket",
+    getPageElement: () => <EticketAdd />,
   },
   {
     key: "SLA",
@@ -57,14 +64,14 @@ export const eticketRoutes: RouteItem[] = [
   {
     key: "SLA",
     path: "eticket/SLA-Add",
-    subMenuTitle: "SLA Add",
+    subMenuTitle: "",
     mainMenuKey: "eticket",
     getPageElement: () => <SLA_Page />,
   },
   {
     key: "SLA",
     path: "eticket/SLA/:SLAID",
-    subMenuTitle: "SLA",
+    subMenuTitle: "",
     mainMenuKey: "eticket",
     getPageElement: () => <SLA_Page />,
   },

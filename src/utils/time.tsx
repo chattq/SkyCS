@@ -7,7 +7,7 @@ export const calcMinuteToTime = (minutes: any) => {
   const residualMinutes = minutes - hour * 60;
 
   const hourDisplay = `0${hour}`.slice(-2);
-  const minutesDisplay = `0${minutes}`.slice(-2);
+  const minutesDisplay = `0${residualMinutes}`.slice(-2);
 
   // `0${date.getDate()}`.slice(-2);
 

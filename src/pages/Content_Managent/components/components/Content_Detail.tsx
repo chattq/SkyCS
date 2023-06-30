@@ -7,17 +7,18 @@ import { Form } from "devextreme-react";
 import { GroupItem, SimpleItem } from "devextreme-react/form";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import "../../list/Content_Managent.scss";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
+  checkUIZNSAtom,
   dataFormAtom,
   refetchAtom,
   valueIDAtom,
   valueIDZNSAtom,
   zaloTemplatetom,
 } from "../store";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { authAtom, showErrorAtom } from "@/packages/store";
 import Zalo_Parent from "./Zalo_Parent";
 import Content_SMS from "./Content_SMS";
@@ -25,46 +26,71 @@ import Content_Email from "./Content_Email";
 import { toast } from "react-toastify";
 
 export default function Content_Detail() {
-  const { t } = useI18n("Content_Edit");
+  const { t } = useI18n("Content_Managent");
+  const { idContent } = useParams();
   const navigate = useNavigate();
   const validateRef = useRef<any>();
   const formRef = useRef<any>();
-  const [formData, setFormData] = useState<any>({});
   const api = useClientgateApi();
   const showError = useSetAtom(showErrorAtom);
   const [valueSelect, setValueSelect] = useState("");
   const [valueID, setValueID] = useAtom(valueIDAtom);
-  const dataForm = useAtomValue(dataFormAtom);
   const [saveFormType, setSaveFormType] = useState("");
   const auth = useAtomValue(authAtom);
   const setRefetchAtom = useSetAtom(refetchAtom);
-
-  // const idFrom = localStorage.getItem("idForm") || {};
+  const setcheckUIZNSAtom = useSetAtom(checkUIZNSAtom);
 
   const setZaloTemplateAtom = useSetAtom(zaloTemplatetom);
+  const { data: dataFormDetail, refetch } = useQuery(
+    ["ListdataForm", idContent],
+    () => api.Mst_SubmissionForm_GetBySubFormCode(idContent)
+  );
+
+  useEffect(() => {
+    if (dataFormDetail) {
+      if (dataFormDetail?.Data?.Lst_Mst_SubmissionForm[0].IDZNS !== null) {
+        setValueID(true);
+        setcheckUIZNSAtom(true);
+      } else {
+        setValueID(false);
+      }
+    }
+  }, [dataFormDetail]);
+
   const dataTabChanel = [
     {
       id: "ZALO",
-      component: <Zalo_Parent formRef={validateRef} />,
+      component: (
+        <Zalo_Parent
+          markup={dataFormDetail?.Data}
+          formRef={validateRef}
+          dataForm={dataFormDetail?.Data}
+        />
+      ),
     },
     {
       id: "SMS",
-      component: <Content_SMS markup={dataForm} formRef={validateRef} />,
+      component: (
+        <Content_SMS markup={dataFormDetail?.Data} formRef={validateRef} />
+      ),
     },
     {
       id: "EMAIL",
-      component: <Content_Email markup={dataForm} />,
+      component: (
+        <Content_Email markup={dataFormDetail?.Data} formRef={validateRef} />
+      ),
     },
   ];
   const [listZNS, setListZNS] = useState<any>();
   const outlet = dataTabChanel?.filter((item: any) => {
     if (
       item?.id === valueSelect ||
-      item?.id === dataForm?.Lst_Mst_SubmissionForm[0].ChannelType
+      item?.id === dataFormDetail?.Data?.Lst_Mst_SubmissionForm[0].ChannelType
     ) {
       return item?.component;
     }
   })[0]?.component;
+
   const { data: listMstChannelType } = useQuery(["listMstChannelType"], () =>
     api.MstChannelType_GetAllActive()
   );
@@ -137,6 +163,7 @@ export default function Content_Detail() {
                       e.value
                     );
                     if (resp.isSuccess) {
+                      setcheckUIZNSAtom(false);
                       setValueID(true);
                       setZaloTemplateAtom(resp.Data);
                     } else {
@@ -211,79 +238,157 @@ export default function Content_Detail() {
       formData.SubFormCode !== "" &&
       formData.SubFormName !== ""
     ) {
-      // if (valueID === true && saveFormType === "ZALO") {
-      //   const newData = Object.entries(formData.strJsonZNS || {}).map(
-      //     ([key, value]: any) => {
-      //       return {
-      //         SubFormCode: dataSaveForm.SubFormCode ?? "",
-      //         ParamValue: null,
-      //         ...value,
-      //       };
-      //     }
-      //   );
-      //   const dataSave = {
-      //     ...dataSaveForm,
-      //     FlagActive: dataSaveForm.FlagActive === true ? "1" : "0",
-      //     ...{ strJsonZNS: newData },
-      //   };
-      //   const resp = await api.MstSubmissionForm_Save(dataSave);
-      //   if (resp.isSuccess) {
-      //     toast.success(t("Create Successfully"));
-      //     // await refetch();
-      //     return true;
-      //   }
-      //   showError({
-      //     message: t(resp.errorCode),
-      //     debugInfo: resp.debugInfo,
-      //     errorInfo: resp.errorInfo,
-      //   });
-      //   throw new Error(resp.errorCode);
-      // }
-      // if (valueID === false && saveFormType === "ZALO") {
-      //   const dataSave = {
-      //     ...dataSaveForm,
-      //     FlagActive: dataSaveForm.FlagActive === "true" ? "1" : "0",
-      //     IDZNS: "",
-      //     ...{
-      //       strJsonMessage: JSON.stringify([
-      //         {
-      //           SubFormCode: dataSaveForm.SubFormCode,
-      //           Message: formData.MessageZalo ?? "",
-      //         },
-      //       ]),
-      //     },
-      //   };
-      //   const resp = await api.MstSubmissionForm_Save(dataSave);
-      //   if (resp.isSuccess) {
-      //     toast.success(t("Create Successfully"));
-      //     // await refetch();
-      //     return true;
-      //   }
-      //   showError({
-      //     message: t(resp.errorCode),
-      //     debugInfo: resp.debugInfo,
-      //     errorInfo: resp.errorInfo,
-      //   });
-      //   throw new Error(resp.errorCode);
-      // }
-      if (valueID === false && saveFormType === "SMS") {
+      if (valueID === true && formData.ChannelType === "ZALO") {
+        const dataNoChange =
+          dataFormDetail?.Data?.Lst_Mst_SubmissionFormZNS.map((item: any) => {
+            return {
+              SubFormCode: item.SubFormCode,
+              ParamValue: item.ParamValue,
+              ParamSFCode: item.ParamSFCode,
+              SourceDataType: item.SourceDataType,
+              ParamSFCodeZNS: item.ParamSFCodeZNS,
+            };
+          });
+        if (formData.strJsonZNS !== undefined) {
+          const newData = dataNoChange.map((obj: any) => {
+            const matchingKey = obj.ParamSFCodeZNS;
+            if (matchingKey in formData?.strJsonZNS) {
+              const { SourceDataType, ParamSFCode } =
+                formData?.strJsonZNS[matchingKey];
+              return {
+                ...obj,
+                SourceDataType,
+                ParamSFCode: obj.ParamValue !== null ? null : obj.ParamSFCode,
+              };
+            }
+            return obj;
+          });
+          const dataSave = {
+            ...dataSaveForm,
+            FlagActive: dataSaveForm.FlagActive === "true" ? "1" : "0",
+            ...{
+              strJsonZNS: JSON.stringify(
+                formData.strJsonZNS === undefined ? dataNoChange : newData
+              ),
+            },
+          };
+          const resp = await api.MstSubmissionForm_Save(dataSave);
+          if (resp.isSuccess) {
+            toast.success(t("Update Successfully"));
+            navigate(`/${auth.networkId}${"/admin/Content_Managent"}`);
+            await refetch();
+            setRefetchAtom(true);
+            return true;
+          }
+          showError({
+            message: t(resp.errorCode),
+            debugInfo: resp.debugInfo,
+            errorInfo: resp.errorInfo,
+          });
+          throw new Error(resp.errorCode);
+        } else {
+          const dataSave = {
+            ...dataSaveForm,
+            FlagActive: dataSaveForm.FlagActive === "true" ? "1" : "0",
+            ...{
+              strJsonZNS: JSON.stringify(dataNoChange),
+            },
+          };
+          const resp = await api.MstSubmissionForm_Save(dataSave);
+          if (resp.isSuccess) {
+            toast.success(t("Update Successfully"));
+            navigate(`/${auth.networkId}${"/admin/Content_Managent"}`);
+            await refetch();
+            setRefetchAtom(true);
+            return true;
+          }
+          showError({
+            message: t(resp.errorCode),
+            debugInfo: resp.debugInfo,
+            errorInfo: resp.errorInfo,
+          });
+          throw new Error(resp.errorCode);
+        }
+      }
+      if (valueID === false && formData.ChannelType === "ZALO") {
+        const dataSave = {
+          ...dataSaveForm,
+          FlagActive: dataSaveForm.FlagActive === "true" ? "1" : "0",
+          IDZNS: "",
+          ...{
+            strJsonMessage: JSON.stringify([
+              {
+                SubFormCode: dataSaveForm.SubFormCode,
+                Message: formData.MessageZalo ?? "",
+              },
+            ]),
+          },
+        };
+        const resp = await api.MstSubmissionForm_Save(dataSave);
+        if (resp.isSuccess) {
+          toast.success(t("Update Successfully"));
+          navigate(`/${auth.networkId}${"/admin/Content_Managent"}`);
+          await refetch();
+          setRefetchAtom(true);
+          return true;
+        }
+        showError({
+          message: t(resp.errorCode),
+          debugInfo: resp.debugInfo,
+          errorInfo: resp.errorInfo,
+        });
+        throw new Error(resp.errorCode);
+      }
+      if (valueID === false && formData.ChannelType === "SMS") {
         const dataSave = {
           ...dataSaveForm,
           IDZNS: "",
           FlagActive: dataSaveForm.FlagActive === "true" ? "1" : "0",
           ...{
-            strJsonMessage: [
+            strJsonMessage: JSON.stringify([
               {
                 SubFormCode: dataSaveForm.SubFormCode,
                 Message: formData.MessageSMS ?? "",
               },
-            ],
+            ]),
           },
         };
         const resp = await api.MstSubmissionForm_Save(dataSave);
         if (resp.isSuccess) {
-          toast.success(t("Create Successfully"));
-          // await refetch();
+          toast.success(t("Update Successfully"));
+          navigate(`/${auth.networkId}${"/admin/Content_Managent"}`);
+          setRefetchAtom(true);
+          await refetch();
+          return true;
+        }
+        showError({
+          message: t(resp.errorCode),
+          debugInfo: resp.debugInfo,
+          errorInfo: resp.errorInfo,
+        });
+        throw new Error(resp.errorCode);
+      }
+      if (valueID === false && formData.ChannelType === "EMAIL") {
+        const dataSave = {
+          ...dataSaveForm,
+          IDZNS: "",
+          FlagActive: dataSaveForm.FlagActive === "true" ? "1" : "0",
+          ...{
+            strJsonMessage: JSON.stringify([
+              {
+                SubFormCode: dataSaveForm.SubFormCode,
+                SubTitle: formData.MessageTitleEmail ?? "",
+                Message: formData.MessageEmail ?? "",
+              },
+            ]),
+          },
+        };
+        const resp = await api.MstSubmissionForm_Save(dataSave);
+        if (resp.isSuccess) {
+          toast.success(t("Update Successfully"));
+          navigate(`/${auth.networkId}${"/admin/Content_Managent"}`);
+          await refetch();
+          setRefetchAtom(true);
           return true;
         }
         showError({
@@ -295,13 +400,14 @@ export default function Content_Detail() {
       }
     }
   };
-  const handleDelete = async () => {
+  const handleDelete = useCallback(async () => {
     const resp = await api.Mst_SubmissionForm_delete(
-      dataForm?.Lst_Mst_SubmissionForm[0]?.SubFormCode
+      dataFormDetail?.Data?.Lst_Mst_SubmissionForm[0]?.SubFormCode
     );
     if (resp.isSuccess) {
       toast.success(t("Delete Successfully"));
       navigate(`/${auth.networkId}${"/admin/Content_Managent"}`);
+      await refetch();
       setRefetchAtom(true);
       return true;
     }
@@ -311,7 +417,7 @@ export default function Content_Detail() {
       errorInfo: resp.errorInfo,
     });
     throw new Error(resp.errorCode);
-  };
+  }, [dataFormDetail]);
 
   const customizeItem = useCallback(
     (item: any) => {
@@ -319,7 +425,9 @@ export default function Content_Detail() {
         if (valueSelect === "ZALO") {
           item.visible = true;
         }
-        if (dataForm?.Lst_Mst_SubmissionForm[0].ChannelType === "ZALO") {
+        if (
+          dataFormDetail?.Data?.Lst_Mst_SubmissionForm[0].ChannelType === "ZALO"
+        ) {
           item.visible = true;
         }
         // console.log(126, value);
@@ -327,8 +435,14 @@ export default function Content_Detail() {
       if (item.dataField === "SubFormCode") {
         item.editorOptions.readOnly = true;
       }
+      if (item.dataField === "FlagActive") {
+        item.editorOptions.value =
+          dataFormDetail?.Data?.Lst_Mst_SubmissionForm[0].FlagActive === "1"
+            ? true
+            : false;
+      }
     },
-    [valueSelect, dataForm]
+    [valueSelect, dataFormDetail]
   );
 
   const handleFieldDataChanged = useCallback((changedData: any) => {
@@ -378,7 +492,9 @@ export default function Content_Detail() {
                     validateRef.current = e.component;
                   }}
                   readOnly={false}
-                  formData={dataForm?.Lst_Mst_SubmissionForm[0] || {}}
+                  formData={
+                    dataFormDetail?.Data?.Lst_Mst_SubmissionForm[0] || {}
+                  }
                   labelLocation="left"
                   customizeItem={customizeItem}
                   onFieldDataChanged={handleFieldDataChanged}

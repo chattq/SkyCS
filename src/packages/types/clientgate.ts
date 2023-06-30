@@ -344,6 +344,23 @@ export interface MstBizColumnData {
   LogLUDTimeUTC: string;
   LogLUBy: string;
 }
+export interface KB_PostData {
+  PostCode: string;
+  OrgID: string;
+  NetworkID: string;
+  Title: string;
+  CategoryCode: string;
+  Detail: string;
+  Synopsis: string;
+  Tag: string;
+  PostStatus: string;
+  FlagShare: string;
+  CreateDTimeUTC: string;
+  CreateBy: string;
+  LogLUDTimeUTC: string;
+  LogLUBy: string;
+  Lst_Mst_Tag?: any;
+}
 export interface MstSubmissionFormData {
   SubFormCode: string;
   SubFormName: string;
@@ -353,6 +370,13 @@ export interface MstSubmissionFormData {
   FlagActive: string;
   strJsonZNS: any;
   Lst_Mst_SubmissionForm?: any;
+  Lst_Mst_SubmissionFormZNS?: any;
+}
+export interface MstChanelData {
+  Lst_Mst_Channel?: any;
+  Lst_Mst_ChannelZalo?: any;
+  Lst_Mst_ChannelEmail?: any;
+  Lst_Mst_ChannelSMS?: any;
 }
 export interface Cpn_CampaignAgentData {
   Data?: any;

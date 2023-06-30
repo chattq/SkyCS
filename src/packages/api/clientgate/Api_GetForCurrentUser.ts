@@ -1,6 +1,4 @@
-import {
-  ApiResponse,
-} from "@packages/types";
+import { ApiResponse } from "@packages/types";
 import { AxiosInstance } from "axios";
 interface Permission {
   GroupCode: string;
@@ -15,18 +13,16 @@ interface Permission {
   so_FlagActive: "0" | "1";
 }
 interface PermissionRecord {
-  Sys_User: any,
-  Lst_Sys_Access: Permission[]
+  Sys_User: any;
+  Lst_Sys_Access: Permission[];
 }
 export const useGetForCurrentUser = (apiBase: AxiosInstance) => {
   return {
     GetForCurrentUser: async () => {
-      return await apiBase.post<
-        {},
-        ApiResponse<PermissionRecord>
-      >("/SysUser/GetForCurrentUser", {
-      });
+      return await apiBase.post<{}, ApiResponse<PermissionRecord>>(
+        "/Api/GetForCurrentUser",
+        {}
+      );
     },
-  }
-
+  };
 };

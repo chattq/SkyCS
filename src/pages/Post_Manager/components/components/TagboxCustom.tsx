@@ -1,39 +1,29 @@
+import { useClientgateApi } from "@/packages/api";
 import { TagBox } from "devextreme-react";
 import React, { useState } from "react";
 
 export default function TagboxCustom({ data }: any) {
-  const dataSource = [
-    {
-      text: "HD Video Player",
-      value: "abc",
-    },
-    {
-      text: "SuperHD Video Player",
-      value: "abcd",
-    },
-    {
-      text: "SuperPlasma 50",
-      value: "abcde",
-    },
-    {
-      text: "SuperLED 50",
-      value: "abcef",
-    },
-  ];
+  console.log(5, data);
 
-  const [datatag, setDataTag] = useState(dataSource);
-  const handleCustomItemCreating = (e: any) => {
+  const [datatag, setDataTag] = useState(data);
+  const api = useClientgateApi();
+  const handleCustomItemCreating = async (e: any) => {
+    // const resp = await api.Mst_Tag_Create({
+    //   TagName: e.text,
+    //   TagDesc: e.text,
+    // });
+    // console.log(resp);
     const newItem = {
-      text: e.text,
-      value: e.text,
+      TagName: e.text,
+      TagDesc: e.text,
     };
     const isItemInDataSource = datatag.some(
-      (item) => item.value === newItem.value
+      (item: any) => item.TagName === newItem.TagName
     );
     if (!isItemInDataSource) {
       e.component.option("value", [
         ...e.component.option("value"),
-        newItem.value,
+        newItem.TagName,
       ]);
       setDataTag([newItem, ...datatag]);
     }
@@ -45,8 +35,8 @@ export default function TagboxCustom({ data }: any) {
     <TagBox
       dataSource={datatag}
       inputAttr={{ "aria-label": "Product" }}
-      displayExpr="text"
-      valueExpr="value"
+      displayExpr="TagName"
+      valueExpr="TagName"
       searchEnabled={true}
       // hideSelectedItems={true}
       onCustomItemCreating={handleCustomItemCreating}

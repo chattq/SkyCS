@@ -1,0 +1,14 @@
+.Post_cancel .dx-button-content {
+  background-color: white !important;
+  color: black !important;
+}
+
+.SearchMST-input:focus {
+  border: none !important;
+}
+
+.search_history-bg:hover .search_history-title {
+  color: #00703c;
+  text-decoration: underline !important;
+}
+/*# sourceMappingURL=SearchMST.css.map */

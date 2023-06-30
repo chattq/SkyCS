@@ -99,34 +99,6 @@ const HeaderPart = ({ onAddNew, searchCondition }: HeaderPartProps) => {
           text={t("Add New")}
           onClick={onAddNew}
         />
-        <DropDownButton
-          showArrowIcon={false}
-          keyExpr={"id"}
-          className="menu-items"
-          displayExpr={"text"}
-          wrapItemText={false}
-          dropDownOptions={{
-            width: 200,
-            wrapperAttr: {
-              class: "headerform__menuitems",
-            },
-          }}
-          icon="/images/icons/more.svg"
-        >
-          <DropDownButtonItem
-            render={(item: any) => {
-              return <div>{uploadButton}</div>;
-            }}
-          />
-          <DropDownButtonItem
-            render={(item: any) => {
-              return <div>{exportButton}</div>;
-            }}
-          />
-        </DropDownButton>
-
-        {uploadDialog}
-        {exportDialog}
       </PageHeaderNoSearchLayout.Slot>
     </PageHeaderNoSearchLayout>
   );

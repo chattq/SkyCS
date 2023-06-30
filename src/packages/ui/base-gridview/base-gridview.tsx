@@ -78,6 +78,7 @@ interface GridViewProps {
   stateStoring?: IStateStoringProps;
   onCustomerEditing?: Function;
   editable?: boolean;
+  showCheck?: string;
   hidePagination?: boolean;
 }
 
@@ -102,6 +103,7 @@ const GridViewRaw = ({
   stateStoring,
   onCustomerEditing,
   editable = true,
+  showCheck = "none",
   hidePagination = false,
 }: GridViewProps) => {
   const datagridRef = useRef<DataGrid | null>(null);
@@ -302,27 +304,27 @@ const GridViewRaw = ({
           return <DeleteButton onClick={handleConfirmDelete} />;
         },
       },
-    ]
-      if(!hidePagination) {
-        items.push({
-          location: "after",
-          render: renderPageSize,
-        })
-        items.push({
-          location: "after",
-            render: renderPageNavigator,
-        })
-        items.push({
-          location: "after",
-          render: () => {
-            return <NormalGridPageSummary />;
-          },
-        })
-      }
+    ];
+    if (!hidePagination) {
       items.push({
         location: "after",
-        render: renderColumnChooser,
-      })
+        render: renderPageSize,
+      });
+      items.push({
+        location: "after",
+        render: renderPageNavigator,
+      });
+      items.push({
+        location: "after",
+        render: () => {
+          return <NormalGridPageSummary />;
+        },
+      });
+    }
+    items.push({
+      location: "after",
+      render: renderColumnChooser,
+    });
     return items;
   }, [chooserVisible, realColumns, columns]);
 
@@ -374,7 +376,7 @@ const GridViewRaw = ({
           repaintChangesOnly
           showBorders
           onContentReady={(e) => {
-            console.log("e ", e);
+            // console.log("e ", e);
             setGridAtom({
               pageIndex: e.component.pageIndex() ?? 0,
               pageSize: e.component.pageSize() ?? 0,
@@ -465,7 +467,7 @@ const GridViewRaw = ({
           <Selection
             mode="multiple"
             selectAllMode="page"
-            showCheckBoxesMode={editable}
+            showCheckBoxesMode={showCheck}
           />
           {realColumns.map((col: any) => (
             <Column key={col.dataField} {...col} />

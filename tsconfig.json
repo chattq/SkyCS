@@ -20,8 +20,8 @@
     "paths": {
       "@/*": ["src/*"],
       "@x/*": ["src/components/*"],
-      "@dms/*": ["src/app/*"],
-      "@dms-pages/*": ["src/dms/pages/*"],
+      "@skycs/*": ["src/app/*"],
+      "@skycs-pages/*": ["src/pages/*"],
       "@packages/*": ["src/packages/*"],
       "@packages/ui/*": ["src/packages/ui/*"],
       "@contexts/*": ["src/contexts/*"],

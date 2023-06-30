@@ -339,7 +339,7 @@ const FormInfoCommon = forwardRef(
           displayExpr: "label",
           valueExpr: "value",
           onValueChanged: (newValue: any) => {
-            setIsShow(newValue.value === "0");
+            setIsShow(newValue.value === "1");
           },
         },
       },

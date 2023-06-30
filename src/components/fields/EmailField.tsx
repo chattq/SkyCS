@@ -46,7 +46,7 @@ export const EmailField = ({ component, formData, field, editType }: any) => {
     <>
       {emails.map((item: any, index: any) => {
         return (
-          <div key={item.id} className={"flex items-center"}>
+          <div key={item.id} className={"flex items-center my-2"}>
             <input
               type={"radio"}
               className="mr-2"

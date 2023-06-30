@@ -18,7 +18,7 @@ import { Department_ControlPage } from "@/pages/Department_Control";
 import { Mst_AreaControllerPage } from "@/pages/Mst_AreaController/list/Mst_AreaController";
 import { Mst_CustomerGroupPage } from "@/pages/Mst_CustomerGroup/list/Mst_CustomerGroup";
 import { Mst_PaymentTermControllerPage } from "@/pages/Mst_PaymentTermController/list/Mst_PaymentTermController";
-import Post_detail from "@/pages/Post_Manager/components/components/Post_detail";
+import Post_add from "@/pages/Post_Manager/components/components/Post_add";
 import { Post_ManagerPage } from "@/pages/Post_Manager/list/Post_Manager";
 import { SearchMSTPage } from "@/pages/SearchMST/list/SearchMST";
 import { Sys_GroupPage } from "@/pages/Sys_Group";
@@ -45,7 +45,7 @@ export const adminRoutes: RouteItem[] = [
     path: "admin",
     mainMenuTitle: "admin",
     mainMenuKey: "admin",
-    permissionCode: "",
+    permissionCode: "MENU_QUAN_TRI",
     getPageElement: () => <AdminPage />,
   },
   {
@@ -76,7 +76,7 @@ export const adminRoutes: RouteItem[] = [
   },
   {
     key: "Content_Detail",
-    path: "admin/Content_Managent/Content_Detail",
+    path: "admin/Content_Managent/:idContent",
     subMenuTitle: "",
     mainMenuKey: "admin",
     permissionCode: "",
@@ -133,11 +133,11 @@ export const adminRoutes: RouteItem[] = [
   },
   {
     key: "Post_Manager",
-    path: "admin/Post_Manager/detail",
+    path: "admin/Post_Manager/addNew",
     subMenuTitle: "",
     mainMenuKey: "admin",
     permissionCode: "",
-    getPageElement: () => <Post_detail />,
+    getPageElement: () => <Post_add />,
   },
   {
     key: "Category_Manager",

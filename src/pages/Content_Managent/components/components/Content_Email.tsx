@@ -1,3 +1,4 @@
+import { useI18n } from "@/i18n/useI18n";
 import { useClientgateApi } from "@/packages/api";
 import { useQuery } from "@tanstack/react-query";
 import { ScrollView, TextBox } from "devextreme-react";
@@ -9,6 +10,7 @@ import HtmlEditor, {
 } from "devextreme-react/html-editor";
 import { useRef } from "react";
 export default function Content_Email({ formRef, markup }: any) {
+  const { t } = useI18n("Content_Managent");
   const cursorPositionRef = useRef<any>(0);
   const cursorPositionTitleRef = useRef<any>(0);
   const onFocusInRef = useRef<any>();
@@ -70,12 +72,12 @@ export default function Content_Email({ formRef, markup }: any) {
     <div className="flex px-6">
       <div className="w-[80%]">
         <div className="pb-4">
-          <div className="pb-[5px]">Title</div>
+          <div className="pb-[5px]">{t("Title")}</div>
           <HtmlEditor
             className="Email_title"
             width={"80%"}
             defaultValue={
-              markup?.Lst_Mst_SubmissionFormMessage[0].SubTitle || ""
+              markup?.Lst_Mst_SubmissionFormMessage[0]?.SubTitle || ""
             }
             ref={editorTitleRef}
             onFocusIn={onFocusTitleIn}
@@ -83,11 +85,11 @@ export default function Content_Email({ formRef, markup }: any) {
             onValueChanged={handleValueChangeTitle}
           />
         </div>
-        <div className="mb-[5px]">Nội dung tin nhắn </div>
+        <div className="mb-[5px]">{t("Message Content")}</div>
         <HtmlEditor
           height="300px"
           width={"80%"}
-          defaultValue={markup?.Lst_Mst_SubmissionFormMessage[0].Message || ""}
+          defaultValue={markup?.Lst_Mst_SubmissionFormMessage[0]?.Message || ""}
           ref={editorRef}
           onFocusOut={onFocusOut}
           onFocusIn={onFocusIn}
@@ -140,7 +142,7 @@ export default function Content_Email({ formRef, markup }: any) {
         </HtmlEditor>
       </div>
       <div className="w-[420px]">
-        <div className="mb-[15px]">Các tham số hệ thống</div>
+        <div className="mb-[15px]">{t("System Parameters")}</div>
         <div className="border pl-2 max-h-[300px] overflow-hidden">
           <ScrollView height={300} showScrollbar="always">
             <div>

@@ -1,5 +1,13 @@
 import { useI18n } from "@/i18n/useI18n";
+import { useClientgateApi } from "@/packages/api";
+import { useAuth } from "@/packages/contexts/auth";
+import { showErrorAtom } from "@/packages/store";
+import { GridViewRaw } from "@/packages/ui/base-gridview/GridViewRaw";
+import { UploadDialog } from "@/packages/ui/upload-dialog/upload-dialog";
+import { SearchCustomerPopup } from "@/pages/admin/Cpn_Campaign/components/search-customer-popup/search-customer-popup";
+import { useQuery } from "@tanstack/react-query";
 import { Button, TagBox } from "devextreme-react";
+import DataGrid from "devextreme-react/data-grid";
 import { useAtomValue, useSetAtom } from "jotai";
 import {
   ForwardedRef,
@@ -7,9 +15,9 @@ import {
   useCallback,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from "react";
+import { toast } from "react-toastify";
 import {
   CampaignTypeAtom,
   flagSelectorAtom,
@@ -17,17 +25,8 @@ import {
   listCampaignAtom,
   visiblePopupAtom,
 } from "../../store";
-import { useClientgateApi } from "@/packages/api";
-import { useQuery } from "@tanstack/react-query";
-import { showErrorAtom } from "@/packages/store";
-import { useAuth } from "@/packages/contexts/auth";
-import { useColumn, UseCustomerGridColumnsProps } from "./use_Column";
-import { SearchCustomerPopup } from "@/pages/admin/Cpn_Campaign/components/search-customer-popup/search-customer-popup";
-import { GridViewRaw } from "@/packages/ui/base-gridview/GridViewRaw";
 import DistrictBution_Agent from "./../PopUp/Distribution_Agent";
-import { UploadDialog } from "@/packages/ui/upload-dialog/upload-dialog";
-import { toast } from "react-toastify";
-import DataGrid from "devextreme-react/data-grid";
+import { UseCustomerGridColumnsProps, useColumn } from "./use_Column";
 
 interface Props {
   ref: any;
@@ -68,7 +67,7 @@ export const ListCustomerContent = forwardRef(
         };
         e.column.setCellValue = (newData: any, value: any) => {
           const item = listCampaignAgent.find(
-            (item) => !!item && item.UserCode === value
+            (item: any) => !!item && item.UserCode === value
           );
           if (item) {
             newData.AgentName = item.UserName;
@@ -208,8 +207,8 @@ const Cpn_Campaign_List_Customer = forwardRef(
                   await api.Mst_CampaignColumnConfig_GetListOption(getCodeSys);
 
                 if (responseDateSource.isSuccess) {
-                  const data = responseDateSource.DataList ?? [];
-                  const obj = data.reduce((result: any, item: any) => {
+                  const data: any = responseDateSource.DataList ?? [];
+                  const obj = data?.reduce((result: any, item: any) => {
                     result[item.CampaignColCfgCodeSys] =
                       item.Lst_MD_OptionValue;
                     return result;

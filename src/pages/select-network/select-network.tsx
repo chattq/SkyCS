@@ -13,7 +13,6 @@ export const SelectNetworkPage = () => {
   useEffect(() => {
     (async function() {
       try {
-        console.log('start to list networks')
         const resp = await ccsApi.getNetworks();
         if (resp.Success) {
           const data = resp.Data

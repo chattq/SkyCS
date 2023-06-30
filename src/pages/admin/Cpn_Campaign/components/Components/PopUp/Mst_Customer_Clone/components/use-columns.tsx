@@ -1,7 +1,9 @@
 import NavNetworkLink from "@/components/Navigate";
 import { useI18n } from "@/i18n/useI18n";
-import { flagCustomer } from "@/pages/Mst_Customer/components/Customer/store";
-import { viewingDataAtom } from "@/pages/Mst_Customer/components/store";
+import {
+  flagCustomer,
+  viewingDataAtom,
+} from "@/pages/Mst_Customer/components/store";
 import { ColumnOptions } from "@packages/ui/base-gridview";
 import { useSetAtom } from "jotai";
 interface UseDealerGridColumnsProps {

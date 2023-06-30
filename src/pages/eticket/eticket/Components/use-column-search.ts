@@ -1,8 +1,24 @@
 import { useI18n } from "@/i18n/useI18n";
 import { IItemProps } from "devextreme-react/form";
 
-export const searchConditions = () => {
+interface Props {
+  listAgent: any[];
+  listCustomer: any[];
+  listDepart: any[];
+  listTypeEticket: any[];
+  listOrg: any[]
+}
+
+export const useColumnSearch = ({
+  listAgent,
+  listCustomer,
+  listDepart,
+  listTypeEticket,
+  listOrg
+}: Props) => {
   const { t } = useI18n("Eticket_Search");
+  console.log("listTypeEticket", listTypeEticket);
+
   const flagFilterOptions = {
     searchEnabled: true,
     valueExpr: "value",
@@ -22,150 +38,198 @@ export const searchConditions = () => {
       },
     ],
   };
+
+  const listStatus = [
+    {
+      label: t("NEW"),
+      value: "NEW",
+    },
+    {
+      label: t("OPEN"),
+      value: "OPEN",
+    },
+    {
+      label: t("PROCESSING"),
+      value: "PROCESSING",
+    },
+    {
+      label: t("ON HOLD"),
+      value: "ON HOLD",
+    },
+    {
+      label: t("WATING ON CUSTOMER"),
+      value: "WATING ON CUSTOMER",
+    },
+    {
+      label: t("WAITING ON THIRD PARTY"),
+      value: "WAITING ON THIRD PARTY",
+    },
+    {
+      label: t("SOLVED"),
+      value: "SOLVED",
+    },
+    {
+      label: t("CLOSED"),
+      value: "CLOSED",
+    },
+  ];
+
   const listColumn: IItemProps[] = [
     {
-      caption: t("Dealer Code"), // ticket quá hạn
-      dataField: "DealerCode",
+      dataField: "FlagOutOfDate",
+      caption: t("FlagOutOfDate"),
       editorType: "dxCheckBox",
-      label: {
-        text: t(""),
-      },
     },
     {
-      caption: t("Dealer Code"), // ticket quá hạn
-      dataField: "DealerCode",
+      dataField: "FlagNotRespondingSLA",
+      caption: t("FlagNotRespondingSLA"),
       editorType: "dxCheckBox",
-      label: {
-        text: t(""),
-      },
     },
     {
-      dataField: "AgentCode", // Team
-      caption: t("Team"),
-      editorType: "dxTagBox",
+      dataField: "DepartmentCode",
+      caption: t("DepartmentCode"),
       editorOptions: {
-        dataSource: [],
-        valueExpr: "AgentCode",
-        displayExpr: "AgentName",
+        dataSource: listDepart,
+        valueExpr: "DepartmentCode",
+        displayExpr: "DepartmentName",
       },
+      editorType: "dxTagBox",
     },
     {
-      dataField: "AgentCode", // agent code
+      dataField: "AgentCode",
       caption: t("AgentCode"),
-      editorType: "dxTagBox",
       editorOptions: {
-        dataSource: [],
-        valueExpr: "AgentCode",
-        displayExpr: "AgentName",
+        dataSource: listAgent,
+        valueExpr: "UserCode",
+        displayExpr: "UserName",
       },
+      editorType: "dxTagBox",
     },
     {
-      dataField: "FlagActive", // trạng thái
-      caption: t("Flag Active"),
-      editorType: "dxTagBox",
-      editorOptions: flagFilterOptions,
-    },
-    {
-      dataField: "AgentCode", // Mức ưu tiên
-      caption: t("Team"),
-      editorType: "dxTagBox",
+      dataField: "TicketStatus", // trạng thái
+      caption: t("TicketStatus"),
       editorOptions: {
-        dataSource: [],
-        valueExpr: "AgentCode",
-        displayExpr: "AgentName",
+        dataSource: listStatus,
+        valueExpr: "value",
+        displayExpr: "label",
       },
+      editorType: "dxTagBox",
     },
     {
-      dataField: "TicketDeadline", // dealline
+      dataField: "TicketPriority",
+      caption: t("TicketPriority"),
+      editorOptions: {
+
+      },
+      editorType: "dxTextBox",
+    },
+    {
+      dataField: "TicketDeadline",
       caption: t("TicketDeadline"),
-      editorType: "dxTagBox",
-      editorOptions: {
-        dataSource: [],
-        valueExpr: "AgentCode",
-        displayExpr: "AgentName",
-      },
-    },
-    {
-      dataField: "TicketDeadline", // phân loại
-      caption: t("TicketDeadline"),
-      editorType: "dxTagBox",
-      editorOptions: {
-        dataSource: [],
-        valueExpr: "AgentCode",
-        displayExpr: "AgentName",
-      },
-    },
-    {
-      dataField: "CustomerCodeSys", // Khách hàng
-      caption: t("CustomerCodeSys"),
-      editorType: "dxTagBox",
-      editorOptions: {
-        dataSource: [],
-        valueExpr: "AgentCode",
-        displayExpr: "AgentName",
-      },
-    },
-    {
-      dataField: "CustomerCodeSys", // Nội dung trao đổi
-      caption: t("CustomerCodeSys"),
+      editorOptions: {},
       editorType: "dxTextBox",
     },
     {
-      dataField: "CustomerCodeSys", // Tên eticket
+      dataField: "TicketType", // phân loại
+      caption: t("TicketType"),
+      editorOptions: {
+        dataSource: listTypeEticket,
+        displayExpr: "CustomerTicketTypeName",
+        valueExpr: "TicketType",
+      },
+      editorType: "dxTagBox",
+    },
+    {
+      dataField: "CustomerCodeSys",
       caption: t("CustomerCodeSys"),
+      editorOptions: {
+        dataSource: listCustomer,
+        displayExpr: "CustomerName",
+        valueExpr: "CustomerCodeSys",
+      },
+      editorType: "dxTagBox",
+    },
+    {
+      dataField: "TicketDetail",
+      caption: t("TicketDetail"),
+      editorOptions: {},
       editorType: "dxTextBox",
     },
     {
-      dataField: "CustomerCodeSys", // mã eticket
-      caption: t("CustomerCodeSys"),
+      dataField: "TicketName",
+      caption: t("TicketName"),
+      editorOptions: {},
       editorType: "dxTextBox",
     },
     {
-      dataField: "CreateDTimeUTCTo", // ngày tạo
-      caption: t("CreateDTimeUTCTo"),
-      editorType: "dxDateBox",
+      dataField: "TicketID",
+      caption: t("TicketID"),
+      editorOptions: {},
+      editorType: "dxTextBox",
+    },
+    {
+      dataField: "CreateDTimeUTCFrom",
+      caption: t("CreateDTimeUTCFrom"),
       editorOptions: {
         type: "date",
         format: "yyyy-MM-dd",
       },
+      editorType: "dxDateBox",
     },
     {
-      dataField: "CreateDTimeUTCTo", // ngày cập nhật
+      dataField: "CreateDTimeUTCTo",
       caption: t("CreateDTimeUTCTo"),
-      editorType: "dxDateBox",
       editorOptions: {
         type: "date",
         format: "yyyy-MM-dd",
       },
+      editorType: "dxDateBox",
     },
     {
-      dataField: "CreateDTimeUTCTo", // nguồn
-      caption: t("CreateDTimeUTCTo"),
-      editorType: "dxDateBox",
+      dataField: "LogLUDTimeUTCFrom",
+      caption: t("LogLUDTimeUTCFrom"),
       editorOptions: {
         type: "date",
         format: "yyyy-MM-dd",
       },
+      editorType: "dxDateBox",
     },
     {
-      dataField: "CreateDTimeUTCTo", // Doanh nghiệp
-      caption: t("CreateDTimeUTCTo"),
-      editorType: "dxTagBox",
+      dataField: "LogLUDTimeUTCTo",
+      caption: t("LogLUDTimeUTCTo"),
       editorOptions: {
-        dataSource: [],
-        valueExpr: "AgentCode",
-        displayExpr: "AgentName",
+        type: "date",
+        format: "yyyy-MM-dd",
       },
+      editorType: "dxDateBox",
     },
     {
-      dataField: "CreateDTimeUTCTo", // Chi nhánh
-      caption: t("CreateDTimeUTCTo"),
-      editorType: "dxTagBox",
+      dataField: "TicketSourceFrom",
+      caption: t("TicketSourceFrom"),
       editorOptions: {
-        dataSource: [],
-        valueExpr: "AgentCode",
-        displayExpr: "AgentName",
+        type: "date",
+        format: "yyyy-MM-dd",
       },
+      editorType: "dxDateBox",
+    },
+    {
+      dataField: "TicketSourceTo",
+      caption: t("TicketSourceTo"),
+      editorOptions: {
+        type: "date",
+        format: "yyyy-MM-dd",
+      },
+      editorType: "dxDateBox",
+    },
+    {
+      dataField: "OrgID",
+      caption: t("OrgID"),
+      editorOptions: {
+        dataSource: listOrg,
+        displayExpr: "NNTFullName",
+        valueExpr: "OrgID"
+      },
+      editorType: "dxTagBox",
     },
   ];
 

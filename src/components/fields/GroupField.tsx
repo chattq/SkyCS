@@ -7,11 +7,13 @@ export interface GroupFieldProps {
   item: any;
   formData: any;
   disableCollapsible?: boolean;
+  readOnly?: boolean;
 }
 export const GroupField = ({
   item,
   formData,
   disableCollapsible,
+  readOnly = false,
 }: GroupFieldProps) => {
   const control = useVisibilityControl({ defaultVisible: true });
   return (
@@ -31,7 +33,7 @@ export const GroupField = ({
         onInitialized={() => {}}
         labelLocation="left"
         labelMode="outside"
-        readOnly={true}
+        readOnly={readOnly}
         style={{ padding: 10 }}
       >
         {item.items?.map((subItem: any, subIndex: number) => {

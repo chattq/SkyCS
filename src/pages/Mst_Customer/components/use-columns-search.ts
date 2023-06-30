@@ -4,7 +4,7 @@ import {
   mapCustomOptions,
   mapEditorOption,
   mapEditorType,
-} from "./Customer/AddNew/util";
+} from "@/utils/customer-common";
 
 interface Columns {
   listColumn: MdMetaColGroupSpec[];

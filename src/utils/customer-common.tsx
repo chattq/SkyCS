@@ -8,7 +8,7 @@ import { MdMetaColGroupSpecDto } from "@/packages/types";
 import { Switch } from "devextreme-react";
 import { match } from "ts-pattern";
 
-const mapEditorType = (dataType: string) => {
+export const mapEditorType = (dataType: string) => {
   return match(dataType)
     .with("SELECTONERADIO", () => "dxRadioGroup")
     .with("SELECTONEDROPBOX", () => "dxSelectBox")
@@ -25,7 +25,7 @@ const mapEditorType = (dataType: string) => {
     .otherwise(() => "dxTextBox");
 };
 
-const mapEditorOption = ({
+export const mapEditorOption = ({
   field,
   listDynamic,
   listFormData,
@@ -49,7 +49,6 @@ const mapEditorOption = ({
     })
     .with("DATE", () => {
       return {
-        ...commonOptions,
         type: "date",
         displayFormat: "yyyy/MM/dd",
         openOnFieldClick: true,
@@ -57,7 +56,6 @@ const mapEditorOption = ({
     })
     .with("DATETIME", () => {
       return {
-        ...commonOptions,
         type: "datetime",
         openOnFieldClick: true,
       };
@@ -194,7 +192,7 @@ const mapEditorOption = ({
     });
 };
 
-const mapValidationRules = (field: Partial<MdMetaColGroupSpecDto>) => {
+export const mapValidationRules = (field: Partial<MdMetaColGroupSpecDto>) => {
   const rules = [];
   if (field.ColDataType !== "FLAG" && field.FlagIsNotNull === "1") {
     rules.push(RequiredField(field.ColCaption!));
@@ -229,7 +227,7 @@ const flagFieldRender = ({
   );
 };
 
-const mapCustomOptions = (field: Partial<MdMetaColGroupSpecDto>) => {
+export const mapCustomOptions = (field: Partial<MdMetaColGroupSpecDto>) => {
   return match(field.ColDataType)
     .with("SELECTONE", () => ({
       validationMessagePosition: "top",
@@ -238,8 +236,6 @@ const mapCustomOptions = (field: Partial<MdMetaColGroupSpecDto>) => {
       validationMessagePosition: "top",
     }))
     .with("FLAG", () => ({
-      editorType: undefined,
-
       render: (data: any) => flagFieldRender({ data: data, customOption: {} }),
     }))
     .otherwise(() => ({}));
@@ -430,6 +426,7 @@ export const getListField = ({
           editorOptions: mapEditorOption({
             field: field,
             listDynamic: listDynamic ?? {},
+            customOption: customOptions ?? {},
           }),
           validationRules: mapValidationRules(field),
           ...mapCustomOptions(field),

@@ -9,8 +9,10 @@ import HtmlEditor, {
 import { useQuery } from "@tanstack/react-query";
 import { useClientgateApi } from "@/packages/api";
 import { ScrollView } from "devextreme-react";
+import { useI18n } from "@/i18n/useI18n";
 
 export default memo(function Content_SMS({ formRef, markup }: any) {
+  const { t } = useI18n("Content_Managent");
   const cursorPositionRef = useRef<any>(0);
   const editorRef = useRef<any>();
 
@@ -50,11 +52,11 @@ export default memo(function Content_SMS({ formRef, markup }: any) {
   return (
     <div className="flex px-6">
       <div className="w-[80%]">
-        <div className="mb-[15px]">Nội dung tin nhắn </div>
+        <div className="mb-[15px]">{t("Message Content")}</div>
         <HtmlEditor
           height="300px"
           width={"80%"}
-          defaultValue={markup?.Lst_Mst_SubmissionFormMessage[0].Message || ""}
+          defaultValue={markup?.Lst_Mst_SubmissionFormMessage[0]?.Message || ""}
           ref={editorRef}
           onFocusOut={onFocusOut}
           onValueChanged={handleValueChange}
@@ -106,7 +108,7 @@ export default memo(function Content_SMS({ formRef, markup }: any) {
         </HtmlEditor>
       </div>
       <div className="w-[420px]">
-        <div className="mb-[15px]">Các tham số hệ thống</div>
+        <div className="mb-[15px]">{t("System Parameters")}</div>
         <div className="border pl-2 max-h-[300px] overflow-hidden">
           <ScrollView height={300} showScrollbar="always">
             <div>
