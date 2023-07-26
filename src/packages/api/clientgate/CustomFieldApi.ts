@@ -49,7 +49,7 @@ export const useCustomFieldApi = (apiBase: AxiosInstance) => {
       });
     },
     MdMetaColGroupSpec_Search: async (
-      param: Partial<MdMetaColGroupSpecSearchParam>,
+      param: any,
       ScrTplCodeSys?: string
     ): Promise<ApiResponse<MdMetaColGroupSpec[]>> => {
       return await apiBase.post<

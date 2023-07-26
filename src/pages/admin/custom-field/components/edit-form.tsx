@@ -48,7 +48,7 @@ export const SelectOneField = ({
 
   const choiceValues = watch("ListOption");
   const defaultIndexValue =
-    choiceValues.find((item: any) => item.IsSelected)?.OrderIdx || 0;
+    choiceValues?.find((item: any) => item.IsSelected)?.OrderIdx ?? 0;
   const {
     fields: singleChoiceValuesFields,
     append,
@@ -342,6 +342,9 @@ export const EditForm = ({ onCancel, onSave }: EditFormProps) => {
   const dataTypeValue = watch("ColDataType");
   const isSearchable = watch("IsSearchable");
   const choiceValues = watch("ListOption");
+
+  console.log("dataTypeValue", dataTypeValue);
+
   // const defaultIndexValue = watch("DefaultIndex");
   useEffect(() => {
     if (
@@ -425,11 +428,11 @@ export const EditForm = ({ onCancel, onSave }: EditFormProps) => {
               );
             }}
             rules={{
-              required: {value: true, message: "FieldCodeIsRequired"},
+              required: { value: true, message: "FieldCodeIsRequired" },
               pattern: {
                 value: /^[a-zA-Z0-9_-]+$/,
                 message: "Invalid Field Code",
-              }
+              },
             }}
           />
           <Controller

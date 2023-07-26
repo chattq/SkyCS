@@ -1,4 +1,7 @@
+import NavNetworkLink from "@/components/Navigate";
+import { useI18n } from "@/i18n/useI18n";
 import { useClientgateApi } from "@/packages/api";
+import { useAuth } from "@/packages/contexts/auth";
 import { useNetworkNavigate } from "@/packages/hooks";
 import { AdminContentLayout } from "@/packages/layouts/admin-content-layout";
 import { showErrorAtom } from "@/packages/store";
@@ -7,14 +10,19 @@ import { editTypeAtom } from "@/utils/store";
 import { useQuery } from "@tanstack/react-query";
 import { Button, Form, LoadPanel } from "devextreme-react";
 import { GroupItem, Item } from "devextreme-react/form";
-import { t } from "i18next";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
+import { toast } from "react-toastify";
+import { match } from "ts-pattern";
 import Customer_Tabs from "./components/Customer_Tabs";
 
 export const CustomerPrimaryPage = () => {
   const api = useClientgateApi();
+
+  const { t } = useI18n("Mst_Customer");
+
+  const { auth } = useAuth();
 
   const params: any = useParams();
 
@@ -62,8 +70,6 @@ export const CustomerPrimaryPage = () => {
 
   // console.log(customer, listCodeField);
 
-  const editType = useAtomValue(editTypeAtom);
-
   const getFormField = useMemo(() => {
     if (!isLoadingCodeField && customer && customer?.Lst_Mst_Customer[0]) {
       const list = JSON.parse(customer?.Lst_Mst_Customer[0].JsonCustomerInfo);
@@ -78,10 +84,11 @@ export const CustomerPrimaryPage = () => {
       const listFieldCustom = listCodeField?.map((item: any) => {
         return {
           ...item,
-          ColDataType:
-            item?.ColDataType == "EMAIL" || item?.ColDataType == "PHONE"
-              ? "SELECTONEDROPDOWN"
-              : item?.ColDataType,
+          ColDataType: match(item?.ColDataType)
+            .with("EMAIL", () => "SELECTONEDROPDOWN")
+            .with("PHONE", () => "CUSTOMIZEPHONE")
+            .otherwise(() => item?.ColDataType),
+
           JsonListOption:
             item?.ColDataType === "EMAIL"
               ? JSON.stringify(
@@ -113,7 +120,7 @@ export const CustomerPrimaryPage = () => {
         listField: listFieldCustom,
         listDynamic: listDynamic,
         customOptions: {
-          editType: editType,
+          editType: "update",
         },
       });
 
@@ -136,18 +143,44 @@ export const CustomerPrimaryPage = () => {
           return prev;
         }, []);
 
+      console.log(listGroup);
+
       return listGroup;
     } else {
       return [];
     }
-  }, [isLoadingCodeField, customer, listCodeField, editType]);
+  }, [isLoadingCodeField, customer, listCodeField]);
 
   const setEditType = useSetAtom(editTypeAtom);
 
   const navigate: any = useNetworkNavigate();
 
   const handleEdit = () => {
-    navigate(`/customer/edit/${currentCustomerCodeSys}`);
+    navigate(`/customer/edit/${currentCustomerCodeSys}/direct`);
+  };
+
+  const handleDelete = async () => {
+    const deleteConfirm = confirm(
+      `Bạn có muốn xóa khách hàng ${currentCustomerCodeSys} không?`
+    );
+
+    if (deleteConfirm) {
+      const response = await api.Mst_Customer_Delete({
+        OrgID: auth?.orgData?.Id,
+        CustomerCodeSys: currentCustomerCodeSys,
+        NetworkID: auth?.networkId,
+      });
+      if (response.isSuccess) {
+        toast.success(t("Delete Success"));
+        navigate(`/customer/list`);
+      } else {
+        showError({
+          message: t(response.errorCode),
+          debugInfo: response.debugInfo,
+          errorInfo: response.errorInfo,
+        });
+      }
+    }
   };
 
   return (
@@ -155,9 +188,11 @@ export const CustomerPrimaryPage = () => {
       <AdminContentLayout.Slot name={"Header"}>
         <div className="header flex justify-between items-center w-full px-2 py-3">
           <div className="breakcrumb flex gap-1">
-            <p>{t("Mst_Customer")}</p>
+            <NavNetworkLink to="/customer" className="text-black">
+              Khách hàng
+            </NavNetworkLink>
             <p>{`>`}</p>
-            <p>Detail Customer</p>
+            <p>Chi tiết khách hàng</p>
           </div>
           <div className="flex gap-3">
             <Button
@@ -174,8 +209,9 @@ export const CustomerPrimaryPage = () => {
               style={{
                 padding: "10px 20px",
               }}
+              onClick={handleDelete}
             >
-              Hủy Bỏ
+              Xóa
             </Button>
           </div>
         </div>
@@ -198,7 +234,10 @@ export const CustomerPrimaryPage = () => {
               <img
                 alt=""
                 className="w-full h-full object-cover"
-                src="https://ftest.ecore.vn/20230621/036L91B0N.16A665CA529D432F982B3DC731FF7E21.jpg"
+                src={
+                  customerInfo?.CustomerAvatarPath ??
+                  "https://tse2.mm.bing.net/th?id=OIP.udoq18uxDpu6UHi2H__97gAAAA&pid=Api&P=0&h=180"
+                }
               />
               {/* <input type="file" ref={imgRef} hidden onChange={onFileChange} /> */}
             </div>
@@ -241,7 +280,6 @@ const CustomerContent = ({ customer, listCodeField, formField }: any) => {
         showValidationSummary={true}
         labelMode="outside"
         labelLocation="left"
-        readOnly={editType == "detail"}
       >
         <GroupItem colCount={2}>
           {formField.map((item: any) => {

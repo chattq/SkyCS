@@ -131,13 +131,22 @@ const DistrictBution_Agent = ({ onCancel, listCustomer, onSave }: Props) => {
                 <GroupItem colCount={3}>
                   <SimpleItem
                     dataField="AgentName"
+                    label={{
+                      text: t("AgentName")
+                    }}
                     editorOptions={{
                       readOnly: true,
                     }}
                   ></SimpleItem>
-                  <SimpleItem dataField="Extension"></SimpleItem>
+                  <SimpleItem dataField="Extension"
+                  label={{
+                    text: t("Extension")
+                  }}></SimpleItem>
                   <SimpleItem
                     dataField="quantityCustomer"
+                    label={{
+                      text: t("quantityCustomer")
+                    }}
                     editorType="dxNumberBox"
                     editorOptions={{
                       onOptionChanged: (e: any) =>

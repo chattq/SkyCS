@@ -1,8 +1,15 @@
 import { useI18n } from "@/i18n/useI18n";
+import { Icon } from "@/packages/ui/icons";
 
-import { listCampaignAgentAtom } from "@/pages/admin/Cpn_Campaign/components/store";
+import {
+  flagSelectorAtom,
+  listCampaignAgentAtom,
+} from "@/pages/admin/Cpn_Campaign/components/store";
+import { ColumnOptions } from "@/types";
 import { mapEditorOption, mapEditorType } from "@/utils/customer-common";
+import { Button } from "devextreme-react";
 import { useAtomValue } from "jotai";
+import { useParams } from "react-router-dom";
 interface Props {
   dataSource: any;
   dynamicField: any[];
@@ -11,12 +18,96 @@ interface Props {
 export interface UseCustomerGridColumnsProps {
   dataField: Props;
   customeField: any;
+  onClick: (param: any) => void;
 }
 export const useColumn = ({
   dataField,
   customeField,
+  onClick,
 }: UseCustomerGridColumnsProps) => {
   const { t } = useI18n("column");
+  const param = useParams();
+  const flagSelector = useAtomValue(flagSelectorAtom);
+  let columnsDetail: ColumnOptions[] = [
+    {
+      dataField: "CustomerName", // tên khách hàng
+      caption: t("CustomerName"),
+      editorOptions: {
+        readOnly: true,
+      },
+    },
+    {
+      dataField: "CustomerPhoneNo1", // Số điện thoại 1
+      caption: t("CustomerPhoneNo1"),
+      editorOptions: {
+        readOnly: true,
+      },
+    },
+    {
+      dataField: "CustomerPhoneNo2", // Số điện thoại 2
+      caption: t("CustomerPhoneNo2"),
+      editorOptions: {
+        readOnly: true,
+      },
+    },
+    {
+      dataField: "CallOutDTimeUTC", // Thời gian gọi ra
+      caption: t("CallOutDTimeUTC"),
+      editorOptions: {
+        readOnly: true,
+      },
+    },
+    {
+      dataField: "CallTime", // Thời lượng
+      caption: t("CallTime"),
+      editorOptions: {
+        readOnly: true,
+      },
+    },
+    {
+      dataField: "File Ghi ÂM ( chưa có trường )", // File ghi âm
+      caption: t("File Ghi ÂM ( chưa có trường )"),
+      editorOptions: {
+        readOnly: true,
+      },
+    },
+    {
+      dataField: "CampaignCustomerCallStatus", // Trạng thái thực hiện
+      caption: t("CampaignCustomerCallStatus"),
+      editorOptions: {
+        readOnly: true,
+      },
+    },
+    {
+      dataField: "CustomerFeedBack", // Khách hàng phản hổi
+      caption: t("CustomerFeedBack"),
+      editorOptions: {
+        readOnly: true,
+      },
+    },
+    {
+      dataField: "QtyCall", // Số lần gọi
+      caption: t("QtyCall"),
+      editorOptions: {
+        readOnly: true,
+      },
+    },
+    {
+      dataField: "AgentName", // Agent Phụ trách
+      caption: t("AgentName"),
+      editorOptions: {
+        readOnly: true,
+      },
+    },
+    {
+      dataField: "Remark", // Ghi chú
+      caption: t("Remark"),
+      editorOptions: {
+        readOnly: true,
+      },
+    },
+  ];
+
   const dataMap = dataField.dynamicField ?? [];
   const fieldCustomer = Object.keys(customeField)
     .map((item: string, index: number) => {
@@ -30,6 +121,7 @@ export const useColumn = ({
         ColCodeSys: Object.values(item)[0],
         dataField: Object.values(item)[0],
         caption: Object.keys(item)[0],
+        visible: true,
       };
     });
 
@@ -41,6 +133,7 @@ export const useColumn = ({
         ColCodeSys: item.CampaignColCfgCodeSys,
         caption: item.CampaignColCfgName,
         dataField: item.CampaignColCfgCodeSys,
+        visible: true,
       };
     })
     .map((item) => {
@@ -52,9 +145,11 @@ export const useColumn = ({
             field: item,
             listDynamic: dataField.dataSource,
           }),
-          readOnly: true,
+          // readOnly: true,
           placeholder: "",
+          readOnly: param?.flag === "detail",
         },
+        visible: true,
       };
     });
 
@@ -111,6 +206,7 @@ export const useColumn = ({
           displayExpr: "UserName",
           valueExpr: "UserCode",
         },
+        visible: true,
       };
     } else {
       return {
@@ -120,9 +216,33 @@ export const useColumn = ({
         editorOptions: {
           readOnly: true,
         },
+        visible: true,
       };
     }
   });
+
+  const buttonShowWhenDetail: ColumnOptions[] = [
+    {
+      dataField: "Button", // tên khách hàng
+      caption: t(""),
+      fixed: true,
+      width: 80,
+      alignment: "center",
+      fixedPosition: "right",
+      cssClass: "mx-1 cursor-pointer",
+      cellRender: (param) => {
+        return (
+          <Button onClick={() => onClick(param)}>
+            <Icon name="clock"></Icon>
+          </Button>
+        );
+      },
+    },
+  ];
+
+  if (param?.flag === "detail") {
+    return [...columnsDetail, ...newColumn, ...buttonShowWhenDetail];
+  }
   const response = [...columns, ...fieldCustomer, ...newColumn];
   return response;
 };

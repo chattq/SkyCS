@@ -1,8 +1,12 @@
 import { ColumnOptions } from "@packages/ui/base-gridview";
 import { useI18n } from "@/i18n/useI18n";
 import { Mst_DepartmentControl } from "@packages/types";
-import { useSetAtom } from "jotai";
+import { useAtom, useSetAtom } from "jotai";
 import {
+  dataFormAtom,
+  dataTableAtom,
+  dataTableUserAtom,
+  flagEdit,
   showDetail,
   showPopup,
   viewingDataAtom,
@@ -11,6 +15,7 @@ import { nanoid } from "nanoid";
 import { LinkCell } from "@packages/ui/link-cell";
 import { StatusButton } from "@/packages/ui/status-button";
 import { filterByFlagActive } from "@/packages/common";
+import { useClientgateApi } from "@/packages/api";
 
 interface Mst_DepartmentControlColumnsProps {
   data?: any;
@@ -19,16 +24,37 @@ interface Mst_DepartmentControlColumnsProps {
 export const useDepartMentGridColumns = ({
   data,
 }: Mst_DepartmentControlColumnsProps) => {
-  const setViewingItem = useSetAtom(viewingDataAtom);
   const setPopupVisible = useSetAtom(showPopup);
   const setShowDetail = useSetAtom(showDetail);
-  const viewRow = (rowIndex: number, data: Mst_DepartmentControl) => {
-    setViewingItem({
-      rowIndex,
-      item: data,
-    });
+  const api = useClientgateApi();
+  const setDataForm = useSetAtom(dataFormAtom);
+  const setDataUser = useSetAtom(dataTableUserAtom);
+  const setFlagEdit = useSetAtom(flagEdit);
+
+  const viewRow = async (rowIndex: number, data: any) => {
     setPopupVisible(true);
+    setFlagEdit(false);
     setShowDetail(true);
+    const resp = await api.Mst_DepartmentControl_GetByDepartmentCode(
+      data.DepartmentCode
+    );
+    if (resp.isSuccess) {
+      setDataUser(
+        resp?.Data?.Lst_Sys_UserMapDepartment.map((item: any) => {
+          return {
+            UserCode: item.UserCode,
+            UserName: item.FullName,
+            EMail: item.Email,
+            PhoneNo: item.PhoneNo,
+          };
+        })
+      );
+      setDataForm({
+        ...resp?.Data?.Mst_Department,
+        FlagActive:
+          resp?.Data?.Mst_Department?.FlagActive === "1" ? true : false,
+      });
+    }
   };
 
   const { t } = useI18n("Department_Control");
@@ -58,6 +84,16 @@ export const useDepartMentGridColumns = ({
         placeholder: t("Input"),
       },
       caption: t("DepartmentName"),
+      columnIndex: 1,
+      groupKey: "BASIC_INFORMATION",
+      visible: true,
+    },
+    {
+      dataField: "md_DepartmentNameParent",
+      editorOptions: {
+        placeholder: t("Input"),
+      },
+      caption: t("md_DepartmentNameParent"),
       columnIndex: 1,
       groupKey: "BASIC_INFORMATION",
       visible: true,

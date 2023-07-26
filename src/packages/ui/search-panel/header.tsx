@@ -11,7 +11,7 @@ export const Header = ({onCollapse, onToggleSettings, enableColumnToggler=true}:
   return (
     <div className={'flex flex-row p-1 items-center'}>
       <div className={'mr-auto flex items-center'}>
-        <img src={'/images/icons/search.svg'} alt={'Search'} className={'w-[20px]'} />
+        <img src={'/images/icons/search.svg'} alt={'Search'} className={'w-[14px]'} />
         <span className={'ml-2 text-primary'}>{t('Search')}</span>
       </div>
       <div className={'flex-end ml-auto'} >

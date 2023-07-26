@@ -49,7 +49,23 @@ export const array_move = (
   return arr; // for testing
 };
 
-export const encodeFileType = (fileType: FileType) => {
+export const encodeFileType = (
+  fileType:
+    | "docx"
+    | "doc"
+    | "xls"
+    | "xlsx"
+    | "ppt"
+    | "pptx"
+    | "txt"
+    | "pdf"
+    | "png"
+    | "jpg"
+    | "gif"
+    | "rar"
+    | "zip"
+    | "7Z"
+) => {
   const obj = {
     docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     doc: "application/msword",
@@ -69,7 +85,23 @@ export const encodeFileType = (fileType: FileType) => {
   return obj[fileType] ?? "";
 };
 
-export const revertEncodeFileType = (FileType: string) => {
+export const revertEncodeFileType = (
+  FileType:
+    | "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    | "application/msword"
+    | "application/vnd.ms-excel"
+    | "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    | "application/vnd.ms-powerpoint"
+    | "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+    | "text/plain"
+    | "application/pdf"
+    | "image/x-png"
+    | "image/x-citrix-jpeg"
+    | "image/gif"
+    | "application/x-rar-compressed"
+    | "application/zip"
+    | "application/x-7z-compressed"
+) => {
   const obj = {
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
       "docx",
@@ -89,4 +121,40 @@ export const revertEncodeFileType = (FileType: string) => {
     "application/x-7z-compressed": "7Z",
   };
   return obj[FileType] ?? "";
+};
+
+export const getDateNow = () => {
+  return Date.now();
+};
+
+export const compareDates = (d1: any, d2: any) => {
+  let date1 = new Date(d1).getTime();
+  let date2 = new Date(d2).getTime();
+  if (date1 < date2) {
+    return false;
+  } else if (date1 >= date2) {
+    return true;
+  }
+};
+
+export const splitString = (chuoi: string, soluongkytu: number) => {
+  let chuoiSub = "";
+  if (
+    chuoi !== undefined &&
+    chuoi !== null &&
+    chuoi.toString().trim().length > 0
+  ) {
+    chuoi = chuoi.toString().trim();
+    if (chuoi.length <= soluongkytu) {
+      chuoiSub = chuoi;
+    } else {
+      const indexOf = chuoi.lastIndexOf(" ", soluongkytu);
+      if (indexOf > 0) {
+        chuoiSub = chuoi.substring(0, indexOf).trim() + "...";
+      } else {
+        chuoiSub = chuoi.substring(0, soluongkytu).trim() + "...";
+      }
+    }
+  }
+  return chuoiSub;
 };

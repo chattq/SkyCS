@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import DropDown from "../dropdown/DropDownDiv";
 
 export default function FilterDropdown({
@@ -27,7 +27,7 @@ export default function FilterDropdown({
             {buttonTemplate}
           </span>
         }
-        menuTemplate={<div>{genFilterFunction(close)}</div>}
+        menuTemplate={<div>{genFilterFunction}</div>}
       />
     </>
   );

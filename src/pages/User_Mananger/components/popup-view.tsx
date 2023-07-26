@@ -1,7 +1,14 @@
 import { useI18n } from "@/i18n/useI18n";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 
-import { Button, Form, List, Popup, ScrollView } from "devextreme-react";
+import {
+  Button,
+  Form,
+  List,
+  LoadPanel,
+  Popup,
+  ScrollView,
+} from "devextreme-react";
 import { GroupItem, SimpleItem } from "devextreme-react/form";
 import DataGrid, {
   Column,
@@ -31,6 +38,7 @@ import { useQuery } from "@tanstack/react-query";
 import { viewingDataAtom } from "@/pages/User_Mananger/components/store";
 import UploadAvatar from "./UploadAvatar";
 import { Icon } from "@/packages/ui/icons";
+import { authAtom } from "@/packages/store";
 
 export interface DealerPopupViewProps {
   onEdit: any;
@@ -58,16 +66,23 @@ export const PopupView = ({
   const [dataForm, setDataForm] = useAtom(dataFormAtom);
   const setPopupVisible = useSetAtom(showPopup);
   const setFile = useSetAtom(fileAtom);
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState<any>("");
   const [derpartmentTag, setDerpartmentTag] = useState([]);
   const [groupTag, setGroupTag] = useState([]);
   const [avt, setAvt] = useAtom(avatar);
-
+  const auth = useAtomValue(authAtom);
   const api = useClientgateApi();
+
+  const [changePassWord, setChangePassword] = useState("");
+  const [rePassword, setRePassword] = useState("");
 
   const { data: listUserActive } = useQuery(
     ["listMst_DepartmentControl"],
     () => api.Sys_User_GetAllActive() as any
+  );
+  const { data: dataMST } = useQuery(
+    ["MSTController"],
+    () => api.Mst_NNTController_GetOrgCode(auth.orgId.toString()) as any
   );
 
   const handleCancel = () => {
@@ -98,34 +113,60 @@ export const PopupView = ({
   const handleSubmitPopup = useCallback(
     async (e: any) => {
       validateRef.current.instance.validate();
-      const dataForm = new FormData(formRef.current);
-      const dataSaveForm: any = Object.fromEntries(dataForm.entries()); // chuyển thành form chính
+      const dataFormSub = new FormData(formRef.current);
+      const dataSaveForm: any = Object.fromEntries(dataFormSub.entries()); // chuyển thành form chính
       const repsUpload = await api.SysUserData_UploadFile(avt);
       const dataSave = {
         ...dataSaveForm,
         Avatar: repsUpload?.Data?.FileUrlFS ?? "",
-        UserPassword: dataSaveForm.UserPassword ?? "",
-        UserCode: dataSaveForm.EMail.split("@")[0] ?? "",
-        Lst_Sys_UserMapDepartment: derpartmentTag.map((item: any) => {
-          return {
-            UserCode: dataSaveForm.EMail.split("@")[0] ?? "",
-            DepartmentCode: item,
-          };
-        }),
-        Lst_Sys_UserInGroup: groupTag.map((item: any) => {
-          return {
-            UserCode: dataSaveForm.EMail.split("@")[0] ?? "",
-            GroupCode: item,
-          };
-        }),
+        UserPassword: flagCheckCRUD
+          ? dataSaveForm.UserPassword ?? ""
+          : dataForm.UserPassword,
+        UserCode: dataSaveForm.EMail ?? "",
+        // UserCode: dataSaveForm.EMail.split("@")[0] ?? "",
+        Lst_Sys_UserMapDepartment:
+          derpartmentTag.length !== 0
+            ? derpartmentTag?.map((item: any) => {
+                return {
+                  UserCode: dataSaveForm.EMail,
+                  // UserCode: dataSaveForm.EMail.split("@")[0] ?? "",
+                  DepartmentCode: item,
+                };
+              })
+            : dataForm?.DepartmentName?.map((item: any) => {
+                return {
+                  UserCode: dataSaveForm.EMail,
+                  DepartmentCode: item,
+                };
+              }) || [],
+        Lst_Sys_UserInGroup:
+          groupTag.length !== 0
+            ? groupTag?.map((item: any) => {
+                return {
+                  UserCode: dataSaveForm.EMail,
+                  // UserCode: dataSaveForm.EMail.split("@")[0] ?? "",
+                  GroupCode: item,
+                };
+              })
+            : dataForm?.GroupName?.map((item: any) => {
+                return {
+                  UserCode: dataSaveForm.EMail,
+                  GroupCode: item,
+                };
+              }) || [],
       };
       if (flagCheckCRUD) {
         onCreate(dataSave);
       } else {
-        onEdit(dataSave);
+        onEdit({
+          ...dataSave,
+          Avatar: repsUpload?.Data?.FileUrlFS
+            ? repsUpload?.Data?.FileUrlFS
+            : dataForm?.Avatar,
+        });
       }
     },
-    [avt, flagCheckCRUD]
+    [avt, flagCheckCRUD, groupTag, derpartmentTag, dataForm]
   );
 
   const handleDatatable = (e: any) => {
@@ -152,47 +193,118 @@ export const PopupView = ({
 
   const customizeItem = useCallback(
     (item: any) => {
+      // if (
+      //   [
+      //     "UserName",
+      //     "PhoneNo",
+      //     "ACLanguage",
+      //     "ACTimeZone",
+      //     "UserPassword",
+      //     "ReUserPassword",
+      //   ].includes(item.dataField)
+      // ) {
+      //   if (value === true) {
+      //     item.editorOptions.readOnly = true;
+      //   } else {
+      //     item.editorOptions.readOnly = false;
+      //   }
+      // }
+
       if (
-        ["UserName", "PhoneNo", "ACLanguage", "ACTimeZone"].includes(
-          item.dataField
-        )
+        [
+          "UserName",
+          "EMail",
+          "PhoneNo",
+          "ACLanguage",
+          "ACTimeZone",
+          "UserPassword",
+          "ReUserPassword",
+          "ACId",
+        ].includes(item.dataField)
       ) {
-        if (
-          listUserActive?.DataList?.find((item: any) => item.EMail === value)
-        ) {
-          item.editorOptions.readOnly = false;
-        }
-      }
-      if (item.dataField === "EMail") {
         if (flagCheckCRUD === true) {
           item.editorOptions.readOnly = false;
-        } else {
+        } else if (flagCheckCRUD === false) {
           item.editorOptions.readOnly = true;
         }
       }
-      if (["FlagSysAdmin", "FlagNNTAdmin"].includes(item.dataField)) {
-        item.editorOptions.value = true;
+
+      if (
+        flagCheckCRUD === false &&
+        ["UserPassword", "ReUserPassword"].includes(item.dataField)
+      ) {
+        item.visible = false;
+      } else {
+        item.visible = true;
+      }
+      if (flagCheckCRUD === true && ["ACId"].includes(item.dataField)) {
+        item.visible = false;
+      }
+
+      // nếu tìm thấy thì ko cho sửa
+      if (item.dataField === "UserName") {
+        if (value === true) {
+          item.editorOptions.readOnly = true;
+        }
+      }
+      if (item.dataField === "ACLanguage") {
+        if (value === true) {
+          item.editorOptions.readOnly = true;
+        }
+      }
+      if (item.dataField === "ReUserPassword") {
+        if (value === true) {
+          item.editorOptions.readOnly = true;
+        }
+      }
+      if (item.dataField === "PhoneNo") {
+        if (value === true) {
+          item.editorOptions.readOnly = true;
+        }
+      }
+      if (item.dataField === "UserPassword") {
+        if (value === true) {
+          item.editorOptions.readOnly = true;
+        }
+      }
+      if (item.dataField === "ACTimeZone") {
+        if (value === true) {
+          item.editorOptions.readOnly = true;
+        }
+      }
+
+      // init value mặc định
+      if (item.dataField === "ACTimeZone") {
+        item.editorOptions.value = "7";
+      }
+      if (item.dataField === "ACLanguage") {
+        item.editorOptions.value = "vi";
+      }
+      if (item.dataField === "MST") {
+        item.editorOptions.value = dataMST?.Data?.MST;
       }
     },
-    [flagCheckCRUD, detailForm]
+    [flagCheckCRUD, value, dataMST]
   );
-
+  console.log(257, value);
   const handleFieldDataChanged = useCallback(
-    (changedData: any) => {
+    async (changedData: any) => {
       // Handle the changed field data
       if (changedData.dataField === "EMail") {
-        setValue(changedData.value);
-        if (
-          listUserActive.DataList.find(
-            (item: any) => item.ACEmail === changedData.value
-          )
-        ) {
-          setValue(changedData.value);
-          setDataForm(
-            listUserActive.DataList.find(
-              (item: any) => item.ACEmail === changedData.value
-            )
-          );
+        const checkUser = await api.Sys_User_CheckUser(changedData.value);
+        setValue(checkUser?.Data?.FlagExist);
+        if (checkUser.isSuccess && checkUser?.Data?.FlagExist) {
+          setDataForm({
+            EMail:
+              checkUser?.Data?.FlagExist === true
+                ? checkUser?.Data?.User.Email
+                : changedData.value,
+            UserName: checkUser?.Data?.User.Name ?? "",
+            ACTimeZone: checkUser?.Data?.User.TimeZone === 7 ? "7" : "7",
+            ACLanguage: checkUser?.Data?.User.Language === "vn" ? "vi" : "vi",
+            PhoneNo: checkUser?.Data?.User.Phone ?? "",
+            MST: dataMST?.Data?.MST,
+          });
         }
       }
       if (changedData.dataField === "DepartmentName") {
@@ -202,7 +314,7 @@ export const PopupView = ({
         setGroupTag(changedData.value);
       }
     },
-    [listUserActive?.DataList]
+    [listUserActive?.DataList, derpartmentTag, groupTag, dataMST]
   );
 
   return (
@@ -211,6 +323,7 @@ export const PopupView = ({
       showTitle={true}
       title={title}
       width={980}
+      height={620}
       wrapperAttr={{
         class: "popup-form-department",
       }}
@@ -219,6 +332,7 @@ export const PopupView = ({
           visible: !detailForm,
           toolbar: "bottom",
           location: "after",
+
           widget: "dxButton",
           options: {
             text: flagCheckCRUD ? t("Save") : t("Edit"),
@@ -240,6 +354,10 @@ export const PopupView = ({
       ]}
     >
       <ScrollView height={"100%"}>
+        <LoadPanel
+          visible={Boolean(dataForm)}
+          position={{ of: "#gridContainer" }}
+        />
         <div className="flex justify-between">
           <div>
             <UploadAvatar

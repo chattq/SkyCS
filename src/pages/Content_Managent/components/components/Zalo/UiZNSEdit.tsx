@@ -3,10 +3,11 @@ import { useClientgateApi } from "@/packages/api";
 import { useQuery } from "@tanstack/react-query";
 import { Form, SelectBox, TextBox } from "devextreme-react";
 import { useSetAtom } from "jotai";
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { valueIDZNSAtom } from "../../store";
 import { requiredType } from "@/packages/common/Validation_Rules";
 import { GroupItem, SimpleItem } from "devextreme-react/form";
+import { nanoid } from "nanoid";
 
 export default function UiZNSEdit({
   item,
@@ -22,7 +23,6 @@ export default function UiZNSEdit({
   const { data: listSubmissionForm } = useQuery(["listSubmissionForm"], () =>
     api.Mst_SubmissionForm_GetAllActive()
   );
-  // console.log(25, item);
 
   const handleChangeValue = (value: any, name: any, valueSelect: any) => {
     const obj = {
@@ -113,7 +113,7 @@ export default function UiZNSEdit({
                 dataSource: listSubmissionForm?.DataList || [],
                 valueExpr: "ParamSFCode",
                 displayExpr: "ParamSFName",
-                // readOnly: valueSelect === undefined ? true : false,
+                readOnly: valueSelect === undefined ? true : false,
                 onValueChanged: (e: any) =>
                   handleChangeValue(e.value, item.ParamSFCodeZNS, valueSelect),
               },
@@ -147,16 +147,16 @@ export default function UiZNSEdit({
     // }
   }, []);
   return (
-    <div className="flex justify-between gap-y-2" key={key}>
-      <div>
+    <div className="flex gap-[40px] justify-between" key={nanoid()}>
+      <div className="w-[30%] mb-[15px]">
         <Form
-          key={key}
+          key={nanoid()}
           className="form_detail_post"
-          // ref={validateRef}
+          ref={validateRef}
           validationGroup="PostData"
-          // onInitialized={(e) => {
-          //   validateRef.current = e.component;
-          // }}
+          onInitialized={(e) => {
+            validateRef.current = e.component;
+          }}
           readOnly={false}
           formData={item}
           labelLocation="left"
@@ -188,9 +188,9 @@ export default function UiZNSEdit({
             })}
         </Form>
       </div>
-      <div className="ml-3">
+      <div className="w-[70%]">
         <Form
-          key={key}
+          key={nanoid()}
           className="form_detail"
           ref={validateRef}
           validationGroup="PostData"

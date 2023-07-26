@@ -1,45 +1,161 @@
 import { useI18n } from "@/i18n/useI18n";
+import { requiredType } from "@/packages/common/Validation_Rules";
 import { CheckBox } from "devextreme-react";
-import React from "react";
+import Form, { GroupItem, SimpleItem } from "devextreme-react/form";
+import React, { useRef } from "react";
 
 export default function Email_Channel({ data, setFlagEmail }: any) {
   const { t } = useI18n("Omi_Chanel");
-  const handleFlagEmail = (e: any) => {
-    setFlagEmail.current = e.value;
-  };
+  const validateRef = useRef<any>();
+  const formSettings: any = [
+    {
+      colCount: 3,
+      labelLocation: "left",
+      typeForm: "textForm",
+      hidden: false,
+      items: [
+        {
+          itemType: "group",
+          caption: t("BASIC_INFORMATION"),
+          colSpan: 1,
+          cssClass: "",
+          items: [
+            {
+              dataField: "SolutionCodeSendMail",
+              editorOptions: {
+                placeholder: t("Input"),
+              },
+              label: {
+                text: t("SolutionCodeSendMail:"),
+              },
+              editorType: "dxTextBox",
+              visible: true,
+              render: () => {
+                return <span className="font-bold">SKYCS</span>;
+              },
+            },
+            {
+              dataField: "DisplayNameMailFrom",
+              editorOptions: {
+                placeholder: t("Input"),
+              },
+              label: {
+                text: t("DisplayNameMailFrom:"),
+              },
+              editorType: "dxTextBox",
+              visible: true,
+              render: () => {
+                return <span className="font-bold">SKYCS</span>;
+              },
+            },
+            {
+              dataField: "MailFrom",
+              editorOptions: {
+                placeholder: t("Input"),
+              },
+              label: {
+                text: t("MailFrom:"),
+              },
+              editorType: "dxTextBox",
+              visible: true,
+            },
+            {
+              dataField: "MailTo",
+              editorOptions: {
+                placeholder: t("Input"),
+              },
+              label: {
+                text: t("MailTo:"),
+              },
+              editorType: "dxTextBox",
+              visible: true,
+            },
+            {
+              dataField: "APIsSendMail",
+              editorOptions: {
+                placeholder: t("Input"),
+              },
+              label: {
+                text: t("APIsSendMail:"),
+              },
+              editorType: "dxTextBox",
+              visible: true,
+            },
+            {
+              dataField: "ApiKeySendMail",
+              editorOptions: {
+                placeholder: t("Input"),
+              },
+              label: {
+                text: t("ApiKeySendMail:"),
+              },
+              editorType: "dxTextBox",
+              visible: true,
+            },
+            {
+              dataField: "FlagIsCreateET",
+              editorOptions: {
+                placeholder: t("Input"),
+              },
+              label: {
+                text: t("FlagIsCreateET:"),
+              },
+              editorType: "dxCheckBox",
+              visible: true,
+              render: (param: any, e: any) => {
+                const { component: formComponent, dataField } = param;
+                return (
+                  <CheckBox
+                    onValueChanged={(e: any) => {
+                      formComponent.updateData("FlagIsCreateET", e.value);
+                    }}
+                    defaultValue={
+                      param.editorOptions.value === "0" ? false : true
+                    }
+                  />
+                );
+              },
+            },
+          ],
+        },
+      ],
+    },
+  ];
   return (
-    <div className="ml-6 mt-4">
-      <div>
-        <div className="font-bold">Cấu hình kết nối</div>
-        <div className="ml-5 mt-5">
-          <div>
-            {t("MailForm")}:{" "}
-            <span className="font-bold">
-              {data?.MailFrom ? data?.MailFrom : t("Đang cập nhật")}
-            </span>
-          </div>
-          <div className="mt-2">
-            {t("DisplayNameMailFrom")}:{" "}
-            <span className="font-bold">
-              {data?.DisplayNameMailFrom
-                ? data?.DisplayNameMailFrom
-                : t("Đang cập nhật")}
-            </span>
-          </div>
-        </div>
-      </div>
-      <div className="mt-5">
-        <div className="font-bold">Cấu hình nội dung gửi</div>
-        <div className="ml-5 mt-5 flex items-center">
-          <CheckBox
-            defaultValue={data?.FlagIsCreateET === "1" ? true : false}
-            onValueChanged={(e: any) => handleFlagEmail(e)}
-          />
-          <div className="ml-3">
-            {t("Tự động tạo eTicket khi nhận được email")}
-          </div>
-        </div>
-      </div>
-    </div>
+    <form>
+      <Form
+        className="form_detail_post"
+        ref={setFlagEmail}
+        validationGroup="PostData"
+        onInitialized={(e) => {
+          setFlagEmail.current = e.component;
+        }}
+        readOnly={false}
+        formData={data}
+        labelLocation="left"
+        // customizeItem={customizeItem}
+        // onFieldDataChanged={handleFieldDataChanged}
+      >
+        {formSettings
+          .filter((item: any) => item.typeForm === "textForm")
+          .map((value: any, index: any) => {
+            return (
+              <GroupItem key={index} colCount={value.colCount}>
+                {value.items.map((items: any, index: any) => {
+                  return (
+                    <GroupItem key={index} colSpan={items.colSpan}>
+                      {items.items.map((valueFrom: any) => {
+                        return (
+                          <SimpleItem key={valueFrom.caption} {...valueFrom} />
+                        );
+                      })}
+                    </GroupItem>
+                  );
+                })}
+              </GroupItem>
+            );
+          })}
+      </Form>
+    </form>
   );
 }

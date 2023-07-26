@@ -20,7 +20,7 @@ interface Props {
 export const useCpn_Campaign = (apiBase: AxiosInstance) => {
   return {
     Cpn_Campaign_Search: async (
-      param: Cpn_CampaignSearch
+      param: Partial<Cpn_CampaignSearch>
     ): Promise<ApiResponse<Partial<Cpn_Campaign[]>>> => {
       return await apiBase.post<
         Cpn_CampaignSearch,

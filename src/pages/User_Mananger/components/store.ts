@@ -16,6 +16,7 @@ export const AvatarData = atom<any>("");
 export const showDetail = atom<boolean>(false);
 export const dataTableAtom = atom<any>([]);
 export const dataFormAtom = atom<any>([]);
+export const dataGridAtom = atom<any>([]);
 export const keywordAtom = atom<string>("");
 export const flagEdit = atom<boolean>(false);
 export const checkDataPopPup = atom<boolean>(true);

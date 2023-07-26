@@ -14,20 +14,25 @@ import {
   forwardRef,
   useCallback,
   useEffect,
+  useImperativeHandle,
   useMemo,
   useState,
 } from "react";
 import { toast } from "react-toastify";
 import {
   CampaignTypeAtom,
+  dynamicFields,
   flagSelectorAtom,
   listCampaignAgentAtom,
   listCampaignAtom,
   visiblePopupAtom,
 } from "../../store";
 import DistrictBution_Agent from "./../PopUp/Distribution_Agent";
+import History_Call from "./../PopUp/historycall";
 import { UseCustomerGridColumnsProps, useColumn } from "./use_Column";
-
+import "@skycs-pages/Campaign_Perform/styles.scss";
+import { useParams } from "react-router-dom";
+import "./style.scss";
 interface Props {
   ref: any;
 }
@@ -35,6 +40,7 @@ interface Props {
 export const ListCustomerContent = forwardRef(
   (
     {
+      setCurrentCode,
       handleSavingRow,
       listCampaign,
       isLoadingDynamicField,
@@ -48,6 +54,22 @@ export const ListCustomerContent = forwardRef(
     }: any,
     ref
   ) => {
+    const setVisiblePopup = useSetAtom(visiblePopupAtom);
+    const param = useParams();
+    const handleShowPopup = (param: any) => {
+      console.log("param ", param);
+      setVisiblePopup(true);
+      setCurrentCode(
+        <History_Call
+          onCancel={() => {
+            setCurrentCode(<></>);
+            setVisiblePopup(false);
+          }}
+          param={param}
+        />
+      );
+    };
+
     const columns = useColumn({
       dataField: listDynamicField ?? {
         dataSource: [],
@@ -56,8 +78,8 @@ export const ListCustomerContent = forwardRef(
       customeField: defaultFieldDynamic ?? {
         t: "",
       },
+      onClick: handleShowPopup,
     } as UseCustomerGridColumnsProps);
-
     const handleStartEditing = (e: any) => {
       if (e.column.dataField === "AgentName") {
         e.column.editorOptions = {
@@ -79,7 +101,6 @@ export const ListCustomerContent = forwardRef(
     const handleEditRowChanges = (
       e: { key: string; type: string }[] | undefined
     ) => {
-      // console.log("handleEditRowChanges", e);
       if (e) {
         // remove each item in e from listCampaign
         // console.log("remove each item in e from listCampaign", e);
@@ -91,25 +112,10 @@ export const ListCustomerContent = forwardRef(
       }
     };
 
-    console.log("listCampaign", listCampaign);
-
-    const gridContent = useMemo(() => {
-      return (
-        <GridViewRaw
-          storeKey="Mst_CustomerCampaign"
-          keyExpr={"CustomerCodeSys"}
-          isLoading={isLoadingDynamicField}
-          ref={ref}
-          onReady={(r) => {}}
-          dataSource={listCampaign}
-          columns={columns}
-          allowSelection={true}
-          onSelectionChanged={() => {}}
-          onSaveRow={handleSavingRow}
-          inlineEditMode="row"
-          onCustomerEditing={handleStartEditing}
-          onEditRowChanges={handleEditRowChanges}
-          toolbarItems={[
+    const toolbar = () => {
+      if (param) {
+        if (param?.flag !== "detail") {
+          return [
             {
               location: "before",
               render: () => {
@@ -151,7 +157,74 @@ export const ListCustomerContent = forwardRef(
                 );
               },
             },
-          ]}
+          ];
+        } else {
+          return [];
+        }
+      } else {
+        return [
+          {
+            location: "before",
+            render: () => {
+              return (
+                <Button
+                  stylingMode={"contained"}
+                  type={"default"}
+                  text={"Select"}
+                  onClick={() => {
+                    handleShowSelectCustomer();
+                  }}
+                />
+              );
+            },
+          },
+          {
+            location: "before",
+            render: () => {
+              return (
+                <Button
+                  type={"default"}
+                  stylingMode={"contained"}
+                  text={"Import Excel"}
+                  onClick={handleImport}
+                />
+              );
+            },
+          },
+          {
+            location: "before",
+            render: () => {
+              return (
+                <Button
+                  stylingMode={"contained"}
+                  type={"default"}
+                  onClick={handleShowPopUpDistributionAgent}
+                  text={"Distribution Agent"}
+                />
+              );
+            },
+          },
+        ];
+      }
+    };
+
+    const gridContent = useMemo(() => {
+      return (
+        <GridViewRaw
+          storeKey="Mst_CustomerCampaign"
+          keyExpr={"CustomerCodeSys"}
+          isLoading={isLoadingDynamicField}
+          ref={ref}
+          onReady={(r) => {}}
+          dataSource={listCampaign}
+          columns={columns}
+          allowSelection={true}
+          onSelectionChanged={() => {}}
+          onSaveRow={handleSavingRow}
+          inlineEditMode="row"
+          onCustomerEditing={handleStartEditing}
+          onEditRowChanges={handleEditRowChanges}
+          toolbarItems={[...toolbar()]}
         ></GridViewRaw>
       );
     }, [columns, listCampaignAgent]);
@@ -159,7 +232,7 @@ export const ListCustomerContent = forwardRef(
   }
 );
 const Cpn_Campaign_List_Customer = forwardRef(
-  ({ commonRef }: any, ref: ForwardedRef<DataGrid>) => {
+  ({ commonRef, dynamicRef }: any, ref: ForwardedRef<DataGrid>) => {
     const { t } = useI18n("Cpn_Campaign_List_Customer");
     const { auth } = useAuth();
     const api = useClientgateApi();
@@ -170,6 +243,7 @@ const Cpn_Campaign_List_Customer = forwardRef(
     const flagSelector = useAtomValue(flagSelectorAtom);
     const [currentCode, setCurrentCode] = useState(<></>);
     const listCampaignAtomValue = useAtomValue(listCampaignAtom);
+    // const [selectCampaign, setSelectCampaign] = useState<any[]>([]);
     useEffect(() => {
       const newArr = listCampaignAtomValue
         .map((item) => {
@@ -185,7 +259,6 @@ const Cpn_Campaign_List_Customer = forwardRef(
 
       setListCampaign(listCampaignAtomValue);
     }, [listCampaignAtomValue]);
-
     const { data: listDynamicField, isLoading: isLoadingDynamicField } =
       useQuery({
         queryKey: ["listDynamicField", CampaignType],
@@ -202,33 +275,52 @@ const Cpn_Campaign_List_Customer = forwardRef(
                 const getCodeSys = arr.map((item: any) => {
                   return item.CampaignColCfgCodeSys;
                 });
+                console.log("arr ", arr);
+                const getDynamicField = arr
+                  .filter((item) => {
+                    return (
+                      item.CampaignColCfgDataType === "MASTERDATA" ||
+                      item.CampaignColCfgDataType === "MASTERDATASELECTMULTIPLE"
+                    );
+                  })
+                  .map((item) => item.CampaignColCfgCodeSys);
+                const result = {
+                  dataSource: {},
+                  dynamicField: response.Data?.Lst_Mst_CustomColumnCampaignType,
+                };
 
-                const responseDateSource =
-                  await api.Mst_CampaignColumnConfig_GetListOption(getCodeSys);
+                if (getDynamicField.length) {
+                  const responseDateSource =
+                    await api.Mst_CampaignColumnConfig_GetListOption(
+                      getDynamicField
+                    );
 
-                if (responseDateSource.isSuccess) {
-                  const data: any = responseDateSource.DataList ?? [];
-                  const obj = data?.reduce((result: any, item: any) => {
-                    result[item.CampaignColCfgCodeSys] =
-                      item.Lst_MD_OptionValue;
+                  if (responseDateSource.isSuccess) {
+                    const data: any = responseDateSource.DataList ?? [];
+                    const obj = data?.reduce((result: any, item: any) => {
+                      result[item.CampaignColCfgCodeSys] =
+                        item.Lst_MD_OptionValue;
+                      return result;
+                    }, {} as { [key: string]: any[] });
+                    const result = {
+                      dataSource: {
+                        ...obj,
+                      },
+                      dynamicField:
+                        response.Data?.Lst_Mst_CustomColumnCampaignType,
+                    };
                     return result;
-                  }, {} as { [key: string]: any[] });
-
-                  return {
-                    dataSource: {
-                      ...obj,
-                    },
-                    dynamicField:
-                      response.Data?.Lst_Mst_CustomColumnCampaignType,
-                  };
-                } else {
-                  showError({
-                    message: responseDateSource?.errorCode,
-                    debugInfo: responseDateSource?.debugInfo,
-                    errorInfo: responseDateSource?.errorInfo,
-                  });
+                  } else {
+                    showError({
+                      message: t(responseDateSource?.errorCode),
+                      debugInfo: responseDateSource?.debugInfo,
+                      errorInfo: responseDateSource?.errorInfo,
+                    });
+                  }
                 }
+                return result;
               }
+
               return response.Data?.Lst_Mst_CustomColumnCampaignType ?? {};
             } else {
               return {};
@@ -238,6 +330,17 @@ const Cpn_Campaign_List_Customer = forwardRef(
           }
         },
       });
+
+    useImperativeHandle(
+      dynamicRef,
+      () => {
+        return {
+          dynamicFields: listDynamicField,
+        };
+      },
+      [listDynamicField]
+    );
+
     const getCustomerData = async (param: string[]) => {
       const response = await api.Mst_Customer_GetByCustomerCode(param);
       if (response.isSuccess) {
@@ -353,8 +456,9 @@ const Cpn_Campaign_List_Customer = forwardRef(
         const response = await api.Cpn_Campaign_ExportTemplate(CampaignType);
         if (response.Data) {
           toast.success(t("Export template Success"));
-          if (response.Data) {
-            window.location.href = response.Data.Url ?? "";
+          if (response.Data && typeof response.Data === "string") {
+            window.open(response.Data, "_blank");
+            setCurrentCode(<></>);
           } else {
             toast.error(t("Dont have Url Excel"));
           }
@@ -451,32 +555,6 @@ const Cpn_Campaign_List_Customer = forwardRef(
       );
     };
 
-    const arrayStatus = [
-      {
-        item: t("PENDING"),
-        value: "PENDING",
-      },
-      {
-        item: t("APPROVE"),
-        value: "APPROVE",
-      },
-      {
-        item: t("STARTED"),
-        value: "STARTED",
-      },
-      {
-        item: t("PAUSED"),
-        value: "PAUSED",
-      },
-      {
-        item: t("CONTINUED"),
-        value: "CONTINUED",
-      },
-      {
-        item: t("FINISH"),
-        value: "FINISH",
-      },
-    ];
     const listCampaignAgentValue = useAtomValue(listCampaignAgentAtom);
     const handleRemoveCampaign = (key: string) => {
       const newArr = [...listCampaign].filter((item) => {
@@ -485,6 +563,89 @@ const Cpn_Campaign_List_Customer = forwardRef(
       setListCampaign(newArr);
     };
 
+    const campaignCustomerStatuses = useMemo(() => {
+      return [
+        { Code: "", Title: "Tất cả", icon: "", color: "" },
+        {
+          Code: "PENDING",
+          Title: "Chưa thực hiện",
+          icon: "ic-status-pending",
+          color: "#CFB929",
+        },
+        {
+          Code: "DONE",
+          Title: "Thành công",
+          icon: "ic-status-done",
+          color: "#0FBC2B",
+        },
+        {
+          Code: "FAILED",
+          Title: "Thực hiện cuộc gọi lỗi",
+          icon: "ic-status-failed",
+          color: "#D62D2D",
+        },
+        {
+          Code: "NOANSWER",
+          Title: "Đã gọi nhưng không nghe máy",
+          icon: "ic-status-noanswer",
+          color: "#00BEA7",
+        },
+        {
+          Code: "CALLAGAIN",
+          Title: "Hẹn gọi lại",
+          icon: "ic-status-callagain",
+          color: "#8C62D1",
+        },
+        {
+          Code: "NOANSWERRETRY",
+          Title: "Đã gọi hết số lượt nhưng không nghe máy",
+          icon: "ic-status-noanswerretry",
+          color: "#E48203",
+        },
+        {
+          Code: "DONOTCALL",
+          Title: "Không liên hệ",
+          icon: "ic-status-donotcall",
+          color: "#777",
+        },
+        {
+          Code: "FAILEDRETRY",
+          Title: " Đã gọi hết số lượt nhưng cuộc gọi vẫn lỗi",
+          icon: "ic-status-failedretry",
+          color: "#298EF2",
+        },
+      ];
+    }, []);
+
+    const isNullOrEmpty = function (_value: any) {
+      if (
+        _value !== undefined &&
+        _value !== null &&
+        _value.toString().trim().length > 0
+      ) {
+        return false;
+      }
+      return true;
+    };
+
+    const returnValue = function (_data: any) {
+      var value = "";
+      if (!isNullOrEmpty(_data)) {
+        value = _data.toString().trim();
+      }
+      return value;
+    };
+
+    const handleSearch = (value: string[]) => {
+      if (ref?.current) {
+        ref?.current?.instance.filter(function (itemData: any) {
+          if (value.length) {
+            return value.includes(returnValue(itemData.CampaignStatus));
+          }
+          return true;
+        });
+      }
+    };
     return (
       <>
         {flagSelector !== "add" && (
@@ -492,14 +653,27 @@ const Cpn_Campaign_List_Customer = forwardRef(
             <p className="mr-2">{t("Status")}</p>
             <TagBox
               className=""
-              dataSource={arrayStatus}
-              valueExpr="value"
-              displayExpr="item"
+              dataSource={campaignCustomerStatuses}
+              valueExpr="Code"
+              displayExpr="Title"
+              onValueChanged={({ value }) => {
+                handleSearch(value);
+              }}
+              itemRender={(item) => {
+                console.log("icon ", item.icon);
+                return (
+                  <span style={{ color: item.color }} className="p-1">
+                    <i className={`${item.icon} mr-2`} />
+                    {item.Title}
+                  </span>
+                );
+              }}
             ></TagBox>
           </div>
         )}
         <ListCustomerContent
           ref={ref}
+          setCurrentCode={setCurrentCode}
           handleSavingRow={handleSavingRow}
           listCampaign={listCampaign}
           isLoadingDynamicField={isLoadingDynamicField}

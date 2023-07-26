@@ -53,6 +53,7 @@ export const useMst_SLAColumns = () => {
       caption: t("SLADesc"),
       columnIndex: 1,
       visible: true,
+      width: 300,
     },
     {
       dataField: "LogLUDTimeUTC",

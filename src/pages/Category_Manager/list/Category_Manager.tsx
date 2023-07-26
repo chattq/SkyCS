@@ -1,192 +1,178 @@
+import DataGrid, {
+  Column,
+  Selection,
+  Editing,
+  Button as DxButton,
+  Texts,
+} from "devextreme-react/data-grid";
+import { Icon } from "@packages/ui/icons";
+import { nanoid } from "nanoid";
+import NavNetworkLink from "@/components/Navigate";
+import { AdminContentLayout } from "@/packages/layouts/admin-content-layout";
+import { PageHeaderNoSearchLayout } from "@/packages/layouts/page-header-layout-2/page-header-nosearch-layout";
+import { Button } from "devextreme-react";
 import { useI18n } from "@/i18n/useI18n";
-import { AdminContentLayout } from "@layouts/admin-content-layout";
-import { useClientgateApi } from "@packages/api";
-import { GridViewPopup } from "@packages/ui/base-gridview";
-import { useEffect, useRef, useState } from "react";
-
-import { PopupView } from "@/pages/Category_Manager/components";
-import {
-  AvatarData,
-  avatar,
-  dataFormAtom,
-  dataTableAtom,
-  flagEdit,
-  keywordAtom,
-  selectedItemsAtom,
-  showDetail,
-} from "@/pages/Category_Manager/components/store";
-
-import { searchPanelVisibleAtom } from "@layouts/content-searchpanel-layout";
-import { useConfiguration, useVisibilityControl } from "@packages/hooks";
-import { logger } from "@packages/logger";
-import { showErrorAtom } from "@packages/store";
-import {
-  FlagActiveEnum,
-  Mst_Dealer,
-  SearchDealerParam,
-  SearchUserControlParam,
-  SysUserData,
-} from "@packages/types";
-import { useQuery } from "@tanstack/react-query";
-import { IPopupOptions } from "devextreme-react/popup";
-import { EditorPreparingEvent } from "devextreme/ui/data_grid";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import "./Category_Manager.scss";
-
-import { useDealerGridColumns } from "../components/use-columns";
-import { useFormSettings } from "../components/use-form-settings";
-import { DataGrid, LoadPanel } from "devextreme-react";
-
-import { showPopup } from "@/pages/Category_Manager/components/store";
 import { PageHeaderLayout } from "@/packages/layouts/page-header-layout";
-import { HeaderPart } from "../components/header-part";
+import { HeaderPart, PopupView } from "../components";
+import { StatusButton } from "@/packages/ui/status-button";
+import { useFormSettings } from "../components/use-form-settings";
+import { useAtomValue, useSetAtom } from "jotai";
+import {
+  bottomAtom,
+  dataFormAtom,
+  flagEditAtom,
+  keywordAtom,
+  showDetail,
+  showPopup,
+} from "../components/store";
+import {
+  DeleteMultipleConfirmationBox,
+  DeleteSingleConfirmationBox,
+} from "@/packages/ui/base-gridview/components";
+import { FlagActiveEnum } from "@/packages/types";
+import { useCallback, useState } from "react";
+import { useClientgateApi } from "@/packages/api";
+import { useQuery } from "@tanstack/react-query";
+import { useConfiguration } from "@/packages/hooks";
+import {
+  flattenCategories,
+  getCategories,
+} from "../components/FormatCategoryGrid";
+import { authAtom, showErrorAtom } from "@/packages/store";
 import { toast } from "react-toastify";
-import { ColumnOptions } from "@/types";
-import { TreeGridViewPopup } from "@/packages/ui/base-gridview/treegrid-popup";
+import { normalGridDeleteMultipleConfirmationBoxAtom } from "@/packages/ui/base-gridview/store/normal-grid-store";
 
 export const Category_ManagerPage = () => {
   const { t } = useI18n("Category_Manager");
-  let gridRef: any = useRef<DataGrid | null>(null);
   const config = useConfiguration();
-  const showError = useSetAtom(showErrorAtom);
-  const setPopupVisible = useSetAtom(showPopup);
-  const setShowDetail = useSetAtom(showDetail);
-  const setDataTable = useSetAtom(dataTableAtom);
-  const setDataForm = useSetAtom(dataFormAtom);
-  const setFlag = useSetAtom(flagEdit);
-  const setAvt = useSetAtom(avatar);
+  const auth = useAtomValue(authAtom);
   const keyword = useAtomValue(keywordAtom);
-
-  const [searchCondition, setSearchCondition] = useState<any>({
-    FlagActive: FlagActiveEnum.All,
-    Ft_PageIndex: 0,
-    Ft_PageSize: config.MAX_PAGE_ITEMS,
-    UserName: "",
-    EMail: "",
-    UserCode: "",
-    PhoneNo: "",
-    KeyWord: "",
-  });
-
-  const setSelectedItems = useSetAtom(selectedItemsAtom);
+  const setPopupVisible = useSetAtom(showPopup);
+  const setflagEdit = useSetAtom(flagEditAtom);
+  const setDataFrom = useSetAtom(dataFormAtom);
+  const setShowDetail = useSetAtom(showDetail);
+  const setBottom = useSetAtom(bottomAtom);
+  const showError = useSetAtom(showErrorAtom);
 
   const api = useClientgateApi();
 
   const { data, isLoading, refetch } = useQuery(
-    ["Category_Manager", JSON.stringify(searchCondition)],
+    ["Category_Manager", keyword],
     () =>
-      api.Sys_User_Search({
-        ...searchCondition,
-      })
+      api.KB_Category_Search({
+        Ft_PageIndex: 0,
+        Ft_PageSize: config.MAX_PAGE_ITEMS,
+        KeyWord: keyword,
+      } as any)
   );
-  const { data: listMST } = useQuery(["listMST"], () =>
-    api.Mst_NNTController_GetAllActive()
-  );
-  const { data: listDepartMent } = useQuery(["listDepartMent"], () =>
-    api.Mst_DepartmentControl_GetAllActive()
-  );
-  const { data: listGroup } = useQuery(["listGroup"], () =>
-    api.Sys_GroupController_GetAllActive()
-  );
-
-  const columns = useDealerGridColumns({ data: data?.Data?.DataList });
-  const formSettings = useFormSettings({
-    data: listMST?.DataList,
-    dataListDepartment: listDepartMent?.DataList,
-    dataListGroup: listGroup?.DataList,
-  });
-
-  const handleSelectionChanged = (rows: string[]) => {
-    setSelectedItems(rows);
-  };
-  const handleAddNew = () => {
-    setFlag(true);
-    setAvt(undefined);
-    setDataTable([]);
-    setDataForm([]);
-    setPopupVisible(true);
-    setShowDetail(false);
-  };
-
-  // toggle search panel
-  const setSearchPanelVisibility = useSetAtom(searchPanelVisibleAtom);
-  const handleToggleSearchPanel = () => {
-    setSearchPanelVisibility((visible) => !visible);
-  };
-
-  const handleCancel = () => {
-    gridRef.current?.instance?.cancelEditData();
-  };
-  const handleEdit = (rowIndex: number) => {
-    // clear viewing item info before start edit it
-    gridRef.current?.instance?.editRow(rowIndex);
-  };
-  const handleSubmit = () => {
-    gridRef.current?.instance?.saveEditData();
-  };
-
-  const handleEditorPreparing = (e: EditorPreparingEvent) => {
-    // use this function to control how the editor looks like
-    // if (["DealerCode", "DealerType", "ProvinceCode"].includes(e.dataField!)) {
-    //   e.editorOptions.readOnly = !e.row?.isNewRow;
-    // } else if (e.dataField === "FlagActive") {
-    //   e.editorOptions.value = true;
-    // } else if (["FlagDirect", "FlagTCG"].includes(e.dataField!)) {
-    //   e.editorOptions.value = "0";
-    // }
-  };
-  const handleOnEditRow = async (e: any) => {
-    setShowDetail(false);
-    const resp = await api.Sys_User_Data_GetByUserCode(e.row.data.UserCode);
+  const columns = [
+    {
+      dataField: "CategoryName",
+      cellRender: ({ row: { data }, value }: any) => {
+        // console.log(data, value);
+        return (
+          <div
+            className={"flex items-center"}
+            onClick={() => handleShowDetail(data)}
+          >
+            {data.level > 1 && (
+              <span style={{ marginLeft: `${(data.level - 1) * 20}px` }}></span>
+            )}
+            <div className={"flex items-center"}>
+              {data.hasChildren && <Icon className={""} name="expandDown" />}
+              <span
+                className={
+                  data.hasChildren
+                    ? "ml-1 text-green-600 cursor-pointer"
+                    : "text-green-600 cursor-pointer"
+                }
+              >
+                {data.CategoryName}
+              </span>
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      dataField: "CategoryDesc",
+      editorOptions: {
+        placeholder: t("Input"),
+      },
+      caption: t("CategoryDesc"),
+      columnIndex: 1,
+      groupKey: "BASIC_INFORMATION",
+      visible: true,
+    },
+    {
+      dataField: "QtyPost",
+      editorOptions: {
+        placeholder: t("Input"),
+      },
+      caption: t("QtyPost"),
+      columnIndex: 1,
+      groupKey: "BASIC_INFORMATION",
+      visible: true,
+    },
+    {
+      dataField: "FlagActive",
+      editorOptions: {
+        placeholder: t("Input"),
+      },
+      caption: t("FlagActive"),
+      columnIndex: 1,
+      groupKey: "BASIC_INFORMATION",
+      visible: true,
+      cellRender: ({ data }: any) => {
+        return (
+          <StatusButton key={nanoid()} isActive={data.FlagActive === "1"} />
+        );
+      },
+    },
+  ];
+  const handleCreate = async (data: any) => {
+    const resp = await api.KB_Category_Create({
+      ...data,
+      FlagActive: data.FlagActive === "true" ? "1" : "0",
+      OrgID: auth.orgId?.toString(),
+      CategoryCode: "",
+    });
     if (resp.isSuccess) {
-      setAvt(resp?.Data?.Avatar);
-      setDataForm({
-        ...resp.Data,
-        FlagNNTAdmin: resp.Data?.FlagNNTAdmin === "1" ? true : false,
-        FlagSysAdmin: resp.Data?.FlagSysAdmin === "1" ? true : false,
-      });
+      toast.success(t("Create Successfully"));
+      setPopupVisible(false);
+      await refetch();
+      return true;
     }
-    setFlag(false);
-    setPopupVisible(true);
+    showError({
+      message: t(resp.errorCode),
+      debugInfo: resp.debugInfo,
+      errorInfo: resp.errorInfo,
+    });
+    throw new Error(resp.errorCode);
   };
-
-  const popupSettings: IPopupOptions = {
-    showTitle: true,
-    title: t("Department_Control Information"),
-    className: "dealer-information-popup",
-    toolbarItems: [
-      {
-        toolbar: "bottom",
-        location: "after",
-        widget: "dxButton",
-        options: {
-          text: t("Save"),
-          stylingMode: "contained",
-          type: "default",
-          onClick: handleSubmit,
-        },
-      },
-      {
-        toolbar: "bottom",
-        location: "after",
-        widget: "dxButton",
-        options: {
-          text: t("Cancel"),
-          type: "default",
-          onClick: handleCancel,
-        },
-      },
-    ],
-  };
-
-  const onModifyNew = async (data: SysUserData) => {
-    if (data.EMail !== "" && data.UserCode !== "") {
-      const resp = await api.Sys_User_Update({
-        ...data,
-        FlagNNTAdmin: data.FlagNNTAdmin === "true" ? "1" : "0",
-        FlagSysAdmin: data.FlagSysAdmin === "true" ? "1" : "0",
+  const handleEdit = async (data: any) => {
+    const resp = await api.KB_Category_GetByCategoryCode(
+      data.CategoryCode,
+      auth.orgId?.toString()
+    );
+    const isSame =
+      JSON.stringify(data) ===
+      JSON.stringify({
+        CategoryName: resp?.Data?.KB_Category?.CategoryName,
+        CategoryDesc: resp?.Data?.KB_Category?.CategoryDesc,
+        CategoryParentCode: resp?.Data?.KB_Category?.CategoryParentCode || "",
+        FlagActive:
+          resp?.Data?.KB_Category?.FlagActive === "1" ? "true" : "false",
+        CategoryCode: resp?.Data?.KB_Category?.CategoryCode,
       });
-      if (resp.isSuccess) {
+
+    if (!isSame) {
+      const response = await api.KB_Category_update({
+        ...data,
+        FlagActive: data.FlagActive === "true" ? "1" : "0",
+        OrgID: auth.orgId?.toString(),
+      });
+      if (response.isSuccess) {
         toast.success(t("Update Successfully"));
         setPopupVisible(false);
         await refetch();
@@ -200,81 +186,45 @@ export const Category_ManagerPage = () => {
       throw new Error(resp.errorCode);
     }
   };
-  // Section: CRUD operations
-  const onCreateNew = async (data: SysUserData & { __KEY__: string }) => {
-    const { __KEY__, ...rest } = data;
-    if (data.EMail !== "" && data.UserCode !== "") {
-      const resp = await api.Sys_User_Create({
-        ...rest,
-        FlagNNTAdmin: rest.FlagNNTAdmin === "true" ? "1" : "0",
-        FlagSysAdmin: rest.FlagSysAdmin === "true" ? "1" : "0",
-      });
-      if (resp.isSuccess) {
-        toast.success(t("Create Successfully"));
-        setPopupVisible(false);
-        await refetch();
-        return true;
-      }
-      showError({
-        message: t(resp.errorCode),
-        debugInfo: resp.debugInfo,
-        errorInfo: resp.errorInfo,
-      });
-      throw new Error(resp.errorCode);
-    }
+  const formSettings = useFormSettings({
+    data: flattenCategories(getCategories(data?.Data?.Lst_KB_Category)),
+  });
+  const handleShowDetail = (data: any) => {
+    setPopupVisible(true);
+    setShowDetail(true);
+    setDataFrom(data);
+    setBottom(true);
   };
-  const onDelete = async (id: string) => {
-    // const resp = await api.Mst_Dealer_Delete(id);
-    // if (resp.isSuccess) {
-    //   toast.success(t("Delete Successfully"));
-    //   await refetch();
-    //   return true;
-    // }
-    // showError({
-    //   message: t(resp.errorCode),
-    //   debugInfo: resp.debugInfo,
-    //   errorInfo: resp.errorInfo,
-    // });
-    // throw new Error(resp.errorCode);
+  const handleAddNew = () => {
+    setDataFrom({});
+    setPopupVisible(true);
+    setflagEdit(false);
+    setShowDetail(false);
+    setBottom(false);
   };
-  const onCreate = (data: any) => {};
-  const onModify = (id: string, data: Mst_Dealer) => {};
-  const handleSavingRow = (e: any) => {
-    // stop grid behaviour
-    if (e.changes && e.changes.length > 0) {
-      // we don't enable batch mode, so only 1 change at a time.
-      const { type } = e.changes[0];
-      if (type === "remove") {
-        const id = e.changes[0].key;
-        e.promise = onDelete(id);
-      } else if (type === "insert") {
-        const data = e.changes[0].data!;
-        e.promise = onCreate(data);
-      } else if (type === "update") {
-        e.promise = onModify(e.changes[0].key, e.changes[0].data!);
-      }
-    } else {
-      // no changes
-      // just close it
-      e.promise = Promise.resolve();
-      gridRef?.instance.cancelEditData();
-    }
-    e.cancel = true;
+  const handleOnEditRow = () => {};
+  // const onDeleteMultiple = (e: any) => {
+  //   console.log(172, e);
+  // };
+  const onCancelDelete = () => {};
+  const OnEditRow = (e: any) => {
+    setDataFrom(e.row.data);
+    setPopupVisible(true);
+    setflagEdit(true);
+    setShowDetail(false);
+    setBottom(false);
   };
-  // End Section: CRUD operations
-  const handleSearch = async (data: any) => {
-    setSearchCondition({
-      ...searchCondition,
-      KeyWord: data,
+
+  const setConfirmBoxVisible = useSetAtom(
+    normalGridDeleteMultipleConfirmationBoxAtom
+  );
+
+  const onDeleteMultiple = async (keys: string[]) => {
+    setConfirmBoxVisible(false);
+    const resp = await api.KB_Category_Delete({
+      OrgID: auth.orgId?.toString(),
+      CategoryCode: keys,
     });
-    await refetch();
-  };
-
-  const handleEditRowChanges = () => {};
-
-  const loadingControl = useVisibilityControl({ defaultVisible: false });
-  const handleDeleteRows = async (ids: any) => {
-    const resp = await api.Sys_User_Data_Delete(ids);
     if (resp.isSuccess) {
       toast.success(t("Delete Successfully"));
       await refetch();
@@ -287,48 +237,124 @@ export const Category_ManagerPage = () => {
     });
     throw new Error(resp.errorCode);
   };
-  const handleUploadFile = () => {};
-  const handleDownloadTemplate = () => {};
+  const innerSavingRowHandler = useCallback((e: any) => {
+    if (e.changes && e.changes.length > 0) {
+      // we don't enable batch mode, so only 1 change at a time.
+      const { type } = e.changes[0];
+      if (type === "insert" || type === "update") {
+        // pass handle to parent page
+      } else {
+        onDeleteMultiple(e?.changes[0]?.key);
+      }
+    }
+    e.cancel = true;
+  }, []);
 
   return (
-    <AdminContentLayout className={"Category_Manager"}>
+    <AdminContentLayout className={"Content_Managent"}>
       <AdminContentLayout.Slot name={"Header"}>
         <PageHeaderLayout>
           <PageHeaderLayout.Slot name={"Before"}>
-            <div className="font-bold dx-font-m">{t("User Manager")}</div>
+            <div className="font-bold dx-font-m">{t("Category manager")}</div>
           </PageHeaderLayout.Slot>
           <PageHeaderLayout.Slot name={"Center"}>
             <HeaderPart
               refetch={refetch}
               onAddNew={handleAddNew}
-              onSearch={handleSearch}
+              handleOnEditRow={handleOnEditRow}
             />
           </PageHeaderLayout.Slot>
         </PageHeaderLayout>
       </AdminContentLayout.Slot>
       <AdminContentLayout.Slot name={"Content"}>
-        <TreeGridViewPopup
-          isLoading={isLoading}
-          dataSource={data?.isSuccess ? data.DataList ?? [] : []}
-          columns={columns}
-          keyExpr={"UserCode"}
-          popupSettings={popupSettings}
-          formSettings={formSettings}
-          onReady={(ref) => (gridRef = ref)}
-          allowSelection={true}
-          onSelectionChanged={handleSelectionChanged}
-          onSaveRow={handleSavingRow}
-          onEditorPreparing={handleEditorPreparing}
-          onEditRowChanges={handleEditRowChanges}
-          onDeleteRows={handleDeleteRows}
-          onEditRow={handleOnEditRow}
-          storeKey={"User-Manager-columns"}
-        />
+        <div className="mt-5">
+          <DataGrid
+            className="dataGridCategory"
+            dataSource={
+              flattenCategories(getCategories(data?.Data?.Lst_KB_Category)) ??
+              []
+            }
+            showBorders
+            showColumnLines
+            showRowLines
+            onSaving={innerSavingRowHandler}
+            keyExpr={"CategoryCode"}
+          >
+            <Selection mode={"none"} selectAllMode={"page"} />
+            <Editing
+              mode={"row"}
+              useIcons={true}
+              allowUpdating={true}
+              allowDeleting={true}
+              // allowUpdating={false}
+              // allowDeleting={false}
+              // allowAdding={false}
+
+              confirmDelete={true} // custom confirm delete dialog
+            >
+              {/* <Texts
+                confirmDeleteMessage={t(
+                  "Are you sure to delete those records?"
+                )}
+                ok={t("OK")}
+                cancel={t("Cancel")}
+              /> */}
+            </Editing>
+            <Column
+              visible
+              type="buttons"
+              width={100}
+              fixed={false}
+              allowResizing={false}
+            >
+              <DxButton
+                cssClass={"mx-1 cursor-pointer"}
+                name="edit"
+                icon={"/images/icons/edit.svg"}
+                onClick={(e: any) => {
+                  OnEditRow?.(e);
+                }}
+              />
+              <DxButton
+                cssClass={"mx-1 cursor-pointer"}
+                name="delete"
+                icon={"/images/icons/trash.svg"}
+                // onClick={(e) => onDeleteMultiple?.(e.row.key)}
+              />
+              <DxButton
+                cssClass={"mx-1 cursor-pointer"}
+                name="save"
+                icon={"/images/icons/save.svg"}
+              />
+              <DxButton
+                cssClass={"mx-1 cursor-pointer"}
+                name="cancel"
+                icon={"/images/icons/refresh.svg"}
+              />
+            </Column>
+
+            {columns.map((column: any) => {
+              return <Column key={column.dataField} {...column} />;
+            })}
+          </DataGrid>
+          <DeleteMultipleConfirmationBox
+            title={t("Delete")}
+            message={t("DeleteMultipleConfirmationMessage")}
+            onYesClick={onDeleteMultiple}
+            onNoClick={onCancelDelete}
+          />
+        </div>
+        {/* <DeleteSingleConfirmationBox
+          title={t("Delete")}
+          message={t("DeleteSingleItemConfirmationMessage")}
+          onYesClick={onDeleteSingle}
+          onNoClick={onCancelDelete}
+        /> */}
         <PopupView
-          onCreate={onCreateNew}
-          onEdit={onModifyNew}
+          onEdit={handleEdit}
           formSettings={formSettings}
-          title={t("User Manager")}
+          title={"Thông tin danh mục"}
+          onCreate={handleCreate}
         />
       </AdminContentLayout.Slot>
     </AdminContentLayout>

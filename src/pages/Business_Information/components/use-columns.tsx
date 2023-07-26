@@ -12,7 +12,14 @@ import { useSetAtom } from "jotai";
 
 import { nanoid } from "nanoid";
 import { LinkCell } from "@packages/ui/link-cell";
-import { showDetail, showPopup, viewingDataAtom } from "./store";
+import {
+  dataFormAtom,
+  readOnly,
+  showDetail,
+  showPopup,
+  viewingDataAtom,
+} from "./store";
+import { useClientgateApi } from "@/packages/api";
 
 const flagEditorOptions = {
   searchEnabled: true,
@@ -32,18 +39,33 @@ const flagEditorOptions = {
 
 interface UseDealerGridColumnsProps {
   data: any;
+  dataOrgID: any;
 }
 
-export const useDealerGridColumns = ({ data }: UseDealerGridColumnsProps) => {
+export const useDealerGridColumns = ({
+  data,
+  dataOrgID,
+}: UseDealerGridColumnsProps) => {
   const setViewingItem = useSetAtom(viewingDataAtom);
   const setPopupVisible = useSetAtom(showPopup);
   const setShowDetail = useSetAtom(showDetail);
-  const viewRow = (rowIndex: number, data: any) => {
+  const setReadOnly = useSetAtom(readOnly);
+  const setDataForm = useSetAtom(dataFormAtom);
+  const api = useClientgateApi();
+  const viewRow = async (rowIndex: number, data: any) => {
+    setReadOnly(false);
     setShowDetail(true);
-    setViewingItem({
-      rowIndex,
-      item: data,
-    });
+    // setViewingItem({
+    //   rowIndex,
+    //   item: data,
+    // });
+    const resp = await api.Mst_NNTController_GetNNTCode(data.MST);
+    if (resp.isSuccess) {
+      setDataForm({
+        ...resp.Data,
+        FlagActive: resp.Data?.FlagActive === "1" ? true : false,
+      });
+    }
     setPopupVisible(true);
   };
 

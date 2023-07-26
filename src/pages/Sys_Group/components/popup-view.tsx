@@ -363,12 +363,12 @@ export const PopupViewDetail = ({
                   dataSource={dataUnassigned}
                   noDataText={t("Loading")}
                   showBorders={false}
-                  keyExpr="ObjectCode"
+                  keyExpr={"ObjectCode"}
                   onSelectionChanged={handleSelectionChanged}
                 >
                   <Paging enabled={true} />
-                  <Selection mode="multiple" selectAllMode={"allMode"} />
                   <FilterRow visible={true} />
+                  <Selection mode="multiple" selectAllMode={"page"} />
                   {actualColumns.map((col: any) => (
                     <Column key={col.dataField} {...col} />
                   ))}

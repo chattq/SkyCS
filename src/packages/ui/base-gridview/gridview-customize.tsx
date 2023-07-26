@@ -62,7 +62,11 @@ import {
   GridCustomerToolBarItem,
   GridCustomToolbar,
 } from "@packages/ui/base-gridview/components/grid-custom-toolbar";
-import { SelectionKeyAtom, dataGridAtom } from "./store/normal-grid-store";
+import {
+  SelectionKeyAtom,
+  dataGridAtom,
+  hidenMoreAtom,
+} from "./store/normal-grid-store";
 const SelectionCheckBox = ({
   key,
   gridRef,
@@ -79,19 +83,21 @@ const SelectionCheckBox = ({
       defaultValue={isSelected}
       data-key={key}
       onValueChanged={(e: any) => {
-        console.log("select event:", e, gridRef);
+        // console.log("select event:", e, gridRef);
         const { component, value, previousValue } = e;
-
         if (value) {
           gridRef.current?.instance?.selectRowsByIndexes([rowIndex]);
-          gridRef.current?.instance.refresh();
+        } else {
+          gridRef.current?.instance?.selectRowsByIndexes([]);
         }
+        gridRef.current?.instance.refresh();
       }}
     />
   );
 };
 
 interface GridViewProps {
+  isHiddenCheckBox?: boolean;
   isHidenHeaderFilter?: boolean;
   defaultPageSize?: number;
   dataSource: CustomStore | Array<any> | any;
@@ -100,6 +106,7 @@ interface GridViewProps {
   ref: ForwardedRef<any>;
   onReady?: (ref: any) => void;
   allowInlineEdit?: boolean;
+  isShowIconEdit?: boolean;
   onEditorPreparing?: (e: EditorPreparingEvent<any, any>) => void;
   onSaveRow?: (option: any) => void;
   isLoading?: boolean;
@@ -117,9 +124,14 @@ interface GridViewProps {
   onEditRow?: (e: any) => void;
   isSingleSelection?: boolean;
   isShowEditting?: boolean;
+  isShowEditCard?: boolean;
+  hidenTick?: boolean;
+  cssClass?: string;
+  locationCustomToolbar?: "center" | "before" | "after";
 }
 
 const GridViewRaw = ({
+  cssClass,
   ref,
   onEditorPreparing,
   onSaveRow,
@@ -132,6 +144,7 @@ const GridViewRaw = ({
   isHidenHeaderFilter = true,
   onReady,
   allowInlineEdit = true,
+  isShowIconEdit = true,
   popupSettings,
   formSettings,
   toolbarItems,
@@ -142,7 +155,11 @@ const GridViewRaw = ({
   isShowEditting = false,
   customToolbarItems,
   isSingleSelection = false,
+  isShowEditCard = false,
+  isHiddenCheckBox = false,
+  locationCustomToolbar,
 }: GridViewProps) => {
+  const setHidenMore = useSetAtom(hidenMoreAtom);
   const dataGridRef = useRef<DataGrid | null>(null);
   const setDataGrid = useSetAtom(dataGridAtom);
   const setSelectionKey = useSetAtom(SelectionKeyAtom);
@@ -233,6 +250,8 @@ const GridViewRaw = ({
   const [selectionKeys, setSelectionKeys] = useState<string[]>([]);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const handleSelectionChanged = useCallback((e: any) => {
+    setHidenMore(e.selectedRowKeys);
+    // console.log("e.isSingleSelection", e.selectedRowKeys);
     setSelectionKey(e.selectedRowKeys);
     setSelectionKeys(e.selectedRowKeys);
     onSelectionChanged?.(e.selectedRowKeys);
@@ -246,7 +265,6 @@ const GridViewRaw = ({
 
   const handleSaved = useCallback((e: any) => {
     logger.debug("saved event:", e);
-    console.log(1024, e);
   }, []);
   const handleAddingNewRow = () => {};
 
@@ -291,30 +309,32 @@ const GridViewRaw = ({
   const allToolbarItems: ToolbarItemProps[] = [
     ...(toolbarItems || []),
     {
-      location: "before",
+      location: locationCustomToolbar ? locationCustomToolbar : "before",
       render: () => <GridCustomToolbar items={customToolbarItems} />,
     },
-    {
-      location: "after",
-      render: () => {
-        return (
-          <div className="flex items-center">
-            {t("Layout")}
-            <SelectBox
-              id="custom-templates"
-              dataSource={listOption}
-              displayExpr="display"
-              className="ml-2 w-[120px]"
-              valueExpr="value"
-              defaultValue={listOption[1].value}
-              onValueChanged={(e: any) => {
-                setCurrentOption(e.value);
-              }}
-            />
-          </div>
-        );
-      },
-    },
+    isShowEditCard === true
+      ? {
+          location: "after",
+          render: () => {
+            return (
+              <div className="flex items-center">
+                {t("Layout")}
+                <SelectBox
+                  id="custom-templates"
+                  dataSource={listOption}
+                  displayExpr="display"
+                  className="ml-2 w-[120px]"
+                  valueExpr="value"
+                  defaultValue={listOption[1].value}
+                  onValueChanged={(e: any) => {
+                    setCurrentOption(e.value);
+                  }}
+                />
+              </div>
+            );
+          },
+        }
+      : {},
     isHidenHeaderFilter === true
       ? {
           location: "after",
@@ -396,16 +416,17 @@ const GridViewRaw = ({
     <div className={"base-gridview bg-white"}>
       <ScrollView
         showScrollbar={"always"}
-        height={windowSize.height - 50}
-        className={"mb-5"}
+        // height={windowSize.height - 150}
+        // className={"mb-5 ScrollView_Customize"}
       >
         <LoadPanel visible={isLoading} position={{ of: "#gridContainer" }} />
         <DataGrid
+          className={cssClass}
           keyExpr={keyExpr}
           errorRowEnabled={false}
           cacheEnabled={false}
           id="gridContainer"
-          height={`${windowSize.height - 115}px`}
+          height={`${windowSize.height - 150}px`}
           width={"100%"}
           ref={(r) => setRef(r)}
           dataSource={dataSource}
@@ -440,7 +461,6 @@ const GridViewRaw = ({
           onSaving={() => {}}
           onRowRemoved={(e: any) => {
             // to support custom delete confirmation
-            console.log("e ", e);
             e.cancel = true;
           }}
           onRowRemoving={(e: any) => {
@@ -449,18 +469,15 @@ const GridViewRaw = ({
           }}
           // stateStoring={stateStoring}
         >
-          {isHidenHeaderFilter && (
-            <>
-              <ColumnChooser
-                enabled={true}
-                allowSearch={true}
-                mode={"select"}
-              />
-              <ColumnFixing enabled={true} />
-              <Pager visible={false} />
-              <Paging enabled={true} defaultPageSize={100} />
-            </>
-          )}
+          <ColumnChooser enabled={true} allowSearch={true} mode={"select"} />
+          <ColumnFixing enabled={true} />
+          <Pager visible={false} />
+          <Paging enabled={true} defaultPageSize={100} />
+          <HeaderFilter
+            visible={true}
+            dataSource={dataSource}
+            allowSearch={true}
+          />
 
           {isHidenHeaderFilter && (
             <HeaderFilter
@@ -485,26 +502,30 @@ const GridViewRaw = ({
                 })}
             </Toolbar>
           )}
-          {isShowEditting && <Editing
-            mode={"popup"}
-            useIcons={true}
-            allowUpdating={true}
-            allowDeleting={true}
-            allowAdding={true}
-            // allowUpdating={false}
-            // allowDeleting={false}
-            // allowAdding={false}
-            popup={popupSettingsMemo}
-            form={formSettingsPopup.current ?? {}}
-            confirmDelete={false} // custom confirm delete dialog
-            onChangesChange={onEditRowChanges}
-          >
-            <Texts
-              confirmDeleteMessage={t("Are you sure to delete those records?")}
-              ok={t("OK")}
-              cancel={t("Cancel")}
-            />
-          </Editing> }
+          {isShowEditting && (
+            <Editing
+              mode={"popup"}
+              useIcons={true}
+              allowUpdating={true}
+              allowDeleting={true}
+              allowAdding={true}
+              // allowUpdating={false}
+              // allowDeleting={false}
+              // allowAdding={false}
+              popup={popupSettingsMemo}
+              form={formSettingsPopup.current ?? {}}
+              confirmDelete={false} // custom confirm delete dialog
+              onChangesChange={onEditRowChanges}
+            >
+              <Texts
+                confirmDeleteMessage={t(
+                  "Are you sure to delete those records?"
+                )}
+                ok={t("OK")}
+                cancel={t("Cancel")}
+              />
+            </Editing>
+          )}
 
           {isShowEditting && (
             <Column
@@ -514,18 +535,23 @@ const GridViewRaw = ({
               fixed={false}
               allowResizing={false}
             >
-              <DxButton
-                cssClass={"mx-1 cursor-pointer"}
-                name="edit"
-                icon={"/images/icons/edit.svg"}
-                onClick={(e: any) => {
-                  onEditRow?.(e);
-                }}
-              />
+              {isShowIconEdit && (
+                <DxButton
+                  cssClass={"mx-1 cursor-pointer"}
+                  name="edit"
+                  icon={"/images/icons/edit.svg"}
+                  onClick={(e: any) => {
+                    onEditRow?.(e);
+                  }}
+                />
+              )}
               <DxButton
                 cssClass={"mx-1 cursor-pointer"}
                 name="delete"
                 icon={"/images/icons/trash.svg"}
+                onClick={(e: any) => {
+                  onDeleteRows?.(e);
+                }}
               />
               <DxButton
                 cssClass={"mx-1 cursor-pointer"}
@@ -539,20 +565,20 @@ const GridViewRaw = ({
               />
             </Column>
           )}
-          {isHidenHeaderFilter && (
+          {!isHiddenCheckBox && (
             <Selection mode="multiple" selectAllMode="page" />
           )}
           {isSingleSelection && <Selection mode={"none"} />}
           {isSingleSelection && (
             <Column
               dataField={"fake"}
+              width={50}
               caption={t("")}
               showInColumnChooser={false}
               allowFiltering={false}
               allowSearch={false}
               allowResizing={false}
               cellRender={(e: any) => {
-                console.log(e);
                 const {
                   data,
                   row: { isSelected, rowIndex },

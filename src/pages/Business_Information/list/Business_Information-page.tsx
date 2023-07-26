@@ -28,6 +28,7 @@ import { useFormSettings } from "../components/use-form-settings";
 import { DataGrid, LoadPanel } from "devextreme-react";
 
 import {
+  activeInputAtom,
   dataFormAtom,
   dataTableAtom,
   flagEdit,
@@ -40,7 +41,10 @@ import {
 import { PageHeaderLayout } from "@/packages/layouts/page-header-layout";
 import { toast } from "react-toastify";
 import { GridViewCustomize } from "@/packages/ui/base-gridview/gridview-customize";
-import { dataGridAtom } from "@/packages/ui/base-gridview/store/normal-grid-store";
+import {
+  dataGridAtom,
+  hidenMoreAtom,
+} from "@/packages/ui/base-gridview/store/normal-grid-store";
 
 export const Business_InformationPage = () => {
   const { t } = useI18n("Business_Information");
@@ -55,8 +59,11 @@ export const Business_InformationPage = () => {
   const setDataForm = useSetAtom(dataFormAtom);
   const setFlag = useSetAtom(flagEdit);
   const setReadOnly = useSetAtom(readOnly);
-
+  const setActiveInput = useSetAtom(activeInputAtom);
+  const formRef = useRef<any>();
+  const [dataChangeOrgID, setDataChangeOrgID] = useState([]);
   const setSelectedItems = useSetAtom(selectedItemsAtom);
+  const [dataGrid, setDataGrid] = useState<any>([]);
 
   const api = useClientgateApi();
 
@@ -72,7 +79,9 @@ export const Business_InformationPage = () => {
     {}
   );
   useEffect(() => {
-    if (!!data && !data.isSuccess) {
+    if (data && data.isSuccess) {
+      setDataGrid(data?.DataList);
+    } else if (!!data && !data.isSuccess) {
       showError({
         message: t(data.errorCode),
         debugInfo: data.debugInfo,
@@ -80,18 +89,40 @@ export const Business_InformationPage = () => {
       });
     }
   }, [data]);
-  const { data: listMST } = useQuery(["listMST"], () =>
+  const { data: listNNT } = useQuery(["listNNT"], () =>
     api.Mst_NNTController_GetAllActive()
   );
   const { data: listProvince } = useQuery(["listProvince"], () =>
     api.Mst_Province_GetAllActive()
   );
+  const { data: listOrgID } = useQuery(["listOrgID"], () =>
+    api.MstOrg_GetOrgsNotInSolution()
+  );
+  useEffect(() => {
+    if (listOrgID) {
+      setDataChangeOrgID(
+        listOrgID?.Data?.Lst_Mst_Org.map((item: any) => {
+          return {
+            ...item,
+            OrgID: item.Id.toString(),
+            Id: item.Id.toString(),
+          };
+        })
+      );
+    }
+  }, [listOrgID]);
+
+  console.log(115, listOrgID);
 
   const formSettings = useFormSettings({
-    data: listMST?.DataList,
+    dataNNT: listNNT?.DataList,
     dataProvince: listProvince?.DataList,
+    dataOrgID: listOrgID?.Data?.Lst_Mst_Org,
   });
-  const columns = useDealerGridColumns({ data: data?.DataList });
+  const columns = useDealerGridColumns({
+    data: data?.DataList,
+    dataOrgID: dataChangeOrgID,
+  });
 
   const handleSelectionChanged = (rows: string[]) => {
     setSelectedItems(rows);
@@ -133,14 +164,17 @@ export const Business_InformationPage = () => {
     }
   };
   const handleOnEditRow = async (e: any) => {
-    console.log(134, e);
     setFlag(false);
     setReadOnly(false);
-    setShowDetail(false);
-    const resp = await api.Mst_NNTController_GetNNTCode(e[0]);
+    setActiveInput(true);
+    const resp = await api.Mst_NNTController_GetNNTCode(e);
     if (resp.isSuccess) {
-      setDataForm(resp.Data);
+      setDataForm({
+        ...resp.Data,
+        FlagActive: resp.Data?.FlagActive === "1" ? true : false,
+      });
     }
+    setShowDetail(false);
     setPopupVisible(true);
   };
 
@@ -174,7 +208,26 @@ export const Business_InformationPage = () => {
   };
 
   const onModifyNew = async (data: any) => {
-    if (data.NNTFullName !== "") {
+    const resp = await api.Mst_NNTController_GetNNTCode(data.MST);
+
+    const isSame =
+      JSON.stringify(data) ===
+      JSON.stringify({
+        OrgID: resp?.Data?.OrgID ?? "",
+        NNTFullName: resp?.Data?.NNTFullName ?? "",
+        MST: resp?.Data?.MST ?? "",
+        NNTShortName: resp?.Data?.NNTShortName ?? "",
+        PresentBy: resp?.Data?.PresentBy ?? "",
+        NNTPosition: resp?.Data?.NNTPosition ?? "",
+        Website: resp?.Data?.Website ?? "",
+        ProvinceCode: resp?.Data?.ProvinceCode ?? "",
+        NNTAddress: resp?.Data?.NNTAddress ?? "",
+        ContactName: resp?.Data?.ContactName ?? "",
+        ContactPhone: resp?.Data?.ContactPhone ?? "",
+        ContactEmail: resp?.Data?.ContactEmail ?? "",
+        FlagActive: resp?.Data?.FlagActive === "1" ? "true" : "false",
+      });
+    if (data.invalidate === true && isSame === false) {
       const resp = await api.Mst_NNTController_Update({
         ...data,
         FlagActive: data.FlagActive ? "1" : "0",
@@ -198,10 +251,7 @@ export const Business_InformationPage = () => {
   // Section: CRUD operations
   const onCreateNew = async (data: Mst_NNTController & { __KEY__: string }) => {
     const { __KEY__, ...rest } = data;
-    if (
-      data.NNTFullName !== "" &&
-      data.MST.match(/[^a-zA-Z0-9_]/g)?.length === undefined
-    ) {
+    if (data.invalidate === true) {
       const resp = await api.Mst_NNTController_Create({
         ...rest,
         FlagActive: rest.FlagActive ? "1" : "0",
@@ -219,25 +269,9 @@ export const Business_InformationPage = () => {
       });
       throw new Error(resp.errorCode);
     }
-    if (data.MST.match(/[^a-zA-Z0-9_]/g)?.length !== undefined) {
-      toast.warning(t("MST không được chứa các ký tự đặc biệt"));
-    }
   };
   const onCreate = (data: any) => {};
-  const onDelete = async (id: string) => {
-    // const resp = await api.Mst_Dealer_Delete(id);
-    // if (resp.isSuccess) {
-    //   toast.success(t("Delete Successfully"));
-    //   await refetch();
-    //   return true;
-    // }
-    // showError({
-    //   message: t(resp.errorCode),
-    //   debugInfo: resp.debugInfo,
-    //   errorInfo: resp.errorInfo,
-    // });
-    // throw new Error(resp.errorCode);
-  };
+  const onDelete = async (id: string) => {};
   const handleSavingRow = (e: any) => {
     // stop grid behaviour
     if (e.changes && e.changes.length > 0) {
@@ -302,7 +336,11 @@ export const Business_InformationPage = () => {
       <AdminContentLayout.Slot name={"Content"}>
         <GridViewCustomize
           isLoading={isLoading}
-          dataSource={data?.isSuccess ? data?.DataList ?? [] : []}
+          dataSource={
+            data?.isSuccess
+              ? dataGrid.filter((item: any) => item.OrgID !== "0") ?? []
+              : []
+          }
           columns={columns}
           keyExpr={"MST"}
           popupSettings={popupSettings}
@@ -317,11 +355,34 @@ export const Business_InformationPage = () => {
           onEditRow={handleOnEditRowOld}
           storeKey={"Business_Information-columns"}
           isSingleSelection
+          customToolbarItems={[
+            {
+              text: t("Edit"),
+              shouldShow: (ref: any) => {
+                return ref.instance.getSelectedRowKeys().length === 1;
+              },
+              onClick: (e: any, ref: any) => {
+                const selectedRow = ref.instance.getSelectedRowsData();
+                handleOnEditRow(selectedRow[0].MST);
+              },
+            },
+            {
+              text: t("Delete"),
+              shouldShow: (ref: any) => {
+                return ref.instance.getSelectedRowKeys().length === 1;
+              },
+              onClick: (e: any, ref: any) => {
+                const selectedRow = ref.instance.getSelectedRowsData();
+                handleDeleteRows(selectedRow[0].MST);
+              },
+            },
+          ]}
         />
         <PopupView
+          formRef={formRef}
           onEdit={onModifyNew}
           formSettings={formSettings}
-          title={"Thêm mới công ty/chi nhánh"}
+          title={t("Thông tin công ty/chi nhánh")}
           onCreate={onCreateNew}
         />
       </AdminContentLayout.Slot>

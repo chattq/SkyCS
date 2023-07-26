@@ -106,6 +106,9 @@ export interface Mst_DepartmentControl {
 }
 export interface Mst_NNTController {
   DataList?: any;
+  Lst_Mst_NNT?: any;
+  invalidate?: any;
+  Lst_Mst_Org?: any;
   MST: string;
   OrgID: string;
   NNTFullName: string;
@@ -150,7 +153,7 @@ export interface Mst_NNTController {
   AreaCode: string;
   RegisterStatus: string;
   TCTStatus: string;
-  FlagActive: string;
+  FlagActive?: any;
   Remark: string;
   LogLUDTimeUTC: string;
   LogLUBy: string;
@@ -197,7 +200,7 @@ export interface Mst_PaymentTermData {
   OwedDay: number;
   CreditLimit: number;
   DepositPercent: number;
-  FlagActive: string;
+  FlagActive: boolean | string;
   Remark: string;
   LogLUDTimeUTC: string;
   LogLUBy: string;
@@ -217,7 +220,13 @@ export interface Sys_AccessData {
 }
 
 export interface SysUserData {
+  FlagExist?: any;
+  User?: any;
+  Lst_Sys_User?: any;
+  Lst_Sys_UserInGroup?: any;
+  Lst_Sys_UserMapDepartment?: any;
   Data?: any;
+  ReUserPassword?: any;
   DataList?: any;
   UserCode: string;
   NetworkID: string;
@@ -360,6 +369,13 @@ export interface KB_PostData {
   LogLUDTimeUTC: string;
   LogLUBy: string;
   Lst_Mst_Tag?: any;
+  Lst_KB_Post?: any;
+  KB_Post?: any;
+  Lst_KB_PostAttachFile?: any;
+  Lst_KB_PostCategory?: any;
+  Lst_KB_PostTag?: any;
+  Lst_KB_PostLastView?: any;
+  Lst_KB_Category?: any;
 }
 export interface MstSubmissionFormData {
   SubFormCode: string;
@@ -371,6 +387,7 @@ export interface MstSubmissionFormData {
   strJsonZNS: any;
   Lst_Mst_SubmissionForm?: any;
   Lst_Mst_SubmissionFormZNS?: any;
+  Lst_Mst_SubmissionFormMessage?: any;
 }
 export interface MstChanelData {
   Lst_Mst_Channel?: any;
@@ -500,14 +517,14 @@ export interface SearchDealerParam extends SearchParam {
   FlagAutoSOAppr: FlagActiveEnum;
 }
 export interface SearchUserControlParam {
-  UserCode: string;
-  UserName: string;
-  PhoneNo: string;
-  EMail: string;
+  UserCode?: string;
+  UserName?: string;
+  PhoneNo?: string;
+  EMail?: string;
   FlagActive: FlagActiveEnum;
   Ft_PageSize: number;
   Ft_PageIndex: number;
-  KeyWord: string;
+  KeyWord?: string;
 }
 
 export enum FlagActiveEnum {
@@ -527,6 +544,21 @@ export interface Rpt_CpnCampaignResultCallSearchParam {
   CampaignCodeConditionList: string;
   ReportDTimeTo: string;
   ReportDTimeFrom: string;
+}
+export interface Rpt_ETTicketDetailControllerSearchParam {
+  AgentCodeConditionList: string;
+  DepartmentCodeConditionList: string;
+  OrgIDConditionList: string;
+  TicketTypeConditionList: string;
+  CustomerName: string;
+  CustomerPhoneNo: string;
+  CustomerEmail: string;
+  CustomerCompany: string;
+  TicketStatusConditionList: string;
+  CreateDTimeUTCFrom: string;
+  CreateDTimeUTCTo: string;
+  LogLUDTimeUTCFrom: string;
+  LogLUDTimeUTCTo: string;
 }
 export interface Rpt_CpnCampaignResultCtmFeedbackSearchParam {
   CampaignCodeConditionList: string;
@@ -589,7 +621,7 @@ export interface Mst_CampaignTypeSearchParam {
   CampaignTypeName: string;
   CampaignTypeDesc: string;
   KeyWord: string;
-  FlagActive: FlagActiveEnum;
+  FlagActive: string;
   Ft_PageSize: number;
   Ft_PageIndex: number;
 }
@@ -604,6 +636,7 @@ export interface SearchCustomerParam extends SearchParam {
   CustomerCodeSys: string;
   ColGrpCodeSys: string;
   OrderByClause: string;
+  CustomerType: string;
 }
 
 export interface MdMetaColGroupSpec {
@@ -626,6 +659,47 @@ export interface MdMetaColGroupSpec {
   ColCaption: string;
   ColDataType: string;
   Lst_MD_OptionValue?: any[];
+}
+export interface Rpt_ETTicketDetailControllerData {
+  TicketID: string;
+  CustomerCodeSys: string;
+  CustomerName: string;
+  TicketName: string;
+  TicketDetail: string;
+  AgentCode: string;
+  AgentName: string;
+  TicketStatus: string;
+  AgentTicketStatusName: string;
+  CustomerTicketStatusName: string;
+  TicketDeadline: string;
+  FistTicketMessage: string;
+  FirstResTime: number;
+  ResolutionTime: number;
+  CloseDTimeUTC: string;
+  ReceptionDTimeUTC: string;
+  ProcessTime: number;
+  TicketWarning: string;
+  Rpt_ET_Ticket_Detail?: any[];
+}
+export interface Rpt_ETTicketSynthesisController {
+  RT_Rpt_ET_Ticket_Synthesis: {
+    Rpt_ET_Ticket_Synthesis: {
+      AvgFirstResponse: number;
+      MinProcessTime: number;
+      MaxProcessTime: number;
+      AvgProcessTime: number;
+      SLAResponseRate: number;
+    };
+    Lst_Rpt_ET_Ticket_SynthesisDtl: [
+      {
+        CreateDate: string;
+        TicketStatus: string;
+        AgentTicketStatusName: string;
+        CustomerTicketStatusName: string;
+        QtyTicket: number;
+      }
+    ];
+  };
 }
 
 export interface vggMst_CampaignColumnConfig_GetCampaignColCfgCodeSys {
@@ -733,6 +807,19 @@ export interface Mst_Customer {
   GetCustomData: string;
   GetCustomDataString: string;
   SetCustomData: string;
+}
+
+export interface Mst_TicketPriority {
+  OrgID: string;
+  TicketPriority: string;
+  NetworkID: string;
+  AgentTicketPriorityName: string;
+  CustomerTicketPriorityName: string;
+  FlagUseType: string;
+  FlagActive: string;
+  Remark: string;
+  LogLUDTimeUTC: string;
+  LogLUBy: string;
 }
 
 interface OptionItem {
@@ -914,6 +1001,25 @@ export interface MdMetaColGroupSpecListOption {
     OrderIdx: string;
   }[];
 }
+export interface KB_CategoryData {
+  CategoryCode: string;
+  OrgID: string;
+  CategoryParentCode: string;
+  NetworkID: string;
+  CategoryName: string;
+  CategoryDesc: string;
+  Slug: string;
+  FlagActive: string;
+  CreateDTimeUTC: string;
+  CreateBy: string;
+  LogLUDTimeUTC: string;
+  LogLUBy: string;
+  expanded: boolean;
+  selected: boolean;
+  Lst_KB_CategoryChildren?: any;
+  Lst_KB_Category?: any;
+  KB_Category?: any;
+}
 export interface UploadedFile {
   FileId: string;
   NodeID: string;
@@ -976,4 +1082,34 @@ export interface SearchSLAParams extends SearchParam {
   SLALevel: string;
   SLADesc: string;
   SLAStatus: string;
+}
+
+export interface Mst_TicketType {
+  OrgID: string;
+  TicketType: string;
+  NetworkID: string;
+  AgentTicketTypeName: string;
+  CustomerTicketTypeName: string;
+  FlagUseType: string;
+  FlagActive: string;
+  Remark: string;
+  LogLUDTimeUTC: string;
+  LogLUBy: string;
+}
+
+export interface Mst_CustomContact {
+  OrgID: string;
+  CustomerCodeSys: string;
+  CustomerCodeSysContact: string;
+  NetworkID: string;
+  FlagActive: string;
+  LogLUDTimeUTC: string;
+  LogLUBy: string;
+  mc_CustomerCodeSys: string;
+  mc_CustomerCode: string;
+  mc_CustomerName: string;
+  mc_CustomerNameEN: string;
+  mc_CustomerAvatarName: string;
+  mc_CustomerAvatarPath: string;
+  mc_JsonCustomerInfo: any;
 }

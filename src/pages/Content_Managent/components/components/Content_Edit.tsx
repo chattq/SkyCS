@@ -3,7 +3,7 @@ import { useClientgateApi } from "@/packages/api";
 import { requiredType } from "@/packages/common/Validation_Rules";
 import { AdminContentLayout } from "@/packages/layouts/admin-content-layout";
 
-import { Form } from "devextreme-react";
+import { Button, Form } from "devextreme-react";
 import { GroupItem, SimpleItem } from "devextreme-react/form";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import "../../list/Content_Managent.scss";
@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
   checkUIZNSAtom,
+  idZNSAtom,
   refetchAtom,
   valueIDAtom,
   valueIDZNSAtom,
@@ -23,6 +24,8 @@ import Zalo_Parent from "./Zalo_Parent";
 import Content_SMS from "./Content_SMS";
 import Content_Email from "./Content_Email";
 import { toast } from "react-toastify";
+import { PageHeaderNoSearchLayout } from "@/packages/layouts/page-header-layout-2/page-header-nosearch-layout";
+import { checkCharSpecial } from "./CheckStringSpecial";
 
 export default function Content_Edit() {
   const { t } = useI18n("Content_Managent");
@@ -38,6 +41,8 @@ export default function Content_Edit() {
   const [saveFormType, setSaveFormType] = useState("");
   const setRefetchAtom = useSetAtom(refetchAtom);
   const setZaloTemplateAtom = useSetAtom(zaloTemplatetom);
+  const setidZNS = useSetAtom(idZNSAtom);
+  const zaloTemplate = useAtomValue(zaloTemplatetom);
   const dataTabChanel = [
     {
       id: "ZALO",
@@ -68,6 +73,8 @@ export default function Content_Edit() {
     api.ZaloTemplate_GetByTemplate()
   );
 
+  const [channelType, setChannelType] = useState<any>([]);
+
   useEffect(() => {
     if (listGetByTemplate?.Data) {
       setListZNS([
@@ -76,6 +83,15 @@ export default function Content_Edit() {
       ]);
     }
   }, [listGetByTemplate?.Data]);
+
+  // useEffect(() => {
+  //   if (listMstBulletinType) {
+  //     setChannelType([
+  //       { ChannelTypeName: "All", ChannelType: "" },
+  //       ...listMstChannelType?.DataList,
+  //     ]);
+  //   }
+  // }, [listMstBulletinType]);
 
   const formSettings: any = [
     {
@@ -130,6 +146,7 @@ export default function Content_Edit() {
                       e.value
                     );
                     if (resp.isSuccess) {
+                      setidZNS(e.value);
                       setValueID(true);
                       setcheckUIZNS(false);
                       setZaloTemplateAtom(resp.Data);
@@ -194,16 +211,22 @@ export default function Content_Edit() {
       ],
     },
   ];
+
   const handleSubmitPopup = async (e: any) => {
     validateRef.current.instance.validate();
+    const invalidate = validateRef.current.instance.validate();
     const dataForm = new FormData(formRef.current);
     const dataSaveForm: any = Object.fromEntries(dataForm.entries());
     const formData = validateRef.current.instance.option("formData");
+    const checkSpecial = checkCharSpecial(
+      formData?.MessageSMS?.replace(/\$\{\{.*?\}\}/g, "").replace(/<.*?>/g, "")
+    );
     if (
       formData.BulletinType !== "" &&
       formData.ChannelType !== "" &&
       formData.SubFormCode !== "" &&
-      formData.SubFormName !== ""
+      formData.SubFormName !== "" &&
+      invalidate.isValid === true
     ) {
       if (valueID === true && saveFormType === "ZALO") {
         const newData = Object.entries(formData.strJsonZNS || {}).map(
@@ -224,20 +247,22 @@ export default function Content_Edit() {
           FlagActive: dataSaveForm.FlagActive === "true" ? "1" : "0",
           ...{ strJsonZNS: JSON.stringify(newData) },
         };
-        const resp = await api.MstSubmissionForm_Save(dataSave);
-        if (resp.isSuccess) {
-          setRefetchAtom(true);
-          toast.success(t("Create Successfully"));
-          navigate(`/${auth.networkId}/admin/Content_Managent`);
-          // await refetch();
-          return true;
+        if (zaloTemplate?.listParams?.length === newData?.length) {
+          const resp = await api.MstSubmissionForm_Save(dataSave);
+          if (resp.isSuccess) {
+            setRefetchAtom(true);
+            toast.success(t("Create Successfully"));
+            navigate(`/${auth.networkId}/admin/Content_Managent`);
+            // await refetch();
+            return true;
+          }
+          showError({
+            message: t(resp.errorCode),
+            debugInfo: resp.debugInfo,
+            errorInfo: resp.errorInfo,
+          });
+          throw new Error(resp.errorCode);
         }
-        showError({
-          message: t(resp.errorCode),
-          debugInfo: resp.debugInfo,
-          errorInfo: resp.errorInfo,
-        });
-        throw new Error(resp.errorCode);
       }
       if (valueID === false && saveFormType === "ZALO") {
         const dataSave = {
@@ -253,6 +278,7 @@ export default function Content_Edit() {
             ]),
           },
         };
+        // console.log(266, formData.MessageZalo);
         const resp = await api.MstSubmissionForm_Save(dataSave);
         if (resp.isSuccess) {
           setRefetchAtom(true);
@@ -269,33 +295,37 @@ export default function Content_Edit() {
         throw new Error(resp.errorCode);
       }
       if (valueID === false && saveFormType === "SMS") {
-        const dataSave = {
-          ...dataSaveForm,
-          IDZNS: "",
-          FlagActive: dataSaveForm.FlagActive === "true" ? "1" : "0",
-          ...{
-            strJsonMessage: JSON.stringify([
-              {
-                SubFormCode: dataSaveForm.SubFormCode,
-                Message: formData.MessageSMS ?? "",
-              },
-            ]),
-          },
-        };
-        const resp = await api.MstSubmissionForm_Save(dataSave);
-        if (resp.isSuccess) {
-          setRefetchAtom(true);
-          toast.success(t("Create Successfully"));
-          navigate(`/${auth.networkId}/admin/Content_Managent`);
-          // await refetch();
-          return true;
+        if (!checkSpecial) {
+          const dataSave = {
+            ...dataSaveForm,
+            IDZNS: "",
+            FlagActive: dataSaveForm.FlagActive === "true" ? "1" : "0",
+            ...{
+              strJsonMessage: JSON.stringify([
+                {
+                  SubFormCode: dataSaveForm.SubFormCode,
+                  Message: formData.MessageSMS ?? "",
+                },
+              ]),
+            },
+          };
+          const resp = await api.MstSubmissionForm_Save(dataSave);
+          if (resp.isSuccess) {
+            setRefetchAtom(true);
+            toast.success(t("Create Successfully"));
+            navigate(`/${auth.networkId}/admin/Content_Managent`);
+            // await refetch();
+            return true;
+          }
+          showError({
+            message: t(resp.errorCode),
+            debugInfo: resp.debugInfo,
+            errorInfo: resp.errorInfo,
+          });
+          throw new Error(resp.errorCode);
+        } else {
+          toast.warning("Không được nhập các kí tự đặc biệt !@#$%^&*(),");
         }
-        showError({
-          message: t(resp.errorCode),
-          debugInfo: resp.debugInfo,
-          errorInfo: resp.errorInfo,
-        });
-        throw new Error(resp.errorCode);
       }
       if (valueID === false && saveFormType === "EMAIL") {
         const dataSave = {
@@ -312,6 +342,7 @@ export default function Content_Edit() {
             ]),
           },
         };
+
         const resp = await api.MstSubmissionForm_Save(dataSave);
         if (resp.isSuccess) {
           setRefetchAtom(true);
@@ -341,10 +372,13 @@ export default function Content_Edit() {
       if (item.dataField === "FlagActive") {
         item.editorOptions.value = true;
       }
+      if (item.dataField === "BulletinType") {
+        item.editorOptions.value =
+          listMstBulletinType?.DataList[0].BulletinType;
+      }
     },
-    [valueSelect]
+    [valueSelect, listMstChannelType]
   );
-
   const handleFieldDataChanged = useCallback((changedData: any) => {
     // Handle the changed field data
     if (changedData.dataField === "ChannelType") {
@@ -359,22 +393,40 @@ export default function Content_Edit() {
   return (
     <AdminContentLayout className={"Content_Managent"}>
       <AdminContentLayout.Slot name={"Header"}>
-        <div className="flex gap-2 justify-end w-full px-4 py-1">
-          <div
-            className="cursor-pointer px-4 py-[7px] rounded border-[#078850] font-semibold border-[2px] shadow-lg bg-[#078850] text-white"
-            onClick={handleSubmitPopup}
-          >
-            {t("Save")}
-          </div>
-          <div
-            className="cursor-pointer px-4 py-[7px] rounded font-semibold border-[2px] shadow-md bg-white text-black"
-            onClick={() =>
-              navigate(`/${auth.networkId}/admin/Content_Managent`)
-            }
-          >
-            {t("Cancel")}
-          </div>
-        </div>
+        <PageHeaderNoSearchLayout>
+          <PageHeaderNoSearchLayout.Slot name={"Before"}>
+            <div className="flex gap-3 items-center">
+              <div
+                className="font-bold text-size dx-font-m hover:underline hover:text-green-600 cursor-pointer"
+                onClick={() => navigate(-1)}
+              >
+                {t("Content Manager")}
+              </div>
+              <div className="">{">"}</div>
+              <div className="font-bold dx-font-m text-size">
+                {t("Content Add new")}
+              </div>
+            </div>
+          </PageHeaderNoSearchLayout.Slot>
+          <PageHeaderNoSearchLayout.Slot
+            name={"Center"}
+          ></PageHeaderNoSearchLayout.Slot>
+          <PageHeaderNoSearchLayout.Slot name={"After"}>
+            <Button
+              stylingMode={"contained"}
+              type="default"
+              text={t("Save")}
+              onClick={handleSubmitPopup}
+            />
+            <Button
+              stylingMode={"contained"}
+              type="default"
+              className="Cancel_Post_Detail"
+              text={t("Cancel")}
+              onClick={() => navigate(-1)}
+            />
+          </PageHeaderNoSearchLayout.Slot>
+        </PageHeaderNoSearchLayout>
       </AdminContentLayout.Slot>
       <AdminContentLayout.Slot name={"Content"}>
         <div>

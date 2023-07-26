@@ -1,20 +1,21 @@
-import React, {useMemo} from 'react';
+import React, { useMemo } from 'react';
 import Toolbar, { Item } from 'devextreme-react/toolbar';
 import Button from 'devextreme-react/button';
-import {UserPanel} from '@packages/ui/user-panel';
+import { UserPanel } from '@packages/ui/user-panel';
 import { Template } from 'devextreme-react/core/template';
-import {MenuBar} from '../menu-bar';
+import { MenuBar } from '../menu-bar';
 
 import './Header.scss';
-import {HeaderProps} from "@/types";
-
-export function Header({ menuToggleEnabled, title, toggleMenu, extraItems, items, logo, onMenuItemClick}: HeaderProps) {
+import { HeaderProps } from "@/types";
+import { CallButtton } from '../phone/call-button';
+import { NotificationButton } from '../notification/notification-button';
+export function Header({ menuToggleEnabled, title, toggleMenu, extraItems, items, logo, onMenuItemClick }: HeaderProps) {
   const menubar = useMemo(() => {
     return (
-      <MenuBar items={items??[]} extraItems={extraItems??[]} onClick={onMenuItemClick} />
+      <MenuBar items={items ?? []} extraItems={extraItems ?? []} onClick={onMenuItemClick} />
     )
   }, [items])
-  
+
   return (
     <header className={'header-component'}>
       <Toolbar className={'header-toolbar'}>
@@ -30,7 +31,7 @@ export function Header({ menuToggleEnabled, title, toggleMenu, extraItems, items
           location={'before'}
           cssClass={'header-logo'}
           visible={logo}
-          >
+        >
           <i className={'dx-icon system-logo'} />
         </Item>
         <Item
@@ -39,7 +40,7 @@ export function Header({ menuToggleEnabled, title, toggleMenu, extraItems, items
           text={title}
           visible={!!title}
         />
-        {!!items && items.length>0 &&
+        {!!items && items.length > 0 &&
           <Item
             location={'before'}
             cssClass='header-menu-bar'
@@ -47,6 +48,24 @@ export function Header({ menuToggleEnabled, title, toggleMenu, extraItems, items
             {menubar}
           </Item>
         }
+
+        <Item
+          location={'after'}
+          locateInMenu={'auto'}
+          menuItemTemplate={'phoneTemplate'}
+
+        >
+          <CallButtton />
+        </Item>
+
+        <Item
+          location={'after'}
+          locateInMenu={'auto'}
+
+        >
+          <NotificationButton />
+        </Item>
+
         <Item
           location={'after'}
           locateInMenu={'auto'}

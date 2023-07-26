@@ -98,9 +98,9 @@ export const HeaderPart = ({ onAddNew }: HeaderPartProps) => {
           onClick={onAddNew}
         />
         <DropDownButton
+          visible={false}
           showArrowIcon={false}
           keyExpr={"id"}
-          className="menu-items"
           displayExpr={"text"}
           wrapItemText={false}
           dropDownOptions={{

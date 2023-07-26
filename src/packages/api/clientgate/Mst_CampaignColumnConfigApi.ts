@@ -81,7 +81,10 @@ export const useMst_CampaignColumnConfig = (apiBase: AxiosInstance) => {
             )
           : "[]",
       };
-      if (param.CampaignColCfgDataType === "MASTERDATA") {
+      if (
+        param.CampaignColCfgDataType === "MASTERDATA" ||
+        param.CampaignColCfgDataType === "MASTERDATASELECTMULTIPLE"
+      ) {
         outParam.JsonListOption = JSON.stringify([{ Value: param.DataSource }]);
       }
 
@@ -127,7 +130,10 @@ export const useMst_CampaignColumnConfig = (apiBase: AxiosInstance) => {
             )
           : "[]",
       };
-      if (param.CampaignColCfgDataType === "MASTERDATA") {
+      if (
+        param.CampaignColCfgDataType === "MASTERDATA" ||
+        param.CampaignColCfgDataType === "MASTERDATASELECTMULTIPLE"
+      ) {
         outParam.JsonListOption = JSON.stringify([{ Value: param.DataSource }]);
       }
 

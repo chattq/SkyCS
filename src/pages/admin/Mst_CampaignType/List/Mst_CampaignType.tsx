@@ -73,6 +73,9 @@ export const Mst_CampaignTypePage = () => {
   const formItems: IItemProps[] = [
     {
       caption: t("CampaignTypeName"),
+      label: {
+        text: t("CampaignTypeName"),
+      },
       dataField: "CampaignTypeName",
       editorType: "dxTextBox",
       editorOptions: {
@@ -81,6 +84,9 @@ export const Mst_CampaignTypePage = () => {
     },
     {
       caption: t("CampaignTypeName"),
+      label: {
+        text: t("CampaignTypeName"),
+      },
       dataField: "CampaignTypeName",
       editorType: "dxTextBox",
       editorOptions: {
@@ -89,7 +95,10 @@ export const Mst_CampaignTypePage = () => {
     },
     {
       dataField: "FlagActive",
-      caption: t("Flag Active"),
+      caption: t("FlagActive"),
+      label: {
+        text: t("FlagActive"),
+      },
       editorType: "dxSelectBox",
       editorOptions: flagEditorOptionsSearch,
     },

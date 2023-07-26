@@ -1,3 +1,4 @@
+import { defaultValue } from "./../../../admin/Mst_CampaignType/components/store";
 import { useI18n } from "@/i18n/useI18n";
 import { IItemProps } from "devextreme-react/form";
 
@@ -6,7 +7,9 @@ interface Props {
   listCustomer: any[];
   listDepart: any[];
   listTypeEticket: any[];
-  listOrg: any[]
+  listOrg: any[];
+  ListTicketPriority: any[];
+  listEnterprise: any;
 }
 
 export const useColumnSearch = ({
@@ -14,11 +17,11 @@ export const useColumnSearch = ({
   listCustomer,
   listDepart,
   listTypeEticket,
-  listOrg
+  listOrg,
+  ListTicketPriority,
+  listEnterprise,
 }: Props) => {
   const { t } = useI18n("Eticket_Search");
-  console.log("listTypeEticket", listTypeEticket);
-
   const flagFilterOptions = {
     searchEnabled: true,
     valueExpr: "value",
@@ -76,18 +79,33 @@ export const useColumnSearch = ({
 
   const listColumn: IItemProps[] = [
     {
-      dataField: "FlagOutOfDate",
+      dataField: "FlagOutOfDate", // ticket quá hạn
       caption: t("FlagOutOfDate"),
+      label: {
+        text: t("FlagOutOfDate"),
+      },
       editorType: "dxCheckBox",
+      editorOptions: {
+        defaultValue: false,
+      },
     },
     {
-      dataField: "FlagNotRespondingSLA",
+      dataField: "FlagNotRespondingSLA", // ticket không đáp ứng sla
       caption: t("FlagNotRespondingSLA"),
+      label: {
+        text: t("FlagNotRespondingSLA"),
+      },
       editorType: "dxCheckBox",
+      editorOptions: {
+        defaultValue: false,
+      },
     },
     {
-      dataField: "DepartmentCode",
+      dataField: "DepartmentCode", // phòng ban
       caption: t("DepartmentCode"),
+      label: {
+        text: t("DepartmentCode"),
+      },
       editorOptions: {
         dataSource: listDepart,
         valueExpr: "DepartmentCode",
@@ -96,8 +114,11 @@ export const useColumnSearch = ({
       editorType: "dxTagBox",
     },
     {
-      dataField: "AgentCode",
+      dataField: "AgentCode", // agent
       caption: t("AgentCode"),
+      label: {
+        text: t("AgentCode"),
+      },
       editorOptions: {
         dataSource: listAgent,
         valueExpr: "UserCode",
@@ -108,6 +129,9 @@ export const useColumnSearch = ({
     {
       dataField: "TicketStatus", // trạng thái
       caption: t("TicketStatus"),
+      label: {
+        text: t("TicketStatus"),
+      },
       editorOptions: {
         dataSource: listStatus,
         valueExpr: "value",
@@ -116,22 +140,36 @@ export const useColumnSearch = ({
       editorType: "dxTagBox",
     },
     {
-      dataField: "TicketPriority",
+      dataField: "TicketPriority", // mức ưu tiên
       caption: t("TicketPriority"),
-      editorOptions: {
-
+      label: {
+        text: t("TicketPriority"),
       },
-      editorType: "dxTextBox",
+      editorOptions: {
+        dataSource: ListTicketPriority ?? [],
+        valueExpr: "TicketPriority",
+        displayExpr: "CustomerTicketPriorityName",
+      },
+      editorType: "dxTagBox",
     },
     {
-      dataField: "TicketDeadline",
+      dataField: "TicketDeadline", // dealine
       caption: t("TicketDeadline"),
-      editorOptions: {},
-      editorType: "dxTextBox",
+      label: {
+        text: t("TicketDeadline"),
+      },
+      editorOptions: {
+        type: "date",
+        format: "yyyy-MM-dd",
+      },
+      editorType: "dxDateBox",
     },
     {
       dataField: "TicketType", // phân loại
       caption: t("TicketType"),
+      label: {
+        text: t("TicketType"),
+      },
       editorOptions: {
         dataSource: listTypeEticket,
         displayExpr: "CustomerTicketTypeName",
@@ -140,8 +178,11 @@ export const useColumnSearch = ({
       editorType: "dxTagBox",
     },
     {
-      dataField: "CustomerCodeSys",
+      dataField: "CustomerCodeSys", // khách hàng
       caption: t("CustomerCodeSys"),
+      label: {
+        text: t("CustomerCodeSys"),
+      },
       editorOptions: {
         dataSource: listCustomer,
         displayExpr: "CustomerName",
@@ -150,26 +191,38 @@ export const useColumnSearch = ({
       editorType: "dxTagBox",
     },
     {
-      dataField: "TicketDetail",
+      dataField: "TicketDetail", // nội dung trao đổi
       caption: t("TicketDetail"),
+      label: {
+        text: t("TicketDetail"),
+      },
       editorOptions: {},
       editorType: "dxTextBox",
     },
     {
-      dataField: "TicketName",
+      dataField: "TicketName", // tên ticket
       caption: t("TicketName"),
+      label: {
+        text: t("TicketName"),
+      },
       editorOptions: {},
       editorType: "dxTextBox",
     },
     {
-      dataField: "TicketID",
+      dataField: "TicketID", // mã ticket
       caption: t("TicketID"),
+      label: {
+        text: t("TicketID"),
+      },
       editorOptions: {},
       editorType: "dxTextBox",
     },
     {
-      dataField: "CreateDTimeUTCFrom",
+      dataField: "CreateDTimeUTCFrom", //
       caption: t("CreateDTimeUTCFrom"),
+      label: {
+        text: t("CreateDTimeUTCFrom"),
+      },
       editorOptions: {
         type: "date",
         format: "yyyy-MM-dd",
@@ -179,6 +232,9 @@ export const useColumnSearch = ({
     {
       dataField: "CreateDTimeUTCTo",
       caption: t("CreateDTimeUTCTo"),
+      label: {
+        text: t("CreateDTimeUTCTo"),
+      },
       editorOptions: {
         type: "date",
         format: "yyyy-MM-dd",
@@ -188,6 +244,9 @@ export const useColumnSearch = ({
     {
       dataField: "LogLUDTimeUTCFrom",
       caption: t("LogLUDTimeUTCFrom"),
+      label: {
+        text: t("LogLUDTimeUTCFrom"),
+      },
       editorOptions: {
         type: "date",
         format: "yyyy-MM-dd",
@@ -197,6 +256,9 @@ export const useColumnSearch = ({
     {
       dataField: "LogLUDTimeUTCTo",
       caption: t("LogLUDTimeUTCTo"),
+      label: {
+        text: t("LogLUDTimeUTCTo"),
+      },
       editorOptions: {
         type: "date",
         format: "yyyy-MM-dd",
@@ -206,6 +268,9 @@ export const useColumnSearch = ({
     {
       dataField: "TicketSourceFrom",
       caption: t("TicketSourceFrom"),
+      label: {
+        text: t("TicketSourceFrom"),
+      },
       editorOptions: {
         type: "date",
         format: "yyyy-MM-dd",
@@ -215,6 +280,9 @@ export const useColumnSearch = ({
     {
       dataField: "TicketSourceTo",
       caption: t("TicketSourceTo"),
+      label: {
+        text: t("TicketSourceTo"),
+      },
       editorOptions: {
         type: "date",
         format: "yyyy-MM-dd",
@@ -222,12 +290,41 @@ export const useColumnSearch = ({
       editorType: "dxDateBox",
     },
     {
-      dataField: "OrgID",
+      dataField: "CustomerCodeSys", // Doanh nghiệp
+      caption: t("CustomerCodeSys"),
+      label: {
+        text: t("CustomerCodeSys"),
+      },
+      editorOptions: {
+        dataSource: listEnterprise,
+        displayExpr: "CustomerName",
+        valueExpr: "CustomerCodeSys",
+      },
+      editorType: "dxTagBox",
+    },
+    {
+      dataField: "OrgID", // Chi nhánh
       caption: t("OrgID"),
+      label: {
+        text: t("OrgID"),
+      },
       editorOptions: {
         dataSource: listOrg,
         displayExpr: "NNTFullName",
-        valueExpr: "OrgID"
+        valueExpr: "OrgID",
+      },
+      editorType: "dxTagBox",
+    },
+    {
+      dataField: "TickerFollower", // Người theo dõi
+      caption: t("TickerFollower"),
+      label: {
+        text: t("TickerFollower"),
+      },
+      editorOptions: {
+        dataSource: listAgent,
+        valueExpr: "UserCode",
+        displayExpr: "UserName",
       },
       editorType: "dxTagBox",
     },

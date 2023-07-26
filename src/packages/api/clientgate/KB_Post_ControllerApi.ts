@@ -7,10 +7,28 @@ interface Props {
 
 export const useKB_PostApi = (apiBase: AxiosInstance) => {
   return {
-    KB_PostData_GetAllActive: async (): Promise<ApiResponse<KB_PostData>> => {
+    KB_PostData_GetAllPostCode: async (): Promise<ApiResponse<KB_PostData>> => {
       return await apiBase.post<any, ApiResponse<KB_PostData>>(
-        "/MstArea/GetAllActive",
+        "/KBPost/GetAllPostCode",
         {}
+      );
+    },
+    KB_PostData_GetByPostCode: async (
+      code: any,
+      orgID: any
+    ): Promise<ApiResponse<KB_PostData>> => {
+      return await apiBase.post<any, ApiResponse<KB_PostData>>(
+        "/KBPost/GetByPostCode",
+        { PostCode: code, OrgID: orgID }
+      );
+    },
+    KB_PostData_GetByCategoryCode: async (
+      code: any,
+      orgID: any
+    ): Promise<ApiResponse<KB_PostData>> => {
+      return await apiBase.post<any, ApiResponse<KB_PostData>>(
+        "/KBPost/GetByCategoryCode",
+        { CategoryCode: code, OrgID: orgID }
       );
     },
     KB_Post_Search: async (params: SearchParam): Promise<ApiResponse<any>> => {
@@ -18,6 +36,14 @@ export const useKB_PostApi = (apiBase: AxiosInstance) => {
         "/KBPost/Search",
         {
           ...params,
+        }
+      );
+    },
+    KB_Post_UpdateLastView: async (data: any): Promise<ApiResponse<any>> => {
+      return await apiBase.post<SearchParam, ApiResponse<KB_PostData>>(
+        "/KBPost/UpdateLastView",
+        {
+          strJson: JSON.stringify(data),
         }
       );
     },
@@ -31,10 +57,7 @@ export const useKB_PostApi = (apiBase: AxiosInstance) => {
       return await apiBase.post<string, ApiResponse<KB_PostData>>(
         "/MstTag/Create",
         {
-          strJson: JSON.stringify({
-            ...data,
-            Slug: "",
-          }),
+          strJson: JSON.stringify(data),
         }
       );
     },
@@ -43,38 +66,36 @@ export const useKB_PostApi = (apiBase: AxiosInstance) => {
       data: Partial<KB_PostData>
     ): Promise<ApiResponse<KB_PostData>> => {
       return await apiBase.post<Partial<KB_PostData>, ApiResponse<KB_PostData>>(
-        "/MstArea/Update",
+        "/KBPost/Update",
         {
           strJson: JSON.stringify(data),
-          ColsUpd: ["AreaName", "AreaDesc", "FlagActive"].join(","),
         }
       );
     },
 
     KB_PostData_Create: async (
-      area: Partial<KB_PostData>
+      data: any
     ): Promise<ApiResponse<KB_PostData>> => {
       return await apiBase.post<Partial<KB_PostData>, ApiResponse<KB_PostData>>(
-        "/MstArea/Create",
+        "/KBPost/Create",
         {
-          strJson: JSON.stringify(area),
+          strJson: JSON.stringify(data),
         }
       );
     },
 
     KB_PostData_Delete: async (data: any) => {
-      console.log(66, data);
       return await apiBase.post<SearchParam, ApiResponse<KB_PostData>>(
         "/KBPost/Delete",
         { strJson: JSON.stringify(data) }
       );
     },
 
-    KB_PostData_DeleteMultiple: async (listAreaCode: string[]) => {
+    KB_PostData_SearchMore: async (keyWord: string) => {
       return await apiBase.post<SearchParam, ApiResponse<KB_PostData>>(
-        "/MstArea/DeleteMultiple",
+        "/KBPost/SearchMore",
         {
-          strJson: JSON.stringify(listAreaCode),
+          KeyWord: keyWord,
         }
       );
     },

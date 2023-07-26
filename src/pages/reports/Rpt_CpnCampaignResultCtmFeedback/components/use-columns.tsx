@@ -21,7 +21,8 @@ UseBankDealerGridColumnsProps) => {
   const { t } = useI18n("Rpt_CpnCampaignStatisticCall");
   const dataFilter = Object.keys(data[0] || {}).map((key: any) => ({
     dataField: key,
-    caption: key === 1 ? t("Quan tâm") : t("Không quan tâm"),
+    // caption: key === "1" ? t("Quan tâm") : t("Không quan tâm"),
+    caption: key,
   }));
 
   const columns: ColumnOptions[] = [

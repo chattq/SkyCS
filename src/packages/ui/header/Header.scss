@@ -1,10 +1,12 @@
 @import "../../../themes/generated/variables.base";
+@import "../../../themes/variables.common";
 @import "../../../dx-styles";
+
 .header-component {
   flex: 0 0 auto;
   z-index: 1;
 
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  box-shadow: 0px 2px 4px rgba(101, 101, 101, 0.16);
 
   .dx-tabs {
     .dx-tab {
@@ -25,7 +27,7 @@
 
     .dx-toolbar-item {
       &.header-menu-bar {
-        padding-left: 100px;
+        padding-left: 30px;
       }
     }
   }
@@ -36,9 +38,10 @@
 
   .header-logo {
     .system-logo {
-      width: 60px;
+      margin-left: 16px;
+      width: 95px;
       height: $header-bar-height - 20px;
-      background: url("/images/icons/logo.png") no-repeat center;
+      background: url("/images/icons/logoSkycs.png") no-repeat center;
       background-size: contain;
     }
   }
@@ -47,6 +50,24 @@
     .dx-item-content {
       font-weight: 600;
       font-size: large;
+    }
+  }
+
+  .dx-button {
+    border: none;
+    background: none !important;
+    box-shadow: none !important;
+
+    .dx-button-content {
+      border: none;
+      box-shadow: none;
+      outline: none;
+      background: none;
+      border-image: none;
+    }
+
+    .dx-button-content:hover {
+      opacity: 0.7;
     }
   }
 }

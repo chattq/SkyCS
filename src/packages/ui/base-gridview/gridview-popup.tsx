@@ -473,7 +473,7 @@ const GridViewRaw = ({
       />
       <DeleteConfirmationBox
         control={controlDeleteSingleConfirmBox}
-        title={tf("Are you sure to delete this {0} record?", deletingId)}
+        title={tf("Are you sure to delete this record?", deletingId)}
         onYesClick={onDeleteSingle}
         onNoClick={onCancelDelete}
       />

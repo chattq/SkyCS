@@ -1,8 +1,17 @@
 import { AvatarField } from "@/components/fields/AvatarField";
+import CustomerCodeSysERPField from "@/components/fields/CustomerCodeSysERPField";
+import CustomerGroupField from "@/components/fields/CustomerGroupField";
+import CustomerTypeField from "@/components/fields/CustomerTypeField";
+import CustomizePhoneField from "@/components/fields/CustomizePhoneField";
+import DateField from "@/components/fields/DateField";
+import DateTimeField from "@/components/fields/DateTimeField";
 import { EmailField } from "@/components/fields/EmailField";
 import MultiSelectBox from "@/components/fields/MultiSelectBox";
+import PartnerTypeField from "@/components/fields/PartnerTypeField";
 import { PhoneField } from "@/components/fields/PhoneField";
+import { UploadField } from "@/components/fields/UploadField";
 import { ZaloField } from "@/components/fields/ZaloField";
+import { revertEncodeFileType } from "@/components/ulti";
 import { RequiredField } from "@/packages/common/Validation_Rules";
 import { MdMetaColGroupSpecDto } from "@/packages/types";
 import { Switch } from "devextreme-react";
@@ -13,6 +22,7 @@ export const mapEditorType = (dataType: string) => {
     .with("SELECTONERADIO", () => "dxRadioGroup")
     .with("SELECTONEDROPBOX", () => "dxSelectBox")
     .with("DATE", () => "dxDateBox")
+    .with("DATETIME", () => "dxDateBox")
     .with("EMAIL", () => "dxTextBox")
     .with("FLAG", () => "dxSwitch")
     .with("MASTERDATA", () => "dxSelectBox")
@@ -30,166 +40,173 @@ export const mapEditorOption = ({
   listDynamic,
   listFormData,
   customOption,
+  defaultValue,
 }: {
   field: Partial<MdMetaColGroupSpecDto>;
   listDynamic?: any;
   listFormData?: any;
   customOption?: any;
+  defaultValue?: any;
 }) => {
   const commonOptions = {
     searchEnabled: true,
     validationMessageMode: "always",
   };
-  return match(field.ColDataType)
-    .with("PERCENT", () => {
-      return {
-        min: 0,
-        max: 100,
-      };
-    })
-    .with("DATE", () => {
-      return {
-        type: "date",
-        displayFormat: "yyyy/MM/dd",
-        openOnFieldClick: true,
-      };
-    })
-    .with("DATETIME", () => {
-      return {
-        type: "datetime",
-        openOnFieldClick: true,
-      };
-    })
-    .with("EMAIL", () => {
-      return {
-        ...commonOptions,
-      };
-    })
-    .with("FLAG", () => {
-      return {
-        ...commonOptions,
-      };
-    })
-    .with("SELECTONE", () => {
-      return {
-        dataSource: JSON.parse(field.JsonListOption || "[]"),
-        displayExpr: "Value",
-        valueExpr: "Value",
-      };
-    })
-    .with("SELECTMANY", () => {
-      return {
-        dataSource: JSON.parse(field.JsonListOption || "[]"),
-        displayExpr: "Value",
-        valueExpr: "Value",
-      };
-    })
-    .with("MASTERDATA", () => {
-      return {
-        dataSource: listDynamic[`${field.ColCodeSys}`] ?? [],
-        displayExpr: "Value",
-        valueExpr: "Key",
-      };
-    })
-    .with("SELECTONEDROPBOX", () => {
-      return {
-        dataSource: JSON.parse(field.JsonListOption || "[]"),
-        displayExpr: "Value",
-        valueExpr: "Value",
-      };
-    })
-    .with("SELECTONERADIO", () => {
-      const items = JSON.parse(field.JsonListOption || "[]");
 
-      const isExistCheckedRadio = listFormData
-        ? Object.entries(listFormData).some(([key, value]) => {
-            return key == field.ColCodeSys;
-          })
-        : false;
+  return (
+    match(field.ColDataType)
+      .with("PERCENT", () => {
+        return {
+          min: 0,
+          max: 100,
+        };
+      })
+      // .with("DATE", () => {
+      //   return {
+      //     type: "date",
+      //     displayFormat: "yyyy/MM/dd",
+      //     openOnFieldClick: true,
+      //   };
+      // })
+      // .with("DATETIME", () => {
+      //   return {
+      //     type: "datetime",
+      //     openOnFieldClick: true,
+      //     displayFormat: "yyyy/MM/dd HH:MM",
+      //   };
+      // })
+      .with("EMAIL", () => {
+        return {
+          ...commonOptions,
+        };
+      })
+      .with("FLAG", () => {
+        return {
+          ...commonOptions,
+        };
+      })
+      .with("SELECTONE", () => {
+        return {
+          dataSource: JSON.parse(field.JsonListOption || "[]"),
+          displayExpr: "Value",
+          valueExpr: "Value",
+        };
+      })
+      .with("SELECTMANY", () => {
+        return {
+          dataSource: JSON.parse(field.JsonListOption || "[]"),
+          displayExpr: "Value",
+          valueExpr: "Value",
+        };
+      })
+      .with("MASTERDATA", () => {
+        return {
+          dataSource: listDynamic[`${field.ColCodeSys}`] ?? [],
+          displayExpr: "Value",
+          valueExpr: "Key",
+          defaultValue: defaultValue
+            ? defaultValue[`${field.ColCodeSys}`]
+            : undefined,
+        };
+      })
+      .with("SELECTONEDROPBOX", () => {
+        return {
+          dataSource: JSON.parse(field.JsonListOption || "[]"),
+          displayExpr: "Value",
+          valueExpr: "Value",
+        };
+      })
+      .with("SELECTONERADIO", () => {
+        const items = JSON.parse(field.JsonListOption ?? "[]");
 
-      const list = listFormData
-        ? Object.entries(listFormData)
-            .map(([key, value]) => {
-              if (key == field.ColCodeSys) {
-                return value;
-              }
+        const currentValue = defaultValue
+          ? defaultValue[`${field.ColCodeSys}`]
+          : undefined;
+
+        const list = listFormData
+          ? Object.entries(listFormData)
+              .map(([key, value]) => {
+                if (value == currentValue) {
+                  return value;
+                }
+              })
+              .filter((item: any) => item)
+          : [];
+
+        const checkItem = currentValue
+          ? items?.map((item: any) => {
+              return {
+                ...item,
+                IsSelected: list.find((c: any) => c == item.Value),
+              };
             })
-            .filter((item: any) => item)
-        : [];
-
-      const checkItem = isExistCheckedRadio
-        ? items.map((item: any) => {
-            return {
-              ...item,
-              IsSelected: list.find((c: any) => c == item.Value),
-            };
-          })
-        : items.find((item: any) => item.IsSelected);
-      return {
-        displayExpr: "Value",
-        valueExpr: "Value",
-        items: items,
-        value: checkItem ? checkItem.Value : undefined,
-      };
-    })
-    .with("SELECTMULTIPLEDROPBOX", () => {
-      return {
-        dataSource: JSON.parse(field.JsonListOption || "[]"),
-        displayExpr: "Value",
-        valueExpr: "Value",
-      };
-    })
-    .with("SELECTMULTIPLESELECTBOX", () => {
-      return {
-        dataSource: JSON.parse(field.JsonListOption || "[]"),
-        displayExpr: "Value",
-        valueExpr: "Value",
-      };
-    })
-    .with("SELECTONEDROPDOWN", () => {
-      const list = JSON.parse(field.JsonListOption || "[]");
-      return {
-        dataSource: list,
-        displayExpr: "Value",
-        valueExpr: "Value",
-        value:
-          list.find((item: any) => {
-            return item.IsSelected == true;
-          })?.Value || undefined,
-      };
-    })
-    .with("SELECTMULTIPLEDROPDOWN", () => {
-      // console.log(JSON.parse(field.JsonListOption || "[]"));
-      const list = JSON.parse(field.JsonListOption || "[]");
-
-      return {
-        dataSource: list,
-        displayExpr: "Value",
-        valueExpr: "Value",
-        value:
-          list
-            .filter((item: any) => {
+          : items?.find((item: any) => item.IsSelected);
+        return {
+          displayExpr: "Value",
+          valueExpr: "Value",
+          items: items,
+          value: checkItem ? checkItem.Value : undefined,
+        };
+      })
+      .with("SELECTMULTIPLEDROPBOX", () => {
+        return {
+          dataSource: JSON.parse(field.JsonListOption || "[]"),
+          displayExpr: "Value",
+          valueExpr: "Value",
+        };
+      })
+      .with("SELECTMULTIPLESELECTBOX", () => {
+        return {
+          dataSource: JSON.parse(field.JsonListOption || "[]"),
+          displayExpr: "Value",
+          valueExpr: "Value",
+        };
+      })
+      .with("SELECTONEDROPDOWN", () => {
+        const list = JSON.parse(field.JsonListOption || "[]");
+        return {
+          dataSource: list,
+          displayExpr: "Value",
+          valueExpr: "Value",
+          value:
+            list.find((item: any) => {
               return item.IsSelected == true;
-            })
-            .map((item: any) => {
-              return item.Value;
-            }) || [],
-      };
-    })
-    .with("MASTERDATASELECTMULTIPLE", () => {
-      return {
-        dataSource: listDynamic[`${field.ColCodeSys}`] ?? [],
-        displayExpr: "Value",
-        valueExpr: "Key",
-        searchEnabled: true,
-      };
-    })
-    .otherwise(() => {
-      return {
-        ...commonOptions,
-        ...customOption,
-      };
-    });
+            })?.Value || undefined,
+        };
+      })
+      .with("SELECTMULTIPLEDROPDOWN", () => {
+        // console.log(JSON.parse(field.JsonListOption || "[]"));
+        const list = JSON.parse(field.JsonListOption || "[]");
+
+        return {
+          dataSource: list,
+          displayExpr: "Value",
+          valueExpr: "Value",
+          value:
+            list
+              .filter((item: any) => {
+                return item.IsSelected == true;
+              })
+              .map((item: any) => {
+                return item.Value;
+              }) || [],
+        };
+      })
+      .with("MASTERDATASELECTMULTIPLE", () => {
+        return {
+          dataSource: listDynamic[`${field.ColCodeSys}`] ?? [],
+          displayExpr: "Value",
+          valueExpr: "Key",
+          searchEnabled: true,
+        };
+      })
+      .otherwise(() => {
+        return {
+          ...commonOptions,
+          ...customOption,
+        };
+      })
+  );
 };
 
 export const mapValidationRules = (field: Partial<MdMetaColGroupSpecDto>) => {
@@ -203,16 +220,11 @@ export const mapValidationRules = (field: Partial<MdMetaColGroupSpecDto>) => {
       message: "Email is not valid",
     });
   }
+
   return rules;
 };
 
-const flagFieldRender = ({
-  data,
-  customOption,
-}: {
-  data: any;
-  customOption?: any;
-}) => {
+const flagFieldRender = (data: any, customOption?: any) => {
   // console.log("data:", data);
   let valueChanged = (e: any) => {
     data.component.updateData(data.dataField, e.value ? "1" : "0");
@@ -220,14 +232,17 @@ const flagFieldRender = ({
 
   return (
     <Switch
-      readOnly={customOption?.editType == "detail"}
+      disabled={customOption?.editType == "detail"}
       defaultValue={data.editorOptions.value === "1"}
       onValueChanged={valueChanged}
     ></Switch>
   );
 };
 
-export const mapCustomOptions = (field: Partial<MdMetaColGroupSpecDto>) => {
+export const mapCustomOptions = (
+  field: Partial<MdMetaColGroupSpecDto>,
+  customOptions?: any
+) => {
   return match(field.ColDataType)
     .with("SELECTONE", () => ({
       validationMessagePosition: "top",
@@ -236,7 +251,7 @@ export const mapCustomOptions = (field: Partial<MdMetaColGroupSpecDto>) => {
       validationMessagePosition: "top",
     }))
     .with("FLAG", () => ({
-      render: (data: any) => flagFieldRender({ data: data, customOption: {} }),
+      render: (data: any) => flagFieldRender(data, customOptions),
     }))
     .otherwise(() => ({}));
 };
@@ -245,15 +260,36 @@ export const getListField = ({
   listField,
   listDynamic,
   customOptions,
+  defaultValue,
 }: {
   listField: any;
   listDynamic?: any;
   customOptions?: any;
+  defaultValue?: any;
 }) => {
   return listField?.map((field: any) => {
     return match(field?.ColDataType)
       .with("SELECTMULTIPLESELECTBOX", () => {
+        const currentValue = listDynamic[`${field.ColCodeSys}`] ?? [];
+
         const options = JSON.parse(field.JsonListOption || "[]");
+
+        const filterdOptions = currentValue
+          ? options?.map((item: any) => {
+              if (currentValue?.find((c: any) => c == item?.Value)) {
+                return {
+                  ...item,
+                  IsSelected: true,
+                };
+              } else {
+                return {
+                  ...item,
+                  IsSelected: false,
+                };
+              }
+            })
+          : options;
+
         return {
           FlagIsColDynamic: field.FlagIsColDynamic,
           ColDataType: field.ColDataType,
@@ -269,7 +305,7 @@ export const getListField = ({
             // init data
             component.updateData(
               field.ColCodeSys,
-              options
+              filterdOptions
                 .filter((opt: any) => opt.IsSelected)
                 .map((opt: any) => opt.Value)
             );
@@ -279,13 +315,99 @@ export const getListField = ({
                 component={component}
                 formData={formData}
                 editType={customOptions?.editType}
-                listOption={options}
+                listOption={filterdOptions}
               />
             );
           },
         };
       })
+      .with("CUSTOMERTYPE", () => {
+        return {
+          FlagIsColDynamic: field.FlagIsColDynamic,
+          ColDataType: field.ColDataType,
+          groupKeys: field.ColGrpCodeSys,
+          ColCodeSys: field.ColCodeSys,
 
+          itemType: "group",
+          label: {
+            text: field.ColCaption,
+          },
+          validationRules: mapValidationRules(field),
+          validationMessagePosition: "bottom",
+
+          // dataField: field.ColCodeSys,
+          render: (param: any) => {
+            return (
+              <CustomerTypeField param={param} customOptions={customOptions} />
+            );
+          },
+        };
+      })
+      .with("CUSTOMERGROUP", () => {
+        return {
+          FlagIsColDynamic: field.FlagIsColDynamic,
+          ColDataType: field.ColDataType,
+          groupKeys: field.ColGrpCodeSys,
+          ColCodeSys: field.ColCodeSys,
+
+          itemType: "group",
+          label: {
+            text: field.ColCaption,
+          },
+          validationRules: mapValidationRules(field),
+          validationMessagePosition: "bottom",
+          // dataField: field.ColCodeSys,
+          render: (param: any) => {
+            return (
+              <CustomerGroupField param={param} customOptions={customOptions} />
+            );
+          },
+        };
+      })
+      .with("PARTNERTYPE", () => {
+        return {
+          FlagIsColDynamic: field.FlagIsColDynamic,
+          ColDataType: field.ColDataType,
+          groupKeys: field.ColGrpCodeSys,
+          ColCodeSys: field.ColCodeSys,
+
+          itemType: "group",
+          label: {
+            text: field.ColCaption,
+          },
+          validationRules: mapValidationRules(field),
+          validationMessagePosition: "bottom",
+          // dataField: field.ColCodeSys,
+          render: (param: any) => {
+            return (
+              <PartnerTypeField param={param} customOptions={customOptions} />
+            );
+          },
+        };
+      })
+      .with("CUSTOMERCODESYSERP", () => {
+        return {
+          FlagIsColDynamic: field.FlagIsColDynamic,
+          ColDataType: field.ColDataType,
+          groupKeys: field.ColGrpCodeSys,
+          ColCodeSys: field.ColCodeSys,
+          itemType: "group",
+          label: {
+            text: field.ColCaption,
+          },
+          validationRules: mapValidationRules(field),
+          validationMessagePosition: "bottom",
+          // dataField: field.ColCodeSys,
+          render: (param: any) => {
+            return (
+              <CustomerCodeSysERPField
+                param={param}
+                customOptions={customOptions}
+              />
+            );
+          },
+        };
+      })
       .with("EMAIL", () => {
         return {
           FlagIsColDynamic: field.FlagIsColDynamic,
@@ -309,6 +431,27 @@ export const getListField = ({
               />
             );
           },
+        };
+      })
+      .with("TEXTAREA", () => {
+        return {
+          FlagIsColDynamic: field.FlagIsColDynamic,
+          groupKeys: field.ColGrpCodeSys,
+          dataField: field.ColCodeSys,
+          editorType: "dxTextArea",
+          ColCodeSys: field.ColCodeSys,
+          ColDataType: field.ColDataType,
+          label: {
+            text: field.ColCaption,
+          },
+          validationMessagePosition: "bottom",
+          editorOptions: mapEditorOption({
+            field: field,
+            listDynamic: listDynamic ?? {},
+            customOption: customOptions ?? {},
+          }),
+          validationRules: mapValidationRules(field),
+          ...mapCustomOptions(field),
         };
       })
       .with("ZALOUSERFOLLOWER", () => {
@@ -347,6 +490,7 @@ export const getListField = ({
           label: {
             text: field.ColCaption,
           },
+
           // dataField: field.ColCodeSys,
           render: (param: any) => {
             const { component, formData } = param;
@@ -361,54 +505,137 @@ export const getListField = ({
           },
         };
       })
+      .with("CUSTOMIZEPHONE", () => {
+        const options = JSON.parse(field?.JsonListOption) ?? [];
+
+        return {
+          FlagIsColDynamic: field.FlagIsColDynamic,
+          ColDataType: field.ColDataType,
+          groupKeys: field.ColGrpCodeSys,
+          ColCodeSys: field.ColCodeSys,
+
+          itemType: "group",
+          label: {
+            text: field.ColCaption,
+          },
+
+          // dataField: field.ColCodeSys,
+          render: (param: any) => {
+            const { component, formData } = param;
+            return <CustomizePhoneField param={param} options={options} />;
+          },
+        };
+      })
       .with("IMAGE", () => {
-        return match(field.ColCode)
-          .with("AVATAR", () => {
-            return {
-              FlagIsColDynamic: field.FlagIsColDynamic,
-              ColDataType: field.ColDataType,
-              groupKeys: field.ColGrpCodeSys,
-              ColCodeSys: field.ColCodeSys,
+        return {
+          FlagIsColDynamic: field.FlagIsColDynamic,
+          ColDataType: field.ColDataType,
+          groupKeys: field.ColGrpCodeSys,
+          ColCodeSys: field.ColCodeSys,
 
-              itemType: "group",
-              label: {
-                text: field.ColCaption,
-              },
-              // dataField: field.ColCodeSys,
-              render: (param: any) => {
-                const { component, formData } = param;
-                return (
-                  <AvatarField
-                    field={field}
-                    component={component}
-                    formData={formData}
-                    editType={customOptions?.editType}
-                  />
-                );
-              },
-            };
-          })
-          .otherwise(() => {
-            return {
-              FlagIsColDynamic: field.FlagIsColDynamic,
-              groupKeys: field.ColGrpCodeSys,
-              dataField: field.ColCodeSys,
-              editorType: mapEditorType(field.ColDataType!),
-              ColCodeSys: field.ColCodeSys,
+          itemType: "group",
+          label: {
+            text: field.ColCaption,
+          },
+          // dataField: field.ColCodeSys,
+          render: (param: any) => {
+            const { component, formData } = param;
+            return (
+              <AvatarField
+                field={field}
+                component={component}
+                formData={formData}
+                editType={customOptions?.editType}
+              />
+            );
+          },
+        };
+      })
+      .with("FILE", () => {
+        return {
+          FlagIsColDynamic: field.FlagIsColDynamic,
+          ColDataType: field.ColDataType,
+          groupKeys: field.ColGrpCodeSys,
+          ColCodeSys: field.ColCodeSys,
 
-              ColDataType: field.ColDataType,
-              label: {
-                text: field.ColCaption,
-              },
-              validationMessagePosition: "bottom",
-              editorOptions: mapEditorOption({
-                field: field,
-                listDynamic: listDynamic ?? {},
-              }),
-              validationRules: mapValidationRules(field),
-              ...mapCustomOptions(field),
-            };
-          });
+          itemType: "group",
+          label: {
+            text: field.ColCaption,
+          },
+          // dataField: field.ColCodeSys,
+          render: (param: any) => {
+            const { component: formComponent, dataField } = param;
+
+            return (
+              <UploadField
+                field={field}
+                formInstance={formComponent}
+                onValueChanged={(files: any) => {
+                  formComponent.updateData(
+                    field?.ColCodeSys,
+                    files?.map((item: any) => {
+                      return {
+                        ...item,
+                        FileType: revertEncodeFileType(item?.FileType),
+                      };
+                    })
+                  );
+                }}
+                readonly={customOptions?.editType == "detail"}
+              />
+            );
+          },
+        };
+      })
+      .with("DATE", () => {
+        return {
+          FlagIsColDynamic: field.FlagIsColDynamic,
+          ColDataType: field.ColDataType,
+          groupKeys: field.ColGrpCodeSys,
+          ColCodeSys: field.ColCodeSys,
+
+          itemType: "group",
+          label: {
+            text: field.ColCaption,
+          },
+          validationRules: mapValidationRules(field),
+          validationMessagePosition: "bottom",
+          // dataField: field.ColCodeSys,
+          render: (param: any) => {
+            return (
+              <DateField
+                param={param}
+                customOptions={customOptions}
+                field={field}
+              />
+            );
+          },
+        };
+      })
+      .with("DATETIME", () => {
+        return {
+          FlagIsColDynamic: field.FlagIsColDynamic,
+          ColDataType: field.ColDataType,
+          groupKeys: field.ColGrpCodeSys,
+          ColCodeSys: field.ColCodeSys,
+
+          itemType: "group",
+          label: {
+            text: field.ColCaption,
+          },
+          validationRules: mapValidationRules(field),
+          validationMessagePosition: "bottom",
+          // dataField: field.ColCodeSys,
+          render: (param: any) => {
+            return (
+              <DateTimeField
+                param={param}
+                customOptions={customOptions}
+                field={field}
+              />
+            );
+          },
+        };
       })
       .otherwise(() => {
         return {
@@ -417,7 +644,6 @@ export const getListField = ({
           dataField: field.ColCodeSys,
           editorType: mapEditorType(field.ColDataType!),
           ColCodeSys: field.ColCodeSys,
-
           ColDataType: field.ColDataType,
           label: {
             text: field.ColCaption,
@@ -427,9 +653,10 @@ export const getListField = ({
             field: field,
             listDynamic: listDynamic ?? {},
             customOption: customOptions ?? {},
+            defaultValue: defaultValue ?? {},
           }),
           validationRules: mapValidationRules(field),
-          ...mapCustomOptions(field),
+          ...mapCustomOptions(field, customOptions),
         };
       });
   });

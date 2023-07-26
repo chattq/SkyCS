@@ -28,6 +28,7 @@ export function AuthProvider(props: React.PropsWithChildren<unknown>) {
       orgData: orgData ?? authStore.orgData,
       clientGateUrl: clientGate?.WSUrlAddr ?? authStore.clientGateUrl,
       clientGate: clientGate ?? authStore.clientGate,
+      createDTime: new Date(),
     });
     // authSignal.value.token = accessToken;
     // if(user) {

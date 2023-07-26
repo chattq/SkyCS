@@ -16,18 +16,24 @@ export const GridCustomToolbar = ({ items }: any) => {
   // console.log(ref?.instance.getSelectedRowsData());
   if (!items || !items.length || !ref) return null;
   return (
-    <div>
+    <div className="flex">
       {items.map((item: GridCustomerToolBarItem, idx: number) => {
         if (item?.widget === "customize") {
           if (item.shouldShow(ref)) {
-            return item?.customize(ref) ?? <></>;
+            return (
+              (
+                <div key={`button-toolbar-${idx}`}>
+                  {item?.customize ? item.customize(ref) : <></>}
+                </div>
+              ) ?? <div key={`button-toolbar-${idx}`}></div>
+            );
           } else {
             return <></>;
           }
         } else {
           return (
             <Button
-              key={idx}
+              key={`button-toolbar-${idx}`}
               text={item.text}
               onClick={(e) => {
                 item.onClick(e, ref);

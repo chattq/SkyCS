@@ -1,5 +1,3 @@
-import { findProps } from "devextreme-react/core/template";
-import Sky from "./Skycs/List";
 export * from "./login-sso/login-sso-page";
 export * from "./select-network/select-network";
 export * from "./page-404/page-404";
@@ -12,7 +10,6 @@ export * from "./admin/test-upload/test-upload";
 export * from "./admin/test-tabs/index";
 export * from "./admin/test-tree-like-grid/tree-like-grid";
 export * from "./admin/test-grid/test-grid";
-
 // Eticket
 export * from "./admin/test-tree-like-grid/tree-like-grid";
 export * from "./admin/test-tree-like-grid/tree-like-grid";

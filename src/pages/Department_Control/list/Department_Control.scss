@@ -6,9 +6,18 @@
   background-color: green;
   color: white;
 }
-.dx-toolbar-items-container {
-  margin-bottom: 20px;
+.listUser_Department .dx-toolbar-items-container {
+  display: none !important;
+}
+.listUser_Department {
+  height: auto !important;
 }
 .dx-popup-title.dx-toolbar .dx-toolbar-before {
   padding-top: 18px;
+}
+.listUser_Department .ScrollView_Customize {
+  height: auto !important;
+}
+.dx-radiogroup .dx-radiobutton {
+  margin: 16px 0 !important;
 }

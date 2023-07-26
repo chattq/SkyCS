@@ -131,6 +131,9 @@ export const Mst_PaymentTermControllerPage = () => {
       if (["OrgID", "PaymentTermCode"].includes(e.dataField!)) {
         e.editorOptions.readOnly = !e.row?.isNewRow;
       }
+      if (["FlagActive"].includes(e.dataField!)) {
+        e.editorOptions.value = true;
+      }
     }
   };
 
@@ -190,7 +193,12 @@ export const Mst_PaymentTermControllerPage = () => {
     // console.log(230, data);
     const resp = await api.Mst_PaymentTermController_Create({
       ...rest,
-      FlagActive: rest.FlagActive ? "1" : "0",
+      FlagActive:
+        rest.FlagActive !== undefined
+          ? rest.FlagActive === true
+            ? "1"
+            : "0"
+          : "1",
     });
     if (resp.isSuccess) {
       toast.success(t("Create Successfully"));

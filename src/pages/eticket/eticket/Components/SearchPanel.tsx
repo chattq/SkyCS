@@ -40,8 +40,6 @@ export const SearchPanel = ({
   }, []);
 
   const handleSearch = () => {
-    console.log("data ", data);
-    console.log("search form:", formData);
     onSearch?.(data);
   };
   const onClose = () => {

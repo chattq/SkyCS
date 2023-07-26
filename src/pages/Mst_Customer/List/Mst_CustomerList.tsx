@@ -1,6 +1,6 @@
-import { distinguish } from "@/components/ulti";
 import { useI18n } from "@/i18n/useI18n";
 import { useClientgateApi } from "@/packages/api";
+import { useAuth } from "@/packages/contexts/auth";
 import {
   useConfiguration,
   useNetworkNavigate,
@@ -11,7 +11,7 @@ import {
   ContentSearchPanelLayout,
   searchPanelVisibleAtom,
 } from "@/packages/layouts/content-searchpanel-layout";
-import { authAtom, showErrorAtom } from "@/packages/store";
+import { showErrorAtom } from "@/packages/store";
 import {
   FlagActiveEnum,
   MdMetaColGroupSpec,
@@ -23,13 +23,15 @@ import {
   flagCustomer,
   selecteItemsAtom,
 } from "@/pages/Mst_Customer/components/store";
+import { getFullTime } from "@/utils/time";
 import { useQuery } from "@tanstack/react-query";
 import { DataGrid, LoadPanel } from "devextreme-react";
 import { IPopupOptions } from "devextreme-react/popup";
 import { EditorPreparingEvent } from "devextreme/ui/data_grid";
-import { useAtomValue, useSetAtom } from "jotai";
+import { useSetAtom } from "jotai";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
+import "../components/custom.scss";
 import HeaderPart from "../components/header-part";
 import { useColumn } from "../components/use-columns";
 import { useColumnsSearch } from "../components/use-columns-search";
@@ -47,14 +49,35 @@ interface Props {
   isHideHeader?: Boolean;
 }
 
+interface searchForm {
+  CtmEmail: string;
+  CtmPhoneNo: string;
+  CustomerCode: string;
+  CustomerCodeSysERP: string;
+  CustomerGrpCode: any;
+  CustomerName: string;
+  CustomerType: string;
+  MST: string;
+  PartnerType: any;
+  JsonColDynamicSearch: any;
+  FlagActive: any;
+  Ft_PageIndex: number;
+  Ft_PageSize: number;
+  KeyWord: string;
+  ScrTplCodeSys: string;
+}
+
 export const Mst_CustomerList = ({ bePopUp, isHideHeader = false }: Props) => {
   const navigate = useNetworkNavigate();
-  const [formValue, setFormValue] = useState({});
   const setSearchPanelVisibility = useSetAtom(searchPanelVisibleAtom); // state lưu trữ trạng thái đóng mở của nav search
   const setSelectedItems = useSetAtom(selecteItemsAtom); // state lưu trữ thông tin của items khi mà click radio
   let gridRef: any = useRef<DataGrid | null>(null);
-  const auth = useAtomValue(authAtom);
+  const { auth } = useAuth();
+
   const { t } = useI18n("Mst_Customer"); // file biên dịch
+
+  const config = useConfiguration();
+
   const [dataFilter, setDataFilter] = useState<DataFilter>({
     staticField: [],
     dynamicFields: [],
@@ -62,8 +85,25 @@ export const Mst_CustomerList = ({ bePopUp, isHideHeader = false }: Props) => {
     listSearchRange: [],
     listQuery: [],
   });
-  const [storeData, setStoreData] = useState({});
-  const config = useConfiguration();
+
+  const [searchCondition, setSearchCondition] = useState<searchForm>({
+    CtmEmail: "",
+    CtmPhoneNo: "",
+    CustomerCode: "",
+    CustomerCodeSysERP: "",
+    CustomerGrpCode: [],
+    CustomerName: "",
+    CustomerType: "",
+    MST: "",
+    PartnerType: [],
+    JsonColDynamicSearch: "[]",
+    FlagActive: FlagActiveEnum.All, // FlagActiveEnum.All = ""
+    Ft_PageIndex: 0,
+    Ft_PageSize: config.MAX_PAGE_ITEMS, // config.MAX_PAGE_ITEMS = 999999
+    KeyWord: "",
+    ScrTplCodeSys: "SCRTPLCODESYS.2023",
+  });
+
   const setFlagCustomer = useSetAtom(flagCustomer);
   const { data: listGroup, isLoading: isLoadingListGroup } = useQuery({
     queryKey: ["List_Group_Key"],
@@ -82,12 +122,17 @@ export const Mst_CustomerList = ({ bePopUp, isHideHeader = false }: Props) => {
   });
   const showError = useSetAtom(showErrorAtom); // state lưu trữ lỗi khi call api
   const loadingControl = useVisibilityControl({ defaultVisible: false });
-  const [searchCondition, setSearchCondition] = useState<Partial<any>>({
-    // state deafult của search
-    SOApprDateFrom: "",
-    SOApprDateToInit: "",
-    SOApprDateTo: "",
-    DealerCode: "",
+
+  const [search, setSearch] = useState<any>({
+    CtmEmail: "",
+    CtmPhoneNo: "",
+    CustomerCode: "",
+    CustomerCodeSysERP: "",
+    CustomerGrpCode: [],
+    CustomerName: "",
+    CustomerType: "",
+    MST: "",
+    PartnerType: [],
     JsonColDynamicSearch: "[]",
     FlagActive: FlagActiveEnum.All, // FlagActiveEnum.All = ""
     Ft_PageIndex: 0,
@@ -162,10 +207,6 @@ export const Mst_CustomerList = ({ bePopUp, isHideHeader = false }: Props) => {
   } = useQuery({
     queryKey: ["ListDynamic", dataFilter],
     queryFn: async () => {
-      console.log(
-        "dataFilter.dynamicFields ",
-        dataFilter.listMasterField.length
-      );
       if (dataFilter.listMasterField.length) {
         const response = await api.MDMetaColGroupSpec_GetListOption(
           dataFilter.listMasterField ?? [""]
@@ -189,20 +230,44 @@ export const Mst_CustomerList = ({ bePopUp, isHideHeader = false }: Props) => {
   });
 
   const api = useClientgateApi(); // api
-  const { data, isLoading, refetch } = useQuery(
-    // call api search
-    [
-      "Mst_Customer",
-      JSON.stringify(searchCondition),
-      JSON.stringify(formValue),
-    ],
-    () => {
-      return api.Mst_Customer_Search({
-        ...searchCondition,
-        ...formValue,
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ["Mst_Customer", JSON.stringify(search)],
+    queryFn: async () => {
+      const response = await api.Mst_Customer_Search({
+        ...search,
       });
-    }
-  );
+
+      if (response.isSuccess) {
+        const customizeResponse = {
+          ...response,
+          DataList: response?.DataList?.map((item) => {
+            const listJson: any[] = item.JsonCustomerInfo
+              ? JSON.parse(item.JsonCustomerInfo) ?? []
+              : [];
+            const customize = listJson.reduce((acc, item) => {
+              return {
+                ...acc,
+                [`${item.ColCodeSys}`]: item.ColValue ?? "",
+              };
+            }, {});
+
+            return {
+              ...item,
+              ...customize,
+            };
+          }),
+        };
+
+        return customizeResponse;
+      } else {
+        showError({
+          message: response?.errorCode,
+          debugInfo: response?.debugInfo,
+          errorInfo: response?.errorInfo,
+        });
+      }
+    },
+  });
 
   useEffect(() => {
     refetch();
@@ -211,64 +276,79 @@ export const Mst_CustomerList = ({ bePopUp, isHideHeader = false }: Props) => {
   }, []);
 
   const handleSearch = async (data: any) => {
-    let list: any[] = [];
-    const getListFieldKey = Object.keys(data);
-    dataFilter.staticField.forEach((item) => {
-      const filter = getListFieldKey.filter((itemField) => {
-        console.log("itemField", itemField, item.ColCodeSys);
+    const staticValue = Object.entries(data)
+      ?.map(([key, value]) => {
+        if (
+          listColumn?.find(
+            (c: any) => c?.ColCodeSys === key && c?.FlagIsColDynamic != "1"
+          )
+        ) {
+          return {
+            key: key,
+            value: value,
+          };
+        }
+      })
+      ?.filter((item: any) => item);
 
-        return itemField.includes(item.ColCodeSys);
-      });
-      list = [...list, ...filter];
-    });
+    const dynamicValue = Object.entries(data)
+      ?.map(([key, value]) => {
+        if (!staticValue?.some((c: any) => c?.key == key)) {
+          return {
+            key: key,
+            value: value,
+          };
+        }
+      })
+      ?.filter(
+        (item: any) =>
+          item &&
+          item?.key != "JsonColDynamicSearch" &&
+          item?.key != "FlagActive" &&
+          item?.key != "Ft_PageIndex" &&
+          item?.key != "Ft_PageSize" &&
+          item?.key != "KeyWord" &&
+          item?.key != "ScrTplCodeSys"
+      );
 
-    const listFilterValueDynamic = getListFieldKey.filter((item) => {
-      return !item.includes("_To");
-    });
-
-    // console.log("listDynamic ", listDynamic);
-    list = list.reduce((acc, item) => {
-      return {
-        ...acc,
-        [`${item}`]: data[`${item}`],
-      };
-    }, {});
-
-    const value = listFilterValueDynamic
-      .map((item) => {
-        console.log("item ", item, "type", data[item]);
+    const result = dynamicValue
+      ?.map((item: any) => {
+        if (item?.key == "COLD66187") {
+          return {
+            ColCodeSys: item?.key,
+            ColValue1: getFullTime(item?.value),
+            ColValue2: getFullTime(
+              new Date(
+                dynamicValue?.find((item: any) => item?.key == "COLD66187_To")
+                  ?.value as string
+              )
+            ),
+          };
+        }
         return {
-          ColCodeSys: item,
-          ColValue1: distinguish(data[item]),
-          ColValue2: data[item + "_To"]
-            ? distinguish(data[item + "_To"])
-            : null,
+          ColCodeSys: item?.key,
+          ColValue1: item?.value,
         };
       })
-      .filter((item) => {
-        return dataFilter.staticField.every((itemStatic) => {
-          return itemStatic.ColCodeSys !== item.ColCodeSys;
-        });
-      });
+      ?.filter((item: any) => item?.ColCodeSys != "COLD66187_To");
 
-    console.log("value ", value);
+    setSearch({
+      CtmEmail: data?.CtmEmail,
+      CtmPhoneNo: data?.CtmPhoneNo,
+      CustomerCode: data?.CustomerCode,
+      CustomerCodeSysERP: data?.CustomerCodeSysERP,
+      CustomerName: data?.CustomerName,
+      CustomerType: data?.CustomerType,
+      MST: data?.MST,
+      Ft_PageIndex: searchCondition?.Ft_PageIndex,
+      Ft_PageSize: searchCondition?.Ft_PageSize,
+      CustomerGrpCode: data?.CustomerGrpCode?.join(","),
+      PartnerType: data?.PartnerType?.join(","),
+      JsonColDynamicSearch: JSON.stringify(result),
+    });
 
-    const obj = {
-      ...list,
-      CustomerCode: data["CUSTOMERCODE"] ?? null,
-      CustomerName: data["CUSTOMERNAME"] ?? null,
-      JsonColDynamicSearch: JSON.stringify(value),
-    };
-
-    // delete obj?.CUSTOMERCODE;
-    // delete obj?.CUSTOMERNAME;
-
-    console.log("obj ", obj);
-
-    setFormValue(obj);
+    refetch();
   };
-
-  console.log(listColumn);
 
   // các cột của gridview
   const columns = useColumn({
@@ -276,8 +356,6 @@ export const Mst_CustomerList = ({ bePopUp, isHideHeader = false }: Props) => {
     dataField: listColumn ?? [],
     dataGroup: listGroup ?? [],
   });
-
-  // console.log(columns);
 
   // hàm thêm cột ở trong trường hợp popup thì là mở popup
   const handleAddNew = () => {
@@ -301,25 +379,40 @@ export const Mst_CustomerList = ({ bePopUp, isHideHeader = false }: Props) => {
 
   // call api delete multiple
   const handleDeleteRow = async (a: any) => {
-    if (a.length > 1) {
+    const response = await api.Mst_Customer_Delete({
+      OrgID: auth?.orgData?.Id,
+      CustomerCodeSys: a[0]?.CustomerCodeSys,
+      NetworkID: auth?.networkId,
+    });
+    if (response.isSuccess) {
+      toast.success(t("Delete Success"));
+      await refetch();
     } else {
-      const deleteValue = data?.DataList?.filter((item) => {
-        return item.CustomerCodeSys === a[0].CustomerCodeSys;
+      showError({
+        message: t(response.errorCode),
+        debugInfo: response.debugInfo,
+        errorInfo: response.errorInfo,
       });
-      if (deleteValue?.length) {
-        const response = await api.Mst_Customer_Delete(deleteValue[0]);
-        if (response.isSuccess) {
-          toast.success(t("Delete Success"));
-          await refetch();
-        } else {
-          showError({
-            message: t(response.errorCode),
-            debugInfo: response.debugInfo,
-            errorInfo: response.errorInfo,
-          });
-        }
-      }
     }
+    // if (a.length > 1) {
+    // } else {
+    //   const deleteValue = data?.DataList?.filter((item) => {
+    //     return item.CustomerCodeSys === a[0].CustomerCodeSys;
+    //   });
+    //   if (deleteValue?.length) {
+    //     const response = await api.Mst_Customer_Delete(deleteValue[0]);
+    //     if (response.isSuccess) {
+    //       toast.success(t("Delete Success"));
+    //       await refetch();
+    //     } else {
+    //       showError({
+    //         message: t(response.errorCode),
+    //         debugInfo: response.debugInfo,
+    //         errorInfo: response.errorInfo,
+    //       });
+    //     }
+    //   }
+    // }
   };
 
   // call api update
@@ -400,88 +493,87 @@ export const Mst_CustomerList = ({ bePopUp, isHideHeader = false }: Props) => {
     listMapField: listDynamic ?? {},
   });
 
-  console.log(getColumn);
-
   const handleCustomerEdit = (e: any) => {
     const { data } = e;
     const { CustomerCodeSys } = data;
     setFlagCustomer("update");
-    navigate(`/customer/detail/${CustomerCodeSys}`);
+    navigate(`/customer/edit/${CustomerCodeSys}`);
   };
 
   return (
-    <AdminContentLayout className={"Mst_Customer"}>
-      {/* Header */}
-      <AdminContentLayout.Slot name={"Header"}>
-        {/* có tác dụng là tạo dữ liệu vào trong data và thực thi các action nhự import excel , export excel*/}
-        <HeaderPart
-          onAddNew={handleAddNew}
-          searchCondition={searchCondition}
-        ></HeaderPart>
-      </AdminContentLayout.Slot>
-      {/* Content */}
-      <AdminContentLayout.Slot name={"Content"}>
-        <ContentSearchPanelLayout>
-          {/* Search */}
-          <ContentSearchPanelLayout.Slot name={"SearchPanel"}>
-            <div className={"w-[200px]"}>
-              {/* Search Component */}
-              <SearchPanelV2
-                conditionFields={getColumn}
-                storeKey="Mst_Customer_Search"
-                data={storeData}
-                onSearch={handleSearch}
-              />
-            </div>
-          </ContentSearchPanelLayout.Slot>
-          <ContentSearchPanelLayout.Slot name={"ContentPanel"}>
-            <LoadPanel
-              container={".dx-viewport"}
-              shadingColor="rgba(0,0,0,0.4)"
-              position={"center"}
-              visible={loadingControl.visible}
-              showIndicator={true}
-              showPane={true}
-            />
-            {!loadingControl.visible && (
-              <>
-                {/* GridView */}
-                <BaseGridView
-                  isLoading={isLoading} // props dùng để render
-                  dataSource={data?.isSuccess ? data?.DataList ?? [] : []} // dữ liệu của gridview lấy từ api
-                  columns={columns} // các cột ở trong grid view
-                  keyExpr={["CustomerCodeSys"]} // khóa chính
-                  popupSettings={popupSettings} // popup editor
-                  formSettings={{}} // các cột ở trong popup
-                  onReady={(ref) => (gridRef = ref)} // gắn ref
-                  allowSelection={true} //cho phép chọn row hay không
-                  onSelectionChanged={handleSelectionChanged} // dùng để lấy hàng khi tích chọn checkbox
-                  onSaveRow={handleSavingRow} // thực hiện các action thêm sửa xóa
-                  onEditorPreparing={handleEditorPreparing} // thực hiện hành động trước khi show màn hình thêm sửa xóa
-                  // onEditRow={handleOnEditRow}
-                  onCustomerEditing={handleCustomerEdit}
-                  inlineEditMode="row"
-                  onDeleteRows={handleDeleteRow} // hàm này để xóa multiple (  )
-                  onEditRowChanges={handleEditRowChanges}
-                  toolbarItems={[
-                    //  button search và action của nó
-                    {
-                      location: "before",
-                      widget: "dxButton",
-                      options: {
-                        icon: "search",
-                        onClick: handleToggleSearchPanel,
-                      },
-                    },
-                  ]}
-                  storeKey={"Mst_Customer_Column"} // key lưu trữ giá trị grid view trong localstorage
+    <div className="w-full h-full pb-[10px]">
+      <AdminContentLayout className={"Mst_Customer"}>
+        {/* Header */}
+        <AdminContentLayout.Slot name={"Header"}>
+          {/* có tác dụng là tạo dữ liệu vào trong data và thực thi các action nhự import excel , export excel*/}
+          <HeaderPart
+            onAddNew={handleAddNew}
+            searchCondition={searchCondition}
+          ></HeaderPart>
+        </AdminContentLayout.Slot>
+        {/* Content */}
+        <AdminContentLayout.Slot name={"Content"}>
+          <ContentSearchPanelLayout>
+            {/* Search */}
+            <ContentSearchPanelLayout.Slot name={"SearchPanel"}>
+              <div className={"w-[200px]"}>
+                {/* Search Component */}
+                <SearchPanelV2
+                  conditionFields={getColumn}
+                  storeKey="Mst_Customer_Search"
+                  data={searchCondition}
+                  onSearch={handleSearch}
                 />
-                {/* popup detail*/}
-              </>
-            )}
-          </ContentSearchPanelLayout.Slot>
-        </ContentSearchPanelLayout>
-      </AdminContentLayout.Slot>
-    </AdminContentLayout>
+              </div>
+            </ContentSearchPanelLayout.Slot>
+            <ContentSearchPanelLayout.Slot name={"ContentPanel"}>
+              <LoadPanel
+                container={".dx-viewport"}
+                shadingColor="rgba(0,0,0,0.4)"
+                position={"center"}
+                visible={loadingControl.visible}
+                showIndicator={true}
+                showPane={true}
+              />
+              {!isLoading && (
+                <>
+                  {/* GridView */}
+                  <BaseGridView
+                    isLoading={isLoading} // props dùng để render
+                    dataSource={data?.isSuccess ? data?.DataList ?? [] : []} // dữ liệu của gridview lấy từ api
+                    columns={columns} // các cột ở trong grid view
+                    keyExpr={["CustomerCodeSys"]} // khóa chính
+                    popupSettings={popupSettings} // popup editor
+                    onReady={(ref) => (gridRef = ref)} // gắn ref
+                    allowSelection={false} //cho phép chọn row hay không
+                    onSelectionChanged={handleSelectionChanged} // dùng để lấy hàng khi tích chọn checkbox
+                    onSaveRow={handleSavingRow} // thực hiện các action thêm sửa xóa
+                    onEditorPreparing={handleEditorPreparing} // thực hiện hành động trước khi show màn hình thêm sửa xóa
+                    // onEditRow={handleOnEditRow}
+                    onCustomerEditing={handleCustomerEdit}
+                    inlineEditMode="row"
+                    onDeleteRows={handleDeleteRow} // hàm này để xóa multiple (  )
+                    onEditRowChanges={handleEditRowChanges}
+                    toolbarItems={[
+                      //  button search và action của nó
+                      {
+                        location: "before",
+                        widget: "dxButton",
+                        options: {
+                          icon: "search",
+                          onClick: handleToggleSearchPanel,
+                        },
+                      },
+                    ]}
+                    storeKey={"Mst_Customer_Column"} // key lưu trữ giá trị grid view trong localstorage
+                  />
+                  {/* popup detail*/}
+                </>
+              )}
+            </ContentSearchPanelLayout.Slot>
+          </ContentSearchPanelLayout>
+        </AdminContentLayout.Slot>
+      </AdminContentLayout>
+    </div>
   );
 };

@@ -10,6 +10,7 @@ import { useColumnsSearch } from "@/pages/admin/Cpn_Campaign/components/Componen
 import { useColumn } from "../Components/PopUp/Mst_Customer_Clone/components/use-columns";
 
 interface SearchCustomerResultProps {
+  customizeClass: string;
   listColumn: any[];
   listGroup: any[];
   listDynamic: { [key: string]: any[] };
@@ -21,6 +22,7 @@ interface SearchCustomerResultProps {
 export const SearchCustomerResult = forwardRef(
   (
     {
+      customizeClass,
       listColumn,
       listGroup,
       listDynamic,
@@ -34,6 +36,8 @@ export const SearchCustomerResult = forwardRef(
       dataField: listColumn ?? [],
       dataGroup: listGroup ?? [],
     });
+
+    console.log("customizeClass ", customizeClass);
 
     const handleSelectionChanged = (e: any) => {
       onSelectionChanged?.(e);
@@ -68,6 +72,7 @@ export const SearchCustomerResult = forwardRef(
         </ContentSearchPanelLayout.Slot>
         <ContentSearchPanelLayout.Slot name={"ContentPanel"}>
           <SearchDataGrid
+            // customizeClass={customizeClass}
             keyExpr={["CustomerCodeSys"]}
             columns={columns ?? []}
             dataSource={data}

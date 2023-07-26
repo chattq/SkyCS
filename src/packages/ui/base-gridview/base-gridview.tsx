@@ -78,7 +78,7 @@ interface GridViewProps {
   stateStoring?: IStateStoringProps;
   onCustomerEditing?: Function;
   editable?: boolean;
-  showCheck?: string;
+  showCheck?: any;
   hidePagination?: boolean;
 }
 
@@ -216,7 +216,6 @@ const GridViewRaw = ({
 
   const handleSaved = (e: any) => {
     // logger.debug("saved event:", e);
-    console.log("handleSave ", e);
     switchEditMode(e, false);
   };
 
@@ -402,6 +401,7 @@ const GridViewRaw = ({
           onInitNewRow={handleNewRow}
           onSaving={innerSavingRowHandler}
           stateStoring={stateStoring}
+          scrolling={{ mode: "standard" }}
         >
           <ColumnFixing enabled={true} />
           <Paging enabled={!hidePagination} defaultPageSize={defaultPageSize} />
@@ -411,6 +411,8 @@ const GridViewRaw = ({
           <Scrolling
             renderAsync={true}
             mode={"standard"}
+            scrollByThumb={true}
+            scrollByContent
             showScrollbar={"always"}
           />
           <Toolbar>
@@ -467,7 +469,7 @@ const GridViewRaw = ({
           <Selection
             mode="multiple"
             selectAllMode="page"
-            showCheckBoxesMode={showCheck}
+            // showCheckBoxesMode={showCheck}
           />
           {realColumns.map((col: any) => (
             <Column key={col.dataField} {...col} />

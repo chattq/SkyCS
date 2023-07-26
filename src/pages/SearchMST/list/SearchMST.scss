@@ -6,7 +6,25 @@
   border: none !important;
 }
 
-.search_history-bg:hover .search_history-title {
+.search_history-bg:hover > .search_history-title {
   color: #00703c;
   text-decoration: underline !important;
+}
+.search_history-bg:hover .search_history-title {
+  color: #00703c !important;
+  text-decoration: underline !important;
+}
+
+.Upload_Detail_search form {
+  display: none;
+}
+.Upload_Detail_search .dx-fileuploader-input-wrapper {
+  display: none !important;
+}
+.file_Controller {
+  margin-right: 15px;
+}
+mark {
+  color: red !important;
+  background: transparent;
 }

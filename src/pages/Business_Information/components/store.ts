@@ -14,9 +14,10 @@ export const keywordAtom = atom<string>("");
 export const dataBotton = atom<string>("");
 export const showDetail = atom<boolean>(false);
 export const dataTableAtom = atom<any>([]);
-export const dataFormAtom = atom<any>([]);
+export const dataFormAtom = atom<any>({});
 export const flagEdit = atom<boolean>(false);
 export const readOnly = atom<boolean>(false);
+export const activeInputAtom = atom<boolean>(false);
 
 export const viewingDataAtom = atom(
   (get) => {

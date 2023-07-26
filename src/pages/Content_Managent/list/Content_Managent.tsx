@@ -9,7 +9,7 @@ import { IPopupOptions } from "devextreme-react/popup";
 import { IFormOptions, IItemProps } from "devextreme-react/form";
 import { flagEditorOptionsSearch, zip } from "@packages/common";
 import { toast } from "react-toastify";
-import { showErrorAtom } from "@packages/store";
+import { authAtom, showErrorAtom } from "@packages/store";
 import { EditorPreparingEvent } from "devextreme/ui/data_grid";
 import { searchPanelVisibleAtom } from "@layouts/content-searchpanel-layout";
 import {
@@ -23,6 +23,9 @@ import { useBankDealerGridColumns } from "../components/use-columns";
 import { nanoid } from "nanoid";
 import NavNetworkLink from "@/components/Navigate";
 import { GridViewCustomize } from "@/packages/ui/base-gridview/gridview-customize";
+import { PageHeaderNoSearchLayout } from "@/packages/layouts/page-header-layout-2/page-header-nosearch-layout";
+import { useNavigate } from "react-router-dom";
+import { Button } from "devextreme-react";
 
 export const Content_ManagentPage = () => {
   const { t } = useI18n("Content_Managent");
@@ -32,6 +35,8 @@ export const Content_ManagentPage = () => {
   const setValueID = useSetAtom(valueIDAtom);
   const refetchData = useAtomValue(refetchAtom);
   const setcheckUIZNS = useSetAtom(checkUIZNSAtom);
+  const navigate = useNavigate();
+  const auth = useAtomValue(authAtom);
 
   const [searchCondition] = useState<any>({
     FlagActive: FlagActiveEnum.All,
@@ -204,6 +209,7 @@ export const Content_ManagentPage = () => {
   };
   const handleEditRowChanges = () => {};
   const handleAddnew = () => {
+    navigate(`/${auth.networkId}/admin/Content_Managent/Content_Edit`);
     setValueID(false);
     setcheckUIZNS(false);
   };
@@ -211,16 +217,33 @@ export const Content_ManagentPage = () => {
   return (
     <AdminContentLayout className={"Content_Managent"}>
       <AdminContentLayout.Slot name={"Header"}>
-        <NavNetworkLink to={"/admin/Content_Managent/Content_Edit"}>
-          <div className="py-1 flex justify-end px-4">
-            <div
-              className="cursor-pointer px-4 py-[7px] rounded border-[#078850] font-semibold border-[2px] shadow-lg bg-[#078850] text-white"
-              onClick={handleAddnew}
-            >
-              {t("Add new")}
+        <PageHeaderNoSearchLayout>
+          <PageHeaderNoSearchLayout.Slot name={"Before"}>
+            <div className="flex gap-3 items-center">
+              <div className="font-bold dx-font-m text-size">
+                {t("Content Manager")}
+              </div>
             </div>
-          </div>
-        </NavNetworkLink>
+          </PageHeaderNoSearchLayout.Slot>
+          <PageHeaderNoSearchLayout.Slot
+            name={"Center"}
+          ></PageHeaderNoSearchLayout.Slot>
+          <PageHeaderNoSearchLayout.Slot name={"After"}>
+            <Button
+              stylingMode={"contained"}
+              type="default"
+              text={t("Add new")}
+              onClick={handleAddnew}
+            />
+            {/* <Button
+              stylingMode={"contained"}
+              type="default"
+              className="Cancel_Post_Detail"
+              text={t("Cancel")}
+              onClick={() => navigate(-1)}
+            /> */}
+          </PageHeaderNoSearchLayout.Slot>
+        </PageHeaderNoSearchLayout>
       </AdminContentLayout.Slot>
       <AdminContentLayout.Slot name={"Content"}>
         <GridViewCustomize
@@ -240,6 +263,7 @@ export const Content_ManagentPage = () => {
           onDeleteRows={handleDeleteRows}
           toolbarItems={[]}
           storeKey={"Content_Managent-columns"}
+          isHiddenCheckBox={true}
         />
       </AdminContentLayout.Slot>
     </AdminContentLayout>

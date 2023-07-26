@@ -217,19 +217,19 @@ export const CustomFieldListPageContent = ({
     onDelete(item);
   };
   const showError = useSetAtom(showErrorAtom);
-  const handleItemReordered = async ({component: listComponent}: any) => {
-    const data = listComponent.instance().option("items")
-    let newOrderedData: any[] = []
-    for(let i = 0; i < data.length; i++) {
+  const handleItemReordered = async ({ component: listComponent }: any) => {
+    const data = listComponent.instance().option("items");
+    let newOrderedData: any[] = [];
+    for (let i = 0; i < data.length; i++) {
       newOrderedData.push({
         ...data[i],
-        OrderIdx: i
-      })
+        OrderIdx: i,
+      });
     }
-    console.log('newOrderedData', newOrderedData)
-    const resp = await api.MDMetaColGroupSpec_UpdateOrderIdx(newOrderedData)
-    if(resp.isSuccess) {
-      toast.success("common.updateSuccess");
+    console.log("newOrderedData", newOrderedData);
+    const resp = await api.MDMetaColGroupSpec_UpdateOrderIdx(newOrderedData);
+    if (resp.isSuccess) {
+      toast.success("Cập nhật thành công!");
     } else {
       showError({
         message: resp.errorCode,
@@ -237,7 +237,16 @@ export const CustomFieldListPageContent = ({
         errorInfo: resp.errorInfo,
       });
     }
-  }
+  };
+
+  console.log(
+    fieldByGroup[buildKey("COLGRPCODESYS.2023.01")]?.map((item: any) => {
+      return {
+        dataField: item?.ColCode,
+        OrderIdx: item?.OrderIdx,
+      };
+    })
+  );
 
   return (
     <AdminContentLayout>
@@ -326,7 +335,7 @@ export const CustomFieldListPageContent = ({
                     );
                   }}
                 >
-                  <ItemDragging allowReordering={true} ></ItemDragging>
+                  <ItemDragging allowReordering={true}></ItemDragging>
                 </List>
               );
             }}

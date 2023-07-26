@@ -1,4 +1,4 @@
-import { SelectBox } from "devextreme-react";
+import { ScrollView, SelectBox } from "devextreme-react";
 import { IStateStoringProps } from "devextreme-react/data-grid";
 import { IFormOptions } from "devextreme-react/form";
 import { IPopupOptions } from "devextreme-react/popup";
@@ -38,6 +38,7 @@ interface GridViewProps {
   storeKey: string;
   onEditRow?: (e: any) => void;
   customCard: (item: any) => ReactNode;
+  defaultOption: string;
 }
 
 export const BaseCardView = ({
@@ -61,6 +62,7 @@ export const BaseCardView = ({
   onEditRow,
   customToolbarItems,
   customCard,
+  defaultOption,
 }: GridViewProps) => {
   const listOption = [
     {
@@ -73,27 +75,39 @@ export const BaseCardView = ({
     },
   ];
 
-  const [currentOption, setCurrentOption] = useState<string>("table");
+  const [currentOption, setCurrentOption] = useState<string>(defaultOption);
 
   return (
     <>
       <div className="flex justify-between p-2">
-        <div className="bg-yellow-500 p-2">Sort</div>
+        <div></div>
         <SelectBox
           id="custom-templates"
           dataSource={listOption}
           displayExpr="display"
           valueExpr="value"
-          defaultValue={listOption[1].value}
+          defaultValue={defaultOption}
           onValueChanged={(e: any) => {
             setCurrentOption(e.value);
           }}
         />
       </div>
       {currentOption == "card" ? (
-        dataSource.map((item: any) => {
-          return customCard(item);
-        })
+        <ScrollView
+          showScrollbar="always"
+          className={dataSource?.length > 0 ? "bg-slate-300" : ""}
+          height="100%"
+        >
+          {dataSource && dataSource.length > 0 ? (
+            dataSource.map((item: any) => {
+              return customCard(item);
+            })
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              Không có dữ liệu!
+            </div>
+          )}
+        </ScrollView>
       ) : (
         <GridViewPopup
           isLoading={isLoading}

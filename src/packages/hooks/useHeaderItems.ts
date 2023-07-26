@@ -18,14 +18,24 @@ export const useHeaderItems = () => {
   }>(() => {
     let mainItems: MenuBarItem[] = [
       {
+        text: t("Customer"),
+        path: "/customer",
+        permissionCode: "MNU_CUSTOMER",
+      },
+      {
+        text: t("Campaign"),
+        path: "/campaign",
+        permissionCode: "MNU_CUSTOMER",
+      },
+      {
         text: t("eTicket"),
         path: `/eticket`,
         permissionCode: "MNU_ETICKET",
       },
       {
-        text: t("Admin"),
-        path: `/admin`,
-        permissionCode: "MNU_ADMIN",
+        text: t("Monitor"),
+        path: `/monitor`,
+        permissionCode: "MNU_MONITOR",
       },
       {
         text: t("Report"),
@@ -33,9 +43,9 @@ export const useHeaderItems = () => {
         permissionCode: "MNU_REPORT",
       },
       {
-        text: t("Customer"),
-        path: "/customer",
-        permissionCode: "MNU_CUSTOMER",
+        text: t("Admin"),
+        path: `/admin`,
+        permissionCode: "MENU_ADMIN",
       },
     ].filter(
       (item) => item.permissionCode && hasMenuPermission(item.permissionCode)

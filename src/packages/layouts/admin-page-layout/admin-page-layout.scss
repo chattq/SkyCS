@@ -11,6 +11,24 @@
   }
 }
 .skycs {
+  .main-sidebar {
+    &.no-sidebar {
+      .dx-overlay {
+        &:before {
+
+        width: 0 !important;
+      }
+        
+      }
+      &.dx-drawer-overlap {
+        &.pre-init-blink-fix {
+          .dx-overlay-content {
+            width: 0 !important;
+          }
+        }
+      }
+    }
+  }
   .drawer {
     height: calc(100% - $header-bar-height);
     position: fixed;

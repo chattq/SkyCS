@@ -139,6 +139,9 @@ export const PopupView = ({
           item.editorOptions.readOnly = true;
         }
       }
+      if (["FlagActive"].includes(item.dataField)) {
+        item.editorOptions.value = true;
+      }
     },
     [value, flagCheckCRUD, detailForm]
   );

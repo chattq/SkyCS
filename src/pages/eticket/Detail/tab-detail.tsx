@@ -7,8 +7,6 @@ import { PartMessageList } from "./part-message-list";
 import { PartDetailInfo } from "./part-detail-info";
 import { Eticket } from "@/packages/types";
 export const Tab_Detail = ({ data }: { data: Eticket }) => {
-
-
     const windowSize = useWindowSize();
     const scrollHeight = windowSize.height - 100;
     return (

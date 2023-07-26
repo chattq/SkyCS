@@ -1,31 +1,36 @@
 import { Tabs } from "devextreme-react";
 import { useState } from "react";
-import { Tab_CustomerDetail } from "./tabs/Tab_CustomerDetail/Tab_CustomerDetail";
+import Tab_All from "./tabs/Tab_All/Tab_All";
+import Tab_CustomerCampaign from "./tabs/Tab_CustomerCampaign/Tab_CustomerCampaign";
+import Tab_CustomerContract from "./tabs/Tab_CustomerContact/Tab_CustomerContract";
+import Tab_CustomerDetail from "./tabs/Tab_CustomerDetail/Tab_CustomerDetail";
+import Tab_CustomerEticket from "./tabs/Tab_CustomerEticket/Tab_CustomerEticket";
 import Tab_CustomerHist from "./tabs/Tab_CustomerHist/Tab_CustomerHist";
+import Tab_CustomerHistCall from "./tabs/Tab_CustomerHistCall/Tab_CustomerHistCall";
 
 const Customer_Tabs = () => {
-  const [currentIndex, setCurrentIndex] = useState(4);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   const dataSource = [
     {
       id: 0,
       text: "Tất cả",
-      component: <></>,
+      component: <Tab_All />,
     },
     {
       id: 1,
       text: "Lịch sử cuộc gọi",
-      component: <></>,
+      component: <Tab_CustomerHistCall />,
     },
     {
       id: 2,
       text: "eTicket",
-      component: <></>,
+      component: <Tab_CustomerEticket />,
     },
     {
       id: 3,
       text: "Chiến dịch",
-      component: <></>,
+      component: <Tab_CustomerCampaign />,
     },
     {
       id: 4,
@@ -39,7 +44,11 @@ const Customer_Tabs = () => {
     {
       id: 5,
       text: "Danh sách liên hệ",
-      component: <></>,
+      component: (
+        <>
+          <Tab_CustomerContract />
+        </>
+      ),
     },
     {
       id: 6,

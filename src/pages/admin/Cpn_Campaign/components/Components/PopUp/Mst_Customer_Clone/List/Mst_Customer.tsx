@@ -31,7 +31,7 @@ import { useFormSettings } from "../components/use-form-settings";
 import { convertDate, flagEditorOptions } from "@/packages/common";
 import { SearchPanelV2 } from "@/packages/ui/search-panel";
 import { IItemProps } from "devextreme-react/form";
-import { flagCustomer } from "@/pages/Mst_Customer/components/Customer/store";
+import { flagCustomer } from "@skycs-pages/Mst_Customer/components/store";
 import { useColumnsSearch } from "../components/use-columns-search";
 import { distinguish } from "@/components/ulti";
 import { GridViewRaw } from "@/packages/ui/base-gridview/GridViewRaw";

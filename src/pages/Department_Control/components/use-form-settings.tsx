@@ -9,10 +9,12 @@ import { useCallback, useRef, useState } from "react";
 
 interface Mst_DepartmentControlColumnsProps {
   data: any;
+  listDepartmentControl: any;
 }
 
 export const useFormSettings = ({
   data,
+  listDepartmentControl,
 }: Mst_DepartmentControlColumnsProps) => {
   const { t } = useI18n("Department_Control");
 
@@ -48,6 +50,19 @@ export const useFormSettings = ({
               caption: t("DepartmentName"),
               visible: true,
               validationRules: [requiredType],
+            },
+            {
+              dataField: "DepartmentCodeParent",
+              editorOptions: {
+                placeholder: t("Input"),
+                invalidDateMessage: [requiredType],
+                dataSource: listDepartmentControl ?? [],
+                valueExpr: "DepartmentCode",
+                displayExpr: "DepartmentName",
+              },
+              editorType: "dxSelectBox",
+              caption: t("DepartmentCodeParent"),
+              visible: true,
             },
             {
               dataField: "FlagActive",
@@ -86,60 +101,41 @@ export const useFormSettings = ({
       typeForm: "TableForm",
       items: [
         {
-          dataField: "Email",
+          dataField: "EMail",
           width: 180,
           editorOptions: {
-            dataSource: data ?? [],
-            displayExpr: "EMail",
-            valueExpr: "EMail",
             readOnly: false,
             placeholder: t("Input"),
           },
           editorType: "dxSelectBox",
-          caption: t("Email"),
+          caption: t("EMail"),
           visible: true,
-          validationRules: [RequiredField(t("EmailIsRequired"))],
-
-          setCellValue: (rowData: any, value: any, currentRowData: any) => {
-            rowData.Email = value;
-            if (data) {
-              rowData.FullName = data.filter(
-                (item: any) => item.EMail === rowData.Email
-              )[0].UserName;
-              rowData.UserCode = data.filter(
-                (item: any) => item.EMail === rowData.Email
-              )[0].UserCode;
-              rowData.PhoneNo = data.filter(
-                (item: any) => item.EMail === rowData.Email
-              )[0].PhoneNo;
-            }
-          },
+          // validationRules: [RequiredField(t("EmailIsRequired"))],
+          // setCellValue: (rowData: any, value: any, currentRowData: any) => {
+          //   rowData.Email = value;
+          //   if (data) {
+          //     rowData.FullName = data.filter(
+          //       (item: any) => item.EMail === rowData.Email
+          //     )[0].UserName;
+          //     rowData.UserCode = data.filter(
+          //       (item: any) => item.EMail === rowData.Email
+          //     )[0].UserCode;
+          //     rowData.PhoneNo = data.filter(
+          //       (item: any) => item.EMail === rowData.Email
+          //     )[0].PhoneNo;
+          //   }
+          // },
         },
         {
-          dataField: "UserCode",
+          dataField: "UserName",
           editorOptions: {
-            readOnly: true,
-            placeholder: t("Input"),
-          },
-          width: 180,
-          editorType: "dxTextBox",
-          caption: t("UserCode"),
-          visible: true,
-        },
-        {
-          dataField: "FullName",
-          editorOptions: {
-            dataSource: data,
-            displayExpr: "UserName",
-            valueExpr: "UserName",
             readOnly: true,
             placeholder: t("Input"),
           },
           width: 180,
           editorType: "dxSelectBox",
-          caption: t("FullName"),
+          caption: t("UserName"),
           visible: true,
-          validationRules: [RequiredField(t("FullNameIsRequired"))],
         },
 
         {

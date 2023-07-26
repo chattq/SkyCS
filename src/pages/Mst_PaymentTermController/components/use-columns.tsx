@@ -44,6 +44,16 @@ UseBankDealerGridColumnsProps) => {
       item: data,
     });
   };
+  const PTTypeData = [
+    {
+      text: "Sale",
+      value: "SALE",
+    },
+    {
+      text: "Purchase",
+      value: "PURCHASE",
+    },
+  ];
 
   const { t } = useI18n("Mst_PaymentTermController");
   const columns: ColumnOptions[] = [
@@ -52,7 +62,6 @@ UseBankDealerGridColumnsProps) => {
       dataField: "OrgID", // Mã ngân hàng
       caption: t("OrgID"),
       editorType: "dxTextBox",
-      validationRules: [requiredType],
       editorOptions: {
         readOnly: false,
         placeholder: t("Input"),
@@ -96,8 +105,11 @@ UseBankDealerGridColumnsProps) => {
       groupKey: "BASIC_INFORMATION",
       dataField: "PTType", // Mã đại lý
       caption: t("PTType"),
-      editorType: "dxTextBox",
+      editorType: "dxSelectBox",
       editorOptions: {
+        dataSource: PTTypeData,
+        valueExpr: "value",
+        displayExpr: "text",
         readOnly: false,
         placeholder: t("Input"),
       },

@@ -291,6 +291,20 @@ export const EditForm = memo(
     }
 
     useEffect(() => {
+      if (
+        ![
+          "SELECTONERADIO",
+          "SELECTONEDROPDOWN",
+          "SELECTMULTIPLESELECTBOX",
+          "SELECTMULTIPLEDROPDOWN",
+        ].includes(dataTypeValue)
+      ) {
+        unregister("ListOption");
+        unregister("DefaultIndex");
+      }
+    }, [dataTypeValue]);
+
+    useEffect(() => {
       if (!["SELECTMULTIPLE", "SELECTONE"].includes(dataTypeValue)) {
         if (currentItem.JsonListOption) {
           const value = JSON.parse(currentItem.JsonListOption);
@@ -302,6 +316,8 @@ export const EditForm = memo(
         }
       }
     }, [dataTypeValue]);
+
+    console.log("dataTypeValue ", dataTypeValue);
 
     return (
       <Popup
@@ -381,7 +397,7 @@ export const EditForm = memo(
                 required: { value: true, message: "CampaignColCfgDataType" },
               }}
             />
-            {(dataTypeValue === "SELECTONERADIO" ||
+            {(dataTypeValue === "SELECTONEDROPDOWN" ||
               dataTypeValue === "SELECTONERADIO") &&
               renderSelectOneField()}
             {(dataTypeValue === "SELECTMULTIPLEDROPDOWN" ||
@@ -456,7 +472,8 @@ export const EditForm = memo(
                 </Button>
               </div>
             )}
-            {dataTypeValue === "MASTERDATA" && (
+            {(dataTypeValue === "MASTERDATA" ||
+              dataTypeValue === "MASTERDATASELECTMULTIPLE") && (
               <Controller
                 name={"DataSource"}
                 control={control}

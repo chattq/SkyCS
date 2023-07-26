@@ -54,10 +54,12 @@ export const defaultSLAHeaderForm: formValue = {
 export const headerForm = atom<formValue>(defaultSLAHeaderForm);
 
 interface ticketInfo {
-  TicketType: [];
-  TicketCustomType: [];
-  Customer: [];
-  CustomerGroup: [];
+  TicketType: any[];
+  TicketCustomType: any[];
+  Customer: any[];
+  CustomerGroup: any[];
+  CustomerEnterprise: any[];
+  CustomerEnterpriseGroup: any[];
 }
 
 export const defaultTicketInfo: ticketInfo = {
@@ -65,6 +67,8 @@ export const defaultTicketInfo: ticketInfo = {
   TicketCustomType: [],
   Customer: [],
   CustomerGroup: [],
+  CustomerEnterprise: [],
+  CustomerEnterpriseGroup: [],
 };
 
 export const ticketInfo = atom<ticketInfo>(defaultTicketInfo);

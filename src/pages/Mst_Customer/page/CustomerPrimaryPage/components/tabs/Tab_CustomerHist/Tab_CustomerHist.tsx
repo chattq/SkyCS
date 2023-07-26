@@ -22,9 +22,9 @@ const Tab_CustomerHist = () => {
     return JSON.parse(item?.JsonCustomerInfoHist || "[]");
   });
 
-  console.log(result);
-
-  const columns = useMst_CustomerHist_Column({ data: data?.DataList || [] });
+  const columns: any = useMst_CustomerHist_Column({
+    data: data?.DataList || [],
+  });
 
   return (
     <div className="w-full">

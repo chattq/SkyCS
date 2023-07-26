@@ -8,6 +8,7 @@ import { DepartMentControlPopupView } from "@/pages/Department_Control/component
 import {
   dataFormAtom,
   dataTableAtom,
+  dataTableUserAtom,
   flagEdit,
   selectedItemsAtom,
   showDetail,
@@ -17,7 +18,7 @@ import { HeaderPart } from "@/pages/Department_Control/components/header-part";
 import { searchPanelVisibleAtom } from "@layouts/content-searchpanel-layout";
 import { useConfiguration, useVisibilityControl } from "@packages/hooks";
 import { logger } from "@packages/logger";
-import { showErrorAtom } from "@packages/store";
+import { authAtom, showErrorAtom } from "@packages/store";
 import {
   FlagActiveEnum,
   Mst_Dealer,
@@ -35,6 +36,7 @@ import { useDepartMentGridColumns } from "../components/use-columns";
 import { useFormSettings } from "../components/use-form-settings";
 import { DataGrid, LoadPanel } from "devextreme-react";
 import { showPopup } from "../components/store";
+import { GridViewCustomize } from "@/packages/ui/base-gridview/gridview-customize";
 
 export const Department_ControlPage = () => {
   const { t } = useI18n("Department_Control");
@@ -43,9 +45,10 @@ export const Department_ControlPage = () => {
   const showError = useSetAtom(showErrorAtom);
   const setPopupVisible = useSetAtom(showPopup);
   const setShowDetail = useSetAtom(showDetail);
-  const setDataTable = useSetAtom(dataTableAtom);
+  const setDataTable = useSetAtom(dataTableUserAtom);
   const setDataForm = useSetAtom(dataFormAtom);
   const setFlag = useSetAtom(flagEdit);
+  const auth = useAtomValue(authAtom);
 
   const [searchCondition, setSearchCondition] = useState<SearchParam>({
     FlagActive: FlagActiveEnum.All,
@@ -76,18 +79,25 @@ export const Department_ControlPage = () => {
   const { data: listUser } = useQuery(["listUser"], () =>
     api.Sys_User_GetAllActive()
   );
+  const { data: listDepartmentControl } = useQuery(
+    ["listDepartmentControl"],
+    () => api.Mst_DepartmentControl_GetAllActive()
+  );
 
   const columns = useDepartMentGridColumns({ data: data?.DataList });
-  const formSettings = useFormSettings({ data: listUser?.DataList });
+  const formSettings = useFormSettings({
+    data: listUser?.DataList,
+    listDepartmentControl: listDepartmentControl?.DataList,
+  });
 
   const handleSelectionChanged = (rows: string[]) => {
     setSelectedItems(rows);
   };
   const handleAddNew = () => {
+    setPopupVisible(true);
     setFlag(true);
     setDataTable([]);
     setDataForm([]);
-    setPopupVisible(true);
     setShowDetail(false);
     // gridRef.current?._instance?.addRow();
   };
@@ -119,14 +129,24 @@ export const Department_ControlPage = () => {
       e.editorOptions.value = "0";
     }
   };
-  const handleOnEditRow = async (e: any) => {
+
+  const handleOnEditRow = async (DepartmentCode: any) => {
     setFlag(false);
     setShowDetail(false);
     const resp = await api.Mst_DepartmentControl_GetByDepartmentCode(
-      e.row.data.DepartmentCode
+      DepartmentCode
     );
     if (resp.isSuccess) {
-      setDataTable(resp.Data?.Lst_Sys_UserMapDepartment);
+      setDataTable(
+        resp?.Data?.Lst_Sys_UserMapDepartment.map((item: any) => {
+          return {
+            UserCode: item.UserCode,
+            UserName: item.FullName,
+            EMail: item.Email,
+            PhoneNo: item.PhoneNo,
+          };
+        })
+      );
       setDataForm({
         ...resp.Data?.Mst_Department,
         FlagActive: resp.Data?.Mst_Department.FlagActive === "1" ? true : false,
@@ -142,7 +162,6 @@ export const Department_ControlPage = () => {
     ) {
       const resp = await api.Mst_DepartmentControl_Update({
         ...data,
-        FlagActive: data.FlagActive === "true" ? "1" : "0",
       });
       if (resp.isSuccess) {
         toast.success(t("Update Successfully"));
@@ -167,7 +186,6 @@ export const Department_ControlPage = () => {
     ) {
       const resp = await api.Mst_DepartmentControl_Create({
         ...data,
-        FlagActive: data.FlagActive === "true" ? "1" : "0",
       });
 
       if (resp.isSuccess) {
@@ -232,12 +250,14 @@ export const Department_ControlPage = () => {
     });
     // await refetch();
   };
-  const handleEditRowChanges = () => {};
 
   const loadingControl = useVisibilityControl({ defaultVisible: false });
-  const handleDeleteRows = async (ids: any) => {
+  const handleDeleteRows = async (ids: any, orgId: any) => {
     // loadingControl.open();
-    const resp = await api.Mst_DepartmentControl_Delete(ids[0]);
+    const resp = await api.Mst_DepartmentControl_Delete({
+      OrgID: orgId,
+      DepartmentCode: ids,
+    });
     // loadingControl.close();
     if (resp.isSuccess) {
       toast.success(t("Delete Successfully"));
@@ -251,17 +271,20 @@ export const Department_ControlPage = () => {
     });
     throw new Error(resp.errorCode);
   };
+  const handleEditRowChanges = () => {};
+  const handleDeleteRowsOld = () => {};
+  const handleOnEditRowOld = () => {};
   return (
     <AdminContentLayout className={"Department_Control"}>
       <AdminContentLayout.Slot name={"Header"}>
         <HeaderPart onAddNew={handleAddNew}></HeaderPart>
       </AdminContentLayout.Slot>
       <AdminContentLayout.Slot name={"Content"}>
-        <GridViewPopup
+        <GridViewCustomize
           isLoading={isLoading}
           dataSource={data?.isSuccess ? data.DataList ?? [] : []}
           columns={columns}
-          keyExpr={"DepartmentCode"}
+          keyExpr={["DepartmentCode"]}
           formSettings={formSettings}
           onReady={(ref) => (gridRef = ref)}
           allowSelection={true}
@@ -269,9 +292,36 @@ export const Department_ControlPage = () => {
           onSaveRow={handleSavingRow}
           onEditorPreparing={handleEditorPreparing}
           onEditRowChanges={handleEditRowChanges}
-          onDeleteRows={handleDeleteRows}
-          onEditRow={handleOnEditRow}
+          onDeleteRows={handleDeleteRowsOld}
+          onEditRow={handleOnEditRowOld}
           storeKey={"department-control-columns"}
+          isShowEditting={false}
+          customToolbarItems={[
+            {
+              text: t("Edit"),
+              shouldShow: (ref: any) => {
+                return ref.instance.getSelectedRowKeys().length === 1;
+              },
+              onClick: (e: any, ref: any) => {
+                const selectedRow = ref.instance.getSelectedRowsData();
+                handleOnEditRow(selectedRow[0].DepartmentCode);
+              },
+            },
+            {
+              text: t("Delete"),
+              shouldShow: (ref: any) => {
+                return ref.instance.getSelectedRowKeys().length === 1;
+              },
+              onClick: (e: any, ref: any) => {
+                const selectedRow = ref.instance.getSelectedRowsData();
+                handleDeleteRows(
+                  selectedRow[0].DepartmentCode,
+                  selectedRow[0].OrgID
+                );
+              },
+            },
+          ]}
+          isSingleSelection
         />
         <DepartMentControlPopupView
           onEdit={onModifyNew}

@@ -13,6 +13,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ToolbarItemProps } from "@/packages/ui/base-gridview";
 import { logger } from "@/packages/logger";
 import {
+  activeInputAtom,
   dataBotton,
   dataFormAtom,
   dataTableAtom,
@@ -32,6 +33,7 @@ export interface DealerPopupViewProps {
   formSettings: any;
   title: string;
   onCreate: any;
+  formRef: any;
 }
 
 export const PopupView = ({
@@ -39,38 +41,32 @@ export const PopupView = ({
   formSettings,
   title,
   onCreate,
+  formRef,
 }: DealerPopupViewProps) => {
   const popupVisible = useAtomValue(showPopup);
-  // const valueBotton = useAtomValue(dataBotton);
-  // console.log(valueBotton);
-  const selectedItems = useAtomValue(selectedItemsAtom);
-  const formRef = useRef<any>();
+  const [value, setValue] = useState("");
   const ref = useRef<any>();
   const validateRef = useRef<any>();
   const { t } = useI18n("Common");
   const dataRef = useRef<any>(null);
-  const [viewingItem, setViewingItem] = useAtom(viewingDataAtom);
   const setPopupVisible = useSetAtom(showPopup);
-  const [dataTable, setDataTable] = useAtom(dataTableAtom);
   const [dataForm, setDataForm] = useAtom(dataFormAtom);
   const flagCheckCRUD = useAtomValue(flagEdit);
-  const dataGrid = useAtomValue(dataGridAtom);
+  const activeInput = useAtomValue(activeInputAtom);
   const detailForm = useAtomValue(showDetail);
   const readonly = useAtomValue(readOnly);
 
   const api = useClientgateApi();
-  const { data: listNNT } = useQuery(
-    ["listNNTControl", viewingItem.item?.MST],
-    () => api.Mst_NNTController_GetNNTCode(viewingItem.item?.MST)
-  );
 
-  useEffect(() => {
-    setDataTable(listNNT?.Data);
-    setDataForm(listNNT?.Data);
-  }, [listNNT?.Data]);
+  const { data: listOrgNNTActive } = useQuery(["listOrgIDNNTActive"], () =>
+    api.MstOrg_GetOrgsNotInSolution()
+  );
+  const { data: listNNTActive } = useQuery(["listNNTActive"], () =>
+    api.Mst_NNTController_GetAllActive()
+  );
   const handleCancel = () => {
     setPopupVisible(false);
-    dataGrid.current?.instance.deselectRows(selectedItems[0]);
+    // dataGrid.current?.instance.deselectRows(selectedItems[0]);
   };
 
   const toolbarItems: ToolbarItemProps[] = [
@@ -93,17 +89,18 @@ export const PopupView = ({
     },
   ];
 
-  // console.log(79, valueBotton);
   const handleSubmitPopup = (e: any) => {
     const dataForm = new FormData(formRef.current);
     const dataSaveForm: any = Object.fromEntries(dataForm.entries()); // chuyển thành form chính
     validateRef.current.instance.validate();
+    const invalidate = validateRef.current.instance.validate();
     const dataSave = {
       ...dataSaveForm,
+      invalidate: invalidate.isValid,
     };
     if (flagCheckCRUD) {
       onCreate(dataSave);
-    } else {
+    } else if (!flagCheckCRUD) {
       onEdit(dataSave);
     }
   };
@@ -130,20 +127,71 @@ export const PopupView = ({
     e.cancel = true;
   };
 
-  const customizeItem = (item: any) => {
-    if (["MST"].includes(item.dataField) && readonly === false) {
-      item.editorOptions.readOnly = true;
-    } else if (["MST"].includes(item.dataField) && readonly === true) {
-      item.editorOptions.readOnly = false;
-    }
-    if (item.dataField === "FlagActive") {
-      item.editorOptions.value = true;
-    }
-  };
+  const customizeItem = useCallback(
+    (item: any) => {
+      if (["OrgID"].includes(item.dataField) && readonly === false) {
+        item.editorOptions.readOnly = true;
+        // item.editorOptions.dataSource = listNNTActive?.DataList ?? [];
+        // item.editorOptions.displayExpr = "OrgID";
+        // item.editorOptions.valueExpr = "OrgID";
+      }
+      if (item.dataField === "FlagActive") {
+        item.editorOptions.value = true;
+      }
+      if (["MST"].includes(item.dataField) && readonly === false) {
+        item.editorOptions.readOnly = true;
+      } else if (["MST"].includes(item.dataField) && readonly === true) {
+        item.editorOptions.readOnly = false;
+      }
+      if (
+        ["NNTFullName", "NNTAddress"].includes(item.dataField) &&
+        readonly === false
+      ) {
+        item.editorOptions.readOnly = true;
+      }
+      if (
+        ["OrgID", "NNTFullName", "NNTAddress"].includes(item.dataField) &&
+        readonly === true
+      ) {
+        item.editorOptions.readOnly = false;
+      }
+      if (
+        ["NNTFullName", "NNTAddress"].includes(item.dataField) &&
+        activeInput === true
+      ) {
+        item.editorOptions.readOnly = false;
+      }
+    },
+    [dataForm, listNNTActive?.DataList, activeInput]
+  );
 
-  const handleFieldDataChanged = useCallback((changedData: any) => {
-    // Handle the changed field data
-  }, []);
+  const handleFieldDataChanged = useCallback(
+    (changedData: any) => {
+      if (changedData.dataField === "OrgID") {
+        setValue(changedData.value);
+        if (
+          listOrgNNTActive?.Data?.Lst_Mst_Org.find(
+            (item: any) => item.Id === Number(changedData.value)
+          )
+        ) {
+          setValue(changedData.value);
+          const dataLookUP = listOrgNNTActive?.Data?.Lst_Mst_Org.find(
+            (item: any) => item.Id === Number(changedData.value)
+          );
+          console.log(dataLookUP);
+          setDataForm({
+            ...dataLookUP,
+            OrgID: dataLookUP.Id.toString(),
+            NNTFullName: dataLookUP.Name ?? "",
+            ContactEmail: dataLookUP.Email ?? "",
+            ContactPhone: dataLookUP.PhoneNo ?? "",
+            FlagActive: dataLookUP.FlagActive === null ? false : true,
+          });
+        }
+      }
+    },
+    [listOrgNNTActive?.Data?.Lst_Mst_Org]
+  );
 
   return (
     <Popup
@@ -161,7 +209,7 @@ export const PopupView = ({
           location: "after",
           widget: "dxButton",
           options: {
-            text: flagCheckCRUD ? t("Save") : t("Edit"),
+            text: t("Save"),
             stylingMode: "contained",
             type: "count",
             onClick: handleSubmitPopup,
@@ -217,58 +265,6 @@ export const PopupView = ({
               })}
           </Form>
         </form>
-        <div
-          className={`mt-2 hidden ${
-            formSettings.filter((item: any) => item.typeForm === "TableForm")[0]
-              .hidden
-              ? "hidden"
-              : ""
-          }`}
-        >
-          <DataGrid
-            ref={dataRef}
-            id="gridContainer"
-            dataSource={[]}
-            keyExpr="ID"
-            onSaved={innerSavingRowHandler}
-            noDataText={t("There is no data")}
-            remoteOperations={false}
-            columnAutoWidth={true}
-            repaintChangesOnly
-            allowColumnReordering={true}
-            showColumnLines
-            showRowLines
-            showBorders
-            width={"100%"}
-          >
-            <Toolbar>
-              {!!toolbarItems &&
-                toolbarItems.map((item, index) => {
-                  return (
-                    <Item key={index} location={item.location}>
-                      {item.widget === "dxButton" && (
-                        <Button {...item.options} />
-                      )}
-                      {!!item.render && item.render()}
-                    </Item>
-                  );
-                })}
-            </Toolbar>
-            <Editing
-              mode="row"
-              allowUpdating={true}
-              allowDeleting={true}
-              allowAdding={true}
-            />
-            {formSettings
-              .filter((item: any) => item.typeForm === "TableForm")
-              .map((value: any) =>
-                value.items.map((item: any) => {
-                  return <Column key={item.caption} {...item} />;
-                })
-              )}
-          </DataGrid>
-        </div>
       </ScrollView>
     </Popup>
   );

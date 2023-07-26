@@ -46,6 +46,7 @@ export interface Response<T> {
   Success: boolean;
   Data: T;
   ErrorData: null;
+  ErrorMessage?: string
 }
 export interface OrgInfo {
   NetworkId: string;

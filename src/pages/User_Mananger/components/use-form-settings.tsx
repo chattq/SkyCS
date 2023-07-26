@@ -2,11 +2,14 @@ import { useI18n } from "@/i18n/useI18n";
 import {
   RequiredField,
   requiredEmailType,
+  requiredType,
 } from "@/packages/common/Validation_Rules";
 import UploadAvatar from "./UploadAvatar";
+import { useAtomValue } from "jotai";
+import { authAtom } from "@/packages/store";
 
 export const useFormSettings = ({
-  data,
+  dataMST,
   dataListDepartment,
   dataListGroup,
 }: any) => {
@@ -58,6 +61,15 @@ export const useFormSettings = ({
               visible: true,
             },
             {
+              dataField: "ACId",
+              editorOptions: {
+                placeholder: t("Input"),
+              },
+              editorType: "dxTextBox",
+              caption: t("ACId"),
+              visible: true,
+            },
+            {
               dataField: "UserPassword",
               editorOptions: {
                 placeholder: t("Input"),
@@ -68,7 +80,7 @@ export const useFormSettings = ({
               validationRules: [RequiredField(t("UserPasswordIsRequired"))],
             },
             {
-              dataField: "REUserPassword",
+              dataField: "ReUserPassword",
               editorOptions: {
                 placeholder: t("Input"),
               },
@@ -76,13 +88,14 @@ export const useFormSettings = ({
               label: {
                 text: t("Re-Enter the password"),
               },
-              caption: t("REUserPassword"),
+              caption: t("ReUserPassword"),
               visible: true,
+              validationRules: [requiredType],
             },
             {
               dataField: "ACLanguage",
               editorOptions: {
-                dataSource: [{ text: t("Tiếng Việt"), value: "vn" }],
+                dataSource: [{ text: t("Tiếng Việt"), value: "vi" }],
                 displayExpr: "text",
                 valueExpr: "value",
                 placeholder: t("Input"),
@@ -91,14 +104,6 @@ export const useFormSettings = ({
               caption: t("ACLanguage"),
               visible: true,
             },
-          ],
-        },
-        {
-          itemType: "group",
-          caption: t("BASIC_INFORMATION"),
-          colSpan: 2,
-          cssClass: "",
-          items: [
             {
               dataField: "ACTimeZone",
               editorOptions: {
@@ -111,13 +116,37 @@ export const useFormSettings = ({
               caption: t("ACTimeZone"),
               visible: true,
             },
+          ],
+        },
+        {
+          itemType: "group",
+          caption: t("BASIC_INFORMATION"),
+          colSpan: 2,
+          cssClass: "",
+          items: [
+            // {
+            //   dataField: "OrgID",
+            //   editorOptions: {
+            //     items: [auth],
+            //     displayExpr: "orgId",
+            //     valueExpr: "orgId",
+            //     placeholder: t("Input"),
+            //   },
+            //   editorType: "dxSelectBox",
+            //   caption: t("OrgID"),
+            //   visible: true,
+            //   validationRules: [RequiredField(t("OrgIDisRequired"))],
+            // },
             {
               dataField: "MST",
               editorOptions: {
-                items: data,
-                displayExpr: "MST",
-                valueExpr: "MST",
                 placeholder: t("Input"),
+                dataSource: dataMST ?? [],
+                displayExpr: "NNTFullName",
+                valueExpr: "MST",
+              },
+              label: {
+                text: t("Chi nhánh"),
               },
               editorType: "dxSelectBox",
               caption: t("MST"),
@@ -128,7 +157,7 @@ export const useFormSettings = ({
               dataField: "DepartmentName",
               editorOptions: {
                 placeholder: t("Select"),
-                dataSource: dataListDepartment,
+                dataSource: dataListDepartment ?? [],
                 displayExpr: "DepartmentName",
                 valueExpr: "DepartmentCode",
                 searchEnabled: true,
@@ -140,7 +169,7 @@ export const useFormSettings = ({
             {
               dataField: "GroupName",
               editorOptions: {
-                dataSource: dataListGroup,
+                dataSource: dataListGroup ?? [],
                 displayExpr: "GroupName",
                 valueExpr: "GroupCode",
                 placeholder: t("Select"),

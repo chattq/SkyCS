@@ -16,20 +16,15 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ToolbarItemProps } from "@/packages/ui/base-gridview";
 import { logger } from "@/packages/logger";
 import {
-  AvatarData,
-  avatar,
-  checkDataPopPup,
+  bottomAtom,
   dataFormAtom,
-  dataTableAtom,
-  fileAtom,
-  flagEdit,
+  flagEditAtom,
   showDetail,
   showPopup,
 } from "./store";
 import { useClientgateApi } from "@/packages/api";
 import { useQuery } from "@tanstack/react-query";
 import { viewingDataAtom } from "@/pages/User_Mananger/components/store";
-import UploadAvatar from "./UploadAvatar";
 import { Icon } from "@/packages/ui/icons";
 
 export interface DealerPopupViewProps {
@@ -46,211 +41,100 @@ export const PopupView = ({
   title,
 }: DealerPopupViewProps) => {
   const popupVisible = useAtomValue(showPopup);
-  const flagCheckCRUD = useAtomValue(flagEdit);
   const formRef = useRef<any>();
-  const ref = useRef<any>();
   const validateRef = useRef<any>();
   const { t } = useI18n("Common");
-  const dataRef = useRef<any>(null);
   const detailForm = useAtomValue(showDetail);
-  const [viewingItem, setViewingItem] = useAtom(viewingDataAtom);
-  const [dataTable, setDataTable] = useAtom(dataTableAtom);
-  const [dataForm, setDataForm] = useAtom(dataFormAtom);
+  const flagEdit = useAtomValue(flagEditAtom);
+  const bottom = useAtomValue(bottomAtom);
+  const dataFrom = useAtomValue(dataFormAtom);
   const setPopupVisible = useSetAtom(showPopup);
-  const setFile = useSetAtom(fileAtom);
-  const [value, setValue] = useState("");
-  const [derpartmentTag, setDerpartmentTag] = useState([]);
-  const [groupTag, setGroupTag] = useState([]);
-  const [avt, setAvt] = useAtom(avatar);
-
-  const api = useClientgateApi();
-
-  const { data: listUserActive } = useQuery(
-    ["listMst_DepartmentControl"],
-    () => api.Sys_User_GetAllActive() as any
-  );
+  const setflagEdit = useSetAtom(flagEditAtom);
+  const setshowDetail = useSetAtom(showDetail);
 
   const handleCancel = () => {
-    setFile(undefined);
     setPopupVisible(false);
+    setflagEdit(false);
+  };
+  const onNoClick = () => {
+    setPopupVisible(false);
+    setflagEdit(false);
   };
 
-  const toolbarItems: ToolbarItemProps[] = [
-    {
-      location: "before",
-      render: (e) => {
-        return <div>{t("Danh sách các thành viên")}</div>;
-      },
-    },
-    {
-      widget: "dxButton",
-      location: "after",
-      options: {
-        text: t("Thêm thành viên"),
-        stylingMode: "contained",
-        onClick: (e: any) => {
-          dataRef.current.instance.addRow();
-        },
-      },
-    },
-  ];
-
-  const handleSubmitPopup = useCallback(
-    async (e: any) => {
-      validateRef.current.instance.validate();
-      const dataForm = new FormData(formRef.current);
-      const dataSaveForm: any = Object.fromEntries(dataForm.entries()); // chuyển thành form chính
-
-      // randomPassword
-      const length = 10; // Specify the desired length of the password
-      const charset =
-        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()";
-      let newPassword = "";
-
-      for (let i = 0; i < length; i++) {
-        const randomIndex = Math.floor(Math.random() * charset.length);
-        newPassword += charset.charAt(randomIndex);
-      }
-      const repsUpload = await api.SysUserData_UploadFile(avt);
-      if (flagCheckCRUD) {
-        onCreate({
-          ...dataSaveForm,
-          Avatar: repsUpload?.Data?.FileUrlFS ?? "",
-          UserPassword: newPassword,
-          UserCode: dataSaveForm.EMail.split("@")[0] ?? "",
-          Lst_Sys_UserMapDepartment: derpartmentTag.map((item: any) => {
-            return {
-              UserCode: dataSaveForm.EMail.split("@")[0] ?? "",
-              DepartmentCode: item,
-            };
-          }),
-          Lst_Sys_UserInGroup: groupTag.map((item: any) => {
-            return {
-              UserCode: dataSaveForm.EMail.split("@")[0] ?? "",
-              GroupCode: item,
-            };
-          }),
-        });
-      } else {
-        onEdit({
-          ...dataSaveForm,
-          Avatar: repsUpload?.Data?.FileUrlFS
-            ? repsUpload?.Data?.FileUrlFS
-            : avt,
-          UserPassword: newPassword,
-          UserCode: dataSaveForm.EMail.split("@")[0] ?? "",
-          Lst_Sys_UserMapDepartment: derpartmentTag.map((item: any) => {
-            return {
-              UserCode: dataSaveForm.EMail.split("@")[0] ?? "",
-              DepartmentCode: item,
-            };
-          }),
-          Lst_Sys_UserInGroup: groupTag.map((item: any) => {
-            return {
-              UserCode: dataSaveForm.EMail.split("@")[0] ?? "",
-              GroupCode: item,
-            };
-          }),
-        });
-      }
-    },
-    [avt]
-  );
-
-  const handleDatatable = (e: any) => {
-    console.log(122, e.component.totalCount());
-  };
-  const innerSavingRowHandler = (e: any) => {
-    if (e.changes && e.changes.length > 0) {
-      // we don't enable batch mode, so only 1 change at a time.
-      const { type } = e.changes[0];
-      if (type === "insert" || type === "update") {
-        // pass handle to parent page
-        handleDatatable?.(e);
-      } else {
-        // set selected keys, then open the confirmation
-        // setDeletingId(e.changes[0].key);
-        // // show the confirmation box of Delete single case
-        // controlDeleteSingleConfirmBox.open();
-        // // this one to clear `changes` set from grid.
-        // dataGridRef.current?.instance.cancelEditData();
-      }
+  const handleSubmitPopup = (e: any) => {
+    const dataForm = new FormData(formRef.current);
+    const dataSaveForm: any = Object.fromEntries(dataForm.entries()); // chuyển thành form chính
+    validateRef.current.instance.validate();
+    const dataSave = {
+      ...dataSaveForm,
+      CategoryCode: validateRef.current.props.formData?.CategoryCode,
+    };
+    if (!flagEdit) {
+      onCreate(dataSave);
+    } else {
+      onEdit(dataSave);
     }
-    e.cancel = true;
   };
 
-  const customizeItem = useCallback(
-    (item: any) => {
-      if (
-        ["UserName", "PhoneNo", "ACLanguage", "ACTimeZone"].includes(
-          item.dataField
-        )
-      ) {
-        if (
-          listUserActive?.DataList?.find((item: any) => item.EMail === value)
-        ) {
-          item.editorOptions.readOnly = false;
-        }
-      }
-      if (item.dataField === "EMail") {
-        if (flagCheckCRUD === false) {
-          item.editorOptions.readOnly = true;
-        } else {
-          item.editorOptions.readOnly = false;
-        }
-      }
-    },
-    [value, flagCheckCRUD, detailForm]
-  );
+  const customizeItem = (item: any) => {
+    if (item.dataField === "FlagActive") {
+      item.editorOptions.value = dataFrom.FlagActive === "0" ? false : true;
+    }
+  };
 
-  const handleFieldDataChanged = useCallback(
-    (changedData: any) => {
-      // Handle the changed field data
-      if (changedData.dataField === "EMail") {
-        setValue(changedData.value);
-        if (
-          listUserActive.DataList.find(
-            (item: any) => item.ACEmail === changedData.value
-          )
-        ) {
-          setValue(changedData.value);
-          setDataForm(
-            listUserActive.DataList.find(
-              (item: any) => item.ACEmail === changedData.value
-            )
-          );
-        }
-      }
-      if (changedData.dataField === "DepartmentName") {
-        setDerpartmentTag(changedData.value);
-      }
-      if (changedData.dataField === "GroupName") {
-        setGroupTag(changedData.value);
-      }
-    },
-    [listUserActive?.DataList]
-  );
+  const handleFieldDataChanged = useCallback((changedData: any) => {
+    // Handle the changed field data
+  }, []);
+  const handleChangeEdit = () => {
+    setshowDetail(false);
+    setflagEdit(true);
+  };
+  const handleChangeEditData = () => {
+    const dataForm = new FormData(formRef.current);
+    const dataSaveForm: any = Object.fromEntries(dataForm.entries()); // chuyển thành form chính
+    validateRef.current.instance.validate();
+    const dataSave = {
+      ...dataSaveForm,
+      CategoryCode: validateRef.current.props.formData.CategoryCode,
+    };
+    onEdit(dataSave);
+  };
 
   return (
     <Popup
       visible={popupVisible}
       showTitle={true}
       title={title}
-      width={980}
+      showCloseButton={true}
+      onHiding={onNoClick}
+      width={600}
+      height={370}
       wrapperAttr={{
-        class: "popup-form-department",
+        class: "popup-form-Category",
       }}
       toolbarItems={[
         {
-          visible: !detailForm,
+          visible: bottom === false ? true : false,
           toolbar: "bottom",
           location: "after",
           widget: "dxButton",
           options: {
-            text: flagCheckCRUD ? t("Save") : t("Edit"),
+            text: !flagEdit ? t("Save") : t("Edit"),
             stylingMode: "contained",
             type: "count",
             onClick: handleSubmitPopup,
+          },
+        },
+        {
+          visible: bottom === true ? true : false,
+          toolbar: "bottom",
+          location: "after",
+          widget: "dxButton",
+          options: {
+            text: flagEdit ? t("Save") : t("Edit"),
+            stylingMode: "contained",
+            type: "count",
+            onClick: flagEdit ? handleChangeEditData : handleChangeEdit,
           },
         },
         {
@@ -266,106 +150,45 @@ export const PopupView = ({
       ]}
     >
       <ScrollView height={"100%"}>
-        <div className="flex justify-between">
-          <div>
-            <UploadAvatar
-              data={flagCheckCRUD ? undefined : avt}
-              setAvt={setAvt}
-            />
-          </div>
-          <div className="w-[77%]">
-            <form action="" ref={formRef} onSubmit={handleSubmitPopup}>
-              <Form
-                ref={validateRef}
-                validationGroup="customerData"
-                onInitialized={(e) => {
-                  validateRef.current = e.component;
-                }}
-                readOnly={detailForm}
-                formData={dataForm}
-                labelLocation="top"
-                customizeItem={customizeItem}
-                onFieldDataChanged={handleFieldDataChanged}
-              >
-                <SimpleItem />
-                {formSettings
-                  .filter((item: any) => item.typeForm === "textForm")
-                  .map((value: any) => {
-                    return (
-                      <GroupItem colCount={value.colCount}>
-                        {value.items.map((items: any) => {
-                          return (
-                            <GroupItem colSpan={items.colSpan}>
-                              {items.items.map((valueFrom: any) => {
-                                return (
-                                  <SimpleItem
-                                    key={valueFrom.caption}
-                                    {...valueFrom}
-                                  />
-                                );
-                              })}
-                            </GroupItem>
-                          );
-                        })}
-                      </GroupItem>
-                    );
-                  })}
-              </Form>
-            </form>
-            <div
-              className={`mt-2 hidden ${
-                formSettings.filter(
-                  (item: any) => item.typeForm === "TableForm"
-                )[0].hidden
-                  ? "hidden"
-                  : ""
-              }`}
+        <div className="w-full">
+          <form action="" ref={formRef} onSubmit={handleSubmitPopup}>
+            <Form
+              ref={validateRef}
+              validationGroup="customerData"
+              onInitialized={(e) => {
+                validateRef.current = e.component;
+              }}
+              readOnly={detailForm}
+              formData={dataFrom}
+              labelLocation="left"
+              customizeItem={customizeItem}
+              onFieldDataChanged={handleFieldDataChanged}
             >
-              <DataGrid
-                ref={dataRef}
-                id="gridContainer"
-                dataSource={dataTable}
-                keyExpr="ID"
-                onSaved={innerSavingRowHandler}
-                noDataText={t("There is no data")}
-                remoteOperations={false}
-                columnAutoWidth={true}
-                repaintChangesOnly
-                allowColumnReordering={true}
-                showColumnLines
-                showRowLines
-                showBorders
-                width={"100%"}
-              >
-                <Toolbar>
-                  {!!toolbarItems &&
-                    toolbarItems.map((item, index) => {
-                      return (
-                        <Item key={index} location={item.location}>
-                          {item.widget === "dxButton" && (
-                            <Button {...item.options} />
-                          )}
-                          {!!item.render && item.render()}
-                        </Item>
-                      );
-                    })}
-                </Toolbar>
-                <Editing
-                  mode="row"
-                  allowUpdating={!detailForm}
-                  allowDeleting={!detailForm}
-                  allowAdding={!detailForm}
-                />
-                {formSettings
-                  .filter((item: any) => item.typeForm === "TableForm")
-                  .map((value: any) =>
-                    value.items.map((item: any) => {
-                      return <Column key={item.caption} {...item} />;
-                    })
-                  )}
-              </DataGrid>
-            </div>
-          </div>
+              <SimpleItem />
+              {formSettings
+                .filter((item: any) => item.typeForm === "textForm")
+                .map((value: any, index: any) => {
+                  return (
+                    <GroupItem colCount={value.colCount} key={index}>
+                      {value.items.map((items: any) => {
+                        return (
+                          <GroupItem colSpan={items.colSpan}>
+                            {items.items.map((valueFrom: any) => {
+                              return (
+                                <SimpleItem
+                                  key={valueFrom.caption}
+                                  {...valueFrom}
+                                />
+                              );
+                            })}
+                          </GroupItem>
+                        );
+                      })}
+                    </GroupItem>
+                  );
+                })}
+            </Form>
+          </form>
         </div>
       </ScrollView>
     </Popup>

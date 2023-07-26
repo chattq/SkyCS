@@ -18,3 +18,4 @@ export const normalGridDeleteSingleConfirmationBoxAtom = atom<boolean>(false);
 export const normalGridSingleDeleteItemAtom = atom<string>("");
 export const dataGridAtom = atom<any>(undefined);
 export const SelectionKeyAtom = atom<any>(undefined);
+export const hidenMoreAtom = atom<any>("");

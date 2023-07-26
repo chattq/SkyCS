@@ -1,4 +1,3 @@
-import { AdminPage } from "@/pages";
 import { Mst_CustomerList } from "@/pages/Mst_Customer";
 import Customer_Detail from "@/pages/Mst_Customer/page/CustomerEditPage/CustomerEditPage";
 import { CustomerPrimaryPage } from "@/pages/Mst_Customer/page/CustomerPrimaryPage/CustomerPrimaryPage";
@@ -11,12 +10,12 @@ export const customerRoutes: RouteItem[] = [
     mainMenuTitle: "customer",
     mainMenuKey: "customer",
     permissionCode: "",
-    getPageElement: () => <AdminPage />,
+    getPageElement: () => <Mst_CustomerList />,
   },
   {
     key: "Mst_Customer",
     path: "customer/list",
-    subMenuTitle: "Mst_Customer",
+    subMenuTitle: "",
     mainMenuKey: "customer",
     permissionCode: "",
     getPageElement: () => <Mst_CustomerList />,
@@ -30,7 +29,7 @@ export const customerRoutes: RouteItem[] = [
   },
   {
     key: "Mst_Customer",
-    path: "customer/:type/:CustomerCodeSys?",
+    path: "customer/:type/:CustomerCodeSys?/:nav?",
     subMenuTitle: "",
     mainMenuKey: "customer",
     getPageElement: () => <Customer_Detail />,

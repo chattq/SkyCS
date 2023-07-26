@@ -1,23 +1,15 @@
+import { useClientgateApi } from "@/packages/api";
 import { useRef, useState } from "react";
-import { match } from "ts-pattern";
 
 export const AvatarField = ({ component, formData, field, editType }: any) => {
   const defaultAvatar =
     "https://tse2.mm.bing.net/th?id=OIP.udoq18uxDpu6UHi2H__97gAAAA&pid=Api&P=0&h=180";
 
-  const defaultValue = match(typeof formData[field.ColCodeSys])
-    .with("undefined", () => {
-      return defaultAvatar;
-    })
-    .with("string", () => {
-      return formData[field.ColCodeSys];
-    })
-    .with("object", () => {
-      return defaultAvatar;
-    })
-    .otherwise(() => defaultAvatar);
+  const [avatar, setAvatar] = useState<any>(
+    formData[field.ColCodeSys] ?? defaultAvatar
+  );
 
-  const [avatar, setAvatar] = useState<any>(defaultValue);
+  const api = useClientgateApi();
 
   // setFormValue(formData);
   const imgRef: any = useRef();
@@ -26,12 +18,14 @@ export const AvatarField = ({ component, formData, field, editType }: any) => {
     imgRef.current?.click();
   };
 
-  const onFileChange = (event: any) => {
+  const onFileChange = async (event: any) => {
     const fileFromLocal = event.target.files?.[0];
     if (fileFromLocal) {
-      setAvatar(URL.createObjectURL(fileFromLocal));
-      component?.updateData(field.ColCodeSys, fileFromLocal);
-      component?.updateData("AVATAR", fileFromLocal);
+      const resp: any = await api.SysUserData_UploadFile(fileFromLocal);
+      if (resp?.isSuccess) {
+        setAvatar(resp?.Data?.FileUrlFS);
+        component?.updateData(field.ColCodeSys, resp?.Data?.FileUrlFS);
+      }
     }
   };
 

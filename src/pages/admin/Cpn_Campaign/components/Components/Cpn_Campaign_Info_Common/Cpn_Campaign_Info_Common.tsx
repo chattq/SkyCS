@@ -1,6 +1,6 @@
 import { useI18n } from "@/i18n/useI18n";
 import { ColumnOptions } from "@/types";
-import { Form, SelectBox, TextBox } from "devextreme-react";
+import { Form, LoadPanel, SelectBox, TextBox } from "devextreme-react";
 import { useAtomValue, useSetAtom } from "jotai";
 import React, {
   ForwardedRef,
@@ -14,7 +14,6 @@ import {
   currentInfo,
   flagSelectorAtom,
   listCampaignAgentAtom,
-  listCampaignAtom,
 } from "../../store";
 import "./../../../style.scss";
 import { GroupItem, SimpleItem } from "devextreme-react/form";
@@ -26,12 +25,12 @@ import { useAuth } from "@/packages/contexts/auth";
 import { requiredType } from "@/packages/common/Validation_Rules";
 import { UploadFilesField } from "@/pages/admin/test-upload/upload-field";
 import { useParams } from "react-router-dom";
+import { isAfter, isBefore } from "date-fns";
 
 const Cpn_Campaign_Info_Common = forwardRef(
   ({ listCustomerRef }: any, ref: ForwardedRef<any>) => {
     const { t } = useI18n("Cpn_Campaign_Info_Common");
     const formData = useAtomValue(currentInfo);
-    const flagSelector = useAtomValue(flagSelectorAtom);
     const param = useParams();
     const { auth } = useAuth();
     const api = useClientgateApi();
@@ -88,25 +87,6 @@ const Cpn_Campaign_Info_Common = forwardRef(
         },
       });
 
-    useEffect(() => {
-      // if (!isLoadingCapaignAgent) {
-      //   const customerListCampaignCustomer = listCampaign.map((item) => {
-      //     let userName = "";
-      //     const check = listCampaignAgent?.find((itemAgent) => {
-      //       return itemAgent.UserCode === item.AgentCode;
-      //     });
-      //     if (check) {
-      //       userName = check.UserName;
-      //     }
-      //     return {
-      //       ...item,
-      //       AgentName: userName,
-      //     };
-      //   });
-      //   // setListCampaign(customerListCampaignCustomer)
-      // }
-    }, [param?.CampaignCode]);
-
     const { data: listFeedBack, isLoading: isLoadingFeedBack } = useQuery({
       queryKey: ["listFeedBack", campaignType],
       queryFn: async () => {
@@ -137,7 +117,7 @@ const Cpn_Campaign_Info_Common = forwardRef(
         !listCampaignType ||
         !listCampaignAgent
       ) {
-        return <>loading</>;
+        return <LoadPanel visible={true} />;
       } else {
         return (
           <FormInfoCommon
@@ -145,6 +125,7 @@ const Cpn_Campaign_Info_Common = forwardRef(
             listCampaignType={listCampaignType ?? []}
             listCampaignAgent={listCampaignAgent ?? []}
             formData={formData}
+            key="Mst_CustomerCampaign"
           />
         );
       }
@@ -176,19 +157,26 @@ const Cpn_Campaign_Info_Common = forwardRef(
 interface FormInfoCommonProps {
   formData: any;
   listCampaignType: any[];
-  listCustomerRef: any[];
   listCampaignAgent: any[];
+  key: string;
 }
 
 const FormInfoCommon = forwardRef(
   (
-    { formData, listCampaignType, listCampaignAgent }: FormInfoCommonProps,
+    {
+      formData,
+      listCampaignType,
+      listCampaignAgent,
+      key = "Mst_CustomerCampaign",
+    }: FormInfoCommonProps,
     ref: any
   ) => {
+    const param = useParams();
     const { t } = useI18n("Cpn_Campaign_Info_Common");
     const setCampaignTypeAtom = useSetAtom(CampaignTypeAtom);
     const setListCampaignAgent = useSetAtom(listCampaignAgentAtom);
     const flagSelector = useAtomValue(flagSelectorAtom);
+    const { auth } = useAuth();
     const [isShow, setIsShow] = useState(false);
     const arrayStatus = [
       {
@@ -221,10 +209,13 @@ const FormInfoCommon = forwardRef(
       {
         dataField: "CampaignCode", // mã chiến dịch
         caption: t("CampaignCode"),
+        label: {
+          text: t("CampaignCode"),
+        },
         editorType: "dxTextBox",
         colSpan: 2,
         cssClass: "w-50",
-        visible: flagSelector !== "add",
+        visible: !!param?.flag,
         editorOptions: {
           readOnly: true,
         },
@@ -232,17 +223,21 @@ const FormInfoCommon = forwardRef(
       {
         dataField: "CampaignTypeCode", // Loại chiến dich
         caption: t("CampaignTypeCode"),
+        label: {
+          text: t("CampaignTypeCode"),
+        },
         editorType: "dxSelectBox",
         colSpan: 2,
         cssClass: "w-50",
         editorOptions: {
-          readOnly: flagSelector === "detail",
+          readOnly: param?.flag === "detail",
           placeholder: t("Input"),
           dataSource: listCampaignType,
           displayExpr: "CampaignTypeName",
           valueExpr: "CampaignTypeCode",
           onSelectionChanged: (newValue: any) => {
             setCampaignTypeAtom(newValue.selectedItem.CampaignTypeCode);
+            localStorage.removeItem(`${auth.currentUser?.Email}_${key}`);
           },
         },
         validationRules: [requiredType],
@@ -250,9 +245,12 @@ const FormInfoCommon = forwardRef(
       {
         dataField: "CampaignName", // tên chiến dịch
         caption: t("CampaignName"),
+        label: {
+          text: t("CampaignName"),
+        },
         editorType: "dxTextBox",
         editorOptions: {
-          readOnly: flagSelector === "detail",
+          readOnly: param?.flag === "detail",
           placeholder: t("Input"),
         },
         colSpan: 2,
@@ -261,9 +259,12 @@ const FormInfoCommon = forwardRef(
       {
         dataField: "CampaignDesc", // Mô tả
         caption: t("CampaignDesc"),
+        label: {
+          text: t("CampaignDesc"),
+        },
         editorType: "dxTextBox",
         editorOptions: {
-          readOnly: flagSelector === "detail",
+          readOnly: param?.flag === "detail",
           placeholder: t("Input"),
         },
         colSpan: 2,
@@ -271,22 +272,26 @@ const FormInfoCommon = forwardRef(
       {
         dataField: "uploadFiles", // file đính kèm
         caption: t("uploadFiles"),
-        colSpan: 2,
         label: {
-          location: "left",
-          text: "Upload files",
+          text: t("uploadFiles"),
         },
+        colSpan: 2,
+        // label: {
+        //   location: "left",
+        //   text: "Upload files",
+        // },
         editorOptions: {
-          readOnly: flagSelector === "detail",
+          readOnly: param?.flag === "detail",
         },
         render: (param: any) => {
           const { component: formComponent, dataField } = param;
           return (
             <UploadFilesField
               formInstance={formComponent}
-              readonly={flagSelector === "detail"}
+              readonly={param?.flag === "detail"}
               controlFileInput={["DOCX", "PDF", "JPG", "PNG", "XLSX"]}
               onValueChanged={(files: any) => {
+                console.log("file ", files);
                 formComponent.updateData(dataField, files);
               }}
             />
@@ -296,15 +301,20 @@ const FormInfoCommon = forwardRef(
       {
         dataField: "CampaignAgent", // Agent Phụ trách
         caption: t("CampaignAgent"),
+        label: {
+          text: t("CampaignAgent"),
+        },
         editorType: "dxTagBox",
         colSpan: 2,
         editorOptions: {
-          readOnly: flagSelector === "detail",
+          searchEnabled: true,
+          searchExpr: ["UserCode", "UserName"],
+          readOnly: param?.flag === "detail",
           dataSource: listCampaignAgent,
           displayExpr: "UserName",
           valueExpr: "UserCode",
           showSelectionControls: true,
-          searchEnabled: true,
+          // searchEnabled: true,
           onValueChanged: ({ value }: any) => {
             const selectedItems = listCampaignAgent?.filter((item: any) => {
               const found = value.filter(
@@ -312,6 +322,8 @@ const FormInfoCommon = forwardRef(
               );
               return found && found.length > 0;
             });
+            console.log("selectedItems", selectedItems);
+
             setListCampaignAgent(selectedItems ?? []);
             ref.current.instance.repaint();
           },
@@ -321,10 +333,13 @@ const FormInfoCommon = forwardRef(
       {
         dataField: "CallRate", // Định mức gọi ra
         caption: t("CallRate"),
+        label: {
+          text: t("CallRate"),
+        },
         colSpan: 1,
         editorType: "dxSelectBox",
         editorOptions: {
-          readOnly: flagSelector === "detail",
+          readOnly: param?.flag === "detail",
           placeholder: t("Select"),
           dataSource: [
             {
@@ -346,45 +361,80 @@ const FormInfoCommon = forwardRef(
       {
         dataField: "DTimeStart", // Thời gian bắt đầu
         caption: t("DTimeStart"),
+        label: {
+          text: t("DTimeStart"),
+        },
         editorType: "dxDateBox",
         colSpan: 1,
         editorOptions: {
-          readOnly: flagSelector === "detail",
+          readOnly: param?.flag === "detail",
           type: "date",
           displayFormat: "yyyy-MM-dd",
         },
-        validationRules: [requiredType],
+        validationRules: [
+          requiredType,
+          {
+            type: "custom",
+            ignoreEmptyValue: true,
+            validationCallback: (e: any) => {
+              if (formData.DTimeEnd) {
+                return !isAfter(e.value, formData.DTimeEnd);
+              }
+              return true;
+            },
+            message: t("DTimeStart must be before the DTimeEnd"),
+          },
+        ],
       },
       {
         dataField: "MaxCall", // Số lần gọi tối đa
         caption: t("MaxCall"),
+        label: {
+          text: t("MaxCall"),
+        },
         colSpan: 1,
         editorType: "dxNumberBox",
         editorOptions: {
-          readOnly: flagSelector === "detail",
+          readOnly: param?.flag === "detail",
           placeholder: t("Input"),
         },
       },
       {
         dataField: "DTimeEnd", // Thời gian kết thúc
         caption: t("DTimeEnd"),
+        label: {
+          text: t("DTimeEnd"),
+        },
         editorType: "dxDateBox",
         colSpan: 1,
         editorOptions: {
-          readOnly: flagSelector === "detail",
+          readOnly: param?.flag === "detail",
           type: "date",
           displayFormat: "yyyy-MM-dd",
         },
-        validationRules: [requiredType],
+        validationRules: [
+          requiredType,
+          {
+            type: "custom",
+            ignoreEmptyValue: true,
+            validationCallback: ({ value }: any) => {
+              return !isBefore(value, formData.DTimeStart);
+            },
+            message: t("DTimeEnd must be after the DTimeStart"),
+          },
+        ],
       },
       {
         dataField: "CampaignStatus", // Trạng thái
         caption: t("CampaignStatus"),
+        label: {
+          text: t("CampaignStatus"),
+        },
         editorType: "dxSelectBox",
         colSpan: 1,
         visible: flagSelector !== "add",
         editorOptions: {
-          readOnly: flagSelector === "detail",
+          readOnly: param?.flag === "detail",
           dataSource: arrayStatus,
           displayExpr: "item",
           placeholder: t("Select"),
@@ -400,11 +450,14 @@ const FormInfoCommon = forwardRef(
       {
         dataField: "CustomerRate", // Số lần KH định mức
         caption: t("CustomerRate"),
+        label: {
+          text: t("CustomerRate"),
+        },
         editorType: "dxNumberBox",
         colSpan: 1,
         visible: isShow,
         editorOptions: {
-          readOnly: flagSelector === "detail" ? true : false,
+          readOnly: param?.flag === "detail" ? true : false,
           placeholder: t("Input"),
         },
       },
@@ -412,13 +465,13 @@ const FormInfoCommon = forwardRef(
 
     return (
       <Form
-        onFieldDataChanged={() => {}}
+        labelLocation="left"
         formData={formData}
         ref={formRef}
         validationGroup="campaignForm"
       >
         <GroupItem colCount={2} caption="">
-          {newColumn.map((item: ColumnOptions, index: number) => {
+          {newColumn.map((item: any, index: number) => {
             return <SimpleItem key={index} {...item} />;
           })}
         </GroupItem>

@@ -1,6 +1,11 @@
 @import "../../themes/generated/variables.base";
+@import "../../themes/variables.common";
 
 .eticket {
+  .sep-bottom-1 {
+    border-bottom: solid 1px #aab3bb;
+  }
+
   .sep-bottom-3 {
     border-bottom: solid 3px #eee;
   }
@@ -15,8 +20,8 @@
 
   .avatar {
     border-radius: 50%;
-    border: solid 1px #f5f5f5;
-    background-color: #f5f5f5;
+    border: solid 1px #e4e4e4;
+    background-color: #e4e4e4;
     display: inline-block;
     padding: 0;
     text-transform: uppercase;
@@ -33,10 +38,10 @@
   }
 
   .avatar-sx {
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
     line-height: 24px;
-    font-size: 10px;
+    font-size: 14px;
   }
 
   .avatar-name {
@@ -48,19 +53,176 @@
     line-height: 30px;
   }
 
+  .message-type {
+    position: absolute;
+    left: -12px;
+    top: calc(50% - 12px);
+    width: 32px;
+    height: 26px;
+    line-height: 24px;
+    display: block;
+    background: #f9f9f9;
+    text-align: center;
+    border-radius: 4px;
+
+    i {
+      margin-top: 3px;
+      width: 16px;
+      height: 16px;
+      background-image: url(/images/icons/files/gif.svg);
+      background-repeat: no-repeat;
+      background-position: center center;
+      background-size: contain;
+      display: inline-block;
+    }
+  }
+
+  .message-type.callmissedin {
+    
+  }
+
+  .message-type.call {
+
+  }
+
+  .message-type.call.in {
+    background-color: #d5f9e8;
+    i {
+      background-image: url(/images/icons/call_in.svg);
+    }
+  }
+  .message-type.call.out {
+    background-color: #d1e8ff;
+    i {
+      background-image: url(/images/icons/call_out.svg);
+    }
+  }
+  .message-type.call.missed {
+    background-color: #ffe8ee;
+    i {
+      background-image: url(/images/icons/call_missed.svg);
+    }
+  }
+  .message-type.call.noanswer {
+    background-color: #ffeae1;
+    i {
+      background-image: url(/images/icons/call_noanswer.svg);
+    }
+  }
+  .message-type.emailin {
+    background-color: #ffeae1;
+    i {
+      background-image: url(/images/icons/email_in.svg);
+    }
+  }
+  .message-type.emailout {
+    background-color: #d1e8ff;
+    i {
+      background-image: url(/images/icons/email_out.svg);
+    }
+  }
+  .message-type.remark {
+    background: #c9ffdd;
+  }
+
+  .message-type.note {
+    background-color: rgba(213, 249, 232, 1);
+  }
+
+  .message-type.zaloin,
+  .message-type.zaloout {
+    background: rgba(218, 242, 255, 1);
+    i {
+      background-image: url(@packages/ui/icons/svg/zalo.svg);
+    }
+  }
+
+  .message-type.callin {
+    background: rgba(213, 249, 232, 1);
+  }
+
+  .message-type.CallMissedIn {
+    background: rgba(255, 232, 238, 1);
+  }
+
+  .message-type.CallMissingOut {
+    background: rgba(255, 234, 225, 1);
+  }
+
+  .message-type.callOut {
+    background: rgba(209, 232, 255, 1);
+  }
+
+  .message-reply {
+    .input-area {
+      background: #fff;
+      padding: 10px;
+      padding-bottom: 0px !important;
+      // border-top: solid 1px #ccc;
+      // border-bottom: solid 1px #ccc;
+      .dx-layout-manager .dx-field-item:last-child {
+        padding-bottom: 0px;
+      }
+      .buttons {
+        span {
+          cursor: pointer;
+          color: #666;
+        }
+      }
+    }
+
+    textarea {
+      border: none;
+      background: transparent;
+      outline: none;
+      width: 100%;
+      resize: none;
+    }
+
+    textarea:focus,
+    input:focus {
+      outline: none;
+    }
+
+    textarea:focus {
+      outline: none;
+      -webkit-box-shadow: none;
+      box-shadow: none;
+      border: none;
+    }
+  }
+
   .detail {
     .sp-warning {
+      padding: 6px 10px;
       background: #ffdcdc;
-      color: #ff618a;
-      display: inline-block;
+      color: #ff004a;
+      font-family: Inter;
+      font-size: 13px;
+      font-style: normal;
+      font-weight: 500;
+      line-height: normal;
+      border-radius: 3px;
+      -webkit-border-radius: 3px;
+      -moz-border-radius: 3px;
+      -ms-border-radius: 3px;
+      -o-border-radius: 3px;
+    }
+
+    .detail-customer-name {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .detail-customer-phone {
     }
 
     .btn-msg-action {
-      min-width: 24px;
-      min-height: 24px;
+      border-color: #517d95 !important;
+      min-width: 40px;
+      min-height: 30px;
       width: 24px !important;
       height: 24px !important;
-
       border-color: #ccc;
       color: #666;
 
@@ -70,109 +232,107 @@
       }
     }
 
-    .message-type {
-      position: absolute;
-      left: -12px;
-      top: calc(50% - 12px);
-      width: 24px;
-      height: 24px;
-      line-height: 24px;
-      display: block;
-      background: #f9f9f9;
-      text-align: center;
-      border-radius: 4px;
-
-      i {
-        margin-top: 3px;
-        width: 16px;
-        height: 16px;
-        background-image: url(/images/icons/files/gif.svg);
-        background-repeat: no-repeat;
-        background-position: center center;
-        background-size: contain;
-        display: inline-block;
-      }
+    .detail-header {
+      padding: 16px;
     }
 
-    .message-type.call.in {
-      background-color: #d5f9e8;
-      i {
-        background-image: url(/images/icons/call_in.svg);
+    .status.open {
+      // background-color: ;
+      background: #cfb929;
+    }
+    .dx-tab {
+      .dx-tab-text {
+        font-weight: 400 !important;
+        font-size: 14px !important;
       }
     }
-    .message-type.call.out {
-      background-color: #d1e8ff;
-      i {
-        background-image: url(/images/icons/call_out.svg);
-      }
-    }
-    .message-type.call.missed {
-      background-color: #ffe8ee;
-      i {
-        background-image: url(/images/icons/call_missed.svg);
-      }
-    }
-    .message-type.call.noanswer {
-      background-color: #ffeae1;
-      i {
-        background-image: url(/images/icons/call_noanswer.svg);
-      }
-    }
-
-    .message-type.email.in {
-      background-color: #ffeae1;
-      i {
-        background-image: url(/images/icons/email_in.svg);
-      }
-    }
-
-    .message-type.email.out {
-      background-color: #d1e8ff;
-      i {
-        background-image: url(/images/icons/email_out.svg);
-      }
-    }
-
-    .message-type.note {
-      background-color: #ffeae1;
-      i {
-        background-image: url(/images/icons/files/txt.svg);
-      }
-    }
-    .message-reply {
-      .input-area {
-        background: #fff;
-        padding: 10px;
-        border-top: solid 1px #ccc;
-        border-bottom: solid 1px #ccc;
-
-        .buttons {
-          span {
-            cursor: pointer;
-            color: #666;
-          }
+    .dx-tab-selected {
+      .dx-item-content {
+        position: relative;
+        :before {
+          position: absolute;
+          bottom: 10px;
+          left: 0;
+          width: 100%;
+          height: 2px;
+          background-color: #00703c !important;
         }
       }
 
-      textarea {
-        border: none;
-        background: transparent;
-        outline: none;
-        width: 100%;
-        resize: none;
+      .dx-tab-text {
+        font-weight: 600 !important;
+        font-size: 14px !important;
       }
+    }
 
-      textarea:focus,
-      input:focus {
-        outline: none;
-      }
+    .status {
+      color: white !important;
+      font-size: 12px !important;
+      text-transform: capitalize !important;
+      border-radius: 3px;
+      padding: 4px 10px;
+      -webkit-border-radius: 3px;
+      -moz-border-radius: 3px;
+      -ms-border-radius: 3px;
+      -o-border-radius: 3px;
+    }
 
-      textarea:focus {
-        outline: none;
-        -webkit-box-shadow: none;
-        box-shadow: none;
-        border: none;
+    .status.new {
+      background: #0fbc2b;
+    }
+
+    .status.processing {
+      background: #e48203;
+    }
+
+    .status.sloved {
+      background: #298ef2;
+    }
+
+    .status.closed {
+      background: #a7a7a7;
+    }
+
+    .text-gray {
+      color: #5f7d95;
+      font-family: Inter;
+      font-size: 14px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: normal;
+    }
+
+    .eticket-nav-right__text-left {
+      font-size: 13px;
+    }
+
+    .detail-header-value {
+      font-size: 14px;
+      font-weight: 500;
+      font-family: "Inter";
+      color: #0e223d;
+    }
+
+    .phone-button {
+      .dx-button-content {
+        border-top-left-radius: 0px !important;
+        border-bottom-left-radius: 0px !important;
+        border-top-right-radius: 3px !important;
+        border-bottom-right-radius: 3px !important;
       }
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-top-right-radius: 3px !important;
+      border-bottom-right-radius: 3px !important;
+    }
+
+    .detail-avatar {
+      width: 42px;
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
   }
 
@@ -210,11 +370,18 @@
   }
 
   .dx-texteditor-container {
+    font-size: 14px;
+    font-weight: 500;
+
     background: #fff;
     border: solid 1px #444;
-    border-radius: 2px;
+    border-radius: 3px;
     text-decoration: none;
     outline: none;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    -ms-border-radius: 3px;
+    -o-border-radius: 3px;
   }
 
   .dx-texteditor-input-container {
@@ -247,12 +414,12 @@
   }
 
   .dx-button {
-    height: 25px;
+    height: 30px;
     min-height: 25px;
   }
 
   .dx-button-content {
-    height: 25px;
+    height: 30px !important;
   }
 
   .dx-button-has-icon {
@@ -266,12 +433,18 @@
   .tag-list {
     .tag {
       display: inline-block;
-      border-radius: 5px;
+      border-radius: 30px;
       color: #fff;
       background-color: #999;
-      padding-left: 5px;
-      padding-right: 5px;
-    }
+      //padding-left: 5px;
+      //padding-right: 5px;
+      padding: 3px 10px 4px;
+      font-size: 11px;
+      -webkit-border-radius: 30px;
+      -moz-border-radius: 30px;
+      -ms-border-radius: 30px;
+      -o-border-radius: 30px;
+}
 
     .tag:nth-child(1) {
       background-color: #3abfbf;
@@ -556,4 +729,61 @@
       flex-direction: row;
     }
   }
+}
+
+.message-type {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  svg {
+    height: 18px;
+    width: 18px;
+  }
+}
+
+.eticket-detail {
+  .eticekt-form {
+    margin-bottom: 4px;
+  }
+
+  .form-content-zalo {
+    padding-top: 8px !important;
+  }
+
+  .dx-field-item-label-text {
+    font-size: 13px;
+    color: #5f7d95;
+    font-weight: 400;
+  }
+
+  .form-zalo-eticket {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .group-part {
+    padding-bottom: 8px !important;
+  }
+
+  .follower-css {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+
+    .box-follower {
+      margin-right: 5px;
+      margin-bottom: 5px;
+    }
+  }
+
+  .eticket-nav-right__text-left {
+    color: #5f7d95;
+    font-family: Inter;
+    font-size: 13px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+  }
+
+  
 }

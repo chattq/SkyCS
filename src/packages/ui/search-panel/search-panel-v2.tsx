@@ -1,14 +1,14 @@
 import { useI18n } from "@/i18n/useI18n";
-import { useSetAtom } from "jotai";
 import { searchPanelVisibleAtom } from "@layouts/content-searchpanel-layout";
-import Form, {
-  ButtonItem,
-  ButtonOptions,
-  GroupItem,
-  IItemProps,
-  SimpleItem,
-} from "devextreme-react/form";
-import React, {
+import { useVisibilityControl } from "@packages/hooks";
+import { useWindowSize } from "@packages/hooks/useWindowSize";
+import { ColumnOptions } from "@packages/ui/base-gridview";
+import { useSavedState } from "@packages/ui/base-gridview/components/use-saved-state";
+import CustomColumnChooser from "@packages/ui/column-toggler/custom-column-chooser";
+import { Button, LoadPanel } from "devextreme-react";
+import Form, { IItemProps, Item } from "devextreme-react/form";
+import { useSetAtom } from "jotai";
+import {
   useCallback,
   useEffect,
   useMemo,
@@ -17,16 +17,9 @@ import React, {
   useState,
 } from "react";
 import { Header } from "./header";
-import { useVisibilityControl } from "@packages/hooks";
-import { SearchPanelSettings } from "@packages/ui/search-panel/search-panel-settings";
-import { useSavedState } from "@packages/ui/base-gridview/components/use-saved-state";
-import CustomColumnChooser from "@packages/ui/column-toggler/custom-column-chooser";
-import { ColumnOptions } from "@packages/ui/base-gridview";
-import { LoadPanel } from "devextreme-react";
-import { useWindowSize } from "@packages/hooks/useWindowSize";
 
-import "./search-panel-v2.scss";
 import { useAtomValue } from "jotai";
+import "./search-panel-v2.scss";
 
 interface ItemProps extends IItemProps {
   order?: number;
@@ -97,7 +90,10 @@ export const SearchPanelV2 = ({
     e.preventDefault();
   };
   const items = useMemo(() => {
-    return [...realColumns];
+    return realColumns.map((c: any) => ({
+      ...c,
+      visible: true,
+    }));
   }, [realColumns]);
 
   const handleApplySettings = useCallback((items: ItemProps[]) => {
@@ -114,7 +110,7 @@ export const SearchPanelV2 = ({
     <div
       className={`${
         searchPanelVisible ? "search-panel-visible" : "search-panel-hidden"
-      }`}
+      } pl-2`}
       id={"search-panel"}
     >
       <Header
@@ -125,7 +121,7 @@ export const SearchPanelV2 = ({
       <div>
         <LoadPanel visible={isLoading} />
         {!isLoading && (
-          <form ref={htmlFormRef} className={"h-full"} onSubmit={handleSearch}>
+          <form ref={htmlFormRef} className={""} onSubmit={handleSearch}>
             <Form
               ref={(r) => (formRef.current = r)}
               formData={data}
@@ -135,24 +131,37 @@ export const SearchPanelV2 = ({
               className={"p-2 h-full"}
               scrollingEnabled
             >
-              {items.map((item, idx) => {
-                return <SimpleItem key={idx} {...item} />;
+              {items.map((item: any, idx: any) => {
+                return <Item key={idx} {...item} />;
               })}
 
-              <ButtonItem
+              <Item></Item>
+
+              <Item></Item>
+
+              {/* <ButtonItem
                 horizontalAlignment={"center"}
-                cssClass={"btn-search"}
+                cssClass={"btn-search bg-red-400"}
               >
                 <ButtonOptions
                   text={"Search"}
                   icon={"search"}
                   stylingMode={"contained"}
-                  width={"90%"}
+                  width={"100%"}
                   type={"default"}
                   useSubmitBehavior={true}
                 />
-              </ButtonItem>
+              </ButtonItem> */}
             </Form>
+            <div className="absolute bottom-[0] w-full bg-red-400 flex items-end">
+              <Button
+                text={"Search"}
+                icon={"search"}
+                width={"100%"}
+                type={"default"}
+                useSubmitBehavior={true}
+              ></Button>
+            </div>
           </form>
         )}
       </div>

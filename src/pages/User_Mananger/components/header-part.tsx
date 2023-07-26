@@ -10,13 +10,13 @@ import { HeaderNewForm } from "@/packages/ui/headerNew-form/headerNew-form";
 interface HeaderPartProps {
   onAddNew?: () => void;
   refetch: any;
-  onSearch: any;
+  handleOnEditRow?: any;
 }
 
 export const HeaderPart = ({
   onAddNew,
   refetch,
-  onSearch,
+  handleOnEditRow,
 }: HeaderPartProps) => {
   const { t } = useI18n("Common");
 
@@ -27,14 +27,13 @@ export const HeaderPart = ({
   const api = useClientgateApi();
   const handleSearch = (keyword: string) => {
     setKeyword(keyword);
-    onSearch(keyword);
   };
 
   const handleExportExcel = async (selectedOnly: boolean) => {
-    const resp = await api.Sys_User_Export(selectedItems[0]);
+    const resp = await api.Sys_User_Export(selectedItems, keyword || "");
     if (resp.isSuccess) {
       toast.success(t("DownloadSuccessfully"));
-      window.location.href = resp.Data;
+      window.location.href = resp.Data as any;
     } else {
       showError({
         message: t(resp.errorCode),
@@ -44,7 +43,7 @@ export const HeaderPart = ({
     }
   };
   const handleDeleteRow = async (id: any) => {
-    const resp = await api.Mst_NNTController_Delete(id);
+    const resp = await api.Sys_User_Data_Delete(id);
     if (resp.isSuccess) {
       toast.success(t("Delete Successfully"));
       await refetch();
@@ -60,13 +59,15 @@ export const HeaderPart = ({
 
   return (
     <HeaderNewForm
-      hidenExportExcel={false}
+      hidenMore={true}
+      hidenExportExcel={true}
       hidenImportExcel={false}
       onSearch={handleSearch}
       onAddNew={onAddNew}
       onExportExcel={handleExportExcel}
       selectedItems={selectedItems}
       onDelete={handleDeleteRow}
+      handleOnEditRow={handleOnEditRow}
     />
   );
 };

@@ -11,8 +11,8 @@ export const use_MstCampaignTypeApi = (apiBase: AxiosInstance) => {
   return {
     Mst_CampaignType_Search: async (
       params: Mst_CampaignTypeSearchParam
-    ): Promise<ApiResponse<Mst_CampaignTypeData>> => {
-      return await apiBase.post<SearchParam, ApiResponse<Mst_CampaignTypeData>>(
+    ): Promise<ApiResponse<Mst_CampaignTypeData[]>> => {
+      return await apiBase.post<SearchParam, ApiResponse<Mst_CampaignTypeData[]>>(
         "/MstCampaignType/Search",
         {
           ...params,

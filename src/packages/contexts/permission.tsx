@@ -1,6 +1,6 @@
-import React, { createContext, useContext } from "react";
-import { useAtomValue } from "jotai";
 import { permissionAtom } from "@packages/store";
+import { useAtomValue } from "jotai";
+import React, { createContext, useContext } from "react";
 
 interface PermissionContextProps {
   hasMenuPermission: (code: string) => boolean;
@@ -11,7 +11,6 @@ export const usePermissions = () => useContext(PermissionContext);
 
 export function PermissionProvider(props: React.PropsWithChildren<unknown>) {
   const permissionStore = useAtomValue(permissionAtom);
-
   const hasMenuPermission = (code: string) => {
     return true;
     // return permissionStore.menu?.includes(code) ?? true;

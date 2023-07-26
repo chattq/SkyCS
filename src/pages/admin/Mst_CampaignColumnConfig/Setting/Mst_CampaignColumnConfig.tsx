@@ -148,7 +148,10 @@ export const Mst_CampaignColumnConfig_SettingPage = ({
       ...item,
       ListOption: JSON.parse(item.JsonListOption),
     };
-    if (item.CampaignColCfgDataType === "MASTERDATA") {
+    if (
+      item.CampaignColCfgDataType === "MASTERDATA" ||
+      item.CampaignColCfgDataType === "MASTERDATASELECTMULTIPLE"
+    ) {
       obj.DataSource = JSON.parse(item.JsonListOption)[0].Value;
     }
     setFlag("update");

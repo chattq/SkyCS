@@ -1,16 +1,41 @@
 import { useI18n } from "@/i18n/useI18n";
-import { RequiredField } from "@/packages/common/Validation_Rules";
+import {
+  ExcludeSpecialCharactersType,
+  RequiredField,
+} from "@/packages/common/Validation_Rules";
 import { SelectBox } from "devextreme-react";
-import { useState } from "react";
-import Custombotton from "./Custombotton";
+import { useEffect, useState } from "react";
 
-export const useFormSettings = ({ data, dataProvince }: any) => {
+import DataSource from "devextreme/data/data_source";
+
+export const useFormSettings = ({ dataNNT, dataProvince, dataOrgID }: any) => {
   const { t } = useI18n("Business_Information");
+  const productsDataSource = new DataSource({
+    store: {
+      data: dataNNT,
+      type: "array",
+      key: "OrgID",
+    },
+  });
+  const customItemCreatingORG = (args: any) => {
+    if (!args.text) {
+      args.customItem = null;
+      return;
+    }
+    const newItem = {
+      Id: args.text,
+    };
 
-  const dataSelect = [
-    { text: "Thêm", value: "abc" },
-    { text: "Lựa chọn", value: "bca" },
-  ];
+    args.customItem = productsDataSource
+      .store()
+      .insert(newItem)
+      .then(() => productsDataSource.load())
+      .then(() => newItem)
+      .catch((error) => {
+        throw error;
+      });
+  };
+  console.log(38, dataOrgID);
 
   const formSettings: any = [
     {
@@ -25,30 +50,27 @@ export const useFormSettings = ({ data, dataProvince }: any) => {
           colSpan: 2,
           cssClass: "",
           items: [
-            // {
-            //   dataField: "Select",
-            //   caption: t("OrgID"),
-            //   visible: true,
-            //   render: ({ editorOptions, component: formRef }: any) => {
-            //     return (
-            //       <Custombotton
-            //         dataSelect={dataSelect}
-            //         data={data}
-            //         formRef={formRef}
-            //       />
-            //     );
-            //   },
-            // },
-            // {
-            //   dataField: "OrgID",
-            //   editorOptions: {
-            //     readOnly: true,
-            //     placeholder: t("Input Select"),
-            //   },
-            //   editorType: "dxTextBox",
-            //   caption: t("OrgID"),
-            //   visible: true,
-            // },
+            {
+              dataField: "OrgID",
+              editorOptions: {
+                placeholder: t("Select"),
+                dataSource: dataOrgID?.map((item: any) => {
+                  return {
+                    ...item,
+                    OrgID: item.Id.toString(),
+                    Id: item.Id.toString(),
+                  };
+                }),
+                searchEnabled: true,
+                displayExpr: "OrgID",
+                valueExpr: "Id",
+                // acceptCustomValue: true,
+                // onCustomItemCreating: customItemCreatingORG,
+              },
+              editorType: "dxSelectBox",
+              caption: t("OrgID"),
+              visible: true,
+            },
             {
               dataField: "NNTFullName",
               editorOptions: {
@@ -68,7 +90,10 @@ export const useFormSettings = ({ data, dataProvince }: any) => {
               editorType: "dxTextBox",
               caption: t("MST"),
               visible: true,
-              validationRules: [RequiredField(t("MSTIsRequired"))],
+              validationRules: [
+                RequiredField(t("MSTIsRequired")),
+                ExcludeSpecialCharactersType,
+              ],
             },
             {
               dataField: "NNTShortName",
@@ -140,6 +165,7 @@ export const useFormSettings = ({ data, dataProvince }: any) => {
               editorType: "dxTextArea",
               caption: t("NNTAddress"),
               visible: true,
+              validationRules: [RequiredField(t("NNTFullNameIsRequired"))],
             },
             {
               dataField: "ContactName",
@@ -149,6 +175,7 @@ export const useFormSettings = ({ data, dataProvince }: any) => {
               editorType: "dxTextBox",
               caption: t("ContactName"),
               visible: true,
+              validationRules: [RequiredField(t("ContactNameIsRequired"))],
             },
             {
               dataField: "ContactPhone",
@@ -167,6 +194,7 @@ export const useFormSettings = ({ data, dataProvince }: any) => {
               editorType: "dxTextBox",
               caption: t("ContactEmail"),
               visible: true,
+              validationRules: [RequiredField(t("ContactEmailIsRequired"))],
             },
             {
               dataField: "FlagActive",

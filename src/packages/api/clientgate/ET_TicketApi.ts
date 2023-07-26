@@ -1,15 +1,5 @@
-import {
-  ApiResponse,
-  MdMetaColGroup,
-  MdMetaColGroupSpec,
-  MdMetaColGroupSpecDto,
-  MdMetaColGroupSpecListOption,
-  MdMetaColGroupSpecSearchParam,
-  MdMetaColumnDataType,
-  MdOptionValue,
-} from "@/packages/types";
+import { ApiResponse } from "@/packages/types";
 import { AxiosInstance } from "axios";
-import { match } from "ts-pattern";
 
 export interface ETICKET_REPONSE {
   TicketID: string;
@@ -73,15 +63,210 @@ export interface SearchParamEticket {
 export const useETTicket = (apiBase: AxiosInstance) => {
   return {
     ET_Ticket_Search: async (
-      param: SearchParamEticket
+      param: Partial<SearchParamEticket>
     ): Promise<ApiResponse<ETICKET_REPONSE[]>> => {
-      console.log("param ", param);
       return await apiBase.post<
         SearchParamEticket,
         ApiResponse<ETICKET_REPONSE[]>
       >("ETTicket/Search", {
         ...param,
       });
+    },
+    ETTicket_Create: async (data: any) => {
+      return await apiBase.post("ETTicket/Create", {
+        strJson: JSON.stringify(data),
+      });
+    },
+    ETTicket_Update: async (data: any) => {
+      return await apiBase.post("ETTicket/Update", {
+        strJson: JSON.stringify(data),
+      });
+    },
+    ET_Ticket_Merge: async (param: any): Promise<ApiResponse<any>> => {
+      return await apiBase.post<SearchParamEticket, ApiResponse<any>>(
+        "ETTicket/Merge",
+        {
+          strJson: JSON.stringify(param),
+        }
+      );
+    },
+    ET_Ticket_Close: async (param: any): Promise<ApiResponse<any>> => {
+      return await apiBase.post<SearchParamEticket, ApiResponse<any>>(
+        "ETTicket/Close",
+        {
+          strJson: JSON.stringify(param),
+        }
+      );
+    },
+    ET_Ticket_Delete: async (param: any): Promise<ApiResponse<any>> => {
+      return await apiBase.post<SearchParamEticket, ApiResponse<any>>(
+        "ETTicket/Delete",
+        {
+          strJson: JSON.stringify(param),
+        }
+      );
+    },
+
+    ET_Ticket_DeleteMultiple: async (param: any): Promise<ApiResponse<any>> => {
+      return await apiBase.post<SearchParamEticket, ApiResponse<any>>(
+        "ETTicket/DeleteMulti",
+        {
+          strJson: JSON.stringify(param),
+        }
+      );
+    },
+
+    ET_Ticket_CloseMultiple: async (param: any): Promise<ApiResponse<any>> => {
+      return await apiBase.post<SearchParamEticket, ApiResponse<any>>(
+        "ETTicket/CloseMulti",
+        {
+          strJson: JSON.stringify(param),
+        }
+      );
+    },
+
+    ET_Ticket_GetByTicketID: async (param: {
+      TicketID: string;
+      OrgID: string;
+    }): Promise<ApiResponse<any>> => {
+      return await apiBase.post<SearchParamEticket, ApiResponse<any>>(
+        "ETTicket/GetByTicketID",
+        {
+          ...param,
+        }
+      );
+    },
+
+    ET_Ticket_GetCallMessageByCallID: async (
+      CallID: string
+    ): Promise<ApiResponse<any>> => {
+      return await apiBase.post<string, ApiResponse<any>>(
+        "ETTicket/GetCallMessageByCallID",
+        { CallID }
+      );
+    },
+
+    ET_Ticket_AddRemark: async (param: {
+      ActionType: string;
+      TicketID: string;
+      OrgID: string;
+      Description: string;
+    }): Promise<ApiResponse<any>> => {
+      return await apiBase.post<SearchParamEticket, ApiResponse<any>>(
+        "ETTicket/AddRemark",
+        {
+          ...param,
+        }
+      );
+    },
+
+    ET_Ticket_Split: async (param: any): Promise<ApiResponse<any>> => {
+      return await apiBase.post<SearchParamEticket, ApiResponse<any>>(
+        "ETTicket/Split",
+        {
+          strJson: JSON.stringify(param),
+        }
+      );
+    },
+    ET_Ticket_SendEmail: async (param: {
+      ActionType: string;
+      TicketID: string;
+      CtmEmail: string;
+      SubTitleSend: string;
+      MessageSend: string;
+    }): Promise<ApiResponse<any>> => {
+      return await apiBase.post<SearchParamEticket, ApiResponse<any>>(
+        "ETTicketSend/SendEmail",
+        {
+          ...param,
+        }
+      );
+    },
+    ET_Ticket_SendZaloMessage: async (param: {
+      ActionType: string;
+      TicketID: string;
+      ZaloUserFollowerId: string;
+      MessageSend: string;
+    }): Promise<ApiResponse<any>> => {
+      return await apiBase.post<SearchParamEticket, ApiResponse<any>>(
+        "ETTicketSend/SendZaloMessage",
+        {
+          ...param,
+        }
+      );
+    },
+
+    ET_Ticket_SendZNS: async (param: {
+      ActionType: string;
+      TicketID: string;
+      IDZNS: string;
+      CtmPhoneNo: string;
+      strJsonZNS: string;
+    }): Promise<ApiResponse<any>> => {
+      return await apiBase.post<SearchParamEticket, ApiResponse<any>>(
+        "ETTicketSend/SendZNS",
+        {
+          ...param,
+        }
+      );
+    },
+
+    ET_Ticket_UpdateCustomer: async (param: any): Promise<ApiResponse<any>> => {
+      return await apiBase.post<SearchParamEticket, ApiResponse<any>>(
+        "ETTicket/UpdateCustomer",
+        {
+          ...param,
+        }
+      );
+    },
+
+    ET_Ticket_UpdateAgentCode: async (
+      param: any
+    ): Promise<ApiResponse<any>> => {
+      return await apiBase.post<SearchParamEticket, ApiResponse<any>>(
+        "ETTicket/UpdateAgentCode",
+        {
+          ...param,
+        }
+      );
+    },
+
+    AddRemark: async (param: any): Promise<ApiResponse<any>> => {
+      return await apiBase.post<SearchParamEticket, ApiResponse<any>>(
+        "ETTicket/AddRemark",
+        {
+          strJson: JSON.stringify(param),
+        }
+      );
+    },
+
+    ET_Ticket_UpdatePin: async (param: {
+      TicketID: string;
+      OrgID: string;
+      IsPin: string;
+      AutoID: number;
+    }) => {
+      return await apiBase.post<SearchParamEticket, ApiResponse<any>>(
+        "ETTicket/UpdatePin",
+        {
+          ...param,
+        }
+      );
+    },
+
+    GetMessageByTicketID: async(TicketID: string) => {
+      return await apiBase.post<string, ApiResponse<any>>("ETTicket/GetMessageByTicketID", {
+        TicketID: TicketID
+      })
+    },
+
+    AddCall: async (param: any): Promise<ApiResponse<any>> => {
+      return await apiBase.post<SearchParamEticket, ApiResponse<any>>(
+        "ETTicket/AddCall",
+        {
+          strJson: JSON.stringify(param),
+        }
+      );
     },
   };
 };

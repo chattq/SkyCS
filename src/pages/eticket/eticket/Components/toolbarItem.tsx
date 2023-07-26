@@ -1,15 +1,21 @@
+import { compareDates, getDateNow } from "@/components/ulti";
 import { useI18n } from "@/i18n/useI18n";
 import { ETICKET_REPONSE } from "@/packages/api/clientgate/ET_TicketApi";
+import { useNetworkNavigate } from "@/packages/hooks";
 import { GridCustomerToolBarItem } from "@/packages/ui/base-gridview/components/grid-custom-toolbar";
 import { Button } from "devextreme-react";
 import DropDownButton, {
   Item as DropDownButtonItem,
 } from "devextreme-react/drop-down-button";
+import { useMemo } from "react";
 
 interface PropsToolBar {
+  data: any[];
   onClose: (data: ETICKET_REPONSE[]) => void;
   onDelete: (data: ETICKET_REPONSE[]) => void;
-  onSetStatus: (title: string) => void;
+  onSetStatus: (title: string, ref: any) => void;
+  onShowPopUp: (title: string, data: ETICKET_REPONSE[]) => void;
+  dataUser: any;
 }
 
 interface DropDownInferface {
@@ -18,34 +24,88 @@ interface DropDownInferface {
 }
 
 export const useToolbar = ({
+  data,
   onClose,
   onDelete,
   onSetStatus,
+  onShowPopUp,
+  dataUser,
 }: PropsToolBar): GridCustomerToolBarItem[] => {
   const { t } = useI18n("eticket_toolbar");
+  const navigate = useNetworkNavigate();
+
+  const getValue = useMemo(() => {
+    let obj = {
+      NEW: 0,
+      OPEN: 0,
+      PROCESSING: 0,
+      ONHOLD: 0,
+      WATINGONCUSTOMER: 0,
+      WAITINGONTHIRDPARTY: 0,
+      SOLVED: 0,
+      CLOSED: 0,
+      OutOfDate: 0,
+      Responsibility: 0,
+    };
+
+    obj.OPEN = data.filter((item) => item.TicketStatus === "OPEN").length;
+    obj.PROCESSING = data.filter(
+      (item) => item.TicketStatus === "PROCESS"
+    ).length;
+    obj.NEW = data.filter((item) => item.TicketStatus === "NEW").length;
+    obj.ONHOLD = data.filter((item) => item.TicketStatus === "ON-HOLD").length;
+    obj.WATINGONCUSTOMER = data.filter(
+      (item) => item.TicketStatus === "WATING ON CUSTOMER"
+    ).length;
+    obj.WAITINGONTHIRDPARTY = data.filter(
+      (item) => item.TicketStatus === "WAITING ON THIRD PARTY"
+    ).length;
+    obj.SOLVED = data.filter((item) => item.TicketStatus === "SOLVED").length;
+    obj.CLOSED = data.filter((item) => item.TicketStatus === "CLOSED").length;
+    obj.ONHOLD = data.filter((item) => !item.AgentCode).length;
+    obj.OutOfDate = data.filter((item) => {
+      return (
+        compareDates(getDateNow(), item.TicketDeadline) &&
+        item.TicketStatus !== "OPEN"
+      );
+    }).length;
+    obj.Responsibility = data.filter((item) => {
+      if (dataUser && item.AgentCode) {
+        return item.AgentCode === dataUser.UserCode.toUpperCase()! ?? "";
+      }
+      return false;
+    }).length;
+    return obj;
+  }, [data]);
 
   const listCheckOne: DropDownInferface[] = [
     {
-      title: t("Tách"),
-      onclick: (data: ETICKET_REPONSE[]): any => {},
+      title: t("Split"),
+      onclick: (data: ETICKET_REPONSE[]): any => onShowPopUp("Split", data),
     },
     {
-      title: t("Chuyển phụ trách"),
-      onclick: (data: ETICKET_REPONSE[]): any => {},
+      title: t("UpdateAgentCode"),
+      onclick: (data: ETICKET_REPONSE[]): any =>
+        onShowPopUp("UpdateAgentCode", data),
+    },
+    {
+      title: t("UpdateCustomer"),
+      onclick: (data: ETICKET_REPONSE[]): any =>
+        onShowPopUp("UpdateCustomer", data),
     },
     {
       title: t("Workflow"),
       onclick: (data: ETICKET_REPONSE[]): any => {},
     },
-    {
-      title: t("Đánh giá"),
-      onclick: (data: ETICKET_REPONSE[]): any => {},
-    },
+    // {
+    //   title: t("Đánh giá"),
+    //   onclick: (data: ETICKET_REPONSE[]): any => {},
+    // },
   ];
 
   const listCheckMulti: DropDownInferface[] = [
     {
-      title: t("Đóng"),
+      title: t("Closed"),
       onclick: onClose,
     },
   ];
@@ -58,7 +118,7 @@ export const useToolbar = ({
       arr = listCheckOne;
     }
     if (count > 1) {
-      arr = [...listCheckOne, ...listCheckMulti];
+      arr = [...listCheckMulti];
     }
 
     return (
@@ -79,6 +139,8 @@ export const useToolbar = ({
         {arr.map((item: DropDownInferface) => {
           return (
             <DropDownButtonItem
+              // onClick={item.onclick(listData)}
+              // text={`$`}
               render={(itemRe: any) => {
                 return (
                   <Button onClick={() => item.onclick(listData)}>
@@ -103,8 +165,9 @@ export const useToolbar = ({
 
   return [
     {
-      text: t(`Tôi phụ trách (0)`),
-      onClick: () => onSetStatus(""),
+      text: t(`Responsibility`) + `(${getValue.Responsibility})`,
+      // text: t(`Responsibility`),
+      onClick: (e: any, ref: any) => onSetStatus("Responsibility", ref),
       shouldShow: (ref: any) => {
         let check = false;
         if (ref) {
@@ -118,8 +181,9 @@ export const useToolbar = ({
       },
     },
     {
-      text: t(`Chưa xử lý (0)`),
-      onClick: () => {},
+      text: t(`Open`) + `(${getValue.OPEN})`,
+      // text: t(`Open`),
+      onClick: (e: any, ref: any) => onSetStatus("Open", ref),
       shouldShow: (ref: any) => {
         let check = false;
         if (ref) {
@@ -132,39 +196,41 @@ export const useToolbar = ({
         }
       },
     },
-    {
-      text: t(`Quá hạn (0)`),
-      onClick: () => {},
-      shouldShow: (ref: any) => {
-        let check = false;
-        if (ref) {
-          if (ref.instance.getSelectedRowsData().length < 1) {
-            check = true;
-          }
-          return check;
-        } else {
-          return false;
-        }
-      },
-    },
-    {
-      text: t(`Tôi theo dõi (0)`),
-      onClick: () => {},
-      shouldShow: (ref: any) => {
-        let check = false;
-        if (ref) {
-          if (ref.instance.getSelectedRowsData().length < 1) {
-            check = true;
-          }
-          return check;
-        } else {
-          return false;
-        }
-      },
-    },
+    // {
+    //   text: t(`OutOfDate`) + `(${getValue.OutOfDate})`,
+    //   // text: t(`OutOfDate`),
+    //   onClick: (e: any, ref: any) => onSetStatus("OutOfDate", ref),
+    //   shouldShow: (ref: any) => {
+    //     let check = false;
+    //     if (ref) {
+    //       if (ref.instance.getSelectedRowsData().length < 1) {
+    //         check = true;
+    //       }
+    //       return check;
+    //     } else {
+    //       return false;
+    //     }
+    //   },
+    // },
+    // {
+    //   text: t(`Follower`) + `(${getValue.Responsibility})`,
+    //   // text: t(`Follower`),
+    //   onClick: (e: any, ref: any) => onSetStatus("Follower", ref),
+    //   shouldShow: (ref: any) => {
+    //     let check = false;
+    //     if (ref) {
+    //       if (ref.instance.getSelectedRowsData().length < 1) {
+    //         check = true;
+    //       }
+    //       return check;
+    //     } else {
+    //       return false;
+    //     }
+    //   },
+    // },
     {
       text: t(`All`),
-      onClick: () => onSetStatus("All"),
+      onClick: (e: any, ref: any) => onSetStatus("All", ref),
       shouldShow: (ref: any) => {
         let check = false;
         if (ref) {
@@ -178,23 +244,11 @@ export const useToolbar = ({
       },
     },
     {
-      text: t(`Phản hồi`),
-      onClick: () => {},
-      shouldShow: (ref: any) => {
-        let check = false;
-        if (ref) {
-          if (ref.instance.getSelectedRowsData().length > 0) {
-            check = true;
-          }
-          return check;
-        } else {
-          return false;
-        }
+      text: t(`response`),
+      onClick: (e: any, ref: any) => {
+        const listData: ETICKET_REPONSE[] = ref.instance.getSelectedRowsData();
+        onShowPopUp("response", listData);
       },
-    },
-    {
-      text: t(`Sửa`),
-      onClick: () => {},
       shouldShow: (ref: any) => {
         let check = false;
         if (ref) {
@@ -208,8 +262,29 @@ export const useToolbar = ({
       },
     },
     {
-      text: t(`Gộp`),
-      onClick: () => {},
+      text: t(`Update`),
+      onClick: (e: any, ref: any) => {
+        const listData: ETICKET_REPONSE[] = ref.instance.getSelectedRowsData();
+        navigate(`/eticket/edit/${listData[0].TicketID}`);
+      },
+      shouldShow: (ref: any) => {
+        let check = false;
+        if (ref) {
+          if (ref.instance.getSelectedRowsData().length === 1) {
+            check = true;
+          }
+          return check;
+        } else {
+          return false;
+        }
+      },
+    },
+    {
+      text: t(`Merge`),
+      onClick: (e: any, ref: any) => {
+        const listData: ETICKET_REPONSE[] = ref.instance.getSelectedRowsData();
+        onShowPopUp("Merge", listData);
+      },
       shouldShow: (ref: any) => {
         let check = false;
         if (ref) {
@@ -223,7 +298,7 @@ export const useToolbar = ({
       },
     },
     {
-      text: t(`Xóa`),
+      text: t(`Delete`),
       onClick: (e: any, ref: any) => {
         const listData: ETICKET_REPONSE[] = ref.instance.getSelectedRowsData();
         onDelete(listData);
@@ -272,23 +347,55 @@ export const useToolbar = ({
         >
           <DropDownButtonItem
             render={(item: any) => {
-              console.log("item ======================", item);
-              return <Button>{t("Chưa giao")}</Button>;
+              return (
+                <Button onClick={() => onSetStatus("ONHOLD", ref)}>
+                  {t(`ONHOLD`)}({getValue.ONHOLD}){/* {t(`ONHOLD`)} */}
+                </Button>
+              );
             }}
           />
           <DropDownButtonItem
             render={(item: any) => {
-              return <Button>{t("Đã hoàn thành")}</Button>;
+              return (
+                <Button onClick={() => onSetStatus("Follower", ref)}>
+                  {t(`Follower`) + `(${getValue.Responsibility})`}
+                </Button>
+              );
             }}
           />
           <DropDownButtonItem
+            render={(item: any) => {
+              return (
+                <Button onClick={() => onSetStatus("OutOfDate", ref)}>
+                  {t(`OutOfDate`) + `(${getValue.OutOfDate})`}
+                </Button>
+              );
+            }}
+          />
+          <DropDownButtonItem
+            render={(item: any) => {
+              return (
+                <Button onClick={() => onSetStatus("Closed", ref)}>
+                  {t(`Solved (${getValue.CLOSED})`)}
+                  {/* {t(`Solved`)} */}
+                </Button>
+              );
+            }}
+          />
+          {/* <DropDownButtonItem
             render={(item: any) => {
               return <Button>{t("Tôi tạo")}</Button>;
             }}
-          />
+          /> */}
           <DropDownButtonItem
             render={(item: any) => {
-              return <Button>{t("Đang xử lý")}</Button>;
+              // đang xử lý
+              return (
+                <Button onClick={() => onSetStatus("Process", ref)}>
+                  {t(`Process (${getValue.PROCESSING}) `)}
+                  {/* {t(`Process`)} */}
+                </Button>
+              );
             }}
           />
         </DropDownButton>

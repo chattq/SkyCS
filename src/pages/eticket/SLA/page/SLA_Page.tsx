@@ -74,35 +74,78 @@ const SLA_Page = () => {
         return;
       }
       const resp: any = await api.Mst_SLA_GetBySLAID(SLAID);
+
       if (resp.isSuccess && SLAID) {
-        const firstTime = (resp?.Data?.Lst_Mst_SLA?.FirstResTime - 420) * 60000;
+        const firstTime = (resp?.Data?.Mst_SLA?.FirstResTime - 420) * 60000;
 
         const resolutionTime =
-          (resp?.Data?.Lst_Mst_SLA?.ResolutionTime - 420) * 60000;
+          (resp?.Data?.Mst_SLA?.ResolutionTime - 420) * 60000;
 
         setFormValue({
-          ...resp?.Data?.Lst_Mst_SLA,
+          ...resp?.Data?.Mst_SLA,
           FirstResTime: firstTime,
           ResolutionTime: resolutionTime,
         });
+
         setTicketInfo({
           TicketType:
-            resp?.Data?.Lst_Mst_SLATicketType?.map(
-              (item: any) => item?.TicketType
-            ) || [],
+            resp?.Data?.Lst_Mst_SLATicketType?.map((item: any) => {
+              return item?.TicketType;
+            }) || [],
           TicketCustomType:
             resp?.Data?.Lst_Mst_SLATicketCustomType?.map(
               (item: any) => item?.TicketCustomType
             ) || [],
           Customer:
-            resp?.Data?.Lst_Mst_SLACustomer?.map(
-              (item: any) => item?.CustomerCodeSys
-            ) || [],
+            resp?.Data?.Lst_Mst_SLACustomerCN.filter((item: any) => {
+              if (
+                item?.CustomerCodeSys &&
+                item?.CustomerCodeSys != "null" &&
+                item?.CustomerCodeSys != undefined
+              ) {
+                return item;
+              }
+            })?.map((item: any) => {
+              return item?.CustomerCodeSys;
+            }) || [],
           CustomerGroup:
-            resp?.Data?.Lst_Mst_SLACustomerGroup?.map(
-              (item: any) => item?.CustomerGrpCode
-            ) || [],
+            resp?.Data?.Lst_Mst_SLACustomerGroupCN?.filter((item: any) => {
+              if (
+                item?.CustomerGrpCode &&
+                item?.CustomerGrpCode != "null" &&
+                item?.CustomerGrpCode != undefined
+              ) {
+                return item;
+              }
+            })?.map((item: any) => {
+              return item?.CustomerGrpCode;
+            }) || [],
+          CustomerEnterprise:
+            resp?.Data?.Lst_Mst_SLACustomerDN?.filter((item: any) => {
+              if (
+                item?.CustomerCodeSys &&
+                item?.CustomerCodeSys != "null" &&
+                item?.CustomerCodeSys != undefined
+              ) {
+                return item;
+              }
+            })?.map((item: any) => {
+              return item?.CustomerCodeSys;
+            }) || [],
+          CustomerEnterpriseGroup:
+            resp?.Data?.Lst_Mst_SLACustomerGroupDN?.filter((item: any) => {
+              if (
+                item?.CustomerGrpCode &&
+                item?.CustomerGrpCode != "null" &&
+                item?.CustomerGrpCode != undefined
+              ) {
+                return item;
+              }
+            })?.map((item: any) => {
+              return item?.CustomerGrpCode;
+            }) || [],
         });
+
         if (resp?.Data?.Lst_Mst_SLAHoliday) {
           setHolidayList(
             resp?.Data?.Lst_Mst_SLAHoliday?.map((item: any) => {
@@ -123,7 +166,6 @@ const SLA_Page = () => {
             const findItem = list?.filter(
               (c: any) => c?.SLAWorkingDayCode == item.Day
             );
-            console.log(item);
             if (findItem && findItem?.length > 0) {
               return {
                 ...item,
@@ -200,25 +242,10 @@ const SLA_Page = () => {
   const holidayListValue = useAtomValue(holidayListAtom);
 
   const handleSave = async () => {
-    if (
-      !headerFormRef?.current?.instance?.validate()?.isValid ||
-      !tabOneRef?.current?.instance?.validate()?.isValid
-    ) {
+    if (!headerFormRef?.current?.instance?.validate()?.isValid) {
       toast.error("Vui lòng nhập đủ các trường!");
       return;
     }
-
-    const Mst_SLA = {
-      SLAID: "",
-      OrgID: authAtomValue.orgId,
-      ANDConditionDetails: null,
-      ORConditionDetails: null,
-      EveryResTime: "",
-
-      ...headerFormValue,
-      FirstResTime: Math.floor(headerFormValue.FirstResTime / 60000) + 420,
-      ResolutionTime: Math.floor(headerFormValue.ResolutionTime / 60000) + 420,
-    };
 
     const Lst_Mst_SLATicketType =
       ticketInfoValue.TicketType?.map((item: any) => {
@@ -234,21 +261,38 @@ const SLA_Page = () => {
         };
       }) ?? [];
 
-    const Lst_Mst_SLACustomer =
-      ticketInfoValue.Customer?.map((item: any) => {
+    const Lst_Mst_SLACustomerCN = ticketInfoValue.Customer?.map((item: any) => {
+      return {
+        CustomerCodeSys: item,
+        CustomerType: "CANHAN",
+      };
+    });
+
+    const Lst_Mst_SLACustomerDN = ticketInfoValue.CustomerEnterprise?.map(
+      (item: any) => {
         return {
           CustomerCodeSys: item,
-          CustomerType: "CANHAN",
+          CustomerType: "DOANHNGHIEP",
         };
-      }) ?? [];
+      }
+    );
 
-    const Lst_Mst_SLACustomerGroup =
-      ticketInfoValue.CustomerGroup?.map((item: any) => {
+    const Lst_Mst_SLACustomerGroupCN = ticketInfoValue.CustomerGroup?.map(
+      (item: any) => {
         return {
           CustomerGrpCode: item,
-          CustomerType: "CANHAN",
+          CustomerGrpType: "CANHAN",
         };
-      }) ?? [];
+      }
+    );
+
+    const Lst_Mst_SLACustomerGroupDN =
+      ticketInfoValue.CustomerEnterpriseGroup?.map((item: any) => {
+        return {
+          CustomerGrpCode: item,
+          CustomerGrpType: "DOANHNGHIEP",
+        };
+      });
 
     const Lst_Mst_SLAHoliday =
       holidayListValue?.map((item: any) => {
@@ -284,12 +328,32 @@ const SLA_Page = () => {
           return prev;
         }, []) ?? [];
 
+    const Mst_SLA = {
+      SLAID: "",
+      OrgID: authAtomValue.orgId,
+      ANDConditionDetails: null,
+      ORConditionDetails: null,
+      EveryResTime: "",
+      ...headerFormValue,
+      FirstResTime: Math.floor(headerFormValue.FirstResTime / 60000) + 420,
+      ResolutionTime: Math.floor(headerFormValue.ResolutionTime / 60000) + 420,
+      FlagAllTicketCustomType:
+        Lst_Mst_SLATicketCustomType.length > 0 ? "0" : "1",
+      FlagAllTicketType: Lst_Mst_SLATicketType.length > 0 ? "0" : "1",
+      FlagAllCustomerCN: Lst_Mst_SLACustomerCN.length > 0 ? "0" : "1",
+      FlagAllCustomerDN: Lst_Mst_SLACustomerCN.length > 0 ? "0" : "1",
+      FlagAllCustomerGrpCN: Lst_Mst_SLACustomerGroupCN.length > 0 ? "0" : "1",
+      FlagAllCustomerGrpDN: Lst_Mst_SLACustomerGroupDN.length > 0 ? "0" : "1",
+    };
+
     const result = {
       Mst_SLA,
       Lst_Mst_SLATicketType,
       Lst_Mst_SLATicketCustomType,
-      Lst_Mst_SLACustomer,
-      Lst_Mst_SLACustomerGroup,
+      Lst_Mst_SLACustomerCN,
+      Lst_Mst_SLACustomerDN,
+      Lst_Mst_SLACustomerGroupCN,
+      Lst_Mst_SLACustomerGroupDN,
       Lst_Mst_SLAHoliday,
       Lst_Mst_SLAWorkingDay,
     };
@@ -309,25 +373,10 @@ const SLA_Page = () => {
   };
 
   const handleUpdate = async () => {
-    if (
-      !headerFormRef?.current?.instance?.validate()?.isValid ||
-      !tabOneRef?.current?.instance?.validate()?.isValid
-    ) {
+    if (!headerFormRef?.current?.instance?.validate()?.isValid) {
       toast.error("Vui lòng nhập đủ các trường!");
       return;
     }
-
-    const Mst_SLA = {
-      SLAID: SLAID,
-      OrgID: authAtomValue.orgId,
-      ANDConditionDetails: null,
-      ORConditionDetails: null,
-      EveryResTime: "",
-
-      ...headerFormValue,
-      FirstResTime: Math.floor(headerFormValue.FirstResTime / 60000) + 420,
-      ResolutionTime: Math.floor(headerFormValue.ResolutionTime / 60000) + 420,
-    };
 
     const Lst_Mst_SLATicketType =
       ticketInfoValue.TicketType?.map((item: any) => {
@@ -340,22 +389,6 @@ const SLA_Page = () => {
       ticketInfoValue.TicketCustomType?.map((item: any) => {
         return {
           TicketCustomType: item,
-        };
-      }) ?? [];
-
-    const Lst_Mst_SLACustomer =
-      ticketInfoValue.Customer?.map((item: any) => {
-        return {
-          CustomerCodeSys: item,
-          CustomerType: "CANHAN",
-        };
-      }) ?? [];
-
-    const Lst_Mst_SLACustomerGroup =
-      ticketInfoValue.CustomerGroup?.map((item: any) => {
-        return {
-          CustomerGrpCode: item,
-          CustomerType: "CANHAN",
         };
       }) ?? [];
 
@@ -393,12 +426,66 @@ const SLA_Page = () => {
           return prev;
         }, []) ?? [];
 
+    const Lst_Mst_SLACustomerCN = ticketInfoValue.Customer?.map((item: any) => {
+      return {
+        CustomerCodeSys: item,
+        CustomerType: "CANHAN",
+      };
+    });
+
+    const Lst_Mst_SLACustomerDN = ticketInfoValue.CustomerEnterprise?.map(
+      (item: any) => {
+        return {
+          CustomerCodeSys: item,
+          CustomerType: "DOANHNGHIEP",
+        };
+      }
+    );
+
+    const Lst_Mst_SLACustomerGroupCN = ticketInfoValue.CustomerGroup?.map(
+      (item: any) => {
+        return {
+          CustomerGrpCode: item,
+          CustomerGrpType: "CANHAN",
+        };
+      }
+    );
+
+    const Lst_Mst_SLACustomerGroupDN =
+      ticketInfoValue.CustomerEnterpriseGroup?.map((item: any) => {
+        return {
+          CustomerGrpCode: item,
+          CustomerGrpType: "DOANHNGHIEP",
+        };
+      });
+
+    const Mst_SLA = {
+      SLAID: SLAID,
+      OrgID: authAtomValue.orgId,
+      ANDConditionDetails: null,
+      ORConditionDetails: null,
+      EveryResTime: "",
+
+      ...headerFormValue,
+      FirstResTime: Math.floor(headerFormValue.FirstResTime / 60000) + 420,
+      ResolutionTime: Math.floor(headerFormValue.ResolutionTime / 60000) + 420,
+      FlagAllTicketCustomType:
+        Lst_Mst_SLATicketCustomType.length > 0 ? "0" : "1",
+      FlagAllTicketType: Lst_Mst_SLATicketType.length > 0 ? "0" : "1",
+      FlagAllCustomerCN: Lst_Mst_SLACustomerCN.length > 0 ? "0" : "1",
+      FlagAllCustomerDN: Lst_Mst_SLACustomerCN.length > 0 ? "0" : "1",
+      FlagAllCustomerGrpCN: Lst_Mst_SLACustomerGroupCN.length > 0 ? "0" : "1",
+      FlagAllCustomerGrpDN: Lst_Mst_SLACustomerGroupDN.length > 0 ? "0" : "1",
+    };
+
     const result = {
       Mst_SLA,
       Lst_Mst_SLATicketType,
       Lst_Mst_SLATicketCustomType,
-      Lst_Mst_SLACustomer,
-      Lst_Mst_SLACustomerGroup,
+      Lst_Mst_SLACustomerCN,
+      Lst_Mst_SLACustomerDN,
+      Lst_Mst_SLACustomerGroupCN,
+      Lst_Mst_SLACustomerGroupDN,
       Lst_Mst_SLAHoliday,
       Lst_Mst_SLAWorkingDay,
     };
@@ -416,6 +503,35 @@ const SLA_Page = () => {
       });
     }
   };
+
+  const handleDelete = async () => {
+    const req = {
+      Mst_SLA: {
+        SLAID: SLAID,
+        OrgID: auth.orgData?.Id,
+      },
+      Lst_Mst_SLATicketType: [],
+      Lst_Mst_SLATicketCustomType: [],
+      Lst_Mst_SLACustomer: [],
+      Lst_Mst_SLACustomerGroup: [],
+      Lst_Mst_SLAHoliday: [],
+      Lst_Mst_SLAWorkingDay: [],
+    };
+
+    const resp: any = await api.Mst_SLA_Delete(req);
+
+    if (resp.isSuccess) {
+      toast.success("Xoá thành công!");
+      navigate(`/${auth.networkId}/eticket/SLA`);
+    } else {
+      showError({
+        message: resp?.errorCode,
+        debugInfo: resp?.debugInfo,
+        errorInfo: resp?.errorInfo,
+      });
+    }
+  };
+
   return (
     <>
       <div className="flex justify-end">
@@ -430,16 +546,16 @@ const SLA_Page = () => {
               }}
               onClick={handleEdit}
             >
-              Edit
+              Chỉnh sửa
             </Button>
             <Button
               style={{
                 padding: 10,
                 margin: 10,
               }}
-              onClick={handleCancel}
+              onClick={handleDelete}
             >
-              Cancel
+              Xóa
             </Button>
           </>
         )}
@@ -455,7 +571,7 @@ const SLA_Page = () => {
               }}
               onClick={handleUpdate}
             >
-              Update
+              Cập nhật
             </Button>
             <Button
               style={{
@@ -464,7 +580,7 @@ const SLA_Page = () => {
               }}
               onClick={handleCancel}
             >
-              Cancel
+              Thoát
             </Button>
           </>
         )}
@@ -480,7 +596,7 @@ const SLA_Page = () => {
               }}
               onClick={handleSave}
             >
-              Save
+              Lưu
             </Button>
             <Button
               style={{
@@ -489,7 +605,7 @@ const SLA_Page = () => {
               }}
               onClick={handleCancel}
             >
-              Cancel
+              Thoát
             </Button>
           </>
         )}

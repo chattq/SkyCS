@@ -1,14 +1,14 @@
 import {
   ApiResponse,
-  SysUserData,
   SearchUserControlParam,
+  SysUserData,
 } from "@packages/types";
 import { AxiosInstance } from "axios";
 
 export const useSys_UserApi = (apiBase: AxiosInstance) => {
   return {
     Sys_User_Search: async (
-      param: SearchUserControlParam
+      param: Partial<SearchUserControlParam>
     ): Promise<ApiResponse<SysUserData>> => {
       return await apiBase.post<
         SearchUserControlParam,
@@ -23,15 +23,35 @@ export const useSys_UserApi = (apiBase: AxiosInstance) => {
         ApiResponse<SysUserData[]>
       >("/SysUser/GetAllActive", {});
     },
-    Sys_User_Export: async (
-      UserCode: any
+    Sys_User_CheckUser: async (
+      email: any
     ): Promise<ApiResponse<SysUserData>> => {
       return await apiBase.post<
         SearchUserControlParam,
         ApiResponse<SysUserData>
-      >("/SysUser/Export", {
-        UserCode: UserCode,
+      >("/SysUser/CheckUserExistAccCenter", {
+        Email: email,
       });
+    },
+    Sys_User_Export: async (
+      keyUserCode: any,
+      KeyWord: any
+    ): Promise<ApiResponse<SysUserData>> => {
+      if (KeyWord === "") {
+        return await apiBase.post<
+          SearchUserControlParam,
+          ApiResponse<SysUserData>
+        >("/SysUser/Export", {
+          UserCode: keyUserCode,
+        });
+      } else {
+        return await apiBase.post<
+          SearchUserControlParam,
+          ApiResponse<SysUserData>
+        >("/SysUser/Export", {
+          KeyWord: KeyWord,
+        });
+      }
     },
     Sys_User_Data_GetByUserCode: async (
       code: any
@@ -68,6 +88,7 @@ export const useSys_UserApi = (apiBase: AxiosInstance) => {
     Sys_User_Update: async (
       data: Partial<SysUserData>
     ): Promise<ApiResponse<SysUserData>> => {
+      console.log(91, data);
       return await apiBase.post("/SysUser/Update", {
         strJson: JSON.stringify({
           ...data,

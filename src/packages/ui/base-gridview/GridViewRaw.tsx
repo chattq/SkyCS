@@ -101,7 +101,7 @@ export const GridViewRaw = forwardRef(
       stateStoring,
       onCustomerEditing,
     }: GridViewProps,
-    ref: any,
+    ref: any
   ) => {
     const datagridRef = useRef<DataGrid | null>(null);
     const windowSize = useWindowSize();
@@ -124,17 +124,18 @@ export const GridViewRaw = forwardRef(
         saveState(changes);
         return changes;
       },
-      columns,
+      columns
     );
     useEffect(() => {
       const savedState = loadState();
       if (savedState) {
+        console.log("Load saved state:", savedState)
         const columnOrders = savedState.map(
-          (column: ColumnOptions) => column.dataField,
+          (column: ColumnOptions) => column.dataField
         );
         const outputColumns = columns.map((column: ColumnOptions) => {
           const filterResult = savedState.find(
-            (c: ColumnOptions) => c.dataField === column.dataField,
+            (c: ColumnOptions) => c.dataField === column.dataField
           );
           column.visible = filterResult ? filterResult.visible : false;
           return column;
@@ -142,11 +143,22 @@ export const GridViewRaw = forwardRef(
         outputColumns.sort(
           (a, b) =>
             columnOrders.indexOf(a.dataField) -
-            columnOrders.indexOf(b.dataField),
+            columnOrders.indexOf(b.dataField)
         );
         setColumnsState(outputColumns);
+      } else {
+        // console.log("no saved state")
+        const output = columns.map((c: ColumnOptions) => {
+          return {
+            ...c,
+            visible: true
+          }
+        })
+        // console.log("setup init state:", output)
+        saveState(output);
+        setColumnsState(output)
       }
-    }, []);
+    }, [columns]);
 
     const onHiding = useCallback(() => {
       chooserVisible.close();
@@ -158,7 +170,7 @@ export const GridViewRaw = forwardRef(
         const latest = [...changes];
         realColumns.forEach((column: ColumnOptions) => {
           const found = changes.find(
-            (c: ColumnOptions) => c.dataField === column.dataField,
+            (c: ColumnOptions) => c.dataField === column.dataField
           );
           if (!found) {
             column.visible = false;
@@ -168,7 +180,7 @@ export const GridViewRaw = forwardRef(
         setColumnsState(latest);
         chooserVisible.close();
       },
-      [setColumnsState],
+      [setColumnsState]
     );
     const onToolbarPreparing = useCallback((e: any) => {
       e.toolbarOptions.items.push({
@@ -255,7 +267,7 @@ export const GridViewRaw = forwardRef(
     };
 
     const setConfirmBoxVisible = useSetAtom(
-      normalGridDeleteMultipleConfirmationBoxAtom,
+      normalGridDeleteMultipleConfirmationBoxAtom
     );
     const handleConfirmDelete = () => {
       setConfirmBoxVisible(true);
@@ -331,7 +343,7 @@ export const GridViewRaw = forwardRef(
     const setGridAtom = useSetAtom(gridStateAtom);
     const setDeletingId = useSetAtom(normalGridSingleDeleteItemAtom);
     const setDeleteSingleConfirmBoxVisible = useSetAtom(
-      normalGridDeleteSingleConfirmationBoxAtom,
+      normalGridDeleteSingleConfirmationBoxAtom
     );
 
     const innerSavingRowHandler = useCallback((e: any) => {
@@ -442,7 +454,7 @@ export const GridViewRaw = forwardRef(
               allowDeleting={true}
               allowAdding={true}
               confirmDelete={false}
-              onChangesChange={onEditRowChanges ? onEditRowChanges : () => { }}
+              onChangesChange={onEditRowChanges ? onEditRowChanges : () => {}}
             ></Editing>
             <Column
               visible
@@ -492,5 +504,5 @@ export const GridViewRaw = forwardRef(
         />
       </div>
     );
-  },
+  }
 );

@@ -1,62 +1,58 @@
-import ResponsiveBox, { Col, Item, Location, Row } from "devextreme-react/responsive-box";
-import { Button, ScrollView, TabPanel, Tabs, DropDownBox, List } from 'devextreme-react';
-import { Item as TabItem } from 'devextreme-react/tabs';
+import ResponsiveBox, {
+  Col,
+  Item,
+  Location,
+  Row,
+} from "devextreme-react/responsive-box";
+import {
+  Button,
+  ScrollView,
+  TabPanel,
+  Tabs,
+  DropDownBox,
+  List,
+} from "devextreme-react";
+import { Item as TabItem } from "devextreme-react/tabs";
 import { useState } from "react";
 import { PartReplyZalo } from "./part-reply-zalo";
 import { PartReplyEmail } from "./part-reply-email";
 import { PartReplyCall } from "./part-reply-call";
 import { PartReplyNote } from "./part-reply-note";
 
-
 export const PartReply = () => {
+  const [currentTab, setCurrentTab] = useState(0);
+  const onItemClick = (e: any) => {
+    setCurrentTab(e.itemIndex);
+  };
 
-    const [currentTab, setCurrentTab] = useState(0);
+  const getReplyContent = () => {
+    if (currentTab == 0) return <PartReplyZalo />;
+    if (currentTab == 1) return <PartReplyEmail />;
+    if (currentTab == 2) return <PartReplyCall />;
+    if (currentTab == 3) return <PartReplyNote />;
+  };
 
+  return (
+    <div className={"w-full sep-bottom-5 mb-5"}>
+      <div className={"w-full pt-0 sep-bottom-1 tab-ctn-2"}>
+        <Tabs
+          style={{ maxWidth: 400 }}
+          onItemClick={onItemClick}
+          selectedIndex={currentTab}
+        >
+          <TabItem text="Zalo" />
 
-    const onItemClick = (e: any) => {
+          <TabItem text="Email" />
 
-        setCurrentTab(e.itemIndex);
-    }
+          <TabItem text="Call" />
 
-    const getReplyContent = () => {
-        if (currentTab == 0) return <PartReplyZalo />
-        if (currentTab == 1) return <PartReplyEmail />
-        if (currentTab == 2) return <PartReplyCall />
-        if (currentTab == 3) return <PartReplyNote />
-    }
+          <TabItem text="Ghi chú" />
+        </Tabs>
+      </div>
 
-    return (
-        <div className={'w-full sep-bottom-5 mb-5'}>
-            <div className={'w-full pt-0 sep-bottom-3 tab-ctn-2'}>
-                <Tabs
-                    style={{ maxWidth: 400 }}
-                    onItemClick={onItemClick}
-                    selectedIndex={currentTab}
-                >
-                    <TabItem
-                        text="Zalo"
-                    />
+      {getReplyContent()}
 
-
-                    <TabItem
-                        text="Email"
-                    />
-
-                    <TabItem
-                        text="Call"
-                    />
-
-                    <TabItem
-                        text="Ghi chú"
-                    />
-
-
-                </Tabs>
-            </div>
-
-            {getReplyContent()}
-
-            {/* <div className={'w-full'}>
+      {/* <div className={'w-full'}>
                 <div className="flex float-right">
                     <DropDownBox
                         label="Lựa chọn xử lý"
@@ -87,6 +83,6 @@ export const PartReply = () => {
                     />
                 </div>
             </div> */}
-        </div>
-    );
-}
+    </div>
+  );
+};

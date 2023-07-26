@@ -1,6 +1,7 @@
 import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 import { AvatarData, fileAtom, showDetail, viewingDataAtom } from "./store";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { toast } from "react-toastify";
 
 export const getAvatarUrl = (avatarName: any) => {
   if (avatarName || avatarName === "") {
@@ -24,8 +25,15 @@ export default function UploadAvatar({ data, setAvt }: any) {
   const handleFake = () => {};
   const onFileChange = (event: any) => {
     const fileFromLocal = event.target.files?.[0];
-    setFile(fileFromLocal);
-    setAvt(fileFromLocal);
+    if (
+      fileFromLocal &&
+      (fileFromLocal.size >= 1048576 || !fileFromLocal.type.includes("image"))
+    ) {
+      toast.error(`Dụng lượng file tối đa 1 MB. Định dạng:.JPEG, .PNG`);
+    } else {
+      setAvt(fileFromLocal);
+      setFile(fileFromLocal);
+    }
   };
 
   return (

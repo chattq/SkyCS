@@ -12,6 +12,13 @@ export const viewingRowAtom = atom<number | undefined>(undefined);
 export const viewingItemAtom = atom<Rpt_CpnCampaignResultCallData | undefined>(
   undefined
 );
+export const dataSearchAtom = atom<any>(null);
+export const checkIconAtom = atom<any>("");
+export const keySearchAtom = atom<any>("");
+export const showInputhAtom = atom<any>(undefined);
+export const currentInfo = atom<any>({
+  uploadFiles: [],
+});
 
 export const viewingDataAtom = atom(
   (get) => {

@@ -26,6 +26,7 @@ import { useAuth } from "@/packages/contexts/auth";
 import { match } from "ts-pattern";
 import { GridViewCustomize } from "@/packages/ui/base-gridview/gridview-customize";
 import { useSetAtom } from "jotai";
+import { useWindowSize } from "@/packages/hooks/useWindowSize";
 
 export const Cpn_CampaignPage = () => {
   const { t } = useI18n("Cpn_CampaignPage");
@@ -35,6 +36,7 @@ export const Cpn_CampaignPage = () => {
   const showError = useSetAtom(showErrorAtom);
   const { auth } = useAuth();
   const navigate = useNetworkNavigate();
+  const windowSize = useWindowSize();
   const [searchCondition] = useState<any>({
     FlagActive: FlagActiveEnum.All,
     Ft_PageIndex: 0,
@@ -90,14 +92,42 @@ export const Cpn_CampaignPage = () => {
     }
   );
 
-  const columns = useBankDealerGridColumns({ data: data?.DataList || [] });
+  const arrayStatus = [
+    {
+      label: t("PENDING"),
+      value: "PENDING",
+    },
+    {
+      label: t("APPROVE"),
+      value: "APPROVE",
+    },
+    {
+      label: t("STARTED"),
+      value: "STARTED",
+    },
+    {
+      label: t("PAUSED"),
+      value: "PAUSED",
+    },
+    {
+      label: t("CONTINUED"),
+      value: "CONTINUED",
+    },
+    {
+      label: t("FINISH"),
+      value: "FINISH",
+    },
+  ];
 
-  console.log("listCampaignType", listCampaignType);
+  const columns = useBankDealerGridColumns({ data: data?.DataList || [] });
   const formItems: IItemProps[] = useMemo(() => {
     return [
       {
         dataField: "CreateDTimeUTCFrom",
         caption: t("CreateDTimeUTCFrom"),
+        label: {
+          text: t("CreateDTimeUTCFrom"),
+        },
         editorType: "dxDateBox",
         editorOptions: {
           type: "date",
@@ -107,6 +137,9 @@ export const Cpn_CampaignPage = () => {
       {
         dataField: "CreateDTimeUTCTo",
         caption: t("CreateDTimeUTCTo"),
+        label: {
+          text: t("CreateDTimeUTCTo"),
+        },
         editorType: "dxDateBox",
         editorOptions: {
           type: "date",
@@ -116,6 +149,9 @@ export const Cpn_CampaignPage = () => {
       {
         dataField: "StartDTimeUTCFrom",
         caption: t("StartDTimeUTCFrom"),
+        label: {
+          text: t("StartDTimeUTCFrom"),
+        },
         editorType: "dxDateBox",
         editorOptions: {
           type: "date",
@@ -125,6 +161,9 @@ export const Cpn_CampaignPage = () => {
       {
         dataField: "StartDTimeUTCTo",
         caption: t("StartDTimeUTCTo"),
+        label: {
+          text: t("StartDTimeUTCTo"),
+        },
         editorType: "dxDateBox",
         editorOptions: {
           type: "date",
@@ -134,6 +173,9 @@ export const Cpn_CampaignPage = () => {
       {
         dataField: "FinishDTimeUTCFrom",
         caption: t("FinishDTimeUTCFrom"),
+        label: {
+          text: t("FinishDTimeUTCFrom"),
+        },
         editorType: "dxDateBox",
         editorOptions: {
           type: "date",
@@ -143,6 +185,9 @@ export const Cpn_CampaignPage = () => {
       {
         dataField: "FinishDTimeUTCTo",
         caption: t("FinishDTimeUTCTo"),
+        label: {
+          text: t("FinishDTimeUTCTo"),
+        },
         editorType: "dxDateBox",
         editorOptions: {
           type: "date",
@@ -152,24 +197,22 @@ export const Cpn_CampaignPage = () => {
       {
         dataField: "CampaignStatus",
         caption: t("CampaignStatus"),
+        label: {
+          text: t("CampaignStatus"),
+        },
         editorType: "dxTagBox",
         editorOptions: {
-          dataSource: [
-            {
-              value: "1",
-              text: t("Active"),
-            },
-            {
-              value: "0",
-              text: t("Inactive"),
-            },
-          ],
-          displayExpr: "text",
+          dataSource: arrayStatus,
+          valueExpr: "value",
+          displayExpr: "label",
         },
       },
       {
         dataField: "CampaignTypeCode",
         caption: t("CampaignTypeCode"),
+        label: {
+          text: t("CampaignTypeCode"),
+        },
         editorType: "dxSelectBox",
         editorOptions: {
           dataSource: listCampaignType ?? [],
@@ -401,7 +444,7 @@ export const Cpn_CampaignPage = () => {
       onClick: (e: any, ref: any) => {
         const code = ref.instance.getSelectedRowsData()[0].CampaignCode;
         setFlagSelector("update");
-        navigate(`/admin/Cpn_CampaignPage/Cpn_Campaign_Info/${code}`);
+        navigate(`/campaign/Cpn_CampaignPage/Cpn_Campaign_Info/update/${code}`);
       },
     },
     {

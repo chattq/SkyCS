@@ -22,7 +22,7 @@ export const TextboxField = ({
         !!error ? "mb-4" : ""
       }`}
     >
-      <label className={"w-[150px]"}>{label}</label>
+      <label className={"w-[250px]"}>{label}</label>
       <TextBox
         disabled={disabled ? true : false}
         {...rest}

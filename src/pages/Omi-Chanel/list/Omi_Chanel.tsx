@@ -33,10 +33,10 @@ export default function OmiChanelPage() {
   const { data: dataChanel, refetch } = useQuery(["dataChanel"], () =>
     api.Mst_Channel_GetByOrgID(orgData?.Id)
   );
-  const zaloRef = useRef<any>();
-  const EmailRef = useRef<any>();
+  const zaloRef = useRef<any>(undefined);
+  const EmailRef = useRef<any>(undefined);
   const showError = useSetAtom(showErrorAtom);
-
+  console.log(39, dataChanel?.Data.Lst_Mst_ChannelZalo[0]);
   const tab = [
     {
       title: t("Email"),
@@ -65,6 +65,7 @@ export default function OmiChanelPage() {
       component: <Call_Channel />,
     },
   ];
+
   const handleSave = async () => {
     const dataZalo = [
       {
@@ -72,28 +73,33 @@ export default function OmiChanelPage() {
         ZaloOAID: "1358767a413636684272",
         RefreshToken: "RefreshToken",
         AccessToken: "AccessToken",
-        FlagIsCreateET: zaloRef
-          ? zaloRef.current === true
-            ? "1"
-            : "0"
-          : dataChanel?.Data.Lst_Mst_ChannelZalo[0]?.FlagIsCreateET,
+        FlagIsCreateET:
+          zaloRef.current !== undefined
+            ? zaloRef.current === true
+              ? "1"
+              : "0"
+            : dataChanel?.Data.Lst_Mst_ChannelZalo[0]?.FlagIsCreateET,
       },
     ];
-    const dataEmail = [
-      {
-        MailFrom: "no-reply@mg.qinvoice.vn",
-        APIsSendMail: "http://mailgate.inos.vn/emailapi/send",
-        ApiKeySendMail: "FMfcgxwDrRVzncFSGgMSxGGCGFMszbkB",
-        SolutionCodeSendMail: "SKYCS",
-        DisplayNameMailFrom: "SKYCS",
-        FlagIsCreateET: EmailRef
-          ? EmailRef.current === true
-            ? "1"
-            : "0"
+
+    const dataEmail = EmailRef.current.instance.option("formData");
+    const dataSaveEmail = {
+      ...dataEmail,
+      FlagIsCreateET:
+        dataEmail.FlagIsCreateET !==
+        dataChanel?.Data.Lst_Mst_ChannelEmail[0]?.FlagIsCreateET
+          ? dataEmail.FlagIsCreateET === false
+            ? "0"
+            : "1"
           : dataChanel?.Data.Lst_Mst_ChannelEmail[0]?.FlagIsCreateET,
+    };
+
+    const resp = await api.Mst_Channel_Save(dataZalo, [
+      {
+        ...dataSaveEmail,
+        FlagIsCreateET: dataSaveEmail.FlagIsCreateET === false ? "0" : "1",
       },
-    ];
-    const resp = await api.Mst_Channel_Save(dataZalo, dataEmail);
+    ]);
     if (resp.isSuccess) {
       toast.success(t("Save Successfully"));
       // await refetch();

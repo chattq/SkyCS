@@ -4,16 +4,12 @@ import {
   requiredEmailType,
 } from "@/packages/common/Validation_Rules";
 
-export const useFormSettings = ({
-  data,
-  dataListDepartment,
-  dataListGroup,
-}: any) => {
-  const { t } = useI18n("User_Mananger");
+export const useFormSettings = ({ data }: any) => {
+  const { t } = useI18n("Category_Manager");
 
   const formSettings: any = [
     {
-      colCount: 4,
+      colCount: 1,
       labelLocation: "left",
       typeForm: "textForm",
       hidden: false,
@@ -21,130 +17,56 @@ export const useFormSettings = ({
         {
           itemType: "group",
           caption: t("BASIC_INFORMATION"),
-          colSpan: 2,
+          colSpan: 1,
           cssClass: "",
           items: [
             {
-              dataField: "EMail",
+              dataField: "CategoryName",
               editorOptions: {
                 placeholder: t("Input"),
+              },
+              label: {
+                text: t("CategoryName"),
               },
               editorType: "dxTextBox",
-              caption: t("EMail"),
+              caption: t("CategoryName"),
               visible: true,
-              validationRules: [
-                requiredEmailType,
-                RequiredField(t("EmailIsRequired")),
-              ],
+              validationRules: [RequiredField(t("CategoryNameIsRequired"))],
             },
             {
-              dataField: "UserName",
+              dataField: "CategoryDesc",
               editorOptions: {
                 placeholder: t("Input"),
+              },
+              label: {
+                text: t("CategoryDesc"),
               },
               editorType: "dxTextBox",
-              caption: t("UserName"),
+              caption: t("CategoryDesc"),
               visible: true,
-              validationRules: [RequiredField(t("UserNameIsRequired"))],
             },
             {
-              dataField: "PhoneNo",
-              editorOptions: {
-                placeholder: t("Input"),
+              dataField: "CategoryParentCode",
+              label: {
+                text: t("CategoryParentCode"),
               },
-              editorType: "dxTextBox",
-              caption: t("PhoneNo"),
-              visible: true,
-            },
-            {
-              dataField: "ACLanguage",
-              editorOptions: {
-                dataSource: [
-                  { text: t("Tiếng Việt"), value: "vn" },
-                  { text: t("Tiếng Anh"), value: "en" },
-                ],
-                displayExpr: "text",
-                valueExpr: "value",
-                placeholder: t("Input"),
-              },
-              editorType: "dxSelectBox",
-              caption: t("ACLanguage"),
-              visible: true,
-            },
-            {
-              dataField: "ACTimeZone",
-              editorOptions: {
-                placeholder: t("Input"),
-                dataSource: [{ text: t("UTC+7"), value: "7" }],
-                displayExpr: "text",
-                valueExpr: "value",
-              },
-              editorType: "dxSelectBox",
-              caption: t("ACTimeZone"),
-              visible: true,
-            },
-          ],
-        },
-        {
-          itemType: "group",
-          caption: t("BASIC_INFORMATION"),
-          colSpan: 2,
-          cssClass: "",
-          items: [
-            {
-              dataField: "MST",
-              editorOptions: {
-                items: data,
-                displayExpr: "MST",
-                valueExpr: "MST",
-                placeholder: t("Input"),
-              },
-              editorType: "dxSelectBox",
-              caption: t("MST"),
-              visible: true,
-            },
-            {
-              dataField: "DepartmentName",
               editorOptions: {
                 placeholder: t("Select"),
-                dataSource: dataListDepartment,
-                displayExpr: "DepartmentName",
-                valueExpr: "DepartmentCode",
-                searchEnabled: true,
+                dataSource: data ?? [],
+                valueExpr: "CategoryCode",
+                displayExpr: "CategoryName",
               },
-              editorType: "dxTagBox",
-              caption: t("DepartmentName"),
+              editorType: "dxSelectBox",
+              caption: t("CategoryParentCode"),
               visible: true,
             },
             {
-              dataField: "GroupName",
-              editorOptions: {
-                dataSource: dataListGroup,
-                displayExpr: "GroupName",
-                valueExpr: "GroupCode",
-                placeholder: t("Select"),
-                searchEnabled: true,
-              },
-              editorType: "dxTagBox",
-              caption: t("GroupName"),
-              visible: true,
-            },
-            {
-              dataField: "FlagSysAdmin",
+              dataField: "FlagActive",
               editorOptions: {
                 placeholder: t("Input"),
               },
               editorType: "dxSwitch",
-              caption: t("FlagSysAdmin"),
-              visible: true,
-            },
-            {
-              dataField: "FlagNNTAdmin",
-              editorOptions: {
-                placeholder: t("Input"),
-              },
-              editorType: "dxSwitch",
-              caption: t("FlagNNTAdmin"),
+              caption: t("FlagActive"),
               visible: true,
             },
           ],

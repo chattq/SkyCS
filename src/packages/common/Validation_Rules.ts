@@ -1,3 +1,5 @@
+import {ValidationRule} from "devextreme/common";
+
 const regexLat = /^(-?[1-8]?\d(?:\.\d{1,18})?|90(?:\.0{1,18})?)$/;
 const regexLon = /^(-?(?:1[0-7]|[1-9])?\d(?:\.\d{1,18})?|180(?:\.0{1,18})?)$/;
 const regexNumber =
@@ -29,7 +31,7 @@ export const requiredStringType = {
 
 export const requiredType = {
   type: "required",
-};
+} as ValidationRule;
 
 export const RequiredField = (message: string) => {
   return {

@@ -1,6 +1,5 @@
 import { useI18n } from "@/i18n/useI18n";
 import { useClientgateApi } from "@/packages/api";
-import { requiredType } from "@/packages/common/Validation_Rules";
 import { useQuery } from "@tanstack/react-query";
 import Form, { GroupItem, Item } from "devextreme-react/form";
 import { useAtomValue } from "jotai";
@@ -63,7 +62,6 @@ const TabOne = forwardRef(({}, ref: any) => {
             },
             editorType: "dxTagBox",
             visible: true,
-            validationRules: [requiredType],
           },
           {
             caption: t("Phân loại tùy chọn"),
@@ -75,7 +73,6 @@ const TabOne = forwardRef(({}, ref: any) => {
             },
             editorType: "dxTagBox",
             visible: true,
-            validationRules: [requiredType],
           },
         ],
       },
@@ -96,7 +93,6 @@ const TabOne = forwardRef(({}, ref: any) => {
             },
             editorType: "dxTagBox",
             visible: true,
-            validationRules: [requiredType],
           },
           {
             caption: t("Nhóm khách hàng"),
@@ -108,7 +104,37 @@ const TabOne = forwardRef(({}, ref: any) => {
             },
             editorType: "dxTagBox",
             visible: true,
-            validationRules: [requiredType],
+          },
+        ],
+      },
+      {
+        caption: "Doanh nghiệp",
+        colCount: 1,
+        labelLocation: "left",
+        typeForm: "textForm",
+        hidden: false,
+        items: [
+          {
+            caption: t("Khách hàng"),
+            dataField: "CustomerEnterprise",
+            editorOptions: {
+              dataSource: listCustomer ?? [],
+              valueExpr: "CustomerCodeSys",
+              displayExpr: "CustomerName",
+            },
+            editorType: "dxTagBox",
+            visible: true,
+          },
+          {
+            caption: t("Nhóm khách hàng"),
+            dataField: "CustomerEnterpriseGroup",
+            editorOptions: {
+              dataSource: listCustomerGroup ?? [],
+              valueExpr: "CustomerGrpCode",
+              displayExpr: "CustomerGrpName",
+            },
+            editorType: "dxTagBox",
+            visible: true,
           },
         ],
       },

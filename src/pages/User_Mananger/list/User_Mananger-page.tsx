@@ -9,6 +9,7 @@ import {
   AvatarData,
   avatar,
   dataFormAtom,
+  dataGridAtom,
   dataTableAtom,
   flagEdit,
   keywordAtom,
@@ -19,7 +20,7 @@ import {
 import { searchPanelVisibleAtom } from "@layouts/content-searchpanel-layout";
 import { useConfiguration, useVisibilityControl } from "@packages/hooks";
 import { logger } from "@packages/logger";
-import { showErrorAtom } from "@packages/store";
+import { authAtom, showErrorAtom } from "@packages/store";
 import {
   FlagActiveEnum,
   Mst_Dealer,
@@ -35,13 +36,15 @@ import "./User_Mananger.scss";
 
 import { useDealerGridColumns } from "../components/use-columns";
 import { useFormSettings } from "../components/use-form-settings";
-import { DataGrid, LoadPanel } from "devextreme-react";
+import { Button, DataGrid, LoadPanel } from "devextreme-react";
 
 import { showPopup } from "@/pages/User_Mananger/components/store";
 import { PageHeaderLayout } from "@/packages/layouts/page-header-layout";
 import { HeaderPart } from "../components/header-part";
 import { toast } from "react-toastify";
 import { CustomToolbar } from "@/pages/User_Mananger/components/custom-toolbar";
+import { GridViewCustomize } from "@/packages/ui/base-gridview/gridview-customize";
+import { hidenMoreAtom } from "@/packages/ui/base-gridview/store/normal-grid-store";
 
 export const UserManangerPage = () => {
   const { t } = useI18n("User_Mananger");
@@ -55,29 +58,36 @@ export const UserManangerPage = () => {
   const setFlag = useSetAtom(flagEdit);
   const setAvt = useSetAtom(avatar);
   const keyword = useAtomValue(keywordAtom);
-
-  const [searchCondition, setSearchCondition] = useState<any>({
-    FlagActive: FlagActiveEnum.All,
-    Ft_PageIndex: 0,
-    Ft_PageSize: config.MAX_PAGE_ITEMS,
-    UserName: "",
-    EMail: "",
-    UserCode: "",
-    PhoneNo: "",
-    KeyWord: "",
-  });
-
   const setSelectedItems = useSetAtom(selectedItemsAtom);
+  const [dataGrid, setDataGrid] = useAtom(dataGridAtom);
+  const auth = useAtomValue(authAtom);
 
   const api = useClientgateApi();
 
   const { data, isLoading, refetch } = useQuery(
-    ["User_Mananger", JSON.stringify(searchCondition)],
+    ["User_Mananger", keyword],
     () =>
       api.Sys_User_Search({
-        ...searchCondition,
-      })
+        FlagActive: FlagActiveEnum.All,
+        Ft_PageIndex: 0,
+        Ft_PageSize: config.MAX_PAGE_ITEMS,
+        UserName: "",
+        EMail: "",
+        UserCode: "",
+        PhoneNo: "",
+        KeyWord: keyword,
+      }) as any
   );
+  useEffect(() => {
+    if (data) {
+      setDataGrid(
+        data?.DataList?.filter((item: any) => {
+          const userCode = item.UserCode;
+          return !userCode.startsWith("SA.BG");
+        }) ?? []
+      );
+    }
+  }, [data]);
   const { data: listMST } = useQuery(["listMST"], () =>
     api.Mst_NNTController_GetAllActive()
   );
@@ -87,15 +97,19 @@ export const UserManangerPage = () => {
   const { data: listGroup } = useQuery(["listGroup"], () =>
     api.Sys_GroupController_GetAllActive()
   );
-
+  const { data: dataMST } = useQuery(
+    ["MSTController"],
+    () => api.Mst_NNTController_GetOrgCode(auth.orgId.toString()) as any
+  );
   const columns = useDealerGridColumns({ data: data?.Data?.DataList });
   const formSettings = useFormSettings({
-    data: listMST?.DataList,
+    dataMST: listMST?.Data?.Lst_Mst_NNT,
     dataListDepartment: listDepartMent?.DataList,
     dataListGroup: listGroup?.DataList,
   });
 
   const handleSelectionChanged = (rows: string[]) => {
+    console.log("selection change");
     setSelectedItems(rows);
   };
   const handleAddNew = () => {
@@ -103,7 +117,13 @@ export const UserManangerPage = () => {
     setAvt(undefined);
     setFlag(true);
     setDataTable([]);
-    setDataForm([]);
+    setDataForm({
+      UserName: "",
+      ACTimeZone: "7",
+      ACLanguage: "vi",
+      MST: dataMST?.Data?.MST,
+    });
+
     setPopupVisible(true);
   };
 
@@ -138,13 +158,21 @@ export const UserManangerPage = () => {
     setShowDetail(false);
     setFlag(false);
     setPopupVisible(true);
-    const resp = await api.Sys_User_Data_GetByUserCode(e.row.data.UserCode);
+    const resp = await api.Sys_User_Data_GetByUserCode(e);
     if (resp.isSuccess) {
-      setAvt(resp?.Data?.Avatar);
+      const { GroupName, DepartmentName, DepartmentCode, ...updatedData } =
+        resp.Data?.Lst_Sys_User;
+      setAvt(resp?.Data?.Lst_Sys_User.Avatar);
       setDataForm({
-        ...resp.Data,
-        FlagNNTAdmin: resp.Data?.FlagNNTAdmin === "1" ? true : false,
-        FlagSysAdmin: resp.Data?.FlagSysAdmin === "1" ? true : false,
+        ...updatedData,
+        FlagNNTAdmin: updatedData?.FlagNNTAdmin === "1" ? true : false,
+        FlagSysAdmin: updatedData?.FlagSysAdmin === "1" ? true : false,
+        DepartmentName: resp.Data?.Lst_Sys_UserMapDepartment.map(
+          (item: any) => item.DepartmentCode
+        ),
+        GroupName: resp.Data?.Lst_Sys_UserInGroup.map(
+          (item: any) => item.GroupCode
+        ),
       });
     }
   };
@@ -179,16 +207,43 @@ export const UserManangerPage = () => {
   };
 
   const onModifyNew = async (data: SysUserData) => {
-    if (
-      data.EMail !== "" &&
-      data.UserCode !== "" &&
-      data.UserPassword !== "" &&
-      data.MST
-    ) {
+    const { GroupName, DepartmentName, DepartmentCode, ...updatedData } =
+      data as any;
+    const resp = await api.Sys_User_Data_GetByUserCode(updatedData.UserCode);
+    const isSame =
+      JSON.stringify(updatedData) ===
+      JSON.stringify({
+        EMail: resp.Data?.Lst_Sys_User.EMail,
+        UserName: resp.Data?.Lst_Sys_User.UserName,
+        PhoneNo: resp.Data?.Lst_Sys_User.PhoneNo,
+        ACLanguage: resp.Data?.Lst_Sys_User.ACLanguage,
+        ACTimeZone: resp.Data?.Lst_Sys_User.ACTimeZone,
+        MST: resp.Data?.Lst_Sys_User.MST,
+        FlagSysAdmin:
+          resp.Data?.Lst_Sys_User.FlagSysAdmin === "1" ? "true" : "false",
+        FlagNNTAdmin:
+          resp.Data?.Lst_Sys_User.FlagNNTAdmin === "1" ? "true" : "false",
+        Avatar: resp.Data?.Lst_Sys_User.Avatar,
+        UserPassword: resp.Data?.Lst_Sys_User.UserPassword,
+        UserCode: resp.Data?.Lst_Sys_User.EMail,
+        Lst_Sys_UserMapDepartment: resp.Data?.Lst_Sys_UserMapDepartment.map(
+          (item: any) => ({
+            UserCode: resp.Data?.Lst_Sys_User.EMail,
+            DepartmentCode: item.DepartmentCode,
+          })
+        ),
+        Lst_Sys_UserInGroup: resp.Data?.Lst_Sys_UserInGroup.map(
+          (item: any) => ({
+            UserCode: resp.Data?.Lst_Sys_User.EMail,
+            GroupCode: item.GroupCode,
+          })
+        ),
+      });
+    if (!isSame && updatedData.EMail !== "" && updatedData.UserCode !== "") {
       const resp = await api.Sys_User_Update({
-        ...data,
-        FlagNNTAdmin: data.FlagNNTAdmin === "true" ? "1" : "0",
-        FlagSysAdmin: data.FlagSysAdmin === "true" ? "1" : "0",
+        ...updatedData,
+        FlagNNTAdmin: updatedData.FlagNNTAdmin === "true" ? "1" : "0",
+        FlagSysAdmin: updatedData.FlagSysAdmin === "true" ? "1" : "0",
       });
       if (resp.isSuccess) {
         toast.success(t("Update Successfully"));
@@ -211,7 +266,8 @@ export const UserManangerPage = () => {
       data.EMail !== "" &&
       data.UserCode !== "" &&
       data.UserPassword !== "" &&
-      data.MST
+      data.ReUserPassword !== "" &&
+      data.ReUserPassword === data.UserPassword
     ) {
       const resp = await api.Sys_User_Create({
         ...rest,
@@ -230,6 +286,8 @@ export const UserManangerPage = () => {
         errorInfo: resp.errorInfo,
       });
       throw new Error(resp.errorCode);
+    } else {
+      toast.warning(t("Password không khớp, vui lòng kiểm tra lại"));
     }
   };
   const onDelete = async (id: string) => {
@@ -271,13 +329,6 @@ export const UserManangerPage = () => {
     e.cancel = true;
   };
   // End Section: CRUD operations
-  const handleSearch = async (data: any) => {
-    setSearchCondition({
-      ...searchCondition,
-      KeyWord: data,
-    });
-    await refetch();
-  };
 
   const handleEditRowChanges = () => {};
 
@@ -298,23 +349,8 @@ export const UserManangerPage = () => {
   };
   const handleUploadFile = () => {};
   const handleDownloadTemplate = () => {};
-  const toolbarItems = [
-    {
-      location: "before",
-      // widget: "dxButton",
-      render: (e: any) => {
-        return <CustomToolbar />;
-      },
-      // options: {
-      //   text: t("Delete 2"),
-      //   stylingMode: "contained",
-      //   // visible: selectedItems?.length > 0,
-      //   type: "default",
-      // },
-    },
-  ];
-
-  console.log("grid ", gridRef);
+  const handleDeleteRowsOld = () => {};
+  const handleOnEditRowOld = () => {};
 
   return (
     <AdminContentLayout className={"User_Mananger"}>
@@ -327,15 +363,16 @@ export const UserManangerPage = () => {
             <HeaderPart
               refetch={refetch}
               onAddNew={handleAddNew}
-              onSearch={handleSearch}
+              handleOnEditRow={handleOnEditRow}
             />
           </PageHeaderLayout.Slot>
         </PageHeaderLayout>
       </AdminContentLayout.Slot>
       <AdminContentLayout.Slot name={"Content"}>
-        <GridViewPopup
+        {/* const output = input.filter(item => item.UserCode !== null || item.UserName !== null); */}
+        <GridViewCustomize
           isLoading={isLoading}
-          dataSource={data?.isSuccess ? data.DataList ?? [] : []}
+          dataSource={data?.isSuccess ? dataGrid : []}
           columns={columns}
           keyExpr={"UserCode"}
           popupSettings={popupSettings}
@@ -346,28 +383,33 @@ export const UserManangerPage = () => {
           onSaveRow={handleSavingRow}
           onEditorPreparing={handleEditorPreparing}
           onEditRowChanges={handleEditRowChanges}
-          onDeleteRows={handleDeleteRows}
-          onEditRow={handleOnEditRow}
+          onDeleteRows={handleDeleteRowsOld}
+          onEditRow={handleOnEditRowOld}
           storeKey={"User-Manager-columns"}
-          // customToolbarItems={[{
-          //   text: 'show if any',
-          //   shouldShow: (ref: any) => {
-          //     return ref.instance.getSelectedRowKeys().length > 0;
-          //   },
-          //   onClick: (e: any, ref: any) => {
-          //     console.log(ref)
-          //   }
-          // },
-          //   {
-          //     text: 'show only 1',
-          //     shouldShow: (ref: any) => {
-          //       return ref.instance.getSelectedRowKeys().length === 1;
-          //     },
-          //     onClick: (e: any, ref: any) => {
-          //       console.log(ref)
-          //     }
-          //   }
-          // ]}
+          isSingleSelection
+          customToolbarItems={[
+            {
+              text: t("Edit"),
+              shouldShow: (ref: any) => {
+                return ref.instance.getSelectedRowKeys().length === 1;
+              },
+              onClick: (e: any, ref: any) => {
+                const selectedRow = ref.instance.getSelectedRowsData();
+                handleOnEditRow(selectedRow[0].UserCode);
+              },
+            },
+            {
+              text: t("Delete"),
+              shouldShow: (ref: any) => {
+                return ref.instance.getSelectedRowKeys().length === 1;
+              },
+              onClick: (e: any, ref: any) => {
+                const selectedRow = ref.instance.getSelectedRowsData();
+                handleDeleteRows(selectedRow[0].UserCode);
+              },
+            },
+          ]}
+          toolbarItems={[]}
         />
         <PopupView
           onCreate={onCreateNew}

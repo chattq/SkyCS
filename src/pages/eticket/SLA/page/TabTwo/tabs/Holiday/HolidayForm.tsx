@@ -7,12 +7,14 @@ import { toast } from "react-toastify";
 import { holidayListAtom } from "./store";
 
 const HolidayForm = () => {
-  const [formValue, setFormValue] = useState<any>({
+  const defaultFormValue = {
     id: nanoid(),
     Month: undefined,
     Day: undefined,
     Event: undefined,
-  });
+  };
+
+  const [formValue, setFormValue] = useState<any>(defaultFormValue);
 
   const [dayList, setDayList] = useState<any>([]);
 
@@ -44,7 +46,6 @@ const HolidayForm = () => {
 
   const handleAdd = () => {
     if (formRef.current.instance.validate().isValid) {
-      console.log(formValue, holidayList);
       if (
         holidayList.some(
           (item: any) =>
@@ -61,6 +62,7 @@ const HolidayForm = () => {
           id: nanoid(),
         },
       ]);
+      setFormValue(defaultFormValue);
     }
   };
 

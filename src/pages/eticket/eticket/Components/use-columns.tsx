@@ -1,11 +1,14 @@
 import NavNetworkLink from "@/components/Navigate";
 import { useI18n } from "@/i18n/useI18n";
+import { ETICKET_REPONSE } from "@/packages/api/clientgate/ET_TicketApi";
+import { useNetworkNavigate } from "@/packages/hooks";
+import { LinkCell } from "@/packages/ui/link-cell";
 import { StatusButton } from "@/packages/ui/status-button";
 import { viewingDataAtom } from "@/pages/Mst_Customer/components/store";
 import { ColumnOptions } from "@packages/ui/base-gridview";
 import { useSetAtom } from "jotai";
 import { nanoid } from "nanoid";
-import React , {memo} from 'react'
+import React, { memo } from "react";
 export const useColumn = () => {
   const setViewingItem = useSetAtom(viewingDataAtom);
   const viewRow = (rowIndex: number, data: any) => {
@@ -15,8 +18,12 @@ export const useColumn = () => {
     });
   };
 
+  const navigate = useNetworkNavigate();
 
-  // thiếu tương tác mới mới nhất, tên khách hàng , phụ trách
+  // thiếu 
+  // tương tác mới mới nhất, 
+  // tên khách hàng , 
+  // phụ trách
 
   const { t } = useI18n("Mst_Customer");
   const columns: ColumnOptions[] = [
@@ -24,6 +31,16 @@ export const useColumn = () => {
       dataField: "TicketID", // mã ticket
       caption: t("TicketID"),
       editorType: "dxTextBox",
+      cellRender: (column: any) => {
+        return (
+          <LinkCell
+            onClick={() =>
+              navigate(`/eticket/detail/${column.data.TicketID ?? ""}`)
+            }
+            value={column.data.TicketID}
+          />
+        );
+      },
     },
     {
       dataField: "TicketName", // tên ticket
@@ -36,13 +53,13 @@ export const useColumn = () => {
       editorType: "dxTextBox",
     },
     {
-      dataField: "CustomerCodeSys", // tên KH
-      caption: t("CustomerCodeSys"),
+      dataField: "CustomerName", // tên KH
+      caption: t("CustomerName"),
       editorType: "dxTextBox",
     },
     {
-      dataField: "TicketID", // phụ trách
-      caption: t("TicketID"),
+      dataField: "AgentName", // phụ trách
+      caption: t("AgentName"),
       editorType: "dxTextBox",
     },
     {
@@ -61,10 +78,10 @@ export const useColumn = () => {
       editorType: "dxTextBox",
     },
     {
-      dataField: "TicketID", // Tương tác mới nhất
-      caption: t("TicketID"),
+      dataField: "Description", // Tương tác mới nhất
+      caption: t("Description"),
       editorType: "dxTextBox",
     },
   ];
   return columns;
-}
+};

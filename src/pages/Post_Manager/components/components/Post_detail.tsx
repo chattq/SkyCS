@@ -1,12 +1,11 @@
 import { AdminContentLayout } from "@/packages/layouts/admin-content-layout";
 import { ContentSearchPanelLayout } from "@/packages/layouts/content-searchpanel-layout";
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { HeaderPart } from "../header-part";
 import { useI18n } from "@/i18n/useI18n";
 import { requiredType } from "@/packages/common/Validation_Rules";
-import { Form, TagBox } from "devextreme-react";
+import { Button, Form, TagBox } from "devextreme-react";
 import { GroupItem, Item, SimpleItem } from "devextreme-react/form";
-import Custombotton from "../Custombotton";
 import TreeView from "devextreme-react/tree-view";
 
 import HtmlEditor, {
@@ -16,71 +15,165 @@ import HtmlEditor, {
   Item as ItemEditor,
 } from "devextreme-react/html-editor";
 import TagboxCustom from "./TagboxCustom";
-import { TestUploadPage } from "@/pages/admin/test-upload/test-upload";
 import { UploadFilesField } from "@/pages/admin/test-upload/upload-field";
+import { useQuery } from "@tanstack/react-query";
+import { useClientgateApi } from "@/packages/api";
+import { currentInfo, refechAtom } from "../store";
+import { useAtomValue, useSetAtom } from "jotai";
+import { authAtom, showErrorAtom } from "@/packages/store";
+import { format } from "date-fns";
+import { encodeFileType, getYearMonthDate } from "@/components/ulti";
+import { transformCategory } from "./FormatCategory";
+import { toast } from "react-toastify";
+import { useNavigate, useParams } from "react-router-dom";
+import { PageHeaderNoSearchLayout } from "@/packages/layouts/page-header-layout-2/page-header-nosearch-layout";
+import TagComponent from "@/pages/SearchMST/components/TagComponent";
 
 export default function Post_detail() {
   const { t } = useI18n("Post_Manager");
-  const handleAddNew = () => {};
+  const { idPost } = useParams();
+  const formData = useAtomValue(currentInfo);
+  const api = useClientgateApi();
   const validateRef = useRef<any>();
   const formRef = useRef<any>();
+  const formRef2 = useRef<any>();
   const treeViewRef = useRef<any>();
-  const dataSelect = [
-    { text: "Thêm", value: "abc" },
-    { text: "Lựa chọn", value: "bca" },
+  const auth = useAtomValue(authAtom);
+  const showError = useSetAtom(showErrorAtom);
+  const setRefech = useSetAtom(refechAtom);
+  const [dataCurrent, setCurrentItemData] = useState<any>([]);
+  const [dataCurrentRight, setCurrentItemDataRight] = useState<any>([]);
+
+  const PostStatus = [
+    { text: t("Published"), value: "PUBLISHED" },
+    { text: t("Draft"), value: "DRAFT" },
   ];
-  const dataTagbox = [
-    {
-      ID: 1,
-      Name: "HD Video Player",
-      Price: 330,
-      Current_Inventory: 225,
-      Backorder: 0,
-      Manufacturing: 10,
-      Category: "Video Players",
-      IconSrc: "video-player.svg",
-    },
-    {
-      ID: 2,
-      Name: "SuperHD Player",
-      Price: 400,
-      Current_Inventory: 150,
-      Backorder: 0,
-      Manufacturing: 25,
-      Category: "Video Players",
-      IconSrc: "video-player.svg",
-    },
-    {
-      ID: 3,
-      Name: "SuperPlasma 50",
-      Price: 2400,
-      Current_Inventory: 0,
-      Backorder: 0,
-      Manufacturing: 0,
-      Category: "Televisions",
-      IconSrc: "tv.svg",
-    },
-    {
-      ID: 4,
-      Name: "SuperLED 50",
-      Price: 1600,
-      Current_Inventory: 77,
-      Backorder: 0,
-      Manufacturing: 55,
-      Category: "Televisions",
-      IconSrc: "tv.svg",
-    },
-    {
-      ID: 5,
-      Name: "SuperLED 42",
-      Price: 1450,
-      Current_Inventory: 445,
-      Backorder: 0,
-      Manufacturing: 0,
-      Category: "Televisions",
-      IconSrc: "tv.svg",
-    },
+  const shareType = [
+    { text: t("Organization"), value: "ORGANIZATION" },
+    { text: t("Network"), value: "NETWORK" },
+    { text: t("Private"), value: "PRIVATE" },
   ];
+  const navigate = useNavigate();
+
+  const { data: dataTagbox, refetch } = useQuery(["dataTagbox"], () =>
+    api.Mst_Tag_GetAllActive()
+  );
+  // const { data: dataDetail } = useQuery(["dataDetail", idPost], () =>
+  //   api.KB_PostData_GetByPostCode(idPost, auth.networkId)
+  // );
+  const { data: dataCategory } = useQuery(["dataCategory"], () =>
+    api.KB_Category_GetAllActive()
+  );
+
+  const {
+    data: dataDetail,
+    isLoading: isLoadingGetByCode,
+    refetch: refetchGetByCode,
+  } = useQuery({
+    queryKey: ["dataDetail", idPost],
+    queryFn: async () => {
+      if (idPost) {
+        const response = await api.KB_PostData_GetByPostCode(
+          idPost,
+          auth.networkId ?? ""
+        );
+        const item: any = response.Data?.KB_Post;
+        if (response.isSuccess) {
+          const listUpload = response?.Data?.Lst_KB_PostAttachFile ?? [];
+          const listTag = response?.Data?.Lst_KB_PostTag ?? [];
+          const newUpdateLoading = listUpload.map((item: any) => {
+            return {
+              ...item,
+              FileFullName: item.FileName,
+              FileType: encodeFileType(item.FileType),
+              FileUrlLocal: item.FilePath,
+            };
+          });
+          setCurrentItemData({
+            ...item,
+            uploadFiles: newUpdateLoading ?? [],
+          });
+          setCurrentItemDataRight({
+            ...item,
+            Category: response?.Data?.Lst_KB_PostCategory,
+            Tag: listTag.map((item: any) => {
+              return {
+                TagID: item.TagID,
+                TagName: item.mt_TagName,
+              };
+            }),
+          });
+
+          return response.Data;
+        } else {
+          showError({
+            message: t(response.errorCode),
+            debugInfo: response.debugInfo,
+            errorInfo: response.errorInfo,
+          });
+        }
+      } else {
+        return {};
+      }
+    },
+  });
+  useEffect(() => {
+    refetchGetByCode();
+  }, []);
+  const handleAddNew = async () => {
+    const formData = validateRef.current.instance.option("formData");
+    const formData2 = formRef2.current.instance.option("formData");
+    const resp = await api.Mst_Tag_GetAllActive();
+    const newTag = resp?.Data?.Lst_Mst_Tag?.filter((item: any) =>
+      formData2?.Tags?.includes(item?.TagName)
+    );
+    const dataSave = {
+      KB_Post: {
+        PostCode: "",
+        OrgID: auth.orgId.toString(),
+        Detail: formData.Detail ?? "",
+        Title: formData.Title ?? "",
+        Synopsis: formData.Synopsis ?? "",
+        ShareType: formData2.ShareType ?? "",
+        FlagShare: "1",
+        PostStatus: formData2.PostStatus ?? "",
+      },
+      Lst_KB_PostCategory: formData2?.Category
+        ? formData2?.Category.map((item: any) => ({
+            CategoryCode: item?.CategoryCode ?? "",
+          }))
+        : [],
+      Lst_KB_PostTag: newTag
+        ? newTag?.map((item: any) => ({
+            TagID: item.TagID,
+          }))
+        : [],
+      Lst_KB_PostAttachFile: formData?.UploadFiles
+        ? formData?.UploadFiles.map((item: any, index: any) => ({
+            Idx: (index + 1)?.toString(),
+            FileName: item?.FileFullName,
+            FilePath: item?.FileUrlFS,
+            FileType: item?.FileType,
+          }))
+        : [],
+    };
+    console.log(96, dataSave);
+    // const respDataSave = await api.KB_PostData_Create(dataSave);
+    // if (respDataSave.isSuccess) {
+    //   toast.success(t("Create Successfully"));
+    //   setRefech(true);
+    //   navigate(`/${auth.networkId}/admin/Post_Manager`);
+    //   // await refetch();
+    //   return true;
+    // }
+    // showError({
+    //   message: t(resp.errorCode),
+    //   debugInfo: resp.debugInfo,
+    //   errorInfo: resp.errorInfo,
+    // });
+    // throw new Error(resp.errorCode);
+  };
+  console.log(176, dataCurrentRight?.Tag);
 
   const formSettings: any = [
     {
@@ -104,80 +197,35 @@ export default function Post_detail() {
               caption: t("Title"),
               visible: true,
               validationRules: [requiredType],
-            },
-            {
-              dataField: "Content",
-              editorOptions: {
-                // readOnly: false,
-                // placeholder: t("Input"),
-                // height: 340,
-                // maxLength: 200,
-              },
-              render: () => {
+              render: (param: any) => {
+                const { editorOptions } = param;
                 return (
-                  <HtmlEditor
-                    height="340px"
-                    // defaultValue={markup}
-                  >
-                    <MediaResizing enabled={true} />
-                    <ImageUpload
-                      // tabs={this.state.currentTab}
-                      fileUploadMode="base64"
-                    />
-                    <Toolbar
-
-                    // multiline={this.state.isMultiline}
-                    >
-                      <ItemEditor name="undo" />
-                      <ItemEditor name="redo" />
-                      <ItemEditor name="separator" />
-                      {/* <Item name="size" acceptedValues={sizeValues} />
-                      <Item name="font" acceptedValues={fontValues} /> */}
-                      <ItemEditor name="separator" />
-                      <ItemEditor name="bold" />
-                      <ItemEditor name="italic" />
-                      <ItemEditor name="strike" />
-                      <ItemEditor name="underline" />
-                      <ItemEditor name="separator" />
-                      <ItemEditor name="alignLeft" />
-                      <ItemEditor name="alignCenter" />
-                      <ItemEditor name="alignRight" />
-                      <ItemEditor name="alignJustify" />
-                      <ItemEditor name="separator" />
-                      <ItemEditor name="orderedList" />
-                      <ItemEditor name="bulletList" />
-                      <ItemEditor name="separator" />
-                      {/* <Item name="header" acceptedValues={headerValues} /> */}
-                      <ItemEditor name="separator" />
-                      <ItemEditor name="color" />
-                      <ItemEditor name="background" />
-                      <ItemEditor name="separator" />
-                      <ItemEditor name="link" />
-                      <ItemEditor name="image" />
-                      <Item name="separator" />
-                      <ItemEditor name="clear" />
-                      <ItemEditor name="codeBlock" />
-                      <ItemEditor name="blockquote" />
-                      <ItemEditor name="separator" />
-                      <ItemEditor name="insertTable" />
-                      <ItemEditor name="deleteTable" />
-                      <ItemEditor name="insertRowAbove" />
-                      <ItemEditor name="insertRowBelow" />
-                      <ItemEditor name="deleteRow" />
-                      <ItemEditor name="insertColumnLeft" />
-                      <ItemEditor name="insertColumnRight" />
-                      <ItemEditor name="deleteColumn" />
-                    </Toolbar>
-                  </HtmlEditor>
+                  <span className="font-bold text-[13px]">
+                    {editorOptions?.value}
+                  </span>
                 );
               },
-              editorType: "dxTextArea",
-              caption: t("Content"),
+            },
+            {
+              dataField: "Detail",
+              editorOptions: {},
+              render: (param: any) => {
+                const { editorOptions } = param;
+                return (
+                  <div
+                    dangerouslySetInnerHTML={{
+                      __html: editorOptions?.value,
+                    }}
+                    className="h-[400px] overflow-y-scroll"
+                  />
+                );
+              },
+              caption: t("Detail"),
               visible: true,
             },
             {
-              dataField: "uploadFiles", // file đính kèm
-              caption: t("uploadFiles"),
+              dataField: "UploadFiles", // file đính kèm
+              caption: t("UploadFiles"),
               colSpan: 2,
               label: {
                 location: "left",
@@ -186,32 +234,36 @@ export default function Post_detail() {
               editorOptions: {
                 readOnly: true,
               },
-              // render: ({ dataField, component: formRef }: any) => {
-              //   // console.log("formRef:", formRef);
-              //   // console.log("editorOptions:", dataField);
-              //   // const { component: formComponent, dataField } = param;
-              //   return (
-              //     <UploadFilesField
-              //       formInstance={formRef}
-              //       onValueChanged={(files: any) => {
-              //         // console.log("file ", files);
-              //         formRef.updateData(dataField, files);
-              //       }}
-              //     />
-              //   );
-              // },
+              render: (param: any) => {
+                const { component: formComponent, dataField } = param;
+                return (
+                  <UploadFilesField
+                    readonly={true}
+                    className={"Upload_Detail_Post"}
+                    formInstance={formComponent}
+                    onValueChanged={(files: any) => {
+                      formComponent.updateData("UploadFiles", files);
+                    }}
+                  />
+                );
+              },
             },
             {
-              dataField: "ContentSumary",
+              dataField: "Synopsis",
               editorOptions: {
-                readOnly: false,
                 placeholder: t("Input"),
                 height: 70,
                 maxLength: 200,
               },
               editorType: "dxTextArea",
-              caption: t("ContentSumary"),
+              caption: t("Synopsis"),
               visible: true,
+              render: (param: any) => {
+                const { editorOptions } = param;
+                return (
+                  <span className="text-[13px]">{editorOptions?.value}</span>
+                );
+              },
             },
           ],
         },
@@ -230,146 +282,225 @@ export default function Post_detail() {
           cssClass: "",
           items: [
             {
-              dataField: "Status",
+              dataField: "PostStatus",
               editorOptions: {
+                dataSource: PostStatus,
+                valueExpr: "value",
+                displayExpr: "text",
                 placeholder: t("Select"),
               },
               editorType: "dxSelectBox",
-              caption: t("Status"),
+              caption: t("PostStatus"),
               visible: true,
+              render: (param: any) => {
+                const { editorOptions } = param;
+                return (
+                  <span className="text-[13px]">
+                    {editorOptions?.value ?? "---"}
+                  </span>
+                );
+              },
             },
             {
               dataField: "ShareType",
               editorOptions: {
                 placeholder: t("Select"),
+                dataSource: shareType,
+                valueExpr: "value",
+                displayExpr: "text",
               },
               editorType: "dxSelectBox",
               caption: t("ShareType"),
               visible: true,
+              render: (param: any) => {
+                const { editorOptions } = param;
+                return (
+                  <span className="text-[13px]">
+                    {editorOptions?.value ?? "---"}
+                  </span>
+                );
+              },
             },
             {
-              dataField: "OrgID",
+              dataField: "Category",
               label: { text: "Quản lý danh mục" },
               editorOptions: {
                 placeholder: t("Input Select"),
               },
-              render: ({ e }: any) => {
+              render: (param: any) => {
+                const { component: formComponent, dataField } = param;
                 return (
                   <TreeView
                     id="treeview"
-                    displayExpr="fullName"
+                    disabledExpr={"CategoryName"}
+                    displayExpr="CategoryName"
                     ref={treeViewRef}
+                    defaultItems={transformCategory(dataCurrentRight.Category)}
                     width={"100%"}
+                    scrollDirection="vertical"
                     showCheckBoxesMode="normal"
                     selectionMode="multiple"
                     className="max-h-[190px] overflow-y-auto"
-                    items={[
-                      {
-                        id: 1,
-                        fullName: "John Heart",
-                        prefix: "Dr.",
-                        position: "CEO",
-                        expanded: true,
-                        items: [
-                          {
-                            id: 2,
-                            fullName: "Samantha Bright",
-                            prefix: "Dr.",
-                            position: "COO",
-                            expanded: true,
-                            items: [
-                              {
-                                id: 3,
-                                fullName: "Kevin Carter",
-                                prefix: "Mr.",
-                                position: "Shipping Manager",
-                              },
-                              {
-                                id: 14,
-                                fullName: "Victor Norris",
-                                prefix: "Mr.",
-                                selected: true,
-                                position: "Shipping Assistant",
-                              },
-                            ],
-                          },
-                          {
-                            id: 4,
-                            fullName: "Brett Wade",
-                            prefix: "Mr.",
-                            position: "IT Manager",
-                            expanded: true,
-                            items: [
-                              {
-                                id: 5,
-                                fullName: "Amelia Harper",
-                                prefix: "Mrs.",
-                                position: "Network Admin",
-                                selected: true,
-                              },
-                              {
-                                id: 6,
-                                fullName: "Wally Hobbs",
-                                prefix: "Mr.",
-                                position: "Programmer",
-                              },
-                              {
-                                id: 7,
-                                fullName: "Brad Jameson",
-                                prefix: "Mr.",
-                                position: "Programmer",
-                              },
-                              {
-                                id: 8,
-                                fullName: "Violet Bailey",
-                                prefix: "Ms.",
-                                position: "Jr Graphic Designer",
-                              },
-                            ],
-                          },
-                        ],
-                      },
-                      {
-                        id: 9,
-                        fullName: "Barb Banks",
-                        prefix: "Mrs.",
-                        position: "Support Manager",
-                        expanded: true,
-                        items: [
-                          {
-                            id: 10,
-                            fullName: "Kelly Rodriguez",
-                            prefix: "Ms.",
-                            position: "Support Assistant",
-                          },
-                          {
-                            id: 11,
-                            fullName: "James Anderson",
-                            prefix: "Mr.",
-                            position: "Support Assistant",
-                          },
-                        ],
-                      },
-                    ]}
-                    // selectNodesRecursive={this.state.selectNodesRecursive}
-                    // selectByClick={this.state.selectByClick}
-                    // showCheckBoxesMode={this.state.showCheckBoxesMode}
-                    // selectionMode={this.state.selectionMode}
-                    // onSelectionChanged={this.treeViewSelectionChanged}
-                    // onContentReady={this.treeViewContentReady}
+                    // onSelectionChanged={(e) => {
+                    //   formComponent.updateData("Category", e);
+                    // }}
+                    items={transformCategory(
+                      dataCurrentRight?.Category?.length === 0
+                        ? dataCategory?.Data?.Lst_KB_Category
+                        : dataCurrentRight?.Category
+                    )}
+                    onSelectionChanged={(e) => {
+                      formComponent.updateData(
+                        "Category",
+                        e.component
+                          .getSelectedNodes()
+                          .map((node: any) => node.itemData)
+                      );
+                    }}
                   />
                 );
               },
             },
             {
-              dataField: "Select",
-              caption: t("Select"),
+              dataField: "Tags",
+              caption: t("Tags"),
               label: {
                 text: "Tags",
               },
+              editorOptions: {
+                readOnly: true,
+              },
               visible: true,
-              render: ({ editorOptions, component: formRef }: any) => {
-                return <TagboxCustom data={dataTagbox} />;
+              render: (param: any) => {
+                const { editorOptions } = param;
+
+                return (
+                  <div>
+                    {dataCurrentRight?.Tag?.length === 0 ? (
+                      <div>---</div>
+                    ) : (
+                      <TagComponent
+                        dataTag={dataCurrentRight?.Tag}
+                        totalTag={3}
+                        nameTag={"TagName"}
+                      />
+                    )}
+                  </div>
+                );
+              },
+            },
+            // {
+            //   dataField: "ShareType",
+            //   editorOptions: {
+            //     placeholder: t("Select"),
+            //     dataSource: shareType,
+            //     valueExpr: "value",
+            //     displayExpr: "text",
+            //   },
+            //   editorType: "dxSelectBox",
+            //   caption: t("ShareType"),
+            //   visible: true,
+            // },
+            {
+              dataField: "LastViewDTimeUTC",
+              editorOptions: {
+                placeholder: t("Input"),
+              },
+              editorType: "dxTextBox",
+              caption: t("LastViewDTimeUTC"),
+              visible: true,
+              render: (param: any) => {
+                const { editorOptions } = param;
+                return (
+                  <span className="text-[13px]">
+                    {editorOptions?.value ?? "---"}
+                  </span>
+                );
+              },
+            },
+            {
+              dataField: "TotalView",
+              editorOptions: {
+                placeholder: t("Input"),
+              },
+              editorType: "dxTextBox",
+              caption: t("TotalView"),
+              visible: true,
+              render: (param: any) => {
+                const { editorOptions } = param;
+                return (
+                  <span className="text-[13px]">
+                    {editorOptions?.value ?? "---"}
+                  </span>
+                );
+              },
+            },
+            {
+              dataField: "CreateBy",
+              editorOptions: {
+                placeholder: t("Input"),
+              },
+              editorType: "dxTextBox",
+              caption: t("CreateBy"),
+              visible: true,
+              render: (param: any) => {
+                const { editorOptions } = param;
+                return (
+                  <span className="text-[13px]">
+                    {editorOptions?.value ?? "---"}
+                  </span>
+                );
+              },
+            },
+            {
+              dataField: "CreateDTimeUTC",
+              editorOptions: {
+                placeholder: t("Input"),
+              },
+              editorType: "dxTextBox",
+              caption: t("CreateDTimeUTC"),
+              visible: true,
+              render: (param: any) => {
+                const { editorOptions } = param;
+                return (
+                  <span className="text-[13px]">
+                    {editorOptions?.value ?? "---"}
+                  </span>
+                );
+              },
+            },
+            {
+              dataField: "LogLUBy",
+              editorOptions: {
+                placeholder: t("Input"),
+              },
+              editorType: "dxTextBox",
+              caption: t("LogLUBy"),
+              visible: true,
+              render: (param: any) => {
+                const { editorOptions } = param;
+                return (
+                  <span className="text-[13px]">
+                    {editorOptions?.value ?? "---"}
+                  </span>
+                );
+              },
+            },
+            {
+              dataField: "LogLUDTimeUTC",
+              editorOptions: {
+                placeholder: t("Input"),
+              },
+              editorType: "dxTextBox",
+              caption: t("LogLUDTimeUTC"),
+              visible: true,
+              render: (param: any) => {
+                const { editorOptions } = param;
+                return (
+                  <span className="text-[13px]">
+                    {editorOptions?.value ?? "---"}
+                  </span>
+                );
               },
             },
           ],
@@ -377,30 +508,49 @@ export default function Post_detail() {
       ],
     },
   ];
-  const handleSubmitPopup = useCallback(async (e: any) => {
-    validateRef.current.instance.validate();
-    const dataForm = new FormData(formRef.current);
-    const dataSaveForm: any = Object.fromEntries(dataForm.entries()); // chuyển thành form chính
-    console.log(dataSaveForm);
-  }, []);
+  const handleSubmitPopup = useCallback(async (e: any) => {}, []);
 
-  const customizeItem = useCallback((item: any) => {
-    if (["OrgID", "CustomerGrpCode"].includes(item.dataField)) {
-    }
-  }, []);
-
-  const handleFieldDataChanged = (changedData: any) => {
-    // Handle the changed field data
-    if (changedData.dataField === "EMail") {
-    }
-  };
-  const dataform = {
-    Title: "abc",
+  const customizeItemRight = useCallback((item: any) => {}, []);
+  const customizeItem = useCallback((item: any) => {}, []);
+  const handleFieldDataChanged = (changedData: any) => {};
+  const handleEdit = () => {
+    navigate(`/${auth.networkId}/admin/Post_Edit/${idPost}`);
   };
   return (
     <AdminContentLayout className={"Post_Manager"}>
       <AdminContentLayout.Slot name={"Header"}>
-        <HeaderPart onAddNew={handleAddNew} searchCondition={{}}></HeaderPart>
+        <PageHeaderNoSearchLayout>
+          <PageHeaderNoSearchLayout.Slot name={"Before"}>
+            <div className="flex gap-3 items-center">
+              <div
+                className="font-bold dx-font-m hover:underline cursor-pointer hover:text-green-600"
+                onClick={() => navigate(-1)}
+              >
+                {t("Post Manager")}
+              </div>
+              <div className="">{">"}</div>
+              <div className="font-bold dx-font-m">{t("Post Detail")}</div>
+            </div>
+          </PageHeaderNoSearchLayout.Slot>
+          <PageHeaderNoSearchLayout.Slot
+            name={"Center"}
+          ></PageHeaderNoSearchLayout.Slot>
+          <PageHeaderNoSearchLayout.Slot name={"After"}>
+            <Button
+              stylingMode={"contained"}
+              type="default"
+              text={t("Edit")}
+              onClick={handleEdit}
+            />
+            <Button
+              stylingMode={"contained"}
+              type="default"
+              className="Cancel_Post_Detail"
+              text={t("Cancel")}
+              onClick={() => navigate(-1)}
+            />
+          </PageHeaderNoSearchLayout.Slot>
+        </PageHeaderNoSearchLayout>
       </AdminContentLayout.Slot>
       <AdminContentLayout.Slot name={"Content"}>
         <div className="flex mx-5 my-2 gap-5">
@@ -413,8 +563,8 @@ export default function Post_detail() {
                 onInitialized={(e) => {
                   validateRef.current = e.component;
                 }}
-                readOnly={false}
-                formData={dataform}
+                readOnly={true}
+                formData={dataCurrent}
                 labelLocation="left"
                 customizeItem={customizeItem}
                 onFieldDataChanged={handleFieldDataChanged}
@@ -448,15 +598,15 @@ export default function Post_detail() {
             <form action="" ref={formRef}>
               <Form
                 className="form_detail_post"
-                ref={validateRef}
+                ref={formRef2}
                 validationGroup="PostData"
                 onInitialized={(e) => {
-                  validateRef.current = e.component;
+                  formRef2.current = e.component;
                 }}
-                readOnly={false}
-                formData={{}}
+                readOnly={true}
+                formData={dataCurrentRight}
                 labelLocation="left"
-                customizeItem={customizeItem}
+                customizeItem={customizeItemRight}
                 onFieldDataChanged={handleFieldDataChanged}
               >
                 {formSettings

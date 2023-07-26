@@ -10,13 +10,13 @@ import { HeaderNewForm } from "@/packages/ui/headerNew-form/headerNew-form";
 interface HeaderPartProps {
   onAddNew?: () => void;
   refetch: any;
-  onSearch: any;
+  handleOnEditRow?: any;
 }
 
 export const HeaderPart = ({
   onAddNew,
   refetch,
-  onSearch,
+  handleOnEditRow,
 }: HeaderPartProps) => {
   const { t } = useI18n("Common");
 
@@ -27,11 +27,13 @@ export const HeaderPart = ({
   const api = useClientgateApi();
   const handleSearch = (keyword: string) => {
     setKeyword(keyword);
-    onSearch(keyword);
   };
 
   const handleExportExcel = async (selectedOnly: boolean) => {
-    const resp = await api.Sys_User_Export(selectedItems[0]);
+    const resp = await api.Mst_Province_ExportByListProvinceCode(
+      selectedItems,
+      keyword || ""
+    );
     if (resp.isSuccess) {
       toast.success(t("DownloadSuccessfully"));
       window.location.href = resp.Data;
@@ -67,6 +69,7 @@ export const HeaderPart = ({
       onExportExcel={handleExportExcel}
       selectedItems={selectedItems}
       onDelete={handleDeleteRow}
+      handleOnEditRow={handleOnEditRow}
     />
   );
 };

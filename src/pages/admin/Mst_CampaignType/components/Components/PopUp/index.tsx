@@ -4,7 +4,6 @@ import {
   InfoDetailCampaignValue,
   ListInfoDetailCampaignValue,
   defaultValue,
-  defaultValuePopUp,
   flagSelection,
   popupVisibleAtom,
   typeSelectAtom,
@@ -101,8 +100,6 @@ export const EditForm = ({
     values: currentItem as any,
   });
 
-  console.log("currentItem", currentItem);
-
   const {
     fields: singleChoiceValuesFields,
     append,
@@ -118,16 +115,12 @@ export const EditForm = ({
     control: control,
   });
 
-  console.log("singleChoiceValuesFields ", singleChoiceValuesFields);
-
   const handleSave = async (data: any) => {
     if (Object.keys(errors).length === 0) {
       if (listValue.length) {
         const checked = listValue.find((item: any) => {
           return item.CampaignColCfgCodeSys === data.CampaignColCfgCodeSys;
         });
-        console.log("listValue", listValue);
-        console.log("checked ", checked);
         if (!checked) {
           setListValue([...listValue, data]);
           toast.success("add success");
@@ -136,7 +129,6 @@ export const EditForm = ({
           toast.error(t("This field is already exist"));
         }
       } else {
-        console.log("dataa", data);
         setListValue([...listValue, data]);
         toast.success("add success");
         onCancel();
@@ -156,6 +148,20 @@ export const EditForm = ({
   const choiceValues = watch("ListOption");
   useEffect(() => {
     if (!["SELECTMULTIPLE", "SELECTONE"].includes(dataTypeValue)) {
+      unregister("ListOption");
+      unregister("DefaultIndex");
+    }
+  }, [dataTypeValue]);
+
+  useEffect(() => {
+    if (
+      ![
+        "SELECTONERADIO",
+        "SELECTONEDROPDOWN",
+        "SELECTMULTIPLESELECTBOX",
+        "SELECTMULTIPLEDROPDOWN",
+      ].includes(dataTypeValue)
+    ) {
       unregister("ListOption");
       unregister("DefaultIndex");
     }
@@ -290,19 +296,35 @@ export const EditForm = ({
                     //
                     if (value.JsonListOption) {
                       const getValue = JSON.parse(value?.JsonListOption ?? "");
-                      if (
+                      console.log(
                         value.CampaignColCfgDataType === "MASTERDATA" ||
-                        (typeSelect.includes(value.CampaignColCfgDataType) &&
-                          getValue !== "")
+                          value.CampaignColCfgDataType ===
+                            "MASTERDATASELECTMULTIPLE",
+                        !typeSelect.includes(value.CampaignColCfgDataType) &&
+                          getValue !== "",
+                        getValue
+                      );
+
+                      if (
+                        (
+                          value.CampaignColCfgDataType === "MASTERDATA" ||
+                          value.CampaignColCfgDataType ===
+                            "MASTERDATASELECTMULTIPLE"
+                        ) &&
+                        !typeSelect.includes(value.CampaignColCfgDataType) &&
+                        getValue !== ""
                       ) {
-                        if (value.CampaignColCfgDataType === "MASTERDATA") {
+                        if (
+                          value.CampaignColCfgDataType === "MASTERDATA" ||
+                          value.CampaignColCfgDataType ===
+                            "MASTERDATASELECTMULTIPLE"
+                        ) {
                           if (getValue.length > 0) {
                             setValue("DataSource", getValue[0].Value);
                           }
                         }
                         if (typeSelect.includes(value.CampaignColCfgDataType)) {
                           if (getValue.length > 0) {
-                            console.log("value 12321321", getValue);
                             setValue("ListOption", getValue);
                           }
                         }
@@ -314,8 +336,6 @@ export const EditForm = ({
                       setValue("ListOption", []);
                       setValue("DataSource", "");
                     }
-
-                    console.log("item ", value);
                     const objKey = Object.keys(value);
                     objKey.forEach((item) => {
                       if (item === "CampaignColCfgCode") {
@@ -381,7 +401,7 @@ export const EditForm = ({
               required: { value: true, message: "CampaignColCfgDataType" },
             }}
           />
-          {(dataTypeValue === "SELECTONERADIO" ||
+          {(dataTypeValue === "SELECTONEDROPDOWN" ||
             dataTypeValue === "SELECTONERADIO") &&
             renderSelectOneField()}
           {(dataTypeValue === "SELECTMULTIPLEDROPDOWN" ||
@@ -432,7 +452,8 @@ export const EditForm = ({
               })}
             </div>
           )}
-          {dataTypeValue === "MASTERDATA" && (
+          {(dataTypeValue === "MASTERDATA" ||
+            dataTypeValue === "MASTERDATASELECTMULTIPLE") && (
             <Controller
               name={"DataSource"}
               control={control}

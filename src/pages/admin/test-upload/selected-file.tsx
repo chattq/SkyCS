@@ -1,10 +1,10 @@
-import { RefObject, useEffect, useState } from "react";
-import { FileUploader } from "devextreme-react/file-uploader";
-import { ProgressBar } from "devextreme-react";
-import { UploadedFile } from "@packages/types";
-import { match } from "ts-pattern";
 import { Icon, IconName } from "@/packages/ui/icons";
+import { UploadedFile } from "@packages/types";
+import { ProgressBar } from "devextreme-react";
 import Button from "devextreme-react/button";
+import { FileUploader } from "devextreme-react/file-uploader";
+import { RefObject } from "react";
+import { match } from "ts-pattern";
 
 interface SelectedFileProps {
   file: Partial<UploadedFile>;
@@ -72,20 +72,32 @@ export const SelectedFile = ({
   const handleRemoveFile = (file: Partial<UploadedFile>) => {
     onRemoveFile(file);
   };
-  console.log("getIconName ", getIconName(file.FileType!));
+
+  const handleDownload = () => {
+    if (file?.FileUrlFS) {
+      window.open(file?.FileUrlFS, "_blank");
+    }
+  };
 
   return (
-    <div className={"flex-col w-300 m-2 shadow border p-1"}>
+    <div className={"flex-col w-300 m-2 shadow border p-1 file_Controller"}>
       <div className={"flex items-center"}>
         <Icon size={30} name={getIconName(file.FileType!)} />
-        <span className={"ml-1"}>{file.FileFullName}</span>
-        <Button
-          disabled={disabled}
-          stylingMode={"text"}
-          onClick={() => handleRemoveFile(file)}
+        <span
+          className={"ml-1 cursor-pointer"}
+          onClick={() => handleDownload()}
         >
-          <Icon name={"remove"} />
-        </Button>
+          {file.FileFullName}
+        </span>
+        {!disabled && (
+          <Button
+            disabled={disabled}
+            stylingMode={"text"}
+            onClick={() => handleRemoveFile(file)}
+          >
+            <Icon name={"remove"} />
+          </Button>
+        )}
       </div>
       <ProgressBar
         id="progress-bar-status"

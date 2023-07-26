@@ -62,8 +62,14 @@ export const Mst_AreaControllerPage = () => {
         ...searchCondition,
       })
   );
+  const { data: listArea } = useQuery(["listArea"], () =>
+    api.Mst_Area_GetAllActive()
+  );
 
-  const columns = useBankDealerGridColumns({ data: data?.DataList || [] });
+  const columns = useBankDealerGridColumns({
+    data: data?.DataList || [],
+    listArea: listArea?.DataList,
+  });
 
   const formItems: IItemProps[] = [
     {
@@ -128,6 +134,9 @@ export const Mst_AreaControllerPage = () => {
       if (["OrgID", "AreaCode"].includes(e.dataField!)) {
         e.editorOptions.readOnly = !e.row?.isNewRow;
       }
+      if (["FlagActive"].includes(e.dataField!)) {
+        e.editorOptions.value = true;
+      }
     }
   };
 
@@ -184,10 +193,14 @@ export const Mst_AreaControllerPage = () => {
   // Section: CRUD operations
   const onCreate = async (data: Mst_Area & { __KEY__: string }) => {
     const { __KEY__, ...rest } = data;
-    // console.log(230, data);
     const resp = await api.Mst_Area_Create({
       ...rest,
-      FlagActive: rest.FlagActive ? "1" : "0",
+      FlagActive:
+        rest.FlagActive !== undefined
+          ? rest.FlagActive === true
+            ? "1"
+            : "0"
+          : "1",
     });
     if (resp.isSuccess) {
       toast.success(t("Create Successfully"));
@@ -203,6 +216,7 @@ export const Mst_AreaControllerPage = () => {
   };
 
   const onDelete = async (id: any) => {
+    // console.log(219, id);
     // const resp = await api.Mst_BankDealer_Delete(id);
     // if (resp.isSuccess) {
     //   toast.success(t("Delete Successfully"));

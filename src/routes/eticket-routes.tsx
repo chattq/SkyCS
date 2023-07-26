@@ -1,9 +1,10 @@
-import { AdminPage, EticketDetailPage } from "@/pages";
+import { AdminPage, EticketDetailPageFollow } from "@/pages";
 import EticketAdd from "@/pages/eticket/Add/EticketAdd";
 import { Eticket_Custom_Field_Dynamic } from "@/pages/eticket/Manager_Customer/Customer_DynamicField/list";
 import Mst_TicketEstablishInfo_Save from "@/pages/eticket/Mst_TicketEstablishInfo/components/Mst_TicketEstablishInfo_Save";
 import SLA_List from "@/pages/eticket/SLA/list/SLA_List";
 import SLA_Page from "@/pages/eticket/SLA/page/SLA_Page";
+import EticketDetailPage from "@/pages/eticket/eticket/Components/Info/Detail/eticket-detail-page";
 import Eticket from "@/pages/eticket/eticket/eticket";
 
 import { RouteItem } from "@/types";
@@ -18,11 +19,27 @@ export const eticketRoutes: RouteItem[] = [
     getPageElement: () => <AdminPage />,
   },
   {
+    key: "Detail",
+    path: "eticket/DetailFollow",
+    subMenuTitle: "eticket_deta",
+    mainMenuKey: "eticket",
+    getPageElement: () => <EticketDetailPageFollow />,
+  },
+  {
     key: "eticket_manager",
     path: "eticket/eticket_manager",
     subMenuTitle: "eticket_manager",
     mainMenuKey: "eticket",
     getPageElement: () => <Eticket />,
+  },
+  {
+    key: "eticket_Detail",
+    path: "eticket/detail/:TicketID",
+    mainMenuTitle: "eticket",
+    // subMenuTitle: "eticket_Detail",
+    mainMenuKey: "eticket",
+    permissionCode: "",
+    getPageElement: () => <EticketDetailPage />,
   },
   {
     key: "eticket",
@@ -32,24 +49,18 @@ export const eticketRoutes: RouteItem[] = [
     permissionCode: "",
     getPageElement: () => <EticketDetailPage />,
   },
-  {
-    key: "eticket_Custom_Field_Dynamic",
-    path: "eticket/Eticket_Custom_Field_Dynamic",
-    subMenuTitle: "eticket_Custom_Field_Dynamic",
-    mainMenuKey: "eticket",
-    getPageElement: () => <Eticket_Custom_Field_Dynamic />,
-  },
-  {
-    key: "Mst_TicketEstablishInfo_Save",
-    path: "eticket/Mst_TicketEstablishInfo_Save",
-    subMenuTitle: "Mst_TicketEstablishInfo_Save",
-    mainMenuKey: "eticket",
-    getPageElement: () => <Mst_TicketEstablishInfo_Save />,
-  },
+
 
   {
     key: "eticket_add",
     path: "eticket/Add",
+    subMenuTitle: "eticket_add",
+    mainMenuKey: "eticket",
+    getPageElement: () => <EticketAdd />,
+  },
+  {
+    key: "eticket_add",
+    path: "eticket/edit/:TicketID",
     subMenuTitle: "eticket_add",
     mainMenuKey: "eticket",
     getPageElement: () => <EticketAdd />,

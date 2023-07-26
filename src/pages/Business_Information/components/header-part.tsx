@@ -62,6 +62,7 @@ export const HeaderPart = ({
 
   return (
     <HeaderNewForm
+      hidenMore={false}
       hidenExportExcel={false}
       hidenImportExcel={false}
       onSearch={handleSearch}

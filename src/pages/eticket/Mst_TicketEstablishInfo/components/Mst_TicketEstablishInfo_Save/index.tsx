@@ -34,6 +34,7 @@ import { useAuth } from "@/packages/contexts/auth";
 import { requiredType } from "@/packages/common/Validation_Rules";
 import { toast } from "react-toastify";
 import { nanoid } from "nanoid";
+import "./style.scss";
 const Mst_TicketEstablishInfo_Save = () => {
   const showError = useSetAtom(showErrorAtom);
   const api = useClientgateApi();
@@ -79,90 +80,6 @@ const Mst_TicketEstablishInfo_Save = () => {
     Lst_Mst_TicketCustomType: [],
   };
 
-  // const ButtonResponse = (item: any) => {
-  //   return match(item.title)
-  //     .with("Lst_Mst_TicketStatus", () => {
-  //       console.log("Lst_Mst_TicketStatus");
-  //       return (
-  //         <Button
-  //           onClick={() => handleSave(item, item.title)}
-  //           visible={isSaveStatus}
-  //         >
-  //           Save
-  //         </Button>
-  //       );
-  //     })
-  //     .with("Lst_Mst_TicketPriority", () => {
-  //       console.log("Lst_Mst_TicketPriority");
-  //       return (
-  //         <Button
-  //           onClick={() => handleSave(item, item.title)}
-  //           visible={isSavePriority}
-  //         >
-  //           Save
-  //         </Button>
-  //       );
-  //     })
-  //     .with("Lst_Mst_TicketType", () => {
-  //       console.log("Lst_Mst_TicketType");
-  //       return (
-  //         <Button
-  //           onClick={() => handleSave(item, item.title)}
-  //           visible={isSaveType}
-  //         >
-  //           Save
-  //         </Button>
-  //       );
-  //     })
-  //     .with("Lst_Mst_TicketSource", () => {
-  //       console.log("Lst_Mst_TicketSource");
-  //       return (
-  //         <Button
-  //           onClick={() => handleSave(item, item.title)}
-  //           visible={isSaveSource}
-  //         >
-  //           Save
-  //         </Button>
-  //       );
-  //     })
-  //     .with("Lst_Mst_ReceptionChannel", () => {
-  //       console.log("Lst_Mst_ReceptionChannel");
-  //       return (
-  //         <Button
-  //           onClick={() => handleSave(item, item.title)}
-  //           visible={isSaveReceptionChannel}
-  //         >
-  //           Save
-  //         </Button>
-  //       );
-  //     })
-  //     .with("Lst_Mst_ContactChannel", () => {
-  //       console.log("Lst_Mst_ContactChannel");
-  //       return (
-  //         <Button
-  //           onClick={() => handleSave(item, item.title)}
-  //           visible={isSaveContactChannel}
-  //         >
-  //           Save
-  //         </Button>
-  //       );
-  //     })
-  //     .with("Lst_Mst_TicketCustomType", () => {
-  //       console.log("Lst_Mst_TicketCustomType");
-  //       return (
-  //         <Button
-  //           onClick={() => handleSave(item, item.title)}
-  //           visible={isSaveCustomType}
-  //         >
-  //           Save
-  //         </Button>
-  //       );
-  //     })
-  //     .otherwise(() => {
-  //       return <></>;
-  //     });
-  // };
-
   const defaultFormData: IItemProps[] = [
     {
       dataField: "AgentTicket",
@@ -183,43 +100,6 @@ const Mst_TicketEstablishInfo_Save = () => {
       },
     },
   ];
-
-  // const getVisible = useCallback((group: string) => {
-  //   console.log("group", group);
-  //   match(group)
-  //     .with("Lst_Mst_TicketStatus", () => {
-  //       setIsSaveStatus(true);
-  //     })
-  //     .with("Lst_Mst_TicketPriority", () => {
-  //       setIsSavePriority(true);
-  //     })
-  //     .with("Lst_Mst_TicketType", () => {
-  //       setIsSaveType(true);
-  //     })
-  //     .with("Lst_Mst_TicketSource", () => {
-  //       setIsSaveSource(true);
-  //     })
-  //     .with("Lst_Mst_ReceptionChannel", () => {
-  //       setIsSaveReceptionChannel(true);
-  //     })
-  //     .with("Lst_Mst_ContactChannel", () => {
-  //       setIsSaveContactChannel(true);
-  //     })
-  //     .with("Lst_Mst_TicketCustomType", () => {
-  //       setIsSaveCustomType(true);
-  //     })
-  //     .otherwise(() => "");
-  // }, []);
-
-  // const listFormData = [
-  //   "Lst_Mst_TicketStatus",
-  //   "Lst_Mst_TicketPriority",
-  //   "Lst_Mst_TicketType",
-  //   "Lst_Mst_TicketSource",
-  //   "Lst_Mst_TicketCustomType",
-  //   "Lst_Mst_ReceptionChannel",
-  //   "Lst_Mst_ContactChannel",
-  // ];
 
   const getKey = useCallback((text: string) => {
     return match(text)
@@ -250,7 +130,6 @@ const Mst_TicketEstablishInfo_Save = () => {
   const handleDelete = async (title: any, itemList: any) => {
     const key = getKey(title);
     if (itemList?.idCreate) {
-      console.log("idCreate ");
       const newValue = valueApi?.map((itemMap) => {
         if (itemMap.title === title) {
           return {
@@ -267,7 +146,6 @@ const Mst_TicketEstablishInfo_Save = () => {
       setValueApi(newValue);
       // getVisible(title);
     } else {
-      console.log("case ", itemList);
       const newValue = valueApi?.map((itemMap) => {
         if (itemMap.title === title) {
           return {
@@ -286,37 +164,6 @@ const Mst_TicketEstablishInfo_Save = () => {
     }
   };
 
-  // const handleSave = async (item: any, title: string) => {
-  //   const { isValid } = formRef.current?.instance.validate();
-  //   if (isValid) {
-  //     const valueAdd = valueApi.find((item) => item.title === title);
-  //     const newValue = data
-  //       ?.map((itemMap) => {
-  //         if (itemMap.title === title) {
-  //           return {
-  //             ...itemMap,
-  //             FlagActive:
-  //               item.FlagActive && item.FlagActive !== "0" ? "1" : "0",
-  //             list: valueAdd.list,
-  //           };
-  //         } else {
-  //           return {
-  //             ...itemMap,
-  //             FlagActive: item.FlagActive ? "1" : "0",
-  //           };
-  //         }
-  //       })
-  //       .reduce((acc: any, item: any) => {
-  //         return {
-  //           ...acc,
-  //           [item.title]: item.list,
-  //         };
-  //       }, {});
-  //     console.log("newValue ", newValue, "valueAdd ", valueAdd);
-  //     await CallSave(newValue);
-  //   }
-  // };
-
   const handleAdd = (group: string) => {
     const defaultValue = {
       OrgID: auth.orgData?.Id,
@@ -331,7 +178,6 @@ const Mst_TicketEstablishInfo_Save = () => {
       LogLUDTimeUTC: "2023-06-22 11:41:40", // ??
       LogLUBy: "0317844394@INOS.VN", // ??
     };
-    // console.log("group ", group, "value ", valueApi);
     const newValue = valueApi.map((itemValue: any) => {
       if (itemValue.title === group) {
         let obj = {};
@@ -465,7 +311,16 @@ const Mst_TicketEstablishInfo_Save = () => {
   return (
     <AdminContentLayout>
       <AdminContentLayout.Slot name={"Header"}>
-        <Button onClick={() => handleUpdateAll()}>Save</Button>
+        <div className="flex justify-end flex-1">
+          <Button
+            type={"default"}
+            className="button-action justify-self-right"
+            stylingMode={"contained"}
+            onClick={() => handleUpdateAll()}
+          >
+            {t("Save")}
+          </Button>
+        </div>
       </AdminContentLayout.Slot>
       <AdminContentLayout.Slot name={"Content"}>
         <div className="form-builder">
@@ -722,8 +577,13 @@ const Mst_TicketEstablishInfo_Save = () => {
                               );
                             }}
                           ></List>
-                          <Button onClick={() => handleAdd(item.title)}>
-                            Add
+                          <Button
+                            type={"default"}
+                            stylingMode={"contained"}
+                            className="button-action"
+                            onClick={() => handleAdd(item.title)}
+                          >
+                            {t("Add")}
                           </Button>
                         </>
                       );

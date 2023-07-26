@@ -25,12 +25,13 @@ import { toast } from "react-toastify";
 import { EditForm } from "./PopUp";
 import { useParams } from "react-router-dom";
 import { array_move } from "@/components/ulti";
+import { useNetworkNavigate } from "@/components/useNavigate";
 
 const Customize = () => {
   const api = useClientgateApi();
   const { auth } = useAuth();
   const param: any = useParams();
-
+  const navigate = useNetworkNavigate();
   const { data: listDataType, isLoading: isLoadingDataType } = useQuery({
     queryFn: async () => {
       const resp = await api.MDMetaColumnDataType_GetAllActive();
@@ -113,7 +114,7 @@ const Customize = () => {
       listValueInfo: listValue,
     };
     // case add
-    const buildParam = {
+    const buildParam: any = {
       Mst_CampaignType: {
         NetworkID: auth.networkId,
         CampaignTypeCode: obj.CampaignTypeCode ?? "",
@@ -193,12 +194,12 @@ const Customize = () => {
           auth.orgData?.Id ?? ""
         );
         if (response.isSuccess) {
-          const data = response.Data;
+          const data: any = response.Data;
           const obj = {
             ...data,
             ...data?.Lst_Mst_CampaignType[0],
             Lst_Mst_CustomerFeedBack: data.Lst_Mst_CustomerFeedBack.map(
-              (item) => {
+              (item: any) => {
                 return {
                   ...item,
                   Value: item.CusFBName,
@@ -270,13 +271,18 @@ const Customize = () => {
       return;
     }
   };
+
+  const handleCancel = () => {
+    navigate("/campaign/Cpn_CampaignPage");
+  };
+
   return (
     <AdminContentLayout>
       <AdminContentLayout.Slot name={"Header"}>
-        <div className="header d-flex justify-space-between">
+        <div className="header flex items-center w-full justify-between">
           <div className="breakcrumb">
             <p>{t("Mst_Customer")}</p>
-            <p>{`>`}</p>
+            <p className="pl-1 pr-1">{`>`}</p>
             <p>
               {flagSelecter === "add"
                 ? t("Add new Customer")
@@ -284,9 +290,20 @@ const Customize = () => {
             </p>
           </div>
           <div className="list-button">
-            <Button onClick={handleSave}>{t("Save")}</Button>
-            <Button>{t("Save And Add")}</Button>
-            <Button>{t("Cancel")}</Button>
+            <Button
+              className="mr-1"
+              onClick={handleSave}
+              type={"default"}
+              stylingMode={"contained"}
+              text={t("Save")}
+            ></Button>
+            <Button
+              className="mr-1"
+              onClick={handleCancel}
+              type={"default"}
+              stylingMode={"contained"}
+              text={t("Cancel")}
+            ></Button>
           </div>
         </div>
       </AdminContentLayout.Slot>

@@ -1,47 +1,75 @@
 import { useClientgateApi } from "@/packages/api";
+import { useQuery } from "@tanstack/react-query";
 import { TagBox } from "devextreme-react";
-import React, { useState } from "react";
+import { useSetAtom } from "jotai";
+import React, { memo, useCallback, useEffect, useState } from "react";
+import { FlagTagAtom } from "../store";
 
-export default function TagboxCustom({ data }: any) {
-  console.log(5, data);
-
+export default memo(function TagboxCustom({
+  data,
+  formComponent,
+  dataDefault,
+  readOnly,
+}: any) {
   const [datatag, setDataTag] = useState(data);
+  const [dataTagnew, setDataTagNew] = useState<any>(undefined);
   const api = useClientgateApi();
-  const handleCustomItemCreating = async (e: any) => {
-    // const resp = await api.Mst_Tag_Create({
-    //   TagName: e.text,
-    //   TagDesc: e.text,
-    // });
-    // console.log(resp);
+
+  const onCustomItemCreating = (args: any) => {
+    if (!args.text) {
+      args.customItem = null;
+      return;
+    }
+    const { component, text } = args;
+    const currentItems = component.option("items");
     const newItem = {
-      TagName: e.text,
-      TagDesc: e.text,
+      TagID: text.trim(),
+      TagName: text.trim(),
+      Slug: "",
     };
-    const isItemInDataSource = datatag.some(
+    const itemInDataSource = currentItems.find(
       (item: any) => item.TagName === newItem.TagName
     );
-    if (!isItemInDataSource) {
-      e.component.option("value", [
-        ...e.component.option("value"),
-        newItem.TagName,
-      ]);
+    if (itemInDataSource) {
+      args.customItem = itemInDataSource;
+    } else {
+      setDataTagNew(newItem);
       setDataTag([newItem, ...datatag]);
+      currentItems.push(newItem);
+      component.option("items", currentItems);
+      args.customItem = newItem;
     }
-    // Select the newly created item
+  };
+  const { data: ListdataTagNew } = useQuery(["dataTagNew", dataTagnew], () =>
+    api.Mst_Tag_Create({ ...dataTagnew, TagDesc: dataTagnew?.TagName })
+  );
 
-    return Promise.resolve();
+  const onKeyDown = (e: any) => {
+    if (e.event.code === "Enter") {
+      const event = new KeyboardEvent("keydown", {
+        key: "Enter",
+        keyCode: 13,
+        which: 13,
+      });
+      const target = e.event.target;
+      target.dispatchEvent(event);
+    }
   };
   return (
     <TagBox
-      dataSource={datatag}
+      readOnly={false}
       inputAttr={{ "aria-label": "Product" }}
+      searchEnabled={true}
+      defaultValue={dataDefault}
+      items={datatag}
       displayExpr="TagName"
       valueExpr="TagName"
-      searchEnabled={true}
-      // hideSelectedItems={true}
-      onCustomItemCreating={handleCustomItemCreating}
       acceptCustomValue={true}
-      onValueChanged={(e) => console.log(e.value)}
+      onCustomItemCreating={onCustomItemCreating}
+      onKeyDown={onKeyDown}
+      onValueChanged={(e) => {
+        formComponent.updateData("Tags", e.value);
+      }}
     />
   );
-}
+});

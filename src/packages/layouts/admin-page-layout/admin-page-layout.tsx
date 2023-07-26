@@ -87,7 +87,6 @@ export const AdminPageLayout = () => {
       <Header
         logo={true}
         menuToggleEnabled={false}
-        title={t("SkyCS")}
         items={items}
         extraItems={extraItems}
         onMenuItemClick={navigateItem}
@@ -118,20 +117,27 @@ export const AdminPageLayout = () => {
     <div className={"skycs w-full h-full"}>
       {header}
       <Drawer
-        className={["main-sidebar", "drawer", patchCssClass].join(" ")}
+        className={[
+          "main-sidebar",
+          "drawer",
+          patchCssClass,
+          sidebarItems.length === 0 ? "no-sidebar" : "",
+        ].join(" ")}
         position={"before"}
         openedStateMode={isLarge ? "shrink" : "overlap"}
         revealMode={isXSmall ? "slide" : "expand"}
         minSize={0}
-        maxSize={250}
+        maxSize={sidebarItems.length > 0 ? 250 : 0}
         shading={false}
-        opened={isSidebarOpen}
-        template={"menu"}
+        opened={sidebarItems.length > 0 ? isSidebarOpen : false}
+        render={() => {
+          return sidebarItems.length > 0 ? sidebarElement : null;
+        }}
       >
         <div className={"w-full h-full"}>
           <Outlet />
         </div>
-        <Template name={"menu"}>{sidebarElement}</Template>
+        {/*<Template name={"menu"}>{sidebarElement}</Template>*/}
       </Drawer>
     </div>
   );

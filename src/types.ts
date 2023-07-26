@@ -13,6 +13,7 @@ export interface AuthState {
   orgData?: IOrg;
   clientGate?: ClientGateInfo;
   clientGateUrl?: string;
+  createDTime?: Date;
 }
 export interface AuthContextData {
   auth: AuthState;
@@ -127,6 +128,10 @@ export interface ColumnOptions extends IColumnProps {
   isSearchable?: boolean;
   order?: number;
   colSpan?: number;
+  label?: {
+    text: string;
+  },
+  render?: (param: any) => any;
 }
 
 export interface ToolbarItemProps extends IToolbarItemProps {

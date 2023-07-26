@@ -11,6 +11,7 @@ import React, {
 } from "react";
 import {
   currentInfo,
+  dynamicFields,
   flagSelectorAtom,
   listCampaignAgentAtom,
   listCampaignAtom,
@@ -35,7 +36,7 @@ import { convertDate } from "@/packages/common";
 import DataGrid from "devextreme-react/data-grid";
 import { nanoid } from "nanoid";
 import { encodeFileType, revertEncodeFileType } from "@/components/ulti";
-
+import "./style.scss";
 interface tabInterface {
   title: string;
   component: ReactNode;
@@ -52,16 +53,17 @@ const Cpn_Campaign_Info = () => {
   const formRef: any = useRef(null);
   const currentItemData = useAtomValue(currentInfo);
   const setCurrentItemData = useSetAtom(currentInfo);
-  const flagSelector = useAtomValue(flagSelectorAtom);
   const navigate = useNetworkNavigate();
-  const listCampaign = useAtomValue(listCampaignAtom);
   const setListCampaign = useSetAtom(listCampaignAtom);
   const api = useClientgateApi();
   const showError = useSetAtom(showErrorAtom);
   const { auth } = useAuth();
   const commonRef = useRef<Form>(null);
+  const dynamicRef = useRef<any>(null);
   const listCustomerRef = useRef<DataGrid>(null);
 
+  // const dynamicFieldsValue = useAtomValue(dynamicFields);
+  // console.log("dynamicFieldsValue ",dynamicFieldsValue);
   const tabs = [
     {
       title: t("Common Info"),
@@ -77,11 +79,13 @@ const Cpn_Campaign_Info = () => {
       component: (
         <Cpn_Campaign_List_Customer
           commonRef={commonRef}
+          dynamicRef={dynamicRef}
           ref={listCustomerRef}
         />
       ),
     },
   ];
+
   const {
     data: dataGetByCode,
     isLoading: isLoadingGetByCode,
@@ -100,9 +104,7 @@ const Cpn_Campaign_Info = () => {
             (item) => item.AgentCode ?? ""
           );
           const listUpload = response?.Data?.Lst_Cpn_CampaignAttachFile ?? [];
-          console.log("listUpload ", listUpload);
           const newUpdateLoading = listUpload.map((item) => {
-            console.log("item.FileType", item.FileType);
             return {
               ...item,
               FileFullName: item.FileName,
@@ -116,7 +118,19 @@ const Cpn_Campaign_Info = () => {
             uploadFiles: newUpdateLoading ?? [],
           });
           let customizeCampaignCustomer =
-            response.Data?.Lst_Cpn_CampaignCustomer ?? [];
+            response.Data?.Lst_Cpn_CampaignCustomer.map((item) => {
+              if (item.JsonCustomerInfo && item.JsonCustomerInfo !== "") {
+                return {
+                  ...item,
+                  ...JSON.parse(item.JsonCustomerInfo),
+                };
+              }
+
+              return {
+                ...item,
+              };
+            }) ?? [];
+          console.log("customizeCampaignCustomer ", customizeCampaignCustomer);
           setListCampaign(customizeCampaignCustomer);
           return response.Data;
         } else {
@@ -185,6 +199,17 @@ const Cpn_Campaign_Info = () => {
   );
 
   const onSave = async () => {
+    let dynamicFields: any[] = [];
+    if (dynamicRef.current) {
+      if (dynamicRef.current.dynamicFields) {
+        dynamicFields = dynamicRef.current.dynamicFields.dynamicField.reduce(
+          (acc: any[], item: any) => {
+            return [...acc, item.CampaignColCfgCodeSys];
+          },
+          []
+        );
+      }
+    }
     const { isValid } = formRef.current.instance.validate();
     if (!isValid) {
       toast.error(t("Please Input field required"));
@@ -192,7 +217,7 @@ const Cpn_Campaign_Info = () => {
       const listCap =
         (listCustomerRef?.current?.props.dataSource as any[]) ?? [];
       if (listCap.length) {
-        const obj = {
+        const obj: any = {
           Cpn_Campaign: {
             OrgID: auth.orgData?.Id,
             NetworkID: auth.networkId,
@@ -221,7 +246,6 @@ const Cpn_Campaign_Info = () => {
           Lst_Cpn_CampaignCustomer: [],
         };
         delete obj.Cpn_Campaign.uploadFiles;
-        // case add
         listCustomerRef?.current?.instance.saveEditData();
         const listCustomers =
           (listCustomerRef?.current?.instance.option("dataSource") as any[]) ??
@@ -244,6 +268,20 @@ const Cpn_Campaign_Info = () => {
           const checkAgent = listCap.every((item) => item.AgentCode);
           if (checkAgent) {
             const Lst_Cpn_CampaignCustomer = listCap.map((item, index) => {
+              const valueJSON = dynamicFields.reduce((acc, itemReduce) => {
+                return {
+                  ...acc,
+                  [`${itemReduce}`]:
+                    typeof item[`${itemReduce}`] === "boolean"
+                      ? item[`${itemReduce}`]
+                        ? "1"
+                        : "0"
+                      : item[`${itemReduce}`] ?? "",
+                };
+              }, {});
+
+              console.log("valueJson", valueJSON);
+
               return {
                 CustomerCodeSys: item.CustomerCodeSys,
                 Idx: index,
@@ -253,7 +291,7 @@ const Cpn_Campaign_Info = () => {
                 CustomerPhoneNo2: item.CustomerPhoneNo2,
                 CustomerEmail: item.CustomerEmail,
                 CustomerCompany: item.CustomerCompany,
-                CustomerJsonInfo: item.CustomerJsonInfo,
+                JsonCustomerInfo: JSON.stringify(valueJSON),
               };
             });
             obj.Lst_Cpn_CampaignCustomer = Lst_Cpn_CampaignCustomer;
@@ -270,6 +308,8 @@ const Cpn_Campaign_Info = () => {
                 errorInfo: response?.errorInfo,
               });
             }
+
+            console.log("obj ", obj);
           } else {
             toast.error(t("Please Distribution Agent To Customer !"));
           }
@@ -285,6 +325,7 @@ const Cpn_Campaign_Info = () => {
       button: "ADD",
       buttonComponent: (
         <Button
+          className="mr-1"
           key={nanoid()}
           type={"default"}
           onClick={onSave}
@@ -297,6 +338,7 @@ const Cpn_Campaign_Info = () => {
       button: "UPDATE",
       buttonComponent: (
         <Button
+          className="mr-1"
           key={nanoid()}
           type={"default"}
           stylingMode={"contained"}
@@ -309,6 +351,7 @@ const Cpn_Campaign_Info = () => {
       button: "DELETE",
       buttonComponent: (
         <Button
+          className="mr-1"
           key={nanoid()}
           type={"default"}
           stylingMode={"contained"}
@@ -321,6 +364,7 @@ const Cpn_Campaign_Info = () => {
       button: "APPROVE", // duyệt
       buttonComponent: (
         <Button
+          className="mr-1"
           key={nanoid()}
           type={"default"}
           onClick={() => executeState("Approve")}
@@ -333,6 +377,7 @@ const Cpn_Campaign_Info = () => {
       button: "STARTED", //Bắt đầu
       buttonComponent: (
         <Button
+          className="mr-1"
           key={nanoid()}
           type={"default"}
           onClick={() => executeState("Start")}
@@ -345,6 +390,7 @@ const Cpn_Campaign_Info = () => {
       button: "PAUSED", // Tạm dừng
       buttonComponent: (
         <Button
+          className="mr-1"
           type={"default"}
           key={nanoid()}
           onClick={() => executeState("Pause")}
@@ -357,6 +403,7 @@ const Cpn_Campaign_Info = () => {
       button: "CONTINUED", // Tiếp tục
       buttonComponent: (
         <Button
+          className="mr-1"
           key={nanoid()}
           type={"default"}
           stylingMode={"contained"}
@@ -369,6 +416,7 @@ const Cpn_Campaign_Info = () => {
       button: "FINISH", // kết thúc
       buttonComponent: (
         <Button
+          className="mr-1"
           key={nanoid()}
           type={"default"}
           onClick={() => executeState("Finish")}
@@ -420,19 +468,20 @@ const Cpn_Campaign_Info = () => {
   }, [currentItemData]);
   // const listCampaignAgentValue = useAtomValue(listCampaignAgentAtom);
   return (
-    <AdminContentLayout>
+    <AdminContentLayout className={"Cpn_Campaign_Info"}>
       <AdminContentLayout.Slot name={"Header"}>
-        <div className="header d-flex justify-space-between">
+        <div className="header flex items-center w-full justify-between">
           <div className="breakcrumb">
             <p>{t("Cpn_CampaignPage")}</p>
-            <p>{`>`}</p>
-            <p>{`${flagSelector} Customer`}</p>
+            <p className="mr-2 ml-2">{`>`}</p>
+            <p>{`${param?.flag ? param.flag : "add"} Customer`}</p>
           </div>
           <div className="list-button">
             {listButtonRender.map((item: any) => {
               return item.buttonComponent;
             })}
             <Button
+              className="mr-1"
               type={"default"}
               stylingMode={"contained"}
               onClick={handleCancel}

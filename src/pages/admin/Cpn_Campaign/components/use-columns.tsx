@@ -55,7 +55,7 @@ UseBankDealerGridColumnsProps) => {
             }}
           >
             <NavNetworkLink
-              to={`/admin/Cpn_CampaignPage/Cpn_Campaign_Info/${data.CampaignCode}`}
+              to={`/campaign/Cpn_CampaignPage/Cpn_Campaign_Info/detail/${data.CampaignCode}`}
             >
               {data.CampaignCode}
             </NavNetworkLink>

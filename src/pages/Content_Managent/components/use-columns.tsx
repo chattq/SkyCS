@@ -6,6 +6,7 @@ import { nanoid } from "nanoid";
 import NavNetworkLink from "@/components/Navigate";
 import { checkUIZNSAtom } from "./store";
 import { useSetAtom } from "jotai";
+import { filterByFlagActive } from "@/packages/common";
 
 interface UseBankDealerGridColumnsProps {
   data?: Mst_CustomerGroupData[] | any;
@@ -31,6 +32,15 @@ UseBankDealerGridColumnsProps) => {
         placeholder: t("Input"),
       },
       columnIndex: 1,
+      cellRender: ({ data, rowIndex, value }) => {
+        return (
+          <NavNetworkLink to={`/admin/Content_Managent/${data.SubFormCode}`}>
+            <div className="text-green-600" onClick={handleClick}>
+              {value}
+            </div>
+          </NavNetworkLink>
+        );
+      },
     },
     {
       groupKey: "BASIC_INFORMATION",
@@ -41,13 +51,7 @@ UseBankDealerGridColumnsProps) => {
         readOnly: false,
         placeholder: t("Input"),
       },
-      cellRender: ({ data, rowIndex, value }) => {
-        return (
-          <NavNetworkLink to={`/admin/Content_Managent/${data.SubFormCode}`}>
-            <div onClick={handleClick}>{value}</div>
-          </NavNetworkLink>
-        );
-      },
+
       columnIndex: 1,
     },
 
@@ -96,6 +100,23 @@ UseBankDealerGridColumnsProps) => {
       cellRender: ({ data }: any) => {
         return <StatusButton key={nanoid()} isActive={data.FlagActive} />;
       },
+      headerFilter: {
+        dataSource: filterByFlagActive(data, {
+          true: t("Active"),
+          false: t("Inactive"),
+        }),
+      },
+    },
+    {
+      groupKey: "BASIC_INFORMATION",
+      dataField: "LogLUDTimeUTC",
+      caption: t("LogLUDTimeUTC"),
+      editorOptions: {
+        readOnly: false,
+        placeholder: t("Input"),
+      },
+      editorType: "dxTextBox",
+      columnIndex: 2,
     },
   ];
   // return array of the first item only

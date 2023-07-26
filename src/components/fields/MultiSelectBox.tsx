@@ -14,8 +14,8 @@ const MultiSelectBox = ({
   return (
     <div className={"flex w-full"}>
       <div className={"flex flex-col gap-3"}>
-        <div className={"flex-col dx-field-item-content"}>
-          <div className={"dx-texteditor-container flex gap-3"}>
+        <div className={"flex-col"}>
+          <div className={"flex gap-3"}>
             {options.map((opt: any) => {
               return (
                 <CheckBox

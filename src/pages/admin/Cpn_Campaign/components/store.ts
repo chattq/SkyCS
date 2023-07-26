@@ -88,3 +88,4 @@ export const setListCampaignAgentAtom = atom(
   }
 );
 export const isShowCustomerRateAtom = atom<boolean>(false);
+export const dynamicFields = atom<any[]>([]);

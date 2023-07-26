@@ -1,6 +1,15 @@
+import { useClientgateApi } from "@/packages/api";
 import { Icon } from "@/packages/ui/icons";
-import { Button, Popup, ScrollView, TextBox } from "devextreme-react";
-import { useState } from "react";
+import {
+  Button,
+  Popup,
+  ScrollView,
+  SelectBox,
+  TextBox,
+} from "devextreme-react";
+import CustomStore from "devextreme/data/custom_store";
+import { useRef, useState } from "react";
+import { toast } from "react-toastify";
 
 export const ZaloField = ({ component, formData, field, editType }: any) => {
   // init data
@@ -62,14 +71,12 @@ export const ZaloField = ({ component, formData, field, editType }: any) => {
     setZalo(result);
   };
 
-  const handleAdd = (index: any) => {
-    const formData = component.option("formData");
-    const data = formData["ZaloUserFollowerId"] || [];
+  const handleAdd = (value: any) => {
     component.updateData("ZaloUserFollowerId", [
       ...ZaloUserFollowerId,
       {
-        id: index,
-        ZaloUserFollowerId: index,
+        id: ZaloUserFollowerId.length + 1,
+        ZaloUserFollowerId: value,
         FlagDefault: ZaloUserFollowerId.length == 0 ? "1" : "0",
         SolutionCode: "SKYCS",
       },
@@ -77,28 +84,94 @@ export const ZaloField = ({ component, formData, field, editType }: any) => {
     setZalo([
       ...ZaloUserFollowerId,
       {
-        id: index,
-        ZaloUserFollowerId: index,
+        id: ZaloUserFollowerId.length + 1,
+        ZaloUserFollowerId: value,
         FlagDefault: ZaloUserFollowerId.length == 0 ? "1" : "0",
         SolutionCode: "SKYCS",
       },
     ]);
-    // console.log(formData);
     handleClose();
   };
 
+  const ref: any = useRef();
+
+  const api = useClientgateApi();
+
+  const store = new CustomStore({
+    key: "user_id",
+
+    load: async (loadOptions) => {
+      const resp: any = await api.Zalo_SearchZaloUser({
+        ZaloUserName: loadOptions?.searchValue,
+      });
+      return resp?.Data ?? [];
+    },
+
+    byKey: async (key) => {
+      return [];
+    },
+  });
+
+  const handleChoose = () => {
+    const value = ref?.current?.instance?.option("value");
+
+    if (!value) {
+      return;
+    }
+
+    if (
+      value &&
+      !ZaloUserFollowerId?.find(
+        (item: any) => item?.ZaloUserFollowerId == value
+      )
+    ) {
+      handleAdd(value);
+    } else {
+      toast.error("Người dùng đã tồn tại!");
+    }
+  };
+
+  const renderItem = (data: any) => {
+    return (
+      <div className="flex gap-3 items-center">
+        <div>
+          <img src={data?.avatar} alt="" className="h-[50px] w-[50px]" />
+        </div>
+        <div>{data?.display_name}</div>
+      </div>
+    );
+  };
+
   const renderListZalo = () => {
-    return Array.from({ length: 10 }, (_: any, i: any) => {
-      if (!ZaloUserFollowerId.some((c: any) => c.ZaloUserFollowerId == i))
-        return (
-          <div
-            className="p-3 bg-emerald-400 mb-3 cursor-pointer"
-            onClick={() => handleAdd(i)}
+    return (
+      <>
+        <SelectBox
+          dataSource={store}
+          ref={ref}
+          valueExpr="user_id"
+          showClearButton
+          itemRender={renderItem}
+          dropDownOptions={{
+            minHeight: 300,
+          }}
+          searchEnabled
+          displayExpr="display_name"
+        ></SelectBox>
+
+        <div className="mt-[10px] flex justify-end">
+          <Button
+            style={{
+              padding: 10,
+              background: "green",
+              color: "white",
+            }}
+            onClick={handleChoose}
           >
-            {i}
-          </div>
-        );
-    });
+            Chọn
+          </Button>
+        </div>
+      </>
+    );
   };
 
   return (
@@ -142,26 +215,6 @@ export const ZaloField = ({ component, formData, field, editType }: any) => {
           stylingMode={"contained"}
           onClick={() => {
             handleOpen();
-            // const formData = component.option("formData");
-            // const data = formData["ZaloUserFollowerId"] || [];
-            // component.updateData("ZaloUserFollowerId", [
-            //   ...ZaloUserFollowerId,
-            //   {
-            //     id: nanoid(),
-            //     checked: ZaloUserFollowerId.length == 0,
-            //     value: null,
-            //   },
-            // ]);
-            // setZalo([
-            //   ...ZaloUserFollowerId,
-            //   {
-            //     id: nanoid(),
-            //     checked: ZaloUserFollowerId.length == 0,
-            //     value: null,
-            //   },
-            // ]);
-            // // setFormValue(formData);
-            // console.log(formData);
           }}
           className={"mx-2 w-[100px]"}
         />
@@ -171,8 +224,9 @@ export const ZaloField = ({ component, formData, field, editType }: any) => {
         visible={openPopup}
         hideOnOutsideClick={true}
         onHiding={handleClose}
+        showCloseButton
         width={500}
-        height={500}
+        height={300}
         title="ZaloUserFollowerId"
         contentRender={() => (
           <ScrollView showScrollbar="always" width="100%" height="100%">

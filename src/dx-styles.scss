@@ -13,10 +13,10 @@
     }
   }
   .dx-popup-bottom {
-    background: #FFFFFF;
+    background: #ffffff;
     &.dx-toolbar {
-      border-top: 1px solid $base-border-color;     
-      background: #FFFFFF;
+      border-top: 1px solid $base-border-color;
+      background: #ffffff;
     }
   }
 }
@@ -121,12 +121,23 @@
 .dx-selectbox-popup-wrapper {
   .dx-item {
     &.dx-list-item {
+      padding: 13px 24px 16px !important;
+      padding-bottom: 13px !important;
+      padding-left: 8px !important;
+      padding-right: 12px !important;
+
+      .dx-item-content {
+        font-size: 14px !important;
+      }
+
       background-color: #ffffff;
-      padding: 5px;
       &.dx-state-hover {
         background-color: $base-accent-highlight-color;
       }
       &.dx-list-item-selected {
+        background-color: #e4f2ec !important;
+        color: #00703c !important;
+        font-weight: 600;
         background-color: $base-accent-highlight-color;
       }
     }
@@ -190,7 +201,14 @@
     .dx-texteditor-input-container {
       input.dx-texteditor-input {
         padding: 4px;
+        padding-left: 8px;
         font-size: 1em;
+        color: var(--secondary-blue-dark, #0e223d);
+        font-family: Inter;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: normal;
       }
     }
   }
@@ -324,9 +342,18 @@ body {
 
 #root {
   height: 100%;
+  .dx-tab-selected {
+    .dx-tab-text {
+      font-size: 14px;
+      font-weight: 500;
+      text-transform: none;
+    }
+  }
 
   .dx-tab-content {
     .dx-tab-text {
+      font-size: 14px;
+      font-weight: 500;
       text-transform: none;
     }
   }
@@ -335,9 +362,6 @@ body {
 * {
   box-sizing: border-box;
 }
-
-
-
 
 .dx-dropdownbox {
   border: none !important;
@@ -355,14 +379,12 @@ body {
   border-radius: 2px;
   text-decoration: none;
   outline: none;
-
 }
 
 .dx-texteditor-input-container {
   background: #fff;
   border: none;
   outline: none;
-
 }
 
 .dx-dropdowneditor-input-wrapper {
@@ -382,14 +404,11 @@ body {
   background: #fff;
   border: none;
   outline: none;
-
-
 }
 
 .dx-texteditor-input:focus {
   outline: none;
 }
-
 
 .dx-button-has-icon {
   border-radius: 0 !important;
@@ -409,4 +428,116 @@ body {
       margin-right: 5px;
     }
   }
+}
+
+.dx-htmleditor-toolbar-wrapper {
+  .dx-button {
+    transition: all ease-in 0.2s;
+    background-color: #ececec;
+    -webkit-transition: all ease-in 0.2s;
+    -moz-transition: all ease-in 0.2s;
+    -ms-transition: all ease-in 0.2s;
+    -o-transition: all ease-in 0.2s;
+    .dx-button-content {
+      background-color: #ececec;
+    }
+    :hover {
+      background-color: #bababa;
+    }
+  }
+}
+
+.dx-field-item-required-mark {
+  color: red !important;
+}
+
+.dx-texteditor.dx-editor-filled.dx-state-disabled .dx-texteditor-input,
+.dx-texteditor.dx-editor-filled.dx-state-readonly .dx-texteditor-input,
+.dx-texteditor.dx-editor-filled.dx-state-readonly.dx-state-hover
+  .dx-texteditor-input {
+  color: rgba(95, 125, 149, 1) !important;
+}
+
+.dx-tag-content {
+  background: rgba(234, 249, 242, 1) !important;
+
+  .dx-tag-remove-button {
+    color: rgba(14, 34, 61, 1);
+    background-color: transparent !important;
+  }
+}
+.dx-placeholder {
+  display: flex;
+  align-items: center;
+  color: #5f7d95 !important;
+  // padding-left: 8px !important;
+  font-family: Inter;
+  font-size: 14px !important;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
+
+.header-component {
+  .dx-tab-selected {
+    .dx-tab-content {
+      .dx-tab-text {
+        font-weight: 600 !important;
+      }
+    }
+  }
+}
+
+.dx-datagrid {
+  .dx-scrollable-container {
+    padding-top: 0px !important;
+  }
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.font-weight-bold {
+  font-weight: 600;
+}
+
+.dx-tag-content {
+  height: 30px;
+  overflow: hidden;
+}
+
+.dx-tag-content span {
+  height: 30px;
+  display: block;
+  overflow: hidden;
+}
+
+.customer-item {
+  .customer-name {
+    font-weight: 600 !important;
+  }
+
+  .customer-phone {
+    margin-left: 52px;
+    font-weight: 400 !important;
+  }
+
+  .dx-button {
+    background-color: #00703c;
+    border-radius: 2px !important;
+    -webkit-border-radius: 2px !important;
+    -moz-border-radius: 2px !important;
+    -ms-border-radius: 2px !important;
+    -o-border-radius: 2px !important;
+    width: 26px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.dx-scrollable-wrapper {
+  
 }

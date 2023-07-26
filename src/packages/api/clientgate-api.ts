@@ -34,10 +34,32 @@ import { useSys_GroupControllerApi } from "./clientgate/SysGroupControllerApi";
 import { useSys_AccessApi } from "./clientgate/Sys_AccessApi";
 import { useSys_UserApi } from "./clientgate/Sys_UserApi";
 
-import { use_MstTicketColumnConfigApi } from "./clientgate/Mst_TicketColumnConfigApi";
+import { useNotificationApi } from "./clientgate/NotificationApi";
+import { useCallCallApi } from "./clientgate/CallCallApi";
 import { useETTicket } from "./clientgate/ET_TicketApi";
+import { useKB_CategoryApi } from "./clientgate/KB_CategoryApi";
 import { useKB_PostApi } from "./clientgate/KB_Post_ControllerApi";
+import { useMst_TicketPriority } from "./clientgate/MstTicketPriority_Api";
 import { useMst_Channel } from "./clientgate/Mst_ChannelApi";
+import { useMst_CustomerCampaign } from "./clientgate/Mst_CustomerCampaignApi";
+import { useMst_CustomerContact } from "./clientgate/Mst_CustomerContactApi";
+import { useMst_CustomerEticket } from "./clientgate/Mst_CustomerEticketApi";
+import { useMst_CustomerTypeApi } from "./clientgate/Mst_CustomerTypeApi";
+import { useMst_PartnerTypeApi } from "./clientgate/Mst_PartnerType";
+import { useMst_ReceptionChannelApi } from "./clientgate/Mst_ReceptionChannelApi";
+import { useMst_SubmissionForm } from "./clientgate/Mst_SubmissionForm_Api";
+import { use_MstTicketColumnConfigApi } from "./clientgate/Mst_TicketColumnConfigApi";
+import { useMst_TicketCustomTypeApi } from "./clientgate/Mst_TicketCustomTypeApi";
+import { useMst_TicketPriorityApi } from "./clientgate/Mst_TicketPriorityApi";
+import { useMst_TicketSourceApi } from "./clientgate/Mst_TicketSourceApi";
+import { useMst_TicketStatusApi } from "./clientgate/Mst_TicketStatusApi";
+import { useMst_TicketTypeApi } from "./clientgate/Mst_TicketTypeApi";
+import { useUtil_Api } from "./clientgate/Util_Api";
+import { useZalo_Api } from "./clientgate/Zalo_Api";
+
+import { useCpn_CampaignCustomerApi } from "./clientgate/Cpn_CampaignCustomerApi";
+import { useRpt_ETTicketDetailControllerApi } from "./clientgate/Rpt_ETTicketDetailControllerApi";
+import { useRptETTicketSynthesisControllerApi } from "./clientgate/Rpt_ETTicketSynthesisController";
 // report end
 
 /**
@@ -236,6 +258,7 @@ export const createClientGateApi = (
   const mstDepartmentControlApi = useMst_DepartmentControlApi(apiBase);
   const sys_UserApi = useSys_UserApi(apiBase);
   const mstNNTControllerApi = useMst_NNTControllerApi(apiBase);
+  const useMstSubmissionForm = useMst_SubmissionForm(apiBase);
   // const mdMetaColGroupApi = useMdMetaColGroupApi(apiBase)
   // const customFieldApi = useCustomFieldApi(apiBase);
   const useMstCustomer = useMst_Customer(apiBase);
@@ -244,8 +267,15 @@ export const createClientGateApi = (
   const sysGroupControllerApi = useSys_GroupControllerApi(apiBase);
   const sysAccessApi = useSys_AccessApi(apiBase);
   const mstCustomerGroupApi = useMst_CustomerGroupApi(apiBase);
+  const mstPartnerTypeApi = useMst_PartnerTypeApi(apiBase);
 
   const mstCustomerHist = useMst_CustomerHist(apiBase);
+  const mstCustomerCampaign = useMst_CustomerCampaign(apiBase);
+  const mstCustomerEticket = useMst_CustomerEticket(apiBase);
+  const mstCustomerType = useMst_CustomerTypeApi(apiBase);
+  const zaloApi = useZalo_Api(apiBase);
+  const callcallApi = useCallCallApi(apiBase);
+  const notificationApi= useNotificationApi(apiBase);
 
   const mstPaymentTermControllerApi = useMst_PaymentTermControllerApi(apiBase);
   const mstCampaignTypeApi = use_MstCampaignTypeApi(apiBase);
@@ -262,16 +292,38 @@ export const createClientGateApi = (
   const useMst_TicketEstablishInfo = useMst_TicketEstablishInfoApi(apiBase);
   const mstSLAApi = useMst_SLAApi(apiBase);
   const useETicket = useETTicket(apiBase);
+  const mstEticketType = useMst_TicketTypeApi(apiBase);
+  const mstEticketCustomType = useMst_TicketCustomTypeApi(apiBase);
+  const mstEticketPriority = useMst_TicketPriorityApi(apiBase);
+  const mstEticketSource = useMst_TicketSourceApi(apiBase);
+  const mstEticketStatus = useMst_TicketStatusApi(apiBase);
+
+  const mstReceptionChannel = useMst_ReceptionChannelApi(apiBase);
+  const mstCustomerContact = useMst_CustomerContact(apiBase);
+  const utilApi = useUtil_Api(apiBase);
+
   // const mst_BizColumn = useMst_BizColumnApi(apiBase);
   const mst_ContentApi = useMst_ContentApi(apiBase);
   const KB_Post = useKB_PostApi(apiBase);
   const mst_Channel = useMst_Channel(apiBase);
+  const kb_Category = useKB_CategoryApi(apiBase);
+  const useMstTicketPriority = useMst_TicketPriority(apiBase);
+  const rptETTicketDetailController =
+    useRpt_ETTicketDetailControllerApi(apiBase);
+  const rptETTicketSynthesisControllerApi =
+    useRptETTicketSynthesisControllerApi(apiBase);
+
+  const cpnCampaignCustomerApi = useCpn_CampaignCustomerApi(apiBase);
 
   return {
+    ...kb_Category,
     ...mst_Channel,
     ...KB_Post,
     ...useMstTicketColumnConfigApi,
+    ...useMstSubmissionForm,
     // ...mst_BizColumn,
+    ...rptETTicketDetailController,
+    ...rptETTicketSynthesisControllerApi,
     ...mst_ContentApi,
     ...rpt_CpnCampaignResultCtmFeedbackApi,
     ...fileApi,
@@ -299,10 +351,27 @@ export const createClientGateApi = (
     ...mdMetaColGroupApi,
     ...customFieldApi,
     ...mstCustomerHist,
+    ...utilApi,
     // eticket
     ...useMst_TicketEstablishInfo,
     ...mstSLAApi,
     ...useETicket,
+    ...mstEticketType,
+    ...mstEticketPriority,
+    ...mstEticketCustomType,
+    ...mstEticketSource,
+    ...mstReceptionChannel,
+    ...mstCustomerContact,
+    ...mstEticketStatus,
+    ...useMstTicketPriority,
+    ...mstCustomerCampaign,
+    ...mstCustomerEticket,
+    ...zaloApi,
+    ...mstCustomerType,
+    ...callcallApi,
+    ...notificationApi,
+    ...mstPartnerTypeApi,
+    ...cpnCampaignCustomerApi,
   };
 };
 

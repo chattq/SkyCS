@@ -1,4 +1,5 @@
 @import "../../../themes/generated/variables.base";
+@import "../../../themes/variables.common";
 
 .menu-bar-drop-down {
   &.dx-overlay-wrapper {
@@ -36,7 +37,7 @@
   }
 
   .dx-tab {
-    background-color: $header-bg;
+    background-color: $header-bg !important;
     color: $base-text-color;
 
     padding-bottom: 4px;
@@ -62,7 +63,7 @@
 
     .dx-tab-content {
       border: none;
-      background-color: $header-bg;
+      background-color: $header-bg !important;
       color: $base-accent;
       .dx-tab-text {
         border: none;

@@ -16,8 +16,8 @@ export const ExportConfirmBox = ({
   const [value, setValue] = useState(0);
 
   const handleYesClick = () => {
-    onYesClick?.(value)
-  }
+    onYesClick?.(value);
+  };
   useEffect(() => {
     if (selectedItems.length === 0) {
       setValue(1);

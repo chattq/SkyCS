@@ -1,18 +1,17 @@
-import { useEffect, useReducer, useRef, useState } from "react";
-import Form from "devextreme-react/form";
-import "./upload-field.scss";
-import { FileUploader } from "devextreme-react/file-uploader";
-import { useApiHeaders } from "@packages/api/headers";
-import { UploadedFile } from "@packages/types";
-import { SelectedFile } from "@/pages/admin/test-upload/selected-file";
-import { nanoid } from "nanoid";
-import Button from "devextreme-react/button";
-import { Icon } from "@packages/ui/icons";
-import { useVisibilityControl } from "@packages/hooks";
-import { useClientgateApi } from "@packages/api";
-import dxForm from "devextreme/ui/form";
-import { toast } from "react-toastify";
 import { useI18n } from "@/i18n/useI18n";
+import { SelectedFile } from "@/pages/admin/test-upload/selected-file";
+import { useClientgateApi } from "@packages/api";
+import { useApiHeaders } from "@packages/api/headers";
+import { useVisibilityControl } from "@packages/hooks";
+import { UploadedFile } from "@packages/types";
+import { Icon } from "@packages/ui/icons";
+import Button from "devextreme-react/button";
+import { FileUploader } from "devextreme-react/file-uploader";
+import dxForm from "devextreme/ui/form";
+import { nanoid } from "nanoid";
+import { useEffect, useReducer, useRef, useState } from "react";
+import { toast } from "react-toastify";
+import "./upload-field.scss";
 
 // An enum with all the types of actions to use in our reducer
 enum FileActionEnum {
@@ -37,6 +36,7 @@ interface UploadFilesFieldProps {
   maxFileDisplay?: number;
   onValueChanged: (files: any) => void;
   controlFileInput?: string[];
+  className?: any;
 }
 
 export const UploadFilesField = ({
@@ -44,6 +44,7 @@ export const UploadFilesField = ({
   formInstance,
   maxFileDisplay = 3,
   onValueChanged,
+  className,
   controlFileInput = [],
 }: UploadFilesFieldProps) => {
   // use reducers to append value into a list
@@ -57,13 +58,15 @@ export const UploadFilesField = ({
     const files = formInstance.option(
       "formData.uploadFiles"
     ) as unknown as UploadedFile[];
-    files.forEach((file: UploadedFile) => {
+
+    files?.forEach((file: UploadedFile) => {
       dispatchFileAction({
         type: FileActionEnum.Init,
         payload: file,
       });
     });
-  }, []);
+  }, [formInstance]);
+
   function fileReducer(state: Partial<UploadedFile>[], action: FileAction) {
     const { type, payload } = action;
     switch (type) {
@@ -169,8 +172,9 @@ export const UploadFilesField = ({
       });
     }
   };
+
   return (
-    <div className={"files-uploader"}>
+    <div className={`files-uploader ${className}`}>
       <form>
         <FileUploader
           // readOnly={readonly}

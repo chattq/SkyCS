@@ -49,6 +49,7 @@ export default function CustomColumnChooser(props: CustomColumnChooserProps) {
   const [selectedItems, setSelectedItems] = useState<ColumnOptions[]>(
     actualColumns.filter((c) => c.visible)
   );
+
   useEffect(() => {
     // selected columns are not the same as actual columns
     setSelectedItems(actualColumns.filter((c) => c.visible));
@@ -138,7 +139,7 @@ export default function CustomColumnChooser(props: CustomColumnChooserProps) {
             displayExpr={"caption"}
             keyExpr={"dataField"}
             searchEnabled={true}
-            searchExpr={"dataField"}
+            searchExpr={"caption"}
             selectionMode="all"
             selectAllText={selectAllText}
             showSelectionControls={true}

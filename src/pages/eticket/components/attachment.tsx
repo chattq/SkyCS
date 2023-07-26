@@ -6,8 +6,6 @@ import { useMemo, useState } from "react";
 export const Attachment = ({ file, onRemoveClick }: { file: UploadFile, onRemoveClick?: (fileId?: string) => void }) => {
 
     const ext = useMemo(() => {
-
-
         if (!!file.Type) return file.Type?.toLocaleLowerCase();
         var arr = file.Url.split('.');
         if (arr.length == 0) return '';

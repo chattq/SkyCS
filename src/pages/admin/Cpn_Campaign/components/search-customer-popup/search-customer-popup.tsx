@@ -103,7 +103,27 @@ export const SearchCustomerPopup = ({
       });
 
       if (response.isSuccess) {
-        return response;
+        const customizeResponse = {
+          ...response,
+          DataList: response?.DataList?.map((item) => {
+            const listJson: any[] = item.JsonCustomerInfo
+              ? JSON.parse(item.JsonCustomerInfo) ?? []
+              : [];
+            const customize = listJson.reduce((acc, item) => {
+              return {
+                ...acc,
+                [`${item.ColCodeSys}`]: item.ColValue ?? "",
+              };
+            }, {});
+
+            return {
+              ...item,
+              ...customize,
+            };
+          }),
+        };
+
+        return customizeResponse;
       } else {
         showError({
           message: response?.errorCode,
@@ -253,15 +273,13 @@ export const SearchCustomerPopup = ({
     setFormValue(obj);
   };
 
-  console.log("gridRef ", gridRef);
-
   return (
     <Popup
       className="popup-customer"
       position={"center"}
       showCloseButton={true}
       onHiding={handleCancel}
-      title={`Add Field`}
+      title={t(`Select Customers`)}
       visible={true}
     >
       {!isLoading &&
@@ -269,8 +287,13 @@ export const SearchCustomerPopup = ({
         !isLoadingDynamic &&
         !isLoadingDynamic &&
         !isLoadingListGroup && (
-          <ScrollView className="popup-customer-content" width={"100%"}>
+          <ScrollView
+            className="popup-customer-content"
+            width={"100%"}
+            height={700}
+          >
             <SearchCustomerResult
+              customizeClass={`h-[50%]`}
               ref={gridRef}
               data={data?.DataList!}
               listColumn={listColumn!}

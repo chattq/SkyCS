@@ -47,5 +47,10 @@ export const useMst_SLAApi = (apiBase: AxiosInstance) => {
         }
       );
     },
+    Mst_SLA_GetSLADefault: async (data: any) => {
+      return await apiBase.post<any, any>("/MstSLA/GetSLADefault", {
+        ...data,
+      });
+    },
   };
 };

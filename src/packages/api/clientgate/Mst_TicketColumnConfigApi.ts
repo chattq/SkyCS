@@ -27,11 +27,6 @@ export const use_MstTicketColumnConfigApi = (apiBase: AxiosInstance) => {
           TicketColCfgCodeSys: TicketColCfgCodeSys.join(","),
           OrgID: OrgID,
         }
-        // {
-        //   headers: {
-        //     "Content-Type": "application/json",
-        //   },
-        // }
       );
     },
     Seq_GetTicketColCfgCodeSys: async (): Promise<ApiResponse<string>> => {

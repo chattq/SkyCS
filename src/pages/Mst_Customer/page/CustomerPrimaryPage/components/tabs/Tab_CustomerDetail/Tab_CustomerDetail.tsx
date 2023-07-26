@@ -1,32 +1,33 @@
 import { useI18n } from "@/i18n/useI18n";
 import { useClientgateApi } from "@/packages/api";
-import { showErrorAtom } from "@/packages/store";
+import { AdminContentLayout } from "@/packages/layouts/admin-content-layout";
+import { authAtom, showErrorAtom } from "@/packages/store";
 import { MdMetaColGroupSpec } from "@/packages/types";
 import { useQuery } from "@tanstack/react-query";
 import { Form, LoadPanel } from "devextreme-react";
+import { GroupItem } from "devextreme-react/form";
 import { useAtomValue, useSetAtom } from "jotai";
 import { nanoid } from "nanoid";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import { GroupField } from "@/components/fields/GroupField";
+import { useNetworkNavigate } from "@/packages/hooks";
 import { getListField } from "@/utils/customer-common";
-import { editTypeAtom } from "@/utils/store";
-import { GroupItem } from "devextreme-react/form";
 
-export const Tab_CustomerDetail = () => {
+const Tab_CustomerDetail = () => {
   const param = useParams();
+
+  const navigate = useNetworkNavigate();
+
   const { t } = useI18n("Mst_Customer");
   const api = useClientgateApi();
   const ref = useRef(null);
+  const auth = useAtomValue(authAtom);
   const showError = useSetAtom(showErrorAtom);
   const formRef: any = useRef(null);
   const [dynamicFields, setDynamicFields] = useState<any>([]);
   const [formValue, setFormValue] = useState<any>({});
-
-  const editType = useAtomValue(editTypeAtom);
-
-  const { CustomerCodeSys }: any = useParams();
 
   const {
     data: listCodeField,
@@ -52,7 +53,7 @@ export const Tab_CustomerDetail = () => {
           }
         }
 
-        return response.DataList;
+        return response.DataList?.filter((item: any) => item.FlagActive);
       } else {
         showError({
           message: response?.errorCode,
@@ -119,12 +120,10 @@ export const Tab_CustomerDetail = () => {
   } = useQuery({
     queryKey: ["getValueItem", param],
     queryFn: async () => {
-      if (param.CustomerCodeSys || true) {
+      if (param.CustomerCodeSys) {
         const response: any = await api.Mst_Customer_GetByCustomerCode([
-          CustomerCodeSys,
+          param.CustomerCodeSys,
         ]);
-
-        // console.log(response);
 
         if (response.isSuccess) {
           if (response?.Data?.Lst_Mst_Customer) {
@@ -139,9 +138,10 @@ export const Tab_CustomerDetail = () => {
             }, {});
 
             setFormValue({
+              ...response?.Data?.Lst_Mst_Customer[0],
               ...obj,
-              CUSTOMERCODE: response?.Data?.Lst_Mst_Customer[0]?.CustomerCode,
-              CUSTOMERNAME: response?.Data?.Lst_Mst_Customer[0]?.CustomerName,
+              CustomerCode: response?.Data?.Lst_Mst_Customer[0]?.CustomerCode,
+              CustomerName: response?.Data?.Lst_Mst_Customer[0]?.CustomerName,
               ZaloUserFollowerId:
                 response?.Data?.Lst_Mst_CustomerZaloUserFollower?.map(
                   (item: any) => {
@@ -165,6 +165,10 @@ export const Tab_CustomerDetail = () => {
                     id: nanoid(),
                   };
                 }) ?? [],
+              CustomerGrpCode:
+                response?.Data?.Lst_Mst_CustomerInCustomerGroup?.map(
+                  (item: any) => item?.CustomerGrpCode
+                ),
             });
 
             return obj;
@@ -185,15 +189,21 @@ export const Tab_CustomerDetail = () => {
     },
   });
 
+  useEffect(() => {
+    refetchCodeField();
+    refetchGroupCode();
+    refetchDynamic();
+    refetchValueItem();
+  }, []);
+
   const getFormField = useCallback(() => {
     if (!isLoadingCodeField && !isLoadingGroupCode && !isLoadingValueItem) {
-      // console.log("=================================", listDynamic);
-
       const listField = getListField({
         listField: listCodeField,
         listDynamic: listDynamic,
+        defaultValue: getValueItem,
         customOptions: {
-          editType: editType,
+          editType: "detail",
         },
       });
 
@@ -224,14 +234,7 @@ export const Tab_CustomerDetail = () => {
     } else {
       return [];
     }
-  }, [isLoadingCodeField, isLoadingGroupCode, listDynamic, editType]);
-
-  useEffect(() => {
-    refetchCodeField();
-    refetchGroupCode();
-    refetchDynamic();
-    refetchValueItem();
-  }, []);
+  }, [isLoadingCodeField, isLoadingGroupCode, listDynamic]);
 
   const handleInitialization = (e: any) => {
     formRef.current = e.component;
@@ -240,47 +243,50 @@ export const Tab_CustomerDetail = () => {
   const handleSubmit = () => {};
 
   return (
-    <div className="mt-2">
-      <LoadPanel
-        container={".dx-viewport"}
-        shadingColor="rgba(0,0,0,0.4)"
-        position={"center"}
-        visible={isLoadingCodeField || isLoadingGroupCode || isLoadingDynamic}
-        showIndicator={true}
-        showPane={true}
-      />
-      {!(isLoadingCodeField || isLoadingGroupCode || isLoadingDynamic) && (
-        <form ref={ref} className="overflow-auto" onSubmit={handleSubmit}>
-          <Form
-            // className="form-test"
-            formData={formValue}
-            validationGroup="customerData"
-            onInitialized={handleInitialization}
-            showValidationSummary={true}
-            labelMode="outside"
-            labelLocation="left"
-          >
-            {getFormField()?.map((item: any) => {
-              return (
-                <GroupItem
-                  key={nanoid()}
-                  render={({}) => {
-                    return (
-                      <GroupField
-                        item={item}
-                        formData={formValue}
-                        disableCollapsible={item.disableCollapsible}
-                        key={nanoid()}
-                        readOnly={editType == "detail"}
-                      />
-                    );
-                  }}
-                />
-              );
-            })}
-          </Form>
-        </form>
-      )}
-    </div>
+    <AdminContentLayout className={"province-management"}>
+      <AdminContentLayout.Slot name={"Header"}></AdminContentLayout.Slot>
+      <AdminContentLayout.Slot name={"Content"}>
+        <LoadPanel
+          container={".dx-viewport"}
+          shadingColor="rgba(0,0,0,0.4)"
+          position={"center"}
+          visible={isLoadingCodeField || isLoadingGroupCode || isLoadingDynamic}
+          showIndicator={true}
+          showPane={true}
+        />
+        {!(isLoadingCodeField || isLoadingGroupCode || isLoadingDynamic) && (
+          <form ref={ref} className="overflow-auto" onSubmit={handleSubmit}>
+            <Form
+              className="form-test"
+              formData={formValue}
+              validationGroup="customerData"
+              onInitialized={handleInitialization}
+              showValidationSummary={true}
+              readOnly
+            >
+              {getFormField()?.map((item: any) => {
+                return (
+                  <GroupItem
+                    key={nanoid()}
+                    render={({}) => {
+                      return (
+                        <GroupField
+                          item={item}
+                          formData={formValue}
+                          disableCollapsible={item.disableCollapsible}
+                          readOnly
+                        />
+                      );
+                    }}
+                  />
+                );
+              })}
+            </Form>
+          </form>
+        )}
+      </AdminContentLayout.Slot>
+    </AdminContentLayout>
   );
 };
+
+export default Tab_CustomerDetail;

@@ -2,19 +2,26 @@ import { useI18n } from "@/i18n/useI18n";
 import { useClientgateApi } from "@/packages/api";
 import { useQuery } from "@tanstack/react-query";
 import { Form, SelectBox, TextBox } from "devextreme-react";
-import { useSetAtom } from "jotai";
-import React, { useCallback, useRef, useState } from "react";
-import { valueIDZNSAtom } from "../../store";
+import { useAtomValue, useSetAtom } from "jotai";
+import React, {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { idZNSAtom, valueIDZNSAtom } from "../../store";
 import { requiredType } from "@/packages/common/Validation_Rules";
 import { GroupItem, SimpleItem } from "devextreme-react/form";
+import { nanoid } from "nanoid";
 
-export default function UiZNS({
-  item,
-  listMstBulletinType,
-  key,
-  setLocalState,
-  onChange,
-}: any) {
+interface Props {
+  item: any;
+  listMstBulletinType: any;
+  onChange: any;
+}
+
+export const UiZNS = ({ item, listMstBulletinType, onChange }: Props) => {
   const { t } = useI18n("Content_Managent");
   const [valueSelect, setValueSelect] = useState(undefined);
   const validateRef = useRef<any>();
@@ -22,7 +29,6 @@ export default function UiZNS({
   const { data: listSubmissionForm } = useQuery(["listSubmissionForm"], () =>
     api.Mst_SubmissionForm_GetAllActive()
   );
-
   const handleChangeValue = (value: any, name: any, valueSelect: any) => {
     const obj = {
       [name]: {
@@ -76,6 +82,7 @@ export default function UiZNS({
           cssClass: "",
           items: [
             {
+              with: 200,
               dataField: "SourceDataType",
               editorOptions: {
                 dataSource: listMstBulletinType || [],
@@ -97,6 +104,7 @@ export default function UiZNS({
           cssClass: "",
           items: [
             {
+              with: 200,
               dataField: "ParamSFCode",
               editorOptions: {
                 placeholder:
@@ -111,6 +119,7 @@ export default function UiZNS({
                 readOnly: valueSelect === undefined ? true : false,
                 onValueChanged: (e: any) =>
                   handleChangeValue(e.value, item.name, valueSelect),
+                value: "",
               },
               editorType: valueSelect === "INPUT" ? "dxTextBox" : "dxSelectBox",
               caption: t("ParamSFCode"),
@@ -125,26 +134,21 @@ export default function UiZNS({
 
   const customizeItem = useCallback(
     (item: any) => {
-      if (["ParamSFCode"].includes(item.dataField)) {
-        if (valueSelect === "INPUT") {
-          item.editorOptions.value = "";
-        }
-        // console.log(126, value);
+      if (item.dataField === "ParamSFCode") {
+        item.editorOptions.value = "";
       }
     },
     [valueSelect]
   );
-  const handleFieldDataChanged = useCallback((changedData: any) => {
-    // Handle the changed field data
-    // if (changedData.dataField === "ParamSFCode") {
-    //   console.log(137, changedData.value);
-    // }
-  }, []);
+
+  const handleFieldDataChanged = (changedData: any) => {};
+
   return (
-    <div className="flex gap-y-2" key={key}>
-      <div>
+    <div className="flex gap-[40px] justify-between" key={nanoid()}>
+      <div className="w-[30%] mb-[15px]">
         <Form
-          key={key}
+          // width={220}
+          key={nanoid()}
           className="form_detail_post"
           ref={validateRef}
           validationGroup="PostData"
@@ -182,9 +186,10 @@ export default function UiZNS({
             })}
         </Form>
       </div>
-      <div>
+      <div className="w-[70%]">
         <Form
-          key={key}
+          // width={450}
+          key={nanoid()}
           className="form_detail"
           ref={validateRef}
           validationGroup="PostData"
@@ -224,4 +229,4 @@ export default function UiZNS({
       </div>
     </div>
   );
-}
+};

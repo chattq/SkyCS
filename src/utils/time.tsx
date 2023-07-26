@@ -27,3 +27,34 @@ export const getMonth = (time: string) => {
   const [day, month] = time.split("-");
   return month;
 };
+
+export const getTime = (date: Date) => {
+  const currentDate = new Date(date);
+  const hours = currentDate.getHours().toString().padStart(2, "0");
+  const minutes = currentDate.getMinutes().toString().padStart(2, "0");
+  return `${hours}:${minutes}`;
+};
+
+export const getFullTime = (date: Date) => {
+  const currentDate = new Date(date);
+  const year = currentDate.getFullYear();
+  const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
+  const day = currentDate.getDate().toString().padStart(2, "0");
+  const hours = currentDate.getHours().toString().padStart(2, "0");
+  const minutes = currentDate.getMinutes().toString().padStart(2, "0");
+  const seconds = currentDate.getSeconds().toString().padStart(2, "0");
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+};
+
+export const getDMY = (date: Date) => {
+  const currentDate = new Date(date);
+
+  if (!currentDate || isNaN(currentDate.getTime())) {
+    return undefined;
+  }
+
+  const year = currentDate.getFullYear();
+  const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
+  const day = currentDate.getDate().toString().padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};

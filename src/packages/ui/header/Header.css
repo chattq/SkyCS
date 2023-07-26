@@ -381,7 +381,7 @@ body {
 }
 
 .header-component .dx-toolbar .dx-toolbar-item.header-menu-bar {
-  padding-left: 100px;
+  padding-left: 30px;
 }
 
 .header-component .dx-toolbar .dx-toolbar-item.menu-button > .dx-toolbar-item-content .dx-icon {

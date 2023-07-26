@@ -20,7 +20,7 @@ export const HeaderPart = () => {
   const { t } = useI18n("Mst_CampaignTypePage");
   const navigate = useNetworkNavigate();
   const handleAdd = () => {
-    navigate("/admin/Mst_CampaignTypePage/Customize");
+    navigate("/campaign/Mst_CampaignTypePage/Customize");
   };
 
   return (

@@ -55,6 +55,12 @@ export const TreeLikeGridPage = () => {
       level: 3,
       path: "/1/1/1",
     },
+    {
+      id: 7,
+      name: "Node 1.1.1",
+      level: 4,
+      path: "1//1/1/1",
+    },
   ];
   const columns = [
     {

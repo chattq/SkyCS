@@ -3,10 +3,15 @@ import { defineConfig } from "vite";
 import svgrPlugin from "vite-plugin-svgr";
 import viteTsconfigPaths from "vite-tsconfig-paths";
 import viteRewriteAll from "vite-plugin-rewrite-all";
+
+
 // https://vitejs.dev/config/
 export default defineConfig({
   server: {
     port: 8081,
+  },
+  optimizeDeps: {
+    exclude: ['dist'],
   },
   build: {
     rollupOptions: {

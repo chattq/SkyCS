@@ -46,7 +46,7 @@ UseBankDealerGridColumnsProps) => {
       cellRender: ({ data, rowIndex, value }) => {
         return (
           <NavNetworkLink
-            to={`/admin/Mst_CampaignTypePage/Customize/${data.CampaignTypeCode}`}
+            to={`/campaign/Mst_CampaignTypePage/Customize/${data.CampaignTypeCode}`}
           >
             {data.CampaignTypeName}
           </NavNetworkLink>

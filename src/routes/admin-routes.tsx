@@ -38,6 +38,13 @@ import OmiChanelPage from "@/pages/Omi-Chanel/list/Omi_Chanel";
 import { Content_ManagentPage } from "@/pages/Content_Managent/list/Content_Managent";
 import Content_Edit from "@/pages/Content_Managent/components/components/Content_Edit";
 import Content_Detail from "@/pages/Content_Managent/components/components/Content_Detail";
+import Post_detail from "@/pages/Post_Manager/components/components/Post_detail";
+import SearchResults from "@/pages/SearchMST/components/SearchResults";
+import Post_Edit from "@/pages/Post_Manager/components/components/Post_Edit";
+import { TestFormPage } from "@/pages/admin/test-form";
+import { Eticket_Custom_Field_Dynamic } from "@/pages/eticket/Manager_Customer/Customer_DynamicField/list";
+import Mst_TicketEstablishInfo_Save from "@/pages/eticket/Mst_TicketEstablishInfo/components/Mst_TicketEstablishInfo_Save";
+import { ZaloConnect } from "@/pages/admin/zalo/zalo-connect";
 
 export const adminRoutes: RouteItem[] = [
   {
@@ -48,15 +55,14 @@ export const adminRoutes: RouteItem[] = [
     permissionCode: "MENU_QUAN_TRI",
     getPageElement: () => <AdminPage />,
   },
-  {
-    key: "dealerManagement",
-    path: "admin/dealer",
-    subMenuTitle: "dealerManagement",
-    mainMenuKey: "admin",
-    permissionCode: "",
-    getPageElement: () => <DealerManagementPage />,
-  },
-
+  // {
+  //   key: "dealerManagement",
+  //   path: "admin/dealer",
+  //   subMenuTitle: "dealerManagement",
+  //   mainMenuKey: "admin",
+  //   permissionCode: "",
+  //   getPageElement: () => <DealerManagementPage />,
+  // },
   // ======================
   {
     key: "Content_Managent",
@@ -93,31 +99,38 @@ export const adminRoutes: RouteItem[] = [
   },
   {
     key: "SearchMSTPage",
-    path: "admin/SearchMST",
-    subMenuTitle: "SearchMST",
+    path: "admin/SearchInformation",
+    subMenuTitle: "Search Information",
     mainMenuKey: "admin",
     permissionCode: "",
     getPageElement: () => <SearchMSTPage />,
+    children: [
+      {
+        key: "History",
+        path: "History",
+        subMenuTitle: "",
+        mainMenuKey: "admin",
+        getPageElement: () => <SearchHistory />,
+      },
+      {
+        key: "Category",
+        path: "Category",
+        subMenuTitle: "",
+        mainMenuKey: "admin",
+        getPageElement: () => <SearchCategory />,
+      },
+      {
+        key: "Results",
+        path: "Results",
+        subMenuTitle: "",
+        mainMenuKey: "admin",
+        getPageElement: () => <SearchResults />,
+      },
+    ],
   },
   {
-    key: "SearchMSTPage",
-    path: "admin/SearchMST/History",
-    subMenuTitle: "",
-    mainMenuKey: "admin",
-    permissionCode: "",
-    getPageElement: () => <SearchHistory />,
-  },
-  {
-    key: "SearchMSTPage",
-    path: "admin/SearchMST/Category",
-    subMenuTitle: "",
-    mainMenuKey: "admin",
-    permissionCode: "",
-    getPageElement: () => <SearchCategory />,
-  },
-  {
-    key: "SearchMSTPage",
-    path: "admin/SearchMST/Detail",
+    key: "SearchDetail",
+    path: "admin/SearchInformation/Detail/:idInforSearch",
     subMenuTitle: "",
     mainMenuKey: "admin",
     permissionCode: "",
@@ -130,6 +143,22 @@ export const adminRoutes: RouteItem[] = [
     mainMenuKey: "admin",
     permissionCode: "",
     getPageElement: () => <Post_ManagerPage />,
+  },
+  {
+    key: "Post_detail",
+    path: "admin/Post_detail/:idPost",
+    subMenuTitle: "",
+    mainMenuKey: "admin",
+    permissionCode: "",
+    getPageElement: () => <Post_detail />,
+  },
+  {
+    key: "Post_Edit",
+    path: "admin/Post_Edit/:idPostEdit",
+    subMenuTitle: "",
+    mainMenuKey: "admin",
+    permissionCode: "",
+    getPageElement: () => <Post_Edit />,
   },
   {
     key: "Post_Manager",
@@ -259,6 +288,7 @@ export const adminRoutes: RouteItem[] = [
     path: "admin/Cpn_CampaignPage",
     subMenuTitle: "Cpn_CampaignPage",
     mainMenuKey: "admin",
+    permissionCode: "",
     getPageElement: () => <Cpn_CampaignPage />,
   },
   {
@@ -325,5 +355,35 @@ export const adminRoutes: RouteItem[] = [
     subMenuTitle: "testGridSelect",
     mainMenuKey: "admin",
     getPageElement: () => <TestGridPage />,
+  },
+  {
+    key: "testHtmlEditor",
+    path: "admin/testHtmlEditor",
+    subMenuTitle: "testHtmlEditor",
+    mainMenuKey: "admin",
+    getPageElement: () => <TestFormPage />,
+  },
+
+  {
+    key: "eticket_Custom_Field_Dynamic",
+    path: "admin/Eticket_Custom_Field_Dynamic",
+    subMenuTitle: "eticket_Custom_Field_Dynamic",
+    mainMenuKey: "admin",
+    getPageElement: () => <Eticket_Custom_Field_Dynamic />,
+  },
+  {
+    key: "Mst_TicketEstablishInfo_Save",
+    path: "admin/Mst_TicketEstablishInfo_Save",
+    subMenuTitle: "Mst_TicketEstablishInfo_Save",
+    mainMenuKey: "admin",
+    getPageElement: () => <Mst_TicketEstablishInfo_Save />,
+  },
+
+  {
+    key: "zaloconnect",
+    path: "admin/zaloconnect",
+    subMenuTitle: "ZaloConnect",
+    mainMenuKey: "admin",
+    getPageElement: () => <ZaloConnect />,
   },
 ];

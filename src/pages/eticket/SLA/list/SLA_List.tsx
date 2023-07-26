@@ -8,7 +8,7 @@ import { showErrorAtom } from "@/packages/store";
 import { BaseCardView } from "@/packages/ui/card-view/card-view";
 import { useQuery } from "@tanstack/react-query";
 import { useSetAtom } from "jotai";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { HeaderPart } from "../components/header-part";
@@ -42,8 +42,14 @@ const SLA_List = () => {
   const { data, isLoading, refetch }: any = useQuery(
     ["Mst_SLA", JSON.stringify(searchCondition)],
 
-    () => api.Mst_SLA_Search({ ...searchCondition })
+    async () => {
+      return await api.Mst_SLA_Search({ ...searchCondition });
+    }
   );
+
+  useEffect(() => {
+    refetch();
+  }, []);
 
   let gridRef: any = useRef();
 
@@ -156,6 +162,7 @@ const SLA_List = () => {
           storeKey={"card-view"}
           ref={null}
           customCard={customCard}
+          defaultOption="table"
         />
       </AdminContentLayout.Slot>
     </AdminContentLayout>

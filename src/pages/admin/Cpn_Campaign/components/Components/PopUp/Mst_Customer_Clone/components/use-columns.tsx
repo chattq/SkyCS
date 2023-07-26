@@ -25,7 +25,7 @@ export const useColumn = ({
 
   const getColumnFieldByGroup = dataGroup
     .map((item: any) => {
-      const listField = dataField.filter(
+      const listField = dataField?.filter(
         (itemField) => itemField.ColGrpCodeSys === item.ColGrpCodeSys
       );
       return {
@@ -47,55 +47,55 @@ export const useColumn = ({
       },
       visible: item.FlagActive,
       columnIndex: 1,
-      cellRender: ({ data }: any) => {
-        if (item.FlagIsColDynamic === "1") {
-          if (item.ColDataType === "MASTERDATA") {
-            if (Array.isArray(JSON.parse(data.JsonCustomerInfo))) {
-              const dataJson = JSON.parse(data.JsonCustomerInfo).find(
-                (itemJson: any) => itemJson.ColCodeSys === item.ColCodeSys
-              );
-              if (dataJson) {
-                // console.log("dataJSOn ", dataJson, dataJson.ColValueNameOfMaster);
-                return (
-                  <>{dataJson.ColValueNameOfMaster ?? dataJson.ColValue}</>
-                );
-              } else {
-                return <></>;
-              }
-            } else {
-              return <></>;
-            }
-          } else {
-            if (Array.isArray(JSON.parse(data.JsonCustomerInfo))) {
-              const dataJson = JSON.parse(data.JsonCustomerInfo).find(
-                (itemJson: any) => itemJson.ColCodeSys === item.ColCodeSys
-              );
-              if (dataJson) {
-                if (typeof dataJson.ColValue === "string") {
-                  return <>{dataJson.ColValue}</>;
-                }
-                return <>{JSON.stringify(dataJson.ColValue)}</>;
-              } else {
-                return <></>;
-              }
-            } else {
-              return <></>;
-            }
-          }
-        }
-        if (item.ColCodeSys === "CUSTOMERCODE") {
-          return (
-            <NavNetworkLink
-              onClick={() => setFlagCustomer("update")}
-              to={`/customer/Customer_Detail/${data.CustomerCodeSys}`}
-            >
-              {data[item.ColCode]}
-            </NavNetworkLink>
-          );
-        } else {
-          return <>{data[item.ColCode]}</>;
-        }
-      },
+      // cellRender: ({ data }: any) => {
+      //   if (item.FlagIsColDynamic === "1") {
+      //     if (item.ColDataType === "MASTERDATA") {
+      //       if (Array.isArray(JSON.parse(data.JsonCustomerInfo))) {
+      //         const dataJson = JSON.parse(data.JsonCustomerInfo)?.find(
+      //           (itemJson: any) => itemJson.ColCodeSys === item.ColCodeSys
+      //         );
+      //         if (dataJson) {
+      //           // console.log("dataJSOn ", dataJson, dataJson.ColValueNameOfMaster);
+      //           return (
+      //             <>{dataJson.ColValueNameOfMaster ?? dataJson.ColValue}</>
+      //           );
+      //         } else {
+      //           return <></>;
+      //         }
+      //       } else {
+      //         return <></>;
+      //       }
+      //     } else {
+      //       if (Array.isArray(JSON.parse(data.JsonCustomerInfo))) {
+      //         const dataJson = JSON.parse(data.JsonCustomerInfo)?.find(
+      //           (itemJson: any) => itemJson.ColCodeSys === item.ColCodeSys
+      //         );
+      //         if (dataJson) {
+      //           if (typeof dataJson.ColValue === "string") {
+      //             return <>{dataJson.ColValue}</>;
+      //           }
+      //           return <>{JSON.stringify(dataJson.ColValue)}</>;
+      //         } else {
+      //           return <></>;
+      //         }
+      //       } else {
+      //         return <></>;
+      //       }
+      //     }
+      //   }
+      //   if (item.ColCodeSys === "CUSTOMERCODE") {
+      //     return (
+      //       <NavNetworkLink
+      //         onClick={() => setFlagCustomer("update")}
+      //         to={`/customer/Customer_Detail/${data.CustomerCodeSys}`}
+      //       >
+      //         {data[item.ColCode]}
+      //       </NavNetworkLink>
+      //     );
+      //   } else {
+      //     return <>{data[item.ColCode]}</>;
+      //   }
+      // },
     };
   });
   return columns;

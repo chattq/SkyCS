@@ -12,7 +12,11 @@ import { ExportConfirmBox } from "@packages/ui/modal";
 import { useLayoutEffect, useState } from "react";
 import { UploadDialog } from "../upload-dialog/upload-dialog";
 import "./headerNew-form.scss";
-import { SelectionKeyAtom } from "../base-gridview/store/normal-grid-store";
+import {
+  SelectionKeyAtom,
+  hidenMoreAtom,
+} from "../base-gridview/store/normal-grid-store";
+import { ExportConfirmBoxNew } from "../modal/export-boxNew";
 
 const keywordAtom = atom("");
 
@@ -27,6 +31,7 @@ export interface HeaderFormProps {
   hidenExportExcel: boolean;
   hidenImportExcel: boolean;
   handleOnEditRow?: any;
+  hidenMore?: any;
 }
 
 export const HeaderNewForm = ({
@@ -40,6 +45,7 @@ export const HeaderNewForm = ({
   selectedItems,
   hidenExportExcel,
   hidenImportExcel,
+  hidenMore,
 }: HeaderFormProps) => {
   const { t } = useI18n("Common");
   const [keyword, setKeyword] = useAtom(keywordAtom);
@@ -96,11 +102,7 @@ export const HeaderNewForm = ({
           onClick={onAddNew}
         />
       </div>
-      <div
-        className={`headerform__menu ${
-          selectionKeys?.length >= 1 ? "" : "hidden"
-        }`}
-      >
+      <div className={`headerform__menu ${hidenMore ? "" : "hidden"}`}>
         <DropDownButton
           showArrowIcon={false}
           keyExpr={"id"}
@@ -110,7 +112,7 @@ export const HeaderNewForm = ({
           dropDownOptions={{
             width: 200,
             wrapperAttr: {
-              class: "headerform__menuitems",
+              class: "headerform__menuitems Edit_more",
             },
           }}
           icon={"/images/icons/more.svg"}
@@ -139,63 +141,14 @@ export const HeaderNewForm = ({
                     stylingMode="text"
                     hoverStateEnabled={false}
                     onClick={handleExportExcel}
-                    text={t("ExportExcel")}
-                  />
-                </div>
-              );
-            }}
-          />
-          <DropDownButtonItem
-            visible={hidenExportExcel}
-            render={(item: any) => {
-              return (
-                <div>
-                  <Button
-                    stylingMode="text"
-                    hoverStateEnabled={false}
-                    onClick={handleExportExcel}
                     text={t("Export Excel")}
                   />
                 </div>
               );
             }}
           />
-          <DropDownButtonItem
-            render={(item: any) => {
-              return (
-                <div>
-                  <Button
-                    stylingMode="text"
-                    hoverStateEnabled={false}
-                    onClick={handleEdit}
-                    text={t("Edit")}
-                  />
-                </div>
-              );
-            }}
-          />
-          <DropDownButtonItem
-            render={(item: any) => {
-              return (
-                <div>
-                  <Button
-                    stylingMode="text"
-                    hoverStateEnabled={false}
-                    onClick={() => onDelete(selectedItems)}
-                    text={t("Delete")}
-                  />
-                </div>
-              );
-            }}
-          />
         </DropDownButton>
-        <UploadDialog
-          visible={uploadDialogVisible}
-          onDownloadTemplate={onDownloadTemplate}
-          onCancel={() => showUploadDialog(false)}
-          onUpload={handleUploadFiles}
-        />
-        <ExportConfirmBox
+        <ExportConfirmBoxNew
           selectedItems={selectedItems ?? []}
           control={controlExportBoxVisible}
           title={t("ExportExcel")}

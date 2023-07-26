@@ -22,7 +22,6 @@ import {
   ContentSearchPanelLayout,
   searchPanelVisibleAtom,
 } from "@layouts/content-searchpanel-layout";
-
 import { HeaderPart } from "../components/header-part";
 import { selectedItemsAtom } from "../components/store";
 import { StatusButton } from "@/packages/ui/status-button";
@@ -305,6 +304,7 @@ export const Cpn_CampaignAgentPage = () => {
               popupSettings={popupSettings}
               formSettings={formSettings}
               onReady={(ref) => (gridRef = ref)}
+              
               allowSelection={true}
               onSelectionChanged={handleSelectionChanged}
               onSaveRow={handleSavingRow}

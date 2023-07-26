@@ -13,28 +13,14 @@ import { nanoid } from "nanoid";
 import { LinkCell } from "@packages/ui/link-cell";
 import { viewingDataAtom } from "./store";
 
-const flagEditorOptions = {
-  searchEnabled: true,
-  valueExpr: "value",
-  displayExpr: "text",
-  items: [
-    {
-      value: "1",
-      text: "1",
-    },
-    {
-      value: "0",
-      text: "0",
-    },
-  ],
-};
-
 interface UseBankDealerGridColumnsProps {
   data?: Mst_CustomerGroupData[] | any;
+  listArea?: any;
 }
 
 export const useBankDealerGridColumns = ({
   data,
+  listArea,
 }: // listBankCode,
 UseBankDealerGridColumnsProps) => {
   const setViewingItem = useSetAtom(viewingDataAtom);
@@ -52,7 +38,6 @@ UseBankDealerGridColumnsProps) => {
       dataField: "OrgID", // Mã ngân hàng
       caption: t("OrgID"),
       editorType: "dxTextBox",
-      validationRules: [requiredType],
       editorOptions: {
         readOnly: false,
         placeholder: t("Input"),
@@ -86,9 +71,11 @@ UseBankDealerGridColumnsProps) => {
       dataField: "AreaName", // Tên ngân hàng
       caption: t("AreaName"),
       editorType: "dxTextBox",
+      validationRules: [requiredType],
       editorOptions: {
         readOnly: false,
         placeholder: t("Input"),
+        maxLength: 100,
       },
       columnIndex: 1,
     },
@@ -96,12 +83,16 @@ UseBankDealerGridColumnsProps) => {
       groupKey: "BASIC_INFORMATION",
       dataField: "AreaCodeParent", // Mã đại lý
       caption: t("AreaCodeParent"),
-      editorType: "dxTextBox",
+      editorType: "dxSelectBox",
       editorOptions: {
+        dataSource: listArea ?? [],
+        valueExpr: "AreaCodeParent",
+        displayExpr: "AreaCodeParent",
         readOnly: false,
-        placeholder: t("Input"),
+        placeholder: t("Select"),
       },
       columnIndex: 2,
+      validationRules: [requiredType],
     },
     {
       groupKey: "BASIC_INFORMATION",
@@ -110,17 +101,19 @@ UseBankDealerGridColumnsProps) => {
       editorOptions: {
         readOnly: false,
         placeholder: t("Input"),
+        maxLength: 500,
       },
-      editorType: "dxTextBox",
+      editorType: "dxTextArea",
       columnIndex: 2,
     },
     {
+      groupKey: "BASIC_INFORMATION",
       dataField: "FlagActive",
       caption: t("FlagActive"),
       editorType: "dxSwitch",
       alignment: "center",
-      columnIndex: 1,
-      groupKey: "BASIC_INFORMATION",
+      columnIndex: 2,
+
       visible: true,
       width: 100,
       cellRender: ({ data }: any) => {

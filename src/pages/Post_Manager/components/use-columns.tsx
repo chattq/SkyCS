@@ -15,6 +15,7 @@ import { viewingDataAtom } from "./store";
 import { Link } from "react-router-dom";
 import NavNetworkLink from "@/components/Navigate";
 import StatusPost from "./components/StatusPost";
+import { formatText } from "./components/FormatCategory";
 
 const flagEditorOptions = {
   searchEnabled: true,
@@ -40,14 +41,6 @@ export const useBankDealerGridColumns = ({
   data,
 }: // listBankCode,
 UseBankDealerGridColumnsProps) => {
-  const setViewingItem = useSetAtom(viewingDataAtom);
-  const viewRow = (rowIndex: number, data: Mst_CustomerGroupData) => {
-    setViewingItem({
-      rowIndex,
-      item: data,
-    });
-  };
-
   const { t } = useI18n("Mst_PaymentTermController");
   const columns: ColumnOptions[] = [
     {
@@ -55,19 +48,6 @@ UseBankDealerGridColumnsProps) => {
       dataField: "Title", // Mã ngân hàng
       caption: t("Title"),
       editorType: "dxTextBox",
-      validationRules: [requiredType],
-      editorOptions: {
-        readOnly: false,
-        placeholder: t("Input"),
-      },
-      columnIndex: 1,
-    },
-    {
-      groupKey: "BASIC_INFORMATION",
-      dataField: "kbc_CategoryName", // Mã ngân hàng
-      caption: t("kbc_CategoryName"),
-      editorType: "dxTextBox",
-      validationRules: [requiredType],
       editorOptions: {
         readOnly: false,
         placeholder: t("Input"),
@@ -75,11 +55,23 @@ UseBankDealerGridColumnsProps) => {
       columnIndex: 1,
       cellRender: ({ data, rowIndex, value }) => {
         return (
-          <NavNetworkLink to={`/admin/Post_Manager/detail`}>
-            <div>{value}</div>
+          <NavNetworkLink to={`/admin/Post_detail/${data?.PostCode}`}>
+            <div className="text-green-600">{formatText(value, 30)}</div>
           </NavNetworkLink>
         );
       },
+    },
+    {
+      groupKey: "BASIC_INFORMATION",
+      dataField: "kbc_CategoryName", // Mã ngân hàng
+      caption: t("kbc_CategoryName"),
+      editorType: "dxTextBox",
+
+      editorOptions: {
+        readOnly: false,
+        placeholder: t("Input"),
+      },
+      columnIndex: 1,
     },
 
     {
@@ -92,11 +84,25 @@ UseBankDealerGridColumnsProps) => {
         placeholder: t("Input"),
       },
       columnIndex: 1,
+      cellRender: ({ data, rowIndex, value }) => {
+        return <div>{formatText(value, 30)}</div>;
+      },
     },
     {
       groupKey: "BASIC_INFORMATION",
       dataField: "CreateDTimeUTC", // Mã đại lý
       caption: t("CreateDTimeUTC"),
+      editorType: "dxTextBox",
+      editorOptions: {
+        readOnly: false,
+        placeholder: t("Input"),
+      },
+      columnIndex: 2,
+    },
+    {
+      groupKey: "BASIC_INFORMATION",
+      dataField: "LogLUDTimeUTC", // Mã đại lý
+      caption: t("LogLUDTimeUTC"),
       editorType: "dxTextBox",
       editorOptions: {
         readOnly: false,

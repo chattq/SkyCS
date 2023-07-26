@@ -28,34 +28,27 @@ export const useMst_DepartmentControlApi = (apiBase: AxiosInstance) => {
       });
     },
     Mst_DepartmentControl_GetAllActive: async (): Promise<
-      ApiResponse<Mst_DepartmentControl>
+      ApiResponse<Mst_DepartmentControl[]>
     > => {
       return await apiBase.post<
         SearchParam,
-        ApiResponse<Mst_DepartmentControl>
+        ApiResponse<Mst_DepartmentControl[]>
       >("/MstDepartment/GetAllActive", {});
     },
 
     Mst_DepartmentControl_Delete: async (
-      key: string
+      data: any
     ): Promise<ApiResponse<Mst_DepartmentControl>> => {
       return await apiBase.post<string, ApiResponse<Mst_DepartmentControl>>(
         "/MstDepartment/Delete",
         {
-          strJson: JSON.stringify({
-            OrgID: "7206207001",
-            DepartmentCode: key,
-          }),
+          strJson: JSON.stringify(data),
         }
       );
     },
     Mst_DepartmentControl_Create: async (
       data: Partial<any>
     ): Promise<ApiResponse<Partial<Mst_DepartmentControl>>> => {
-      console.log(47, {
-        Mst_Department: data.Mst_Department,
-        Lst_Sys_UserMapDepartment: data.Lst_Sys_UserMapDepartment,
-      });
       return apiBase.post<
         Partial<Mst_DepartmentControl>,
         ApiResponse<Mst_DepartmentControl>
@@ -67,9 +60,10 @@ export const useMst_DepartmentControlApi = (apiBase: AxiosInstance) => {
     Mst_DepartmentControl_Update: async (
       data: any
     ): Promise<ApiResponse<Mst_DepartmentControl>> => {
+      console.log(data);
       return await apiBase.post("/MstDepartment/Update", {
         strJson: JSON.stringify(data),
-        ColsUpd: Object.keys(data.Mst_Department).join(","),
+        ColsUpd: `"DepartmentName","DepartmentCodeParent","FlagActive","DepartmentDesc"`,
       });
     },
 

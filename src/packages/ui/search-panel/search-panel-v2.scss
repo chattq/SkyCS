@@ -1,23 +1,5 @@
-#search-panel {
-  position: relative;
-  .dx-box-item:last-child {
-    position: fixed;
-    background: white;
-    bottom: 35px;
-    width: 200px;
-    .btn-search {
-      z-index: 1
-    }
-  }
-  &.search-panel-hidden {
-    .dx-box-item:last-child {
-      .btn-search {
-        display: none;
-      }
-    }
-    
-  }
-  .dx-box-item:nth-last-child(2) {
-    margin-bottom: 45px;
+.search-panel-visible {
+  .dx-button-content {
+    background-color: transparent;
   }
 }

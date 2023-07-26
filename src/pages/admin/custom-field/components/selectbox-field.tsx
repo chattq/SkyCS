@@ -34,7 +34,7 @@ export const SelectboxField = ({
         !!error ? "mb-4" : ""
       }`}
     >
-      <label htmlFor={rest.name} className={"w-[150px]"}>
+      <label htmlFor={rest.name} className={"w-[250px]"}>
         {label}
       </label>
       <SelectBox

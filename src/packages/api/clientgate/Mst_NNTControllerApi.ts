@@ -21,6 +21,14 @@ export const useMst_NNTControllerApi = (apiBase: AxiosInstance) => {
         {}
       );
     },
+    MstOrg_GetOrgsNotInSolution: async (): Promise<
+      ApiResponse<Mst_NNTController>
+    > => {
+      return await apiBase.post<SearchParam, ApiResponse<Mst_NNTController>>(
+        "/MstOrg/GetOrgsNotInSolution",
+        {}
+      );
+    },
     Mst_NNTController_GetNNTCode: async (
       code: any
     ): Promise<ApiResponse<Mst_NNTController>> => {
@@ -31,6 +39,16 @@ export const useMst_NNTControllerApi = (apiBase: AxiosInstance) => {
         }
       );
     },
+    Mst_NNTController_GetOrgCode: async (
+      OrgID: any
+    ): Promise<ApiResponse<Mst_NNTController>> => {
+      return await apiBase.post<SearchParam, ApiResponse<Mst_NNTController>>(
+        "/MstNNT/GetByOrgID",
+        {
+          OrgID: OrgID,
+        }
+      );
+    },
 
     Mst_NNTController_Delete: async (
       key: string
@@ -38,7 +56,7 @@ export const useMst_NNTControllerApi = (apiBase: AxiosInstance) => {
       return await apiBase.post<string, ApiResponse<Mst_NNTController>>(
         "/MstNNT/Delete",
         {
-          MST: key[0],
+          MST: key,
         }
       );
     },

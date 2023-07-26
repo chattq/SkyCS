@@ -12,6 +12,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
+import NavNetworkLink from "@/components/Navigate";
 import { GroupField } from "@/components/fields/GroupField";
 import { useNetworkNavigate } from "@/packages/hooks";
 import { getListField } from "@/utils/customer-common";
@@ -139,9 +140,10 @@ const CustomerEditPage = () => {
             }, {});
 
             setFormValue({
+              ...response?.Data?.Lst_Mst_Customer[0],
               ...obj,
-              CUSTOMERCODE: response?.Data?.Lst_Mst_Customer[0]?.CustomerCode,
-              CUSTOMERNAME: response?.Data?.Lst_Mst_Customer[0]?.CustomerName,
+              CustomerCode: response?.Data?.Lst_Mst_Customer[0]?.CustomerCode,
+              CustomerName: response?.Data?.Lst_Mst_Customer[0]?.CustomerName,
               ZaloUserFollowerId:
                 response?.Data?.Lst_Mst_CustomerZaloUserFollower?.map(
                   (item: any) => {
@@ -165,6 +167,10 @@ const CustomerEditPage = () => {
                     id: nanoid(),
                   };
                 }) ?? [],
+              CustomerGrpCode:
+                response?.Data?.Lst_Mst_CustomerInCustomerGroup?.map(
+                  (item: any) => item?.CustomerGrpCode
+                ),
             });
 
             return obj;
@@ -185,12 +191,19 @@ const CustomerEditPage = () => {
     },
   });
 
+  useEffect(() => {
+    refetchCodeField();
+    refetchGroupCode();
+    refetchDynamic();
+    refetchValueItem();
+  }, []);
+
   const getFormField = useCallback(() => {
     if (!isLoadingCodeField && !isLoadingGroupCode && !isLoadingValueItem) {
-      // console.log("=================================", listDynamic);
       const listField = getListField({
         listField: listCodeField,
         listDynamic: listDynamic,
+        defaultValue: getValueItem,
         customOptions: {
           editType: "update",
         },
@@ -225,28 +238,26 @@ const CustomerEditPage = () => {
     }
   }, [isLoadingCodeField, isLoadingGroupCode, listDynamic]);
 
-  useEffect(() => {
-    refetchCodeField();
-    refetchGroupCode();
-    refetchDynamic();
-    refetchValueItem();
-  }, []);
-
   const handleUpdate = async () => {
     if (formRef.current.validate().isValid) {
       const dynamicField = listCodeField
         ?.filter((item: any) => item.FlagIsColDynamic === "1")
         .map((item: any) => item.ColCodeSys);
-      const staticField = listCodeField
+      const staticField: any = listCodeField
         ?.filter((item: any) => item.FlagIsColDynamic !== "1")
         .map((item: any) => item.ColCodeSys);
 
-      const getStaticValue = staticField?.reduce((acc, item) => {
-        return {
-          ...acc,
-          [item]: formValue[item],
-        };
-      }, {});
+      const getStaticValue = staticField
+        ?.filter(
+          (item: any) =>
+            item != "CustomerGrpCode" && item != "mpt_PartnerTypeName"
+        )
+        ?.reduce((acc: any, item: any) => {
+          return {
+            ...acc,
+            [item]: formValue[item],
+          };
+        }, {});
 
       const getDynamicValue: any = dynamicField
         ?.map((item) => {
@@ -261,49 +272,33 @@ const CustomerEditPage = () => {
         })
         .filter((item) => item);
 
-      const value: any = getDynamicValue?.map((item: any) => {
-        return item.ColCodeSys;
-      });
-
-      const repsUpload = await api.SysUserData_UploadFile(formValue?.AVATAR);
-
-      const avatarField = {
-        ColCodeSys: listCodeField?.find((item: any) => item.ColCode == "AVATAR")
-          ?.ColCodeSys,
-        ColValue: repsUpload?.Data?.FileUrlFS,
-      };
-
-      const currentDynamicValue = [...getDynamicValue, avatarField];
+      const value: any = [
+        ...staticField?.filter((item: any) => item != "mpt_PartnerTypeName"),
+        ...getDynamicValue?.map((item: any) => {
+          return item.ColCodeSys;
+        }),
+      ];
 
       const curParam = {
         ...getStaticValue,
         OrgID: auth.orgId,
         NetworkID: auth.networkId,
-        JsonCustomerInfo: currentDynamicValue?.length
-          ? JSON.stringify(currentDynamicValue)
+        JsonCustomerInfo: getDynamicValue?.length
+          ? JSON.stringify(getDynamicValue)
           : null,
       };
 
-      // console.log("getStaticField ", getStaticValue);
-
-      // const valueStatic = getStaticValue
       const objParam = {
         OrgID: auth.orgId,
         NetworkID: auth.networkId,
         CustomerCodeSys: param.CustomerCodeSys,
-        CustomerCode: formValue["CUSTOMERCODE"],
-        CustomerName: formValue["CUSTOMERNAME"],
-        CustomerAvatarName: formValue["CUSTOMERAVATARNAME"] ?? null,
-        CustomerAvatarPath: formValue["CUSTOMERAVATARPATH"] ?? null,
-        CustomerNameEN: formValue["CUSTOMERNAMEEN"] ?? null,
+        CustomerCode: formValue["CustomerCode"],
+        CustomerName: formValue["CustomerName"],
+        CustomerAvatarName: formValue["CustomerAvatarName"] ?? null,
+        CustomerAvatarPath: formValue["CustomerAvatarPath"] ?? null,
+        CustomerNameEN: formValue["CustomerNameEN"] ?? null,
         ...curParam,
       };
-
-      // delete objParam.CUSTOMERCODE;
-      // delete objParam.CUSTOMERAVATARNAME;
-      // delete objParam.CUSTOMERAVATARPATH;
-      // delete objParam.CUSTOMERNAMEEN;
-      // delete objParam.CUSTOMERNAME;
 
       const zaloList =
         formValue["ZaloUserFollowerId"].map((item: any) => {
@@ -330,14 +325,25 @@ const CustomerEditPage = () => {
           };
         }) ?? [];
 
+      const customerGroup =
+        formValue["CustomerGrpCode"]?.map((item: any) => {
+          return {
+            OrgID: auth.orgId,
+            CustomerCodeSys: param.CustomerCodeSys,
+            CustomerGrpCode: item,
+          };
+        }) ?? [];
+
       const response = await api.Mst_Customer_Update(
         objParam,
-        [...value, "ZaloUserFollowerId", "CtmEmail", "CtmPhoneNo"] ?? [],
+        value ?? [],
         zaloList,
         emailList,
         phoneList,
+        customerGroup,
         "SCRTPLCODESYS.2023"
       );
+
       if (response.isSuccess) {
         toast.success("Customer updated successfully");
       } else {
@@ -361,12 +367,17 @@ const CustomerEditPage = () => {
         ?.filter((item: any) => item.FlagIsColDynamic !== "1")
         .map((item: any) => item.ColCodeSys);
 
-      const getStaticValue = staticField?.reduce((acc: any, item: any) => {
-        return {
-          ...acc,
-          [item]: formValue[item],
-        };
-      }, {});
+      const getStaticValue = staticField
+        ?.filter(
+          (item: any) =>
+            item != "CustomerGrpCode" && item != "mpt_PartnerTypeName"
+        )
+        ?.reduce((acc: any, item: any) => {
+          return {
+            ...acc,
+            [item]: formValue[item],
+          };
+        }, {});
 
       const getDynamicValue: any = dynamicField
         ?.map((item: any) => {
@@ -386,31 +397,29 @@ const CustomerEditPage = () => {
         })
         .filter((item: any) => item);
 
-      const repsUpload = await api.SysUserData_UploadFile(formValue?.AVATAR);
-
-      const avatarField = {
-        ColCodeSys: listCodeField?.find((item: any) => item.ColCode == "AVATAR")
-          ?.ColCodeSys,
-        ColValue: repsUpload?.Data?.FileUrlFS,
-      };
-
-      const currentDynamicValue = [...getDynamicValue, avatarField];
-
       const param = {
         ...getStaticValue,
         OrgID: auth.orgId,
         NetworkID: auth.networkId,
-        JsonCustomerInfo: currentDynamicValue?.length
-          ? JSON.stringify(currentDynamicValue)
+        JsonCustomerInfo: getDynamicValue?.length
+          ? JSON.stringify(getDynamicValue)
           : null,
       };
 
-      // console.log("param ", param);
+      const customerGroup =
+        formValue["CustomerGrpCode"]?.map((item: any) => {
+          return {
+            OrgID: auth.orgId,
+            CustomerGrpCode: item,
+          };
+        }) ?? [];
+
       const response = await api.Mst_Customer_Create(
         param,
         formValue["ZaloUserFollowerId"] ?? [],
         formValue["CtmEmail"] ?? [],
         formValue["CtmPhoneNo"] ?? [],
+        customerGroup ?? [],
         "SCRTPLCODESYS.2023"
       );
       if (response.isSuccess) {
@@ -437,14 +446,56 @@ const CustomerEditPage = () => {
     navigate(`/customer/list`);
   };
 
+  const handleDelete = async () => {
+    const deleteConfirm = confirm(
+      `Bạn có muốn xóa khách hàng ${param?.CustomerCodeSys} không?`
+    );
+
+    if (deleteConfirm) {
+      const response = await api.Mst_Customer_Delete({
+        OrgID: auth?.orgData?.Id,
+        CustomerCodeSys: param?.CustomerCodeSys,
+        NetworkID: auth?.networkId,
+      });
+      if (response.isSuccess) {
+        toast.success(t("Delete Success"));
+        navigate(`/customer/list`);
+      } else {
+        showError({
+          message: t(response.errorCode),
+          debugInfo: response.debugInfo,
+          errorInfo: response.errorInfo,
+        });
+      }
+    }
+  };
+
+  console.log(param);
+
   return (
     <AdminContentLayout className={"province-management"}>
       <AdminContentLayout.Slot name={"Header"}>
         <div className="header flex justify-between items-center w-full px-2 py-3">
           <div className="breakcrumb flex gap-1">
-            <p>{t("Mst_Customer")}</p>
+            {param?.nav ? (
+              <NavNetworkLink
+                to={`/customer/detail/${param?.CustomerCodeSys}`}
+                className="text-black"
+              >
+                Chi tiết khách hàng
+              </NavNetworkLink>
+            ) : (
+              <NavNetworkLink to="/customer" className="text-black">
+                Khách hàng
+              </NavNetworkLink>
+            )}
+
             <p>{`>`}</p>
-            <p>{param?.type} Customer</p>
+            {param?.type == "add" ? (
+              <p>Thêm mới khách hàng</p>
+            ) : (
+              <p>Cập nhật thông tin khách hàng</p>
+            )}
           </div>
           <div className="flex gap-3">
             {param?.type == "edit" ? (
@@ -472,12 +523,12 @@ const CustomerEditPage = () => {
             )}
 
             <Button
-              onClick={handleCancel}
+              onClick={handleDelete}
               style={{
                 padding: "10px 20px",
               }}
             >
-              Hủy Bỏ
+              Xóa
             </Button>
           </div>
         </div>

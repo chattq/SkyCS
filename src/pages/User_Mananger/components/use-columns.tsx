@@ -53,11 +53,19 @@ export const useDealerGridColumns = ({ data }: UseDealerGridColumnsProps) => {
     setFlag(false);
     const resp = await api.Sys_User_Data_GetByUserCode(data.UserCode);
     if (resp.isSuccess) {
-      setAvt(resp?.Data?.Avatar);
+      setAvt(resp?.Data?.Lst_Sys_User?.Avatar);
       setDataForm({
-        ...resp.Data,
-        FlagNNTAdmin: resp.Data?.FlagNNTAdmin === "1" ? true : false,
-        FlagSysAdmin: resp.Data?.FlagSysAdmin === "1" ? true : false,
+        ...resp?.Data?.Lst_Sys_User,
+        FlagNNTAdmin:
+          resp.Data?.Lst_Sys_User?.FlagNNTAdmin === "1" ? true : false,
+        FlagSysAdmin:
+          resp.Data?.Lst_Sys_User?.FlagSysAdmin === "1" ? true : false,
+        DepartmentName: resp.Data?.Lst_Sys_UserMapDepartment?.map(
+          (item: any) => item.DepartmentCode
+        ),
+        GroupName: resp.Data?.Lst_Sys_UserInGroup?.map(
+          (item: any) => item.GroupCode
+        ),
       });
     }
     setPopupVisible(true);
@@ -66,11 +74,22 @@ export const useDealerGridColumns = ({ data }: UseDealerGridColumnsProps) => {
   const { t } = useI18n("User_Mananger");
   const columns: ColumnOptions[] = [
     {
-      dataField: "UserCode",
+      dataField: "ACId",
       editorOptions: {
         placeholder: t("Input"),
       },
-      caption: t("UserCode"),
+      caption: t("UserID"),
+      columnIndex: 1,
+      groupKey: "BASIC_INFORMATION",
+      visible: true,
+    },
+
+    {
+      dataField: "UserName",
+      editorOptions: {
+        placeholder: t("Input"),
+      },
+      caption: t("UserName"),
       columnIndex: 1,
       groupKey: "BASIC_INFORMATION",
       visible: true,
@@ -83,16 +102,6 @@ export const useDealerGridColumns = ({ data }: UseDealerGridColumnsProps) => {
           />
         );
       },
-    },
-    {
-      dataField: "UserName",
-      editorOptions: {
-        placeholder: t("Input"),
-      },
-      caption: t("UserName"),
-      columnIndex: 1,
-      groupKey: "BASIC_INFORMATION",
-      visible: true,
     },
     {
       dataField: "EMail",
@@ -115,11 +124,21 @@ export const useDealerGridColumns = ({ data }: UseDealerGridColumnsProps) => {
       visible: true,
     },
     {
-      dataField: "mdept_DepartmentName",
+      dataField: "DepartmentName",
       editorOptions: {
         readOnly: true,
       },
-      caption: t("mdept_DepartmentName"),
+      caption: t("DepartmentName"),
+      columnIndex: 1,
+      groupKey: "BASIC_INFORMATION",
+      visible: true,
+    },
+    {
+      dataField: "GroupName",
+      editorOptions: {
+        readOnly: true,
+      },
+      caption: t("GroupName"),
       columnIndex: 1,
       groupKey: "BASIC_INFORMATION",
       visible: true,

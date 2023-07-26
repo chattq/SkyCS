@@ -10,7 +10,7 @@ export const CheckboxField = ({label, field, readonly}: CheckboxFieldProps) => {
     <div className={'my-2'}>
       <CheckBox
         {...rest}
-        className={'ml-[130px]'}
+        className={'ml-[190px]'}
         readOnly={readonly}
         onValueChanged={async (e: any) => {
           await onChange({
