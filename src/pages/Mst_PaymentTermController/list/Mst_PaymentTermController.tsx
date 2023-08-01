@@ -62,8 +62,15 @@ export const Mst_PaymentTermControllerPage = () => {
         ...searchCondition,
       })
   );
+  const { data: listOrgID } = useQuery(
+    ["listOrgID", JSON.stringify(searchCondition)],
+    () => api.Mst_NNTController_GetAllActive()
+  );
 
-  const columns = useBankDealerGridColumns({ data: data?.DataList || [] });
+  const columns = useBankDealerGridColumns({
+    data: data?.DataList || [],
+    datalistOrgID: listOrgID?.Data?.Lst_Mst_NNT,
+  });
 
   const formItems: IItemProps[] = [
     {

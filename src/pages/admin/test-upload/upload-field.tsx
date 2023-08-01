@@ -173,11 +173,13 @@ export const UploadFilesField = ({
     }
   };
 
+  console.log("readonly ", readonly);
+
   return (
     <div className={`files-uploader ${className}`}>
       <form>
         <FileUploader
-          // readOnly={readonly}
+          readOnly={readonly}
           ref={uploaderRef}
           name={"file"}
           multiple={true}

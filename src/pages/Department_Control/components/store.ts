@@ -13,6 +13,7 @@ export const viewingItemAtom = atom<Mst_DepartmentControl | undefined>(
 export const showPopup = atom<boolean>(false);
 export const showDetail = atom<boolean>(false);
 export const dataTableAtom = atom<any>([]);
+export const UserAutoAssignTicketAtom = atom<any>([]);
 export const dataUserAtom = atom<any>([]);
 export const dataTableUserAtom = atom<any>([]);
 export const dataFormAtom = atom<any>([]);

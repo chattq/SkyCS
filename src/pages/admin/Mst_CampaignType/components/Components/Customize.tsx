@@ -24,7 +24,6 @@ import { useAuth } from "@/packages/contexts/auth";
 import { toast } from "react-toastify";
 import { EditForm } from "./PopUp";
 import { useParams } from "react-router-dom";
-import { array_move } from "@/components/ulti";
 import { useNetworkNavigate } from "@/components/useNavigate";
 
 const Customize = () => {
@@ -233,8 +232,6 @@ const Customize = () => {
       })
     );
   };
-  console.log("flagSelecter ", flagSelecter);
-
   useEffect(() => {
     if (flagSelecter === "add") {
       console.log("render");
@@ -290,13 +287,15 @@ const Customize = () => {
             </p>
           </div>
           <div className="list-button">
-            <Button
-              className="mr-1"
-              onClick={handleSave}
-              type={"default"}
-              stylingMode={"contained"}
-              text={t("Save")}
-            ></Button>
+            {param?.flag !== "detail" && (
+              <Button
+                className="mr-1"
+                onClick={handleSave}
+                type={"default"}
+                stylingMode={"contained"}
+                text={t("Save")}
+              ></Button>
+            )}
             <Button
               className="mr-1"
               onClick={handleCancel}
@@ -317,6 +316,7 @@ const Customize = () => {
                 return (
                   <TextboxField
                     field={field}
+                    disabled={param?.flag === "detail"}
                     label={"Campaign Type Name"}
                     required={true}
                     error={errors.CampaignTypeName}
@@ -337,6 +337,7 @@ const Customize = () => {
                 return (
                   <TextboxField
                     field={field}
+                    disabled={param?.flag === "detail"}
                     label={"Campaign TypeDesc"}
                     required={true}
                     error={errors.CampaignTypeDesc}
@@ -400,6 +401,7 @@ const Customize = () => {
                             <TextBox
                               ref={ref}
                               {...restField}
+                              disabled={param?.flag === "detail"}
                               defaultValue={field?.Value ?? ""}
                               value={
                                 getValues(
@@ -422,6 +424,7 @@ const Customize = () => {
                             <Button
                               onClick={() => remove(index)}
                               stylingMode={"text"}
+                              disabled={param?.flag === "detail"}
                             >
                               <Icon
                                 name={"trash"}
@@ -445,7 +448,9 @@ const Customize = () => {
                             id: "",
                           })
                         }
-                        disabled={!canAddMore(choiceValues)}
+                        disabled={
+                          !canAddMore(choiceValues) || param?.flag === "detail"
+                        }
                         className={"flex items-center"}
                       >
                         <Icon name={"plus"} size={20} />
@@ -565,6 +570,7 @@ const Customize = () => {
               onClick={() => {
                 setVisiable(true);
               }}
+              disabled={param?.flag === "detail"}
               className={"flex items-center"}
             >
               <Icon name={"plus"} size={20} />

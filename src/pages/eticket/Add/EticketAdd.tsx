@@ -1,7 +1,9 @@
+import NavNetworkLink from "@/components/Navigate";
 import { encodeFileType, revertEncodeFileType } from "@/components/ulti";
 import { useClientgateApi } from "@/packages/api";
 import { useAuth } from "@/packages/contexts/auth";
 import { useNetworkNavigate } from "@/packages/hooks";
+import { AdminContentLayout } from "@/packages/layouts/admin-content-layout";
 import { showErrorAtom } from "@/packages/store";
 import CustomerEditPage from "@/pages/Mst_Customer/page/CustomerEditPage/CustomerEditPage";
 import { getFullTime } from "@/utils/time";
@@ -11,6 +13,7 @@ import { atom, useAtomValue, useSetAtom } from "jotai";
 import { useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
+import "./components/custom.scss";
 import { DynamicForm, dynamicFormValue } from "./components/dynamic-form";
 import { DefaultForm, customerPopup } from "./components/form-settings";
 import { SideForm } from "./components/side-form-settings";
@@ -21,7 +24,7 @@ interface FormValue {
   CustomerCodeSys: string;
   TicketName: string;
   TicketDetail: string;
-  AgentCode: string;
+  AgentCode: string | undefined;
   DepartmentCode: string;
   TicketType: string;
   TicketPriority: string;
@@ -36,9 +39,18 @@ interface FormValue {
   uploadFiles: any;
   TicketFollowers: any;
   TicketCustomers: any;
+  SLALevel?: any;
 }
 
-export const ticketAddSLAID = atom<string | undefined>("");
+interface ticketAddSLAID {
+  SLALevel: string | undefined;
+  SLAID: string | undefined;
+}
+
+export const ticketAddSLAID = atom<ticketAddSLAID>({
+  SLALevel: undefined,
+  SLAID: undefined,
+});
 
 export const ticketDeadline = atom<Date>(new Date());
 
@@ -51,7 +63,7 @@ const EticketAdd = () => {
 
   const { auth } = useAuth();
 
-  const { TicketID } = useParams();
+  const { TicketID, type } = useParams();
 
   const navigate = useNetworkNavigate();
 
@@ -77,15 +89,15 @@ const EticketAdd = () => {
   const ticketAddSLAIDValue = useAtomValue(ticketAddSLAID);
 
   const [formValue, setFormValue] = useState<FormValue>({
-    TicketStatus: "",
-    OrgID: auth?.orgData?.Id,
+    TicketStatus: "OPEN",
+    OrgID: auth?.orgData?.Id.toString(),
     CustomerCodeSys: "",
     TicketName: "",
     TicketDetail: "",
-    AgentCode: "",
+    AgentCode: auth?.currentUser?.Email?.toUpperCase(),
     DepartmentCode: "",
     TicketType: "",
-    TicketPriority: "",
+    TicketPriority: "NORMAL",
     TicketJsonInfo: "",
     TicketCustomType: "",
     TicketSource: "",
@@ -134,6 +146,8 @@ const EticketAdd = () => {
     return convertedObj;
   }
 
+  const setTicketSLAID = useSetAtom(ticketAddSLAID);
+
   const { data: getFormValue } = useQuery(
     ["ticketUpdate", TicketID],
     async () => {
@@ -151,7 +165,7 @@ const EticketAdd = () => {
             Tags: resp?.Data?.Lst_ET_Ticket[0]?.Tags?.split(",") ?? [],
             TicketFollowers:
               resp?.Data?.Lst_ET_TicketFollower?.map((item: any) => {
-                return item?.AgentCode;
+                return item?.AgentCode?.toUpperCase();
               }) ?? [],
             uploadFiles:
               resp?.Data?.Lst_ET_TicketAttachFile?.map(
@@ -167,9 +181,14 @@ const EticketAdd = () => {
             TicketCustomers: resp?.Data?.Lst_ET_TicketCustomer,
           });
           setTicketDealine(resp?.Data?.Lst_ET_Ticket[0]?.TicketDeadline);
+          setTicketSLAID({
+            SLALevel: resp?.Data?.Lst_ET_Ticket[0]?.SLALevel,
+            SLAID: resp?.Data?.Lst_ET_Ticket[0]?.SLAID,
+          });
           const listDynamic =
             JSON.parse(resp?.Data?.Lst_ET_Ticket[0]?.TicketJsonInfo) ?? [];
-          //  convertToOriginalFormat
+
+          // console.log(listDynamic);
           setDynamicForm(convertDotsToUnderscores(listDynamic));
         }
 
@@ -177,6 +196,8 @@ const EticketAdd = () => {
       }
     }
   );
+
+  console.log(getFormValue);
 
   const dynamicForm = useAtomValue(dynamicFormValue);
 
@@ -208,7 +229,7 @@ const EticketAdd = () => {
       ReceptionChannel: formValue.ReceptionChannel,
       ContactChannel: formValue.ContactChannel,
       Tags: formValue.Tags?.join(",") ?? "",
-      SLAID: ticketAddSLAIDValue,
+      SLAID: ticketAddSLAIDValue?.SLAID,
       RemindWork: formValue.RemindWork,
       RemindDTimeUTC: remindTime,
     };
@@ -240,7 +261,10 @@ const EticketAdd = () => {
     const resp: any = await api.ETTicket_Create(data);
 
     if (resp?.isSuccess) {
-      toast.success("Tạo mới eTicket thành công!");
+      toast.success("Tạo mới eTicket thành công!", {
+        onClose: handleCancel,
+        delay: 500,
+      });
     } else {
       showError({
         message: resp?.errorCode,
@@ -279,7 +303,7 @@ const EticketAdd = () => {
       ReceptionChannel: formValue.ReceptionChannel,
       ContactChannel: formValue.ContactChannel,
       Tags: formValue.Tags?.join(",") ?? "",
-      SLAID: ticketAddSLAIDValue,
+      SLAID: ticketAddSLAIDValue?.SLAID,
       RemindWork: formValue.RemindWork,
       RemindDTimeUTC: remindTime,
     };
@@ -314,7 +338,10 @@ const EticketAdd = () => {
     const resp: any = await api.ETTicket_Update(data);
 
     if (resp?.isSuccess) {
-      toast.success("Update eTicket thành công!");
+      toast.success("Update eTicket thành công!", {
+        onClose: handleCancel,
+        delay: 500,
+      });
     } else {
       showError({
         message: resp?.errorCode,
@@ -336,64 +363,143 @@ const EticketAdd = () => {
   };
 
   return (
-    <div className="w-full">
-      <div className="flex justify-end">
-        {TicketID ? (
-          <Button
-            style={{
-              padding: 10,
-              margin: 10,
-              background: "green",
-              color: "white",
-            }}
-            onClick={handleUpdate}
-          >
-            Cập nhật
-          </Button>
-        ) : (
-          <Button
-            style={{
-              padding: 10,
-              margin: 10,
-              background: "green",
-              color: "white",
-            }}
-            onClick={handleSave}
-          >
-            Lưu
-          </Button>
-        )}
+    <AdminContentLayout className={"province-management"}>
+      <AdminContentLayout.Slot name={"Header"}>
+        <div className="header flex justify-between items-center w-full px-2">
+          <div className="breakcrumb flex gap-1">
+            <NavNetworkLink
+              to="/eticket/eticket_manager"
+              className="text-black"
+            >
+              eTicket
+            </NavNetworkLink>
+            <p>{`>`}</p>
+            {TicketID ? <p>Cập nhật eTicket</p> : <p>Tạo mới eTicket</p>}
+          </div>
+          <div className="flex justify-end">
+            {TicketID ? (
+              <Button
+                style={{
+                  padding: 10,
+                  margin: 10,
+                  background: "green",
+                  color: "white",
+                }}
+                onClick={handleUpdate}
+              >
+                Cập nhật
+              </Button>
+            ) : (
+              <Button
+                style={{
+                  padding: 10,
+                  margin: 10,
+                  background: "green",
+                  color: "white",
+                }}
+                onClick={handleSave}
+              >
+                Lưu
+              </Button>
+            )}
 
-        <Button
-          style={{
-            padding: 10,
-            margin: 10,
-          }}
-          onClick={handleCancel}
-        >
-          Hủy
-        </Button>
-      </div>
-      <div className="flex">
-        <div className="p-2 w-[80%]">
-          <DefaultForm ref={form_1} formValue={formValue} />
-          <DynamicForm ref={dynamic_ref} formValue={dynamicForm} />
+            <Button
+              style={{
+                padding: 10,
+                margin: 10,
+              }}
+              onClick={handleCancel}
+            >
+              Hủy
+            </Button>
+          </div>
         </div>
+      </AdminContentLayout.Slot>
+      <AdminContentLayout.Slot name={"Content"}>
+        <div className="flex">
+          <div className="p-2 w-[80%]">
+            <DefaultForm ref={form_1} formValue={formValue} />
+            <DynamicForm ref={dynamic_ref} formValue={dynamicForm} />
+          </div>
+          <div className="w-[20%] pr-2 pb-2">
+            <SideForm ref={form_2} formValue={formValue} />
+          </div>
+        </div>
+        <Popup
+          onHiding={handleClose}
+          visible={customerPopupValue}
+          showCloseButton
+          title="Thêm khách hàng"
+        >
+          <ScrollView>
+            <CustomerEditPage />
+          </ScrollView>
+        </Popup>
+        {result}
+      </AdminContentLayout.Slot>
+    </AdminContentLayout>
 
-        <SideForm ref={form_2} formValue={formValue} />
-      </div>
-      <Popup
-        onHiding={handleClose}
-        visible={customerPopupValue}
-        showCloseButton
-        title="Thêm khách hàng"
-      >
-        <ScrollView>
-          <CustomerEditPage />
-        </ScrollView>
-      </Popup>
-      {result}
-    </div>
+    // <div className="w-full">
+    //   <div className="flex justify-between">
+    //     <div>hello</div>
+    //     <div className="flex justify-end">
+    //       {TicketID ? (
+    //         <Button
+    //           style={{
+    //             padding: 10,
+    //             margin: 10,
+    //             background: "green",
+    //             color: "white",
+    //           }}
+    //           onClick={handleUpdate}
+    //         >
+    //           Cập nhật
+    //         </Button>
+    //       ) : (
+    //         <Button
+    //           style={{
+    //             padding: 10,
+    //             margin: 10,
+    //             background: "green",
+    //             color: "white",
+    //           }}
+    //           onClick={handleSave}
+    //         >
+    //           Lưu
+    //         </Button>
+    //       )}
+
+    //       <Button
+    //         style={{
+    //           padding: 10,
+    //           margin: 10,
+    //         }}
+    //         onClick={handleCancel}
+    //       >
+    //         Hủy
+    //       </Button>
+    //     </div>
+    //   </div>
+    //   <div className="flex">
+    //     <div className="p-2 w-[80%]">
+    //       <DefaultForm ref={form_1} formValue={formValue} />
+    //       <DynamicForm ref={dynamic_ref} formValue={dynamicForm} />
+    //     </div>
+
+    //     <SideForm ref={form_2} formValue={formValue} />
+    //   </div>
+    //   <Popup
+    //     onHiding={handleClose}
+    //     visible={customerPopupValue}
+    //     showCloseButton
+    //     title="Thêm khách hàng"
+    //   >
+    //     <ScrollView>
+    //       <CustomerEditPage />
+    //     </ScrollView>
+    //   </Popup>
+    //   {result}
+    // </div>
   );
 };
 

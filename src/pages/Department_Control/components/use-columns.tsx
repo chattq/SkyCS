@@ -3,6 +3,7 @@ import { useI18n } from "@/i18n/useI18n";
 import { Mst_DepartmentControl } from "@packages/types";
 import { useAtom, useSetAtom } from "jotai";
 import {
+  UserAutoAssignTicketAtom,
   dataFormAtom,
   dataTableAtom,
   dataTableUserAtom,
@@ -30,6 +31,7 @@ export const useDepartMentGridColumns = ({
   const setDataForm = useSetAtom(dataFormAtom);
   const setDataUser = useSetAtom(dataTableUserAtom);
   const setFlagEdit = useSetAtom(flagEdit);
+  const setUserAutoAssignTicket = useSetAtom(UserAutoAssignTicketAtom);
 
   const viewRow = async (rowIndex: number, data: any) => {
     setPopupVisible(true);
@@ -39,6 +41,7 @@ export const useDepartMentGridColumns = ({
       data.DepartmentCode
     );
     if (resp.isSuccess) {
+      console.log(44, resp?.Data);
       setDataUser(
         resp?.Data?.Lst_Sys_UserMapDepartment.map((item: any) => {
           return {
@@ -46,6 +49,15 @@ export const useDepartMentGridColumns = ({
             UserName: item.FullName,
             EMail: item.Email,
             PhoneNo: item.PhoneNo,
+            OrgID: item.OrgID,
+          };
+        })
+      );
+      setUserAutoAssignTicket(
+        resp?.Data?.Lst_Sys_UserAutoAssignTicket?.map((item: any) => {
+          return {
+            ...item,
+            UserName: item?.su_UserName,
           };
         })
       );

@@ -22,6 +22,7 @@ import { showErrorAtom } from "@/packages/store";
 import { toast } from "react-toastify";
 import { CheckBox } from "devextreme-react";
 import { useI18n } from "@/i18n/useI18n";
+import { specailType } from "@/packages/common/Validation_Rules";
 
 interface EditFormProps {
   onCancel: () => void;
@@ -110,8 +111,6 @@ export const EditForm = memo(
       }
     }, [currentItem, flag]);
 
-    console.log("currentItem ", currentItem);
-
     const {
       register,
       reset,
@@ -142,6 +141,8 @@ export const EditForm = memo(
     });
 
     const handleSave = async (data: Mst_CampaignColumnConfig) => {
+      console.log("data ", data);
+
       if (Object.keys(errors).length === 0) {
         if (flag === "add") {
           const response = await api.Mst_CampaignColumnConfig_Create({
@@ -284,7 +285,7 @@ export const EditForm = memo(
             className={"flex items-center"}
           >
             <Icon name={"plus"} size={20} />
-            <span className={"mx-2"}>Add New</span>
+            <span className={"mx-2"}>{t("Add New")}</span>
           </Button>
         </div>
       );
@@ -317,8 +318,6 @@ export const EditForm = memo(
       }
     }, [dataTypeValue]);
 
-    console.log("dataTypeValue ", dataTypeValue);
-
     return (
       <Popup
         position={"center"}
@@ -348,7 +347,11 @@ export const EditForm = memo(
                 );
               }}
               rules={{
-                required: { value: true, message: "FieldCodeIsRequired" },
+                required: { value: true, message: t("FieldCodeIsRequired") },
+                // pattern: {
+                //   value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                //   message: t("The special key must be not input"),
+                // },
               }}
             />
             <Controller
@@ -468,7 +471,7 @@ export const EditForm = memo(
                   className={"flex items-center"}
                 >
                   <Icon name={"plus"} size={20} />
-                  <span className={"mx-2"}>Add New</span>
+                  <span className={"mx-2"}>{t("Add New")}</span>
                 </Button>
               </div>
             )}
@@ -483,12 +486,15 @@ export const EditForm = memo(
                       field={field}
                       label={"Data Source"}
                       dataSource={listMasterData}
-                      required
+                      required={true}
                       error={errors.DataSource}
                       displayExpr={"Value"}
                       valueExpr={"Key"}
                     />
                   );
+                }}
+                rules={{
+                  required: { value: true, message: "DataSource IsRequired" },
                 }}
               />
             )}

@@ -42,8 +42,6 @@ export const Cpn_CampaignAgentPage = () => {
   let gridRef: any = useRef(null);
   const config = useConfiguration();
   const showError = useSetAtom(showErrorAtom);
-  const [dataListUser, setDataListUser] = useState<any>([]);
-  const [dataListName, setDataListName] = useState<any>([]);
   const setSelectedItems = useSetAtom(selectedItemsAtom);
   const api = useClientgateApi();
 
@@ -58,28 +56,26 @@ export const Cpn_CampaignAgentPage = () => {
     () => api.Sys_User_GetAllActive() as any
   );
 
+  const { data: getCampaing, isLoading: isLoadingGetCampaign } = useQuery({
+    queryKey: ["Cpn_CampaignAgent_GetActive"],
+    queryFn: async () => {
+      return api.Cpn_CampaignAgent_Search({});
+    },
+  });
+
   const { data, isLoading, refetch } = useQuery(
     ["Cpn_CampaignAgent", JSON.stringify(searchCondition)],
     () =>
       api.Cpn_CampaignAgent_Search({
         ...searchCondition,
+        CampaignCode: searchCondition.CampaignCode
+          ? searchCondition.CampaignCode.join(",")
+          : null,
+        AgentCode: searchCondition.AgentCode
+          ? searchCondition.AgentCode.join(",")
+          : null,
       })
   );
-
-  useEffect(() => {
-    if (listUser) {
-      setDataListUser([
-        { UserName: "Tất cả", UserCodee: "" },
-        ...listUser?.DataList,
-      ]);
-    }
-    if (data) {
-      setDataListName([
-        { CampaignName: "Tất cả", CampaignCode: "" },
-        ...data?.Data,
-      ]);
-    }
-  }, [listUser, data]);
 
   const columns = useBankDealerGridColumns({ data: data?.Data || [] });
 
@@ -90,13 +86,13 @@ export const Cpn_CampaignAgentPage = () => {
       label: {
         text: t("CampaignName"),
       },
-      editorType: "dxSelectBox",
+      editorType: "dxTagBox",
       editorOptions: {
         placeholder: t("Input"),
         displayExpr: "CampaignName",
         valueExpr: "CampaignCode",
         searchEnabled: true,
-        dataSource: dataListName ?? [],
+        dataSource: getCampaing?.Data ?? [],
       },
     },
     {
@@ -104,13 +100,13 @@ export const Cpn_CampaignAgentPage = () => {
       label: {
         text: t("Agent"),
       },
-      editorType: "dxSelectBox",
+      editorType: "dxTagBox",
       editorOptions: {
         placeholder: t("Input"),
         displayExpr: "UserName",
         valueExpr: "UserCode",
         searchEnabled: true,
-        dataSource: dataListUser ?? [],
+        dataSource: listUser?.DataList ?? [],
       },
     },
   ];
@@ -297,14 +293,14 @@ export const Cpn_CampaignAgentPage = () => {
           </ContentSearchPanelLayout.Slot>
           <ContentSearchPanelLayout.Slot name={"ContentPanel"}>
             <GridViewPopup
-              isLoading={isLoading}
+              isLoading={isLoading || isLoadingGetCampaign}
               dataSource={data?.isSuccess ? data.Data ?? [] : []}
               columns={columns}
               keyExpr={"CampaignCode"}
               popupSettings={popupSettings}
               formSettings={formSettings}
+              allowInlineEdit={false}
               onReady={(ref) => (gridRef = ref)}
-              
               allowSelection={true}
               onSelectionChanged={handleSelectionChanged}
               onSaveRow={handleSavingRow}

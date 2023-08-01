@@ -77,6 +77,7 @@ interface GridViewProps {
   storeKey?: string;
   stateStoring?: IStateStoringProps;
   onCustomerEditing?: Function;
+  showButton?: boolean;
 }
 
 export const GridViewRaw = forwardRef(
@@ -100,6 +101,7 @@ export const GridViewRaw = forwardRef(
       storeKey,
       stateStoring,
       onCustomerEditing,
+      showButton = true,
     }: GridViewProps,
     ref: any
   ) => {
@@ -129,7 +131,7 @@ export const GridViewRaw = forwardRef(
     useEffect(() => {
       const savedState = loadState();
       if (savedState) {
-        console.log("Load saved state:", savedState)
+        console.log("Load saved state:", savedState);
         const columnOrders = savedState.map(
           (column: ColumnOptions) => column.dataField
         );
@@ -151,12 +153,12 @@ export const GridViewRaw = forwardRef(
         const output = columns.map((c: ColumnOptions) => {
           return {
             ...c,
-            visible: true
-          }
-        })
+            visible: true,
+          };
+        });
         // console.log("setup init state:", output)
         saveState(output);
-        setColumnsState(output)
+        setColumnsState(output);
       }
     }, [columns]);
 
@@ -446,44 +448,49 @@ export const GridViewRaw = forwardRef(
                   );
                 })}
             </Toolbar>
-            <Editing
-              mode={"batch"}
-              startEditAction={"click"}
-              useIcons={true}
-              allowUpdating={true}
-              allowDeleting={true}
-              allowAdding={true}
-              confirmDelete={false}
-              onChangesChange={onEditRowChanges ? onEditRowChanges : () => {}}
-            ></Editing>
-            <Column
-              visible
-              type="buttons"
-              width={100}
-              fixed={false}
-              allowResizing={false}
-            >
-              <DxButton
-                cssClass={"mx-1 cursor-pointer"}
-                name="edit"
-                icon={"/images/icons/edit.svg"}
-              />
-              <DxButton
-                cssClass={"mx-1 cursor-pointer"}
-                name="delete"
-                icon={"/images/icons/trash.svg"}
-              />
-              <DxButton
-                cssClass={"mx-1 cursor-pointer"}
-                name="save"
-                icon={"/images/icons/save.svg"}
-              />
-              <DxButton
-                cssClass={"mx-1 cursor-pointer"}
-                name="cancel"
-                icon={"/images/icons/refresh.svg"}
-              />
-            </Column>
+            {showButton && (
+              <Editing
+                mode={"batch"}
+                startEditAction={"click"}
+                useIcons={true}
+                allowUpdating={true}
+                allowDeleting={true}
+                allowAdding={true}
+                confirmDelete={false}
+                onChangesChange={onEditRowChanges ? onEditRowChanges : () => {}}
+              ></Editing>
+            )}
+
+            {showButton && (
+              <Column
+                visible
+                type="buttons"
+                width={100}
+                fixed={false}
+                allowResizing={false}
+              >
+                <DxButton
+                  cssClass={"mx-1 cursor-pointer"}
+                  name="edit"
+                  icon={"/images/icons/edit.svg"}
+                />
+                <DxButton
+                  cssClass={"mx-1 cursor-pointer"}
+                  name="delete"
+                  icon={"/images/icons/trash.svg"}
+                />
+                <DxButton
+                  cssClass={"mx-1 cursor-pointer"}
+                  name="save"
+                  icon={"/images/icons/save.svg"}
+                />
+                <DxButton
+                  cssClass={"mx-1 cursor-pointer"}
+                  name="cancel"
+                  icon={"/images/icons/refresh.svg"}
+                />
+              </Column>
+            )}
             <Selection mode="multiple" selectAllMode="page" />
             {realColumns.map((col: any) => {
               return <Column key={col.dataField} {...col} />;

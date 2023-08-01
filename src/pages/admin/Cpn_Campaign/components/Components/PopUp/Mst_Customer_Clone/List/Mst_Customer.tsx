@@ -1,3 +1,4 @@
+import { distinguish } from "@/components/ulti";
 import { useI18n } from "@/i18n/useI18n";
 import { useClientgateApi } from "@/packages/api";
 import {
@@ -16,25 +17,21 @@ import {
   MdMetaColGroupSpec,
   Mst_Customer,
 } from "@/packages/types";
-import { BaseGridView, GridViewPopup } from "@/packages/ui/base-gridview";
+import { GridViewRaw } from "@/packages/ui/base-gridview/GridViewRaw";
+import { SearchPanelV2 } from "@/packages/ui/search-panel";
 import { selecteItemsAtom } from "@/pages/Mst_Customer/components/store";
+import { flagCustomer } from "@skycs-pages/Mst_Customer/components/store";
 import { useQuery } from "@tanstack/react-query";
+import { DataGrid, LoadPanel } from "devextreme-react";
 import { IPopupOptions } from "devextreme-react/popup";
+import { EditorPreparingEvent } from "devextreme/ui/data_grid";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useRef, useState } from "react";
-import { EditorPreparingEvent } from "devextreme/ui/data_grid";
-import { PopupViewComponent } from "../components";
 import { toast } from "react-toastify";
-import { DataGrid, LoadPanel } from "devextreme-react";
+import { PopupViewComponent } from "../components";
 import { useColumn } from "../components/use-columns";
-import { useFormSettings } from "../components/use-form-settings";
-import { convertDate, flagEditorOptions } from "@/packages/common";
-import { SearchPanelV2 } from "@/packages/ui/search-panel";
-import { IItemProps } from "devextreme-react/form";
-import { flagCustomer } from "@skycs-pages/Mst_Customer/components/store";
 import { useColumnsSearch } from "../components/use-columns-search";
-import { distinguish } from "@/components/ulti";
-import { GridViewRaw } from "@/packages/ui/base-gridview/GridViewRaw";
+import { useFormSettings } from "../components/use-form-settings";
 
 interface DataFilter {
   staticField: MdMetaColGroupSpec[];

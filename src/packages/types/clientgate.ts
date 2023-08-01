@@ -85,6 +85,8 @@ export interface Mst_CarModel {
   LogLUBy: string;
 }
 export interface Mst_DepartmentControl {
+  Lst_Mst_Department?: any;
+  Lst_Sys_UserAutoAssignTicket?: any;
   DepartmentCode?: string;
   NetworkID?: string;
   DepartmentCodeParent?: string;
@@ -507,6 +509,7 @@ export interface ApiResponse<T> {
   PageCount?: number;
   PageIndex?: number;
   PageSize?: number;
+  pageInfo?: T;
 }
 
 export interface SearchDealerParam extends SearchParam {
@@ -559,6 +562,19 @@ export interface Rpt_ETTicketDetailControllerSearchParam {
   CreateDTimeUTCTo: string;
   LogLUDTimeUTCFrom: string;
   LogLUDTimeUTCTo: string;
+}
+export interface Rpt_SLASearchParam {
+  AgentCodeConditionList: string;
+  DepartmentCodeConditionList: string;
+  OrgIDConditionList: string;
+  TicketTypeConditionList: string;
+  TicketCustomTypeConditionList: string;
+  CustomerName: string;
+  CustomerPhoneNo: string;
+  CustomerEmail: string;
+  CustomerCompany: string;
+  CreateDTimeUTCFrom: string;
+  CreateDTimeUTCTo: string;
 }
 export interface Rpt_CpnCampaignResultCtmFeedbackSearchParam {
   CampaignCodeConditionList: string;
@@ -680,6 +696,37 @@ export interface Rpt_ETTicketDetailControllerData {
   ProcessTime: number;
   TicketWarning: string;
   Rpt_ET_Ticket_Detail?: any[];
+}
+export interface Rpt_SLAControllerData {
+  AgentCode: string;
+  AgentName: string;
+  TicketType: string;
+  AgentTicketTypeName: string;
+  CustomerTicketTypeName: string;
+  QtyTicket: number;
+  QtySLAResponding: number;
+  QtySLANotResponding: number;
+  SLARespondingRate: number;
+}
+export interface Rpt_MissedCallsData {
+  TicketID: string;
+  CustomerCodeSys: string;
+  CustomerPhoneNo: string;
+  CustomerName: string;
+  AgentCode: string;
+  AgentName: string;
+  TicketStatus: string;
+  AgentTicketStatusName: string;
+  CustomerTicketStatusName: string;
+  MissCallDTimeUTC: string;
+  Detail: string;
+  QtyMissCall: number;
+  RecFilePath: string;
+  TalkDTimeUTC: string;
+  FirstResTime: number;
+  ProcessTime: number;
+  CreateDTimeUTC: string;
+  CloseDTimeUTC: string;
 }
 export interface Rpt_ETTicketSynthesisController {
   RT_Rpt_ET_Ticket_Synthesis: {

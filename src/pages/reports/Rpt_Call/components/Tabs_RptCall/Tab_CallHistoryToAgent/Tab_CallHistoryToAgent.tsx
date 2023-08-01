@@ -43,7 +43,6 @@ import { match } from "ts-pattern";
 import { useColumns } from "./components/use-columns";
 import { ReportLayout } from "@/packages/layouts/report-layout/report-content-layout";
 import { useWindowSize } from "@/packages/hooks/useWindowSize";
-import { GridViewCustomizeNoScroll } from "@/packages/ui/base-gridview/gridview-customize-noScroll";
 
 export const Tab_CallHistoryToAgent = () => {
   const { t } = useI18n("Post_Manager");
@@ -372,112 +371,73 @@ export const Tab_CallHistoryToAgent = () => {
             </div>
           </ContentSearchPanelLayout.Slot>
           <ContentSearchPanelLayout.Slot name={"ContentPanel"}>
-            <ScrollView
-              showScrollbar={"always"}
-              height={windowSize.height - 150}
-              className={"mb-5 ScrollView_Customize"}
-            >
-              <div onClick={handleToggleSearchPanel}>đóng</div>
-              <div className="flex mt-2 overflow-x-auto w-full">
-                <GridViewCustomizeNoScroll
-                  // isHidenHeaderFilter={false}
-                  cssClass={"Tab_CallHistoryAgent"}
-                  isLoading={isLoading}
-                  dataSource={data?.DataList}
-                  columns={columns}
-                  keyExpr={["PostCode", "OrgID"]}
-                  popupSettings={{}}
-                  formSettings={{}}
-                  onReady={(ref) => (gridRef = ref)}
-                  allowSelection={true}
-                  onSelectionChanged={handleSelectionChanged}
-                  onSaveRow={handleSavingRow}
-                  onEditorPreparing={handleEditorPreparing}
-                  allowInlineEdit={true}
-                  onEditRowChanges={handleEditRowChanges}
-                  onDeleteRows={handleDeleteRows}
-                  isSingleSelection={false}
-                  isHiddenCheckBox={true}
-                  // inlineEditMode="row"
-                  // showCheck="always"
+            <GridViewCustomize
+              // isHidenHeaderFilter={false}
+              cssClass={"Tab_CallHistoryAgent"}
+              isLoading={isLoading}
+              dataSource={data?.DataList}
+              columns={columns}
+              keyExpr={["PostCode", "OrgID"]}
+              popupSettings={{}}
+              formSettings={{}}
+              onReady={(ref) => (gridRef = ref)}
+              allowSelection={true}
+              onSelectionChanged={handleSelectionChanged}
+              onSaveRow={handleSavingRow}
+              onEditorPreparing={handleEditorPreparing}
+              allowInlineEdit={true}
+              onEditRowChanges={handleEditRowChanges}
+              onDeleteRows={handleDeleteRows}
+              isSingleSelection={false}
+              isHiddenCheckBox={true}
+              // inlineEditMode="row"
+              // showCheck="always"
 
-                  toolbarItems={[]}
-                  storeKey={"tab_Call-columns"}
-                  customToolbarItems={[]}
-                />
-                <GridViewCustomizeNoScroll
-                  // isHidenHeaderFilter={false}
-                  cssClass={"Tab_CallHistoryAgent"}
-                  isLoading={isLoading}
-                  dataSource={data?.DataList}
-                  columns={columns}
-                  keyExpr={["PostCode", "OrgID"]}
-                  popupSettings={{}}
-                  formSettings={{}}
-                  onReady={(ref) => (gridRef = ref)}
-                  allowSelection={true}
-                  onSelectionChanged={handleSelectionChanged}
-                  onSaveRow={handleSavingRow}
-                  onEditorPreparing={handleEditorPreparing}
-                  allowInlineEdit={true}
-                  onEditRowChanges={handleEditRowChanges}
-                  onDeleteRows={handleDeleteRows}
-                  isSingleSelection={false}
-                  isHiddenCheckBox={true}
-                  // inlineEditMode="row"
-                  // showCheck="always"
-
-                  toolbarItems={[]}
-                  storeKey={"tab_Call-columns"}
-                  customToolbarItems={[
-                    {
-                      text: t("abc"),
-                      shouldShow: (ref: any) => {
-                        return true;
-                      },
-                      onClick: () => {},
-                    },
-                  ]}
-                />
-                <GridViewCustomizeNoScroll
-                  // isHidenHeaderFilter={false}
-                  cssClass={"Tab_CallHistoryAgent"}
-                  isLoading={isLoading}
-                  dataSource={data?.DataList}
-                  columns={columns}
-                  keyExpr={["PostCode", "OrgID"]}
-                  popupSettings={{}}
-                  formSettings={{}}
-                  onReady={(ref) => (gridRef = ref)}
-                  allowSelection={true}
-                  onSelectionChanged={handleSelectionChanged}
-                  onSaveRow={handleSavingRow}
-                  onEditorPreparing={handleEditorPreparing}
-                  allowInlineEdit={true}
-                  onEditRowChanges={handleEditRowChanges}
-                  onDeleteRows={handleDeleteRows}
-                  isSingleSelection={false}
-                  isHiddenCheckBox={true}
-                  // inlineEditMode="row"
-                  // showCheck="always"
-
-                  toolbarItems={[]}
-                  storeKey={"tab_Call-columns"}
-                  customToolbarItems={[
-                    {
-                      text: t("Edit"),
-                      shouldShow: (ref: any) => {
-                        return true;
-                      },
-                      onClick: (e: any, ref: any) => {
-                        const selectedRow = ref.instance.getSelectedRowsData();
-                        handleOnEditRow(selectedRow[0].UserCode);
-                      },
-                    },
-                  ]}
-                />
-              </div>
-            </ScrollView>
+              toolbarItems={[
+                {
+                  location: "before",
+                  widget: "dxButton",
+                  options: {
+                    icon: "search",
+                    onClick: handleToggleSearchPanel,
+                  },
+                },
+              ]}
+              storeKey={"tab_Call-columns"}
+              customToolbarItems={[
+                {
+                  text: t(`Danh sách cuộc gọi`),
+                  widget: "dxTextBox",
+                  onClick: () => {},
+                  shouldShow: (ref: any) => {
+                    let check = false;
+                    if (ref) {
+                      if (ref.instance.getSelectedRowsData().length < 1) {
+                        check = true;
+                      }
+                      return check;
+                    } else {
+                      return false;
+                    }
+                  },
+                },
+                {
+                  text: t(`Export`),
+                  onClick: handleOnEditRow,
+                  shouldShow: (ref: any) => {
+                    let check = false;
+                    if (ref) {
+                      if (ref.instance.getSelectedRowsData().length < 1) {
+                        check = true;
+                      }
+                      return check;
+                    } else {
+                      return false;
+                    }
+                  },
+                },
+              ]}
+            />
           </ContentSearchPanelLayout.Slot>
         </ContentSearchPanelLayout>
       </ReportLayout.Slot>

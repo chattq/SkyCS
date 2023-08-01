@@ -12,7 +12,7 @@ import React, { memo } from "react";
 export const useColumn = () => {
   const setViewingItem = useSetAtom(viewingDataAtom);
   const viewRow = (rowIndex: number, data: any) => {
-    setViewingItem({
+    setViewingItem({  
       rowIndex,
       item: data,
     });
@@ -20,9 +20,9 @@ export const useColumn = () => {
 
   const navigate = useNetworkNavigate();
 
-  // thiếu 
-  // tương tác mới mới nhất, 
-  // tên khách hàng , 
+  // thiếu
+  // tương tác mới mới nhất,
+  // tên khách hàng ,
   // phụ trách
 
   const { t } = useI18n("Mst_Customer");
@@ -31,6 +31,7 @@ export const useColumn = () => {
       dataField: "TicketID", // mã ticket
       caption: t("TicketID"),
       editorType: "dxTextBox",
+      visible: true,
       cellRender: (column: any) => {
         return (
           <LinkCell
@@ -46,41 +47,51 @@ export const useColumn = () => {
       dataField: "TicketName", // tên ticket
       caption: t("TicketName"),
       editorType: "dxTextBox",
+      width: 300,
+      visible: true,
     },
     {
       dataField: "TicketType", // Phân loại
       caption: t("TicketType"),
       editorType: "dxTextBox",
+      visible: true,
     },
     {
       dataField: "CustomerName", // tên KH
       caption: t("CustomerName"),
       editorType: "dxTextBox",
+      visible: true,
     },
     {
       dataField: "AgentName", // phụ trách
       caption: t("AgentName"),
       editorType: "dxTextBox",
+      visible: true,
     },
     {
       dataField: "TicketStatus", // trạng thái
       caption: t("TicketStatus"),
       editorType: "dxTextBox",
+      visible: true,
     },
     {
       dataField: "ReceptionDTimeUTC", // Thời điểm tiếp nhận
       caption: t("ReceptionDTimeUTC"),
       editorType: "dxTextBox",
+      visible: true,
     },
     {
       dataField: "TicketDeadline", // Deadline
       caption: t("TicketDeadline"),
       editorType: "dxTextBox",
+      visible: true,
     },
     {
       dataField: "Description", // Tương tác mới nhất
       caption: t("Description"),
       editorType: "dxTextBox",
+      width: 400,
+      visible: true,
     },
   ];
   return columns;

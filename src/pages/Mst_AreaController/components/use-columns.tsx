@@ -16,11 +16,13 @@ import { viewingDataAtom } from "./store";
 interface UseBankDealerGridColumnsProps {
   data?: Mst_CustomerGroupData[] | any;
   listArea?: any;
+  datalistOrgID?: any;
 }
 
 export const useBankDealerGridColumns = ({
   data,
   listArea,
+  datalistOrgID,
 }: // listBankCode,
 UseBankDealerGridColumnsProps) => {
   const setViewingItem = useSetAtom(viewingDataAtom);
@@ -38,10 +40,15 @@ UseBankDealerGridColumnsProps) => {
       dataField: "OrgID", // Mã ngân hàng
       caption: t("OrgID"),
       editorType: "dxTextBox",
+
       editorOptions: {
+        dataSource: datalistOrgID,
+        valueExpr: "OrgID",
+        displayExpr: "OrgID",
         readOnly: false,
         placeholder: t("Input"),
       },
+
       columnIndex: 1,
     },
     {

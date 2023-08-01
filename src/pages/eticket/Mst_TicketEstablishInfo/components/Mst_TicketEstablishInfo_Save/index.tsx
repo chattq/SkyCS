@@ -501,6 +501,8 @@ const Mst_TicketEstablishInfo_Save = () => {
                             dataSource={item.list}
                             keyExpr="ColCodeSys"
                             allowItemDeleting={false}
+                            activeStateEnabled={false}
+                            bounceEnabled={false}
                             itemRender={(itemList) => {
                               return (
                                 <Form
@@ -519,15 +521,15 @@ const Mst_TicketEstablishInfo_Save = () => {
                                             <SimpleItem
                                               key={nanoid()}
                                               {...itemForm}
-                                              disable={
-                                                itemList.FlagUseType ===
-                                                  "TYPE2" ||
-                                                itemList.FlagUseType === "TYPE1"
-                                              }
+                                              // disable={
+                                              //   itemList.FlagUseType ===
+                                              //     "TYPE2" ||
+                                              //   itemList.FlagUseType === "TYPE1"
+                                              // }
                                               editorOptions={{
                                                 readOnly:
-                                                  itemList.FlagUseType ===
-                                                    "TYPE2" ||
+                                                  // itemList.FlagUseType ===
+                                                  //   "TYPE2" ||
                                                   itemList.FlagUseType ===
                                                     "TYPE1",
                                                 value:
@@ -542,10 +544,10 @@ const Mst_TicketEstablishInfo_Save = () => {
                                               {...itemForm}
                                               editorOptions={{
                                                 readOnly:
+                                                  // itemList.FlagUseType ===
+                                                  //   "TYPE2" ||
                                                   itemList.FlagUseType ===
-                                                    "TYPE2" ||
-                                                  itemList.FlagUseType ===
-                                                    "TYPE1",
+                                                  "TYPE1",
                                               }}
                                             />
                                           );

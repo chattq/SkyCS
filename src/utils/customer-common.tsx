@@ -18,21 +18,23 @@ import { Switch } from "devextreme-react";
 import { match } from "ts-pattern";
 
 export const mapEditorType = (dataType: string) => {
-  return match(dataType)
-    .with("SELECTONERADIO", () => "dxRadioGroup")
-    .with("SELECTONEDROPBOX", () => "dxSelectBox")
-    .with("DATE", () => "dxDateBox")
-    .with("DATETIME", () => "dxDateBox")
-    .with("EMAIL", () => "dxTextBox")
-    .with("FLAG", () => "dxSwitch")
-    .with("MASTERDATA", () => "dxSelectBox")
-    .with("SELECTMULTIPLESELECTBOX", () => "dxRadioGroup")
-    .with("SELECTMULTIPLEDROPBOX", () => "dxTagBox")
-    .with("SELECTONEDROPDOWN", () => "dxSelectBox")
-    .with("SELECTMULTIPLEDROPDOWN", () => "dxTagBox")
-    .with("MASTERDATASELECTMULTIPLE", () => "dxTagBox")
-    .with("PERCENT", () => "dxNumberBox")
-    .otherwise(() => "dxTextBox");
+  return (
+    match(dataType)
+      .with("SELECTONERADIO", () => "dxRadioGroup")
+      .with("SELECTONEDROPBOX", () => "dxSelectBox")
+      .with("DATE", () => "dxDateBox")
+      .with("DATETIME", () => "dxDateBox")
+      .with("EMAIL", () => "dxTextBox")
+      // .with("FLAG", () => "dxSwitch")
+      .with("MASTERDATA", () => "dxSelectBox")
+      .with("SELECTMULTIPLESELECTBOX", () => "dxRadioGroup")
+      .with("SELECTMULTIPLEDROPBOX", () => "dxTagBox")
+      .with("SELECTONEDROPDOWN", () => "dxSelectBox")
+      .with("SELECTMULTIPLEDROPDOWN", () => "dxTagBox")
+      .with("MASTERDATASELECTMULTIPLE", () => "dxTagBox")
+      .with("PERCENT", () => "dxNumberBox")
+      .otherwise(() => "dxTextBox")
+  );
 };
 
 export const mapEditorOption = ({
@@ -80,11 +82,12 @@ export const mapEditorOption = ({
           ...commonOptions,
         };
       })
-      .with("FLAG", () => {
-        return {
-          ...commonOptions,
-        };
-      })
+      // .with("FLAG", () => {
+      //   return {
+      //     defaultValue: true,
+      //     ...commonOptions,
+      //   };
+      // })
       .with("SELECTONE", () => {
         return {
           dataSource: JSON.parse(field.JsonListOption || "[]"),
@@ -107,6 +110,7 @@ export const mapEditorOption = ({
           defaultValue: defaultValue
             ? defaultValue[`${field.ColCodeSys}`]
             : undefined,
+          searchEnabled: true,
         };
       })
       .with("SELECTONEDROPBOX", () => {
@@ -224,17 +228,26 @@ export const mapValidationRules = (field: Partial<MdMetaColGroupSpecDto>) => {
   return rules;
 };
 
-const flagFieldRender = (data: any, customOption?: any) => {
-  // console.log("data:", data);
-  let valueChanged = (e: any) => {
-    data.component.updateData(data.dataField, e.value ? "1" : "0");
+const FlagField = ({
+  param,
+  customOptions,
+  field,
+}: {
+  param: any;
+  customOptions?: any;
+  field: any;
+}) => {
+  const { component, formData } = param;
+
+  const valueChanged = (e: any) => {
+    component?.updateData(field?.ColCodeSys, e.value ? "1" : "0");
   };
 
   return (
     <Switch
-      disabled={customOption?.editType == "detail"}
-      defaultValue={data.editorOptions.value === "1"}
+      disabled={customOptions?.editType == "detail"}
       onValueChanged={valueChanged}
+      defaultValue={formData[field?.ColCodeSys] == "1" ?? true}
     ></Switch>
   );
 };
@@ -250,9 +263,7 @@ export const mapCustomOptions = (
     .with("SELECTMANY", () => ({
       validationMessagePosition: "top",
     }))
-    .with("FLAG", () => ({
-      render: (data: any) => flagFieldRender(data, customOptions),
-    }))
+
     .otherwise(() => ({}));
 };
 
@@ -629,6 +640,28 @@ export const getListField = ({
           render: (param: any) => {
             return (
               <DateTimeField
+                param={param}
+                customOptions={customOptions}
+                field={field}
+              />
+            );
+          },
+        };
+      })
+      .with("FLAG", () => {
+        return {
+          FlagIsColDynamic: field.FlagIsColDynamic,
+          ColDataType: field.ColDataType,
+          groupKeys: field.ColGrpCodeSys,
+          ColCodeSys: field.ColCodeSys,
+
+          itemType: "group",
+          label: {
+            text: field.ColCaption,
+          },
+          render: (param: any) => {
+            return (
+              <FlagField
                 param={param}
                 customOptions={customOptions}
                 field={field}

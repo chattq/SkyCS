@@ -31,10 +31,12 @@ const flagEditorOptions = {
 
 interface UseBankDealerGridColumnsProps {
   data?: Mst_CustomerGroupData[] | any;
+  datalistOrgID: any;
 }
 
 export const useBankDealerGridColumns = ({
   data,
+  datalistOrgID,
 }: // listBankCode,
 UseBankDealerGridColumnsProps) => {
   const setViewingItem = useSetAtom(viewingDataAtom);
@@ -61,8 +63,11 @@ UseBankDealerGridColumnsProps) => {
       groupKey: "BASIC_INFORMATION",
       dataField: "OrgID", // Mã ngân hàng
       caption: t("OrgID"),
-      editorType: "dxTextBox",
+      editorType: "dxSelectBox",
       editorOptions: {
+        dataSource: datalistOrgID,
+        valueExpr: "OrgID",
+        displayExpr: "OrgID",
         readOnly: false,
         placeholder: t("Input"),
       },
@@ -99,6 +104,7 @@ UseBankDealerGridColumnsProps) => {
         readOnly: false,
         placeholder: t("Input"),
       },
+      validationRules: [requiredType],
       columnIndex: 1,
     },
     {

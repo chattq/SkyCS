@@ -30,6 +30,7 @@ interface SearchPanelProps {
   data?: any;
   onSearch?: (data: any) => void;
   storeKey: string;
+  colCount?: number;
   enableColumnToggler?: boolean;
 }
 
@@ -38,6 +39,7 @@ export const SearchPanelV2 = ({
   data,
   onSearch,
   storeKey,
+  colCount = 1,
   enableColumnToggler = true,
 }: SearchPanelProps) => {
   const { t } = useI18n("Common");
@@ -110,7 +112,7 @@ export const SearchPanelV2 = ({
     <div
       className={`${
         searchPanelVisible ? "search-panel-visible" : "search-panel-hidden"
-      } pl-2`}
+      }`}
       id={"search-panel"}
     >
       <Header
@@ -126,7 +128,7 @@ export const SearchPanelV2 = ({
               ref={(r) => (formRef.current = r)}
               formData={data}
               labelLocation={"top"}
-              colCount={1}
+              colCount={colCount}
               height={windowSize.height - 200}
               className={"p-2 h-full"}
               scrollingEnabled
@@ -134,26 +136,13 @@ export const SearchPanelV2 = ({
               {items.map((item: any, idx: any) => {
                 return <Item key={idx} {...item} />;
               })}
-
               <Item></Item>
-
               <Item></Item>
-
-              {/* <ButtonItem
-                horizontalAlignment={"center"}
-                cssClass={"btn-search bg-red-400"}
-              >
-                <ButtonOptions
-                  text={"Search"}
-                  icon={"search"}
-                  stylingMode={"contained"}
-                  width={"100%"}
-                  type={"default"}
-                  useSubmitBehavior={true}
-                />
-              </ButtonItem> */}
             </Form>
-            <div className="absolute bottom-[0] w-full bg-red-400 flex items-end">
+            <div
+              className="absolute bottom-[0] w-full bg-red-400 flex items-end p-2 pb-5"
+              style={{ background: "white" }}
+            >
               <Button
                 text={"Search"}
                 icon={"search"}

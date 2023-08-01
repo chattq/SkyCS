@@ -61,9 +61,6 @@ const Cpn_Campaign_Info = () => {
   const commonRef = useRef<Form>(null);
   const dynamicRef = useRef<any>(null);
   const listCustomerRef = useRef<DataGrid>(null);
-
-  // const dynamicFieldsValue = useAtomValue(dynamicFields);
-  // console.log("dynamicFieldsValue ",dynamicFieldsValue);
   const tabs = [
     {
       title: t("Common Info"),
@@ -130,7 +127,6 @@ const Cpn_Campaign_Info = () => {
                 ...item,
               };
             }) ?? [];
-          console.log("customizeCampaignCustomer ", customizeCampaignCustomer);
           setListCampaign(customizeCampaignCustomer);
           return response.Data;
         } else {
@@ -187,6 +183,7 @@ const Cpn_Campaign_Info = () => {
       const response = await api.Cpn_Campaign_ExecuteState(obj, url);
       if (response.isSuccess) {
         toast.success(t(`${url} successfully`));
+        refetchGetByCode();
       } else {
         showError({
           message: t(response.errorCode),
@@ -257,6 +254,7 @@ const Cpn_Campaign_Info = () => {
           );
           if (response.isSuccess) {
             toast.success(t("Campaign successfully created"));
+            navigate("/campaign/Cpn_CampaignPage");
           } else {
             showError({
               message: response?.errorCode,
@@ -280,8 +278,6 @@ const Cpn_Campaign_Info = () => {
                 };
               }, {});
 
-              console.log("valueJson", valueJSON);
-
               return {
                 CustomerCodeSys: item.CustomerCodeSys,
                 Idx: index,
@@ -301,6 +297,7 @@ const Cpn_Campaign_Info = () => {
             );
             if (response.isSuccess) {
               toast.success(t("Campaign successfully created"));
+              navigate("/campaign/Cpn_CampaignPage");
             } else {
               showError({
                 message: response?.errorCode,
@@ -308,8 +305,6 @@ const Cpn_Campaign_Info = () => {
                 errorInfo: response?.errorInfo,
               });
             }
-
-            console.log("obj ", obj);
           } else {
             toast.error(t("Please Distribution Agent To Customer !"));
           }
@@ -428,42 +423,54 @@ const Cpn_Campaign_Info = () => {
   ];
 
   const listButtonRender = useMemo(() => {
-    if (currentItemData.CampaignStatus) {
+    if (param?.flag === "update") {
       return match(currentItemData.CampaignStatus)
         .with("PENDING", () => {
           return listButton.filter((item: buttonItem) => {
-            return (
-              item.button === "UPDATE" ||
-              item.button === "DELETE" ||
-              item.button === "APPROVE"
-            );
+            return item.button === "UPDATE";
           });
-        })
-        .with("APPROVE", () => {
-          return listButton.filter((item: buttonItem) => {
-            return item.button === "STARTED" || item.button === "FINISH";
-          });
-        })
-        .with("STARTED", () => {
-          return listButton.filter((item: buttonItem) => {
-            return item.button === "PAUSED" || item.button === "FINISH";
-          });
-        })
-        .with("PAUSED", () => {
-          return listButton.filter((item: buttonItem) => {
-            return item.button === "CONTINUED" || item.button === "FINISH";
-          });
-        })
-        .with("FINISH", () => {
-          return [];
         })
         .otherwise(() => {
           return [];
         });
     } else {
-      return listButton.filter((item: buttonItem) => {
-        return item.button === "ADD";
-      });
+      if (currentItemData.CampaignStatus) {
+        return match(currentItemData.CampaignStatus)
+          .with("PENDING", () => {
+            return listButton.filter((item: buttonItem) => {
+              return item.button === "DELETE" || item.button === "APPROVE";
+            });
+          })
+          .with("APPROVE", () => {
+            return listButton.filter((item: buttonItem) => {
+              return item.button === "STARTED" || item.button === "FINISH";
+            });
+          })
+          .with("STARTED", () => {
+            const result = listButton.filter((item: buttonItem) => {
+              return item.button === "PAUSED" || item.button === "FINISH";
+            });
+
+            console.log("result ", result);
+
+            return result;
+          })
+          .with("PAUSED", () => {
+            return listButton.filter((item: buttonItem) => {
+              return item.button === "CONTINUED" || item.button === "FINISH";
+            });
+          })
+          .with("FINISH", () => {
+            return [];
+          })
+          .otherwise(() => {
+            return [];
+          });
+      } else {
+        return listButton.filter((item: buttonItem) => {
+          return item.button === "ADD";
+        });
+      }
     }
   }, [currentItemData]);
   // const listCampaignAgentValue = useAtomValue(listCampaignAgentAtom);

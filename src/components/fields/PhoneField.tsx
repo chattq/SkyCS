@@ -1,20 +1,64 @@
+import { useClientgateApi } from "@/packages/api";
 import { Icon } from "@/packages/ui/icons";
-import { Button, TextBox } from "devextreme-react";
+import { Button, Popup, TextBox, Validator } from "devextreme-react";
+import { CustomRule, RequiredRule } from "devextreme-react/form";
 import { nanoid } from "nanoid";
-import { useState } from "react";
+import React, { useState } from "react";
 
 export const PhoneField = ({ component, formData, field, editType }: any) => {
-  // init data
-  // component.updateData("CtmPhoneNo", formData["CtmPhoneNo"] || []);
+  const api = useClientgateApi();
+
+  const validatorRef: any = React.useRef(null);
+
   const [phones, setPhones] = useState<any>(formData["CtmPhoneNo"] || []);
+
+  const numberRegex = /^[0-9]*$/;
+
+  const [open, setOpen] = useState<boolean>(false);
+
+  const [currentPhone, setCurrentPhone] = useState<any>(undefined);
+
+  const handleOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
   const handleRemoveItem = (id: string) => {
-    /// remove item at `index` from `phones` list
     const result = phones.filter((_: any, i: number) => _.id !== id);
-    component.updateData("CtmPhoneNo", result);
-    setPhones(result);
+
+    const check = result?.some((_: any) => _?.FlagDefault == "1");
+
+    if (!check) {
+      const expectedResult = result?.map((_: any, i: number) => {
+        if (i == 0) {
+          return {
+            ..._,
+            FlagDefault: "1",
+          };
+        }
+        return _;
+      });
+
+      const validatedResult = expectedResult?.filter((item: any) =>
+        validateListInput(item?.CtmPhoneNo)
+      );
+
+      component.updateData("CtmPhoneNo", validatedResult);
+      setPhones(expectedResult);
+    } else {
+      const validatedResult = result?.filter((item: any) =>
+        validateListInput(item?.CtmPhoneNo)
+      );
+
+      component.updateData("CtmPhoneNo", validatedResult);
+
+      setPhones(result);
+    }
   };
   const handleEditItem = (id: string, val: any) => {
-    /// edit item at `index` from `phones` list
     const result = phones.map((item: any) => {
       if (item.id === id) {
         return {
@@ -24,7 +68,12 @@ export const PhoneField = ({ component, formData, field, editType }: any) => {
       }
       return item;
     });
-    component.updateData("CtmPhoneNo", result);
+
+    const validatedResult = result?.filter((item: any) =>
+      validateListInput(item?.CtmPhoneNo)
+    );
+
+    component.updateData("CtmPhoneNo", validatedResult);
     setPhones(result);
   };
   // setFormValue(formData);
@@ -41,39 +90,130 @@ export const PhoneField = ({ component, formData, field, editType }: any) => {
     setPhones(result);
   };
 
+  const handleFindPhoneNo = async (phoneNo: any) => {
+    if (!phoneNo) {
+      return false;
+    }
+
+    const resp: any = await api.Mst_Customer_Search({
+      FlagActive: 1,
+      Ft_PageIndex: 0,
+      Ft_PageSize: 1000,
+      CtmPhoneNo: phoneNo,
+    });
+
+    return resp?.DataList && resp?.DataList?.length > 0;
+  };
+
+  const handleRemovePhone = (phoneNo: any) => {
+    const result = phones.filter(
+      (_: any, i: number) => _.CtmPhoneNo !== phoneNo
+    );
+
+    component.updateData("CtmPhoneNo", result);
+
+    setPhones(result);
+  };
+
+  const handleFocusOut = async (e: any) => {
+    const currentValue = e?.component?._changedValue;
+
+    if (
+      !currentValue ||
+      currentValue?.length < 10 ||
+      currentValue?.length > 11 ||
+      !numberRegex.test(currentValue)
+    ) {
+      return;
+    }
+
+    setCurrentPhone(currentValue);
+
+    const result = await handleFindPhoneNo(currentValue);
+
+    if (result) {
+      handleOpen();
+    }
+  };
+
+  const handleDecline = () => {
+    if (currentPhone) {
+      handleRemovePhone(currentPhone);
+      setCurrentPhone(undefined);
+    }
+
+    handleClose();
+  };
+
+  const validateListInput = (inputValue: any) => {
+    if (validatorRef?.current) {
+      // Get the validator instance and call validate method
+      const validationResult = validatorRef?.current?.instance?.validate({
+        name: "customRule",
+        value: inputValue,
+      });
+      return validationResult?.isValid;
+    }
+    return false;
+  };
+
   return (
-    <>
-      {phones.map((item: any, index: any) => {
-        return (
-          <div key={item.id} className={"flex items-center my-2"}>
-            <input
-              type={"radio"}
-              className={"mr-2"}
-              onChange={async (e: any) => {
-                handleCheck(item.id);
-              }}
-              checked={item.FlagDefault == "1"}
-              disabled={!item.CtmPhoneNo || editType == "detail"}
-            />
-            <TextBox
-              onValueChanged={async (e: any) =>
-                handleEditItem(item.id, e.value)
-              }
-              validationMessageMode={"always"}
-              value={item.CtmPhoneNo}
-              readOnly={editType == "detail"}
-            />
-            {editType != "detail" && (
-              <Button
-                onClick={() => handleRemoveItem(item.id)}
-                stylingMode={"text"}
+    <div className="flex items-center">
+      <div>
+        {phones.map((item: any, index: any) => {
+          return (
+            <div key={item.id} className={"flex items-center my-4"}>
+              <input
+                type={"radio"}
+                className={"mr-2"}
+                onChange={async (e: any) => {
+                  handleCheck(item.id);
+                }}
+                checked={item.FlagDefault == "1"}
+                disabled={!item.CtmPhoneNo || editType == "detail"}
+              />
+              <TextBox
+                onValueChanged={async (e: any) =>
+                  handleEditItem(item.id, e.value)
+                }
+                validationMessageMode={"always"}
+                value={item.CtmPhoneNo}
+                readOnly={editType == "detail"}
+                onFocusOut={handleFocusOut}
+                maxLength={11}
+                className="w-full"
               >
-                <Icon name={"trash"} size={14} color={"#ff5050"} />
-              </Button>
-            )}
-          </div>
-        );
-      })}
+                <Validator ref={validatorRef}>
+                  {/* Add any other validation rules if needed */}
+                  <RequiredRule message="This field is required." />
+                  <CustomRule
+                    message="Only numbers are allowed."
+                    validationCallback={(options) => {
+                      const value: any = options.value;
+                      return numberRegex.test(value);
+                    }}
+                  />
+                  <CustomRule
+                    message="Input must have at least 10 numeric characters."
+                    validationCallback={(options: any) => {
+                      const value = options.value;
+                      return numberRegex.test(value) && value.length >= 10;
+                    }}
+                  />
+                </Validator>
+              </TextBox>
+              {editType != "detail" && (
+                <Button
+                  onClick={() => handleRemoveItem(item.id)}
+                  stylingMode={"text"}
+                >
+                  <Icon name={"trash"} size={14} color={"#ff5050"} />
+                </Button>
+              )}
+            </div>
+          );
+        })}
+      </div>
 
       {editType != "detail" && (
         <Button
@@ -105,6 +245,50 @@ export const PhoneField = ({ component, formData, field, editType }: any) => {
           className={"mx-2 w-[100px]"}
         />
       )}
-    </>
+
+      <Popup
+        visible={open}
+        onHiding={handleClose}
+        hideOnOutsideClick={false}
+        showTitle={false}
+        position="center"
+        width={400}
+        height={150}
+        toolbarItems={[
+          {
+            visible: true,
+            widget: "dxButton",
+            toolbar: "bottom",
+            location: "after",
+            options: {
+              text: "Đồng ý",
+              type: "primary",
+              style: {
+                padding: "10px 20px",
+                marginRight: 5,
+                background: "green",
+                color: "white",
+              },
+              onClick: handleClose,
+            },
+          },
+          {
+            visible: true,
+            widget: "dxButton",
+            toolbar: "bottom",
+            location: "after",
+            options: {
+              text: "Hủy",
+              type: "default",
+              onClick: handleDecline,
+            },
+          },
+        ]}
+      >
+        <p className="text-base">
+          Thông tin số điện thoại {currentPhone} đã tồn tại, bạn vẫn muốn lưu?
+        </p>
+      </Popup>
+    </div>
   );
 };

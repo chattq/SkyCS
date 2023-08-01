@@ -13506,7 +13506,7 @@
 .dx-tagbox.dx-editor-filled .dx-tag-container,
 .dx-tagbox.dx-editor-outlined .dx-tag-container {
   padding: 0 8px 3px 11px;
-  min-height: 32px;
+  min-height: 30px;
 }
 .dx-tagbox.dx-state-disabled .dx-tag-content .dx-tag-remove-button::before {
   color: #a3a3a3;
@@ -23272,7 +23272,6 @@ input.dx-hidden {
   transform: translate(0,0)!important;
 }
 .dx-field-item .dx-toggle-controls-paddings {
-  padding-left: 11px;
 }
 .dx-field-item-content-wrapper.dx-invalid .dx-field-item-help-text {
   color: transparent;

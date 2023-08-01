@@ -23,7 +23,6 @@ import { useFormSettings } from "../components/use-form-settings";
 import { PopupViewComponent } from "../components/use-popup-view";
 import { SearchPanelV2 } from "@/packages/ui/search-panel";
 import { useAuth } from "@/packages/contexts/auth";
-import { match } from "ts-pattern";
 import { GridViewCustomize } from "@/packages/ui/base-gridview/gridview-customize";
 import { useSetAtom } from "jotai";
 import { useWindowSize } from "@/packages/hooks/useWindowSize";
@@ -37,6 +36,7 @@ export const Cpn_CampaignPage = () => {
   const { auth } = useAuth();
   const navigate = useNetworkNavigate();
   const windowSize = useWindowSize();
+  const widthSearch = windowSize.width / 5;
   const [searchCondition] = useState<any>({
     FlagActive: FlagActiveEnum.All,
     Ft_PageIndex: 0,
@@ -126,7 +126,7 @@ export const Cpn_CampaignPage = () => {
         dataField: "CreateDTimeUTCFrom",
         caption: t("CreateDTimeUTCFrom"),
         label: {
-          text: t("CreateDTimeUTCFrom"),
+          text: t("CreateDTimeUTC"),
         },
         editorType: "dxDateBox",
         editorOptions: {
@@ -139,6 +139,7 @@ export const Cpn_CampaignPage = () => {
         caption: t("CreateDTimeUTCTo"),
         label: {
           text: t("CreateDTimeUTCTo"),
+          visible: false,
         },
         editorType: "dxDateBox",
         editorOptions: {
@@ -150,7 +151,7 @@ export const Cpn_CampaignPage = () => {
         dataField: "StartDTimeUTCFrom",
         caption: t("StartDTimeUTCFrom"),
         label: {
-          text: t("StartDTimeUTCFrom"),
+          text: t("StartDTimeUTC"),
         },
         editorType: "dxDateBox",
         editorOptions: {
@@ -163,6 +164,7 @@ export const Cpn_CampaignPage = () => {
         caption: t("StartDTimeUTCTo"),
         label: {
           text: t("StartDTimeUTCTo"),
+          visible: false,
         },
         editorType: "dxDateBox",
         editorOptions: {
@@ -174,7 +176,7 @@ export const Cpn_CampaignPage = () => {
         dataField: "FinishDTimeUTCFrom",
         caption: t("FinishDTimeUTCFrom"),
         label: {
-          text: t("FinishDTimeUTCFrom"),
+          text: t("FinishDTimeUTC"),
         },
         editorType: "dxDateBox",
         editorOptions: {
@@ -187,6 +189,7 @@ export const Cpn_CampaignPage = () => {
         caption: t("FinishDTimeUTCTo"),
         label: {
           text: t("FinishDTimeUTCTo"),
+          visible: false,
         },
         editorType: "dxDateBox",
         editorOptions: {
@@ -201,6 +204,7 @@ export const Cpn_CampaignPage = () => {
           text: t("CampaignStatus"),
         },
         editorType: "dxTagBox",
+        colSpan: 2,
         editorOptions: {
           dataSource: arrayStatus,
           valueExpr: "value",
@@ -213,6 +217,7 @@ export const Cpn_CampaignPage = () => {
         label: {
           text: t("CampaignTypeCode"),
         },
+        colSpan: 2,
         editorType: "dxSelectBox",
         editorOptions: {
           dataSource: listCampaignType ?? [],
@@ -314,7 +319,9 @@ export const Cpn_CampaignPage = () => {
             ) {
               const status =
                 ref.instance.getSelectedRowsData()[0].CampaignStatus;
-              status === "Pause" ? (check = true) : false;
+              status === "Pause" || status === "STARTED"
+                ? (check = true)
+                : false;
             } else {
               check = false;
             }
@@ -594,6 +601,7 @@ export const Cpn_CampaignPage = () => {
     const { row, column } = e;
     handleEdit(row.rowIndex);
   };
+
   const handleEditRowChanges = (e: any) => {};
   return (
     <AdminContentLayout className={"Cpn_CampaignPage"}>
@@ -603,8 +611,12 @@ export const Cpn_CampaignPage = () => {
       <AdminContentLayout.Slot name={"Content"}>
         <ContentSearchPanelLayout>
           <ContentSearchPanelLayout.Slot name={"SearchPanel"}>
-            <div className={"w-[200px]"}>
+            <div
+              style={{ minWidth: "300px" }}
+              className={`w-[${widthSearch + ""}px]`}
+            >
               <SearchPanelV2
+                colCount={2}
                 storeKey="Cpn_CampaignPage_Search"
                 conditionFields={formItems}
                 data={searchCondition}

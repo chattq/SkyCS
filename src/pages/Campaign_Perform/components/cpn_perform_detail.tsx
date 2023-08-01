@@ -66,6 +66,8 @@ export const Cpn_CampaignPerformDetail = forwardRef(
           response.Data &&
           response.Data.Lst_Mst_CustomColumnCampaignType
         ) {
+          // console.log("feedback ", response.Data);
+          setListFeedback(response.Data.Lst_Mst_CustomerFeedBack);
           const Lst_Mst_CustomColumnCampaignType: DynamicField_Campaign[] =
             response?.Data?.Lst_Mst_CustomColumnCampaignType ?? [];
           let listField = [];
@@ -165,38 +167,30 @@ export const Cpn_CampaignPerformDetail = forwardRef(
       }
     };
 
-    const refetchFeedbackList = async () => {
-      if (cpnCustomerData.CampaignTypeCode && !!auth.orgData) {
-        const response = await api.Mst_CampaignType_GetByCode(
-          cpnCustomerData.CampaignTypeCode ?? "",
-          auth.orgData?.Id ?? ""
-        );
-        if (
-          response.isSuccess &&
-          response.Data &&
-          response.Data.Lst_Mst_CustomerFeedBack
-        ) {
-          setListFeedback(response.Data.Lst_Mst_CustomerFeedBack);
-        } else {
-          showError({
-            message: t(response.errorCode),
-            debugInfo: response.debugInfo,
-            errorInfo: response.errorInfo,
-          });
-        }
-      }
-    };
-
     const refetchCallHist = async () => {
       if (cpnCustomerData.CampaignTypeCode && !!auth.orgData) {
-        const response = await api.Cpn_CampaignCustomer_GetCallHist({
-          //CampaignCode:cpnCustomerData.CampaignCode ?? "",
-          //CustomerPhoneNo:[cpnCustomerData.CustomerPhoneNo1, cpnCustomerData.CustomerPhoneNo2, cpnCustomerData.CustomerPhoneNo].filter(n=>!!n && n!=='').join(','),
-          CampaignCode: "CPNCODE.D6R.00043",
-          CustomerPhoneNo: "0192837465,035891521",
-        });
+        let phoneNo = "";
+        if (cpnCustomerData.CustomerPhoneNo) {
+          phoneNo = cpnCustomerData.CustomerPhoneNo;
+        }
+        if (cpnCustomerData.CustomerPhoneNo1) {
+          phoneNo = phoneNo + " " + cpnCustomerData.CustomerPhoneNo1;
+        }
+        if (cpnCustomerData.CustomerPhoneNo2) {
+          phoneNo = phoneNo + " " + cpnCustomerData.CustomerPhoneNo2;
+        }
 
-        if (response.isSuccess && response.Data) {
+        const obj = {
+          CampaignCode: cpnCustomerData.CampaignTypeCode,
+          CustomerPhoneNo: phoneNo.trim().split(" ").join(","),
+        };
+
+        const response = await api.Cpn_CampaignCustomer_GetCallHist(obj);
+        console.log("response ", response);
+        // if (response.isSuccess && response.Data) {
+        //   setListCallHist(response.Data);
+        // }
+        if (response.isSuccess) {
           setListCallHist(response.Data);
         } else {
           showError({
@@ -209,65 +203,9 @@ export const Cpn_CampaignPerformDetail = forwardRef(
     };
 
     useEffect(() => {
-      refetchFeedbackList();
       refetchCallHist();
       refetchDynamicFields();
     }, []);
-
-    const performStatus = useMemo(() => {
-      var all = [
-        { Code: "", Title: "Tất cả", icon: "", color: "" },
-        {
-          Code: "PENDING",
-          Title: "Chưa thực hiện",
-          icon: "ic-status-pending",
-          color: "#CFB929",
-        },
-        {
-          Code: "DONE",
-          Title: "Thành công",
-          icon: "ic-status-done",
-          color: "#0FBC2B",
-        },
-        {
-          Code: "FAILED",
-          Title: "Thực hiện cuộc gọi lỗi",
-          icon: "ic-status-failed",
-          color: "#D62D2D",
-        },
-        {
-          Code: "NOANSWER",
-          Title: "Đã gọi nhưng không nghe máy",
-          icon: "ic-status-noanswer",
-          color: "#00BEA7",
-        },
-        {
-          Code: "CALLAGAIN",
-          Title: "Hẹn gọi lại",
-          icon: "ic-status-callagain",
-          color: "#8C62D1",
-        },
-        {
-          Code: "NOANSWERRETRY",
-          Title: "Đã gọi hết số lượt nhưng không nghe máy",
-          icon: "ic-status-noanswerretry",
-          color: "#E48203",
-        },
-        {
-          Code: "DONOTCALL",
-          Title: "Không liên hệ",
-          icon: "ic-status-donotcall",
-          color: "#777",
-        },
-        {
-          Code: "FAILEDRETRY",
-          Title: " Đã gọi hết số lượt nhưng cuộc gọi vẫn lỗi",
-          icon: "ic-status-failedretry",
-          color: "#298EF2",
-        },
-      ];
-      return all.find((i) => i.Code == cpnCustomerData.CampaignStatus);
-    }, [cpnCustomerData]);
 
     const arrayNormal: ColumnOptions[] = [
       {

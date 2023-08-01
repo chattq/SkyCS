@@ -109,7 +109,9 @@ export const Post_ManagerPage = () => {
     { text: t("Private"), value: "PRIVATE" },
   ];
 
-  const columns = useBankDealerGridColumns({ data: data?.DataList || [] });
+  const columns = useBankDealerGridColumns({
+    data: data?.Data?.pageInfo?.DataList || [],
+  });
 
   const formItems: IItemProps[] = [
     {
@@ -127,7 +129,7 @@ export const Post_ManagerPage = () => {
             <CheckBox
               defaultValue={searchCondition.FlagEdit === "0" ? false : true}
               onValueChanged={(e: any) => {
-                formRef.instance().updateData("FlagShare", e.value);
+                formRef.instance().updateData("FlagEdit", e.value);
               }}
             />
             <div className="font-bold">{t("Bài viết cần chỉnh sửa")}</div>
@@ -369,7 +371,7 @@ export const Post_ManagerPage = () => {
     [isLoading]
   );
   const toolbar = useToolbar({
-    data: data?.DataList ?? [],
+    data: data?.Data?.pageInfo?.DataList ?? [],
     onSetStatus: handleSetField,
   });
 
@@ -529,7 +531,7 @@ export const Post_ManagerPage = () => {
             <GridViewCustomize
               isLoading={isLoading}
               dataSource={
-                data?.DataList?.sort(
+                data?.Data?.pageInfo?.DataList?.sort(
                   (a: any, b: any) =>
                     new Date(a.CreateDTimeUTC) - new Date(b.CreateDTimeUTC)
                 ) ?? []
@@ -545,7 +547,7 @@ export const Post_ManagerPage = () => {
               onEditorPreparing={handleEditorPreparing}
               allowInlineEdit={true}
               onEditRowChanges={handleEditRowChanges}
-              onDeleteRows={handleDeleteRows}
+              // onDeleteRows={handleDeleteRows}
               isSingleSelection={false}
               // inlineEditMode="row"
               // showCheck="always"
@@ -560,7 +562,19 @@ export const Post_ManagerPage = () => {
                 },
               ]}
               storeKey={"Post_Manager-columns"}
-              customToolbarItems={toolbar}
+              customToolbarItems={[
+                ...toolbar,
+                {
+                  text: t("Delete"),
+                  shouldShow: (ref: any) => {
+                    return ref.instance.getSelectedRowKeys().length === 1;
+                  },
+                  onClick: (e: any, ref: any) => {
+                    const selectedRow = ref.instance.getSelectedRowsData();
+                    handleDeleteRows(selectedRow);
+                  },
+                },
+              ]}
             />
             <PopupViewComponent
               onEdit={handleEdit}

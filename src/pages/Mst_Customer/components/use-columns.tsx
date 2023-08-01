@@ -5,7 +5,6 @@ import {
   viewingDataAtom,
 } from "@/pages/Mst_Customer/components/store";
 import { getDMY } from "@/utils/time";
-import { ColumnOptions } from "@packages/ui/base-gridview";
 import { useSetAtom } from "jotai";
 import { match } from "ts-pattern";
 interface UseDealerGridColumnsProps {
@@ -67,7 +66,7 @@ export const useColumn = ({
     return sortedInit;
   }
 
-  const columns: ColumnOptions[] = getColumnFieldByGroup
+  const columns: any[] = getColumnFieldByGroup
     ?.filter((item: any) => item?.FlagActive)
     ?.map((item: any) => {
       return {
@@ -77,6 +76,8 @@ export const useColumn = ({
         editorOptions: {
           readOnly: true,
         },
+        filterType: "exclude",
+        filterValue: null,
         visible: defaultVisible(item?.ColCodeSys),
         columnIndex: 1,
         cellRender: ({ data }: any) => {

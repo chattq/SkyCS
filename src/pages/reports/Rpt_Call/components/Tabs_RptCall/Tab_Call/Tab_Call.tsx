@@ -323,10 +323,14 @@ export default function Tab_Call() {
                       width={"100%"}
                       className="pr-5 py-4"
                     >
-                      <Series argumentField="country" />
-                      <ArgumentAxis>
+                      <ArgumentAxis
+                        allowDecimals={false}
+                        axisDivisionFactor={60}
+                        discreteAxisDivisionMode="crossLabels"
+                      >
                         <Label wordWrap="none" overlappingBehavior="rotate" />
                       </ArgumentAxis>
+                      <Series argumentField="country" />
                       <Legend visible={false} />
                     </Chart>
                   </div>

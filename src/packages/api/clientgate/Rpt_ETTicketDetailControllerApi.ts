@@ -10,6 +10,7 @@ export const useRpt_ETTicketDetailControllerApi = (apiBase: AxiosInstance) => {
     Rpt_ETTicketDetailController_Search: async (
       params: Rpt_ETTicketDetailControllerSearchParam
     ): Promise<ApiResponse<any>> => {
+      console.log(13, params);
       return await apiBase.post<
         Rpt_ETTicketDetailControllerSearchParam,
         ApiResponse<Rpt_ETTicketDetailControllerData>
@@ -17,26 +18,14 @@ export const useRpt_ETTicketDetailControllerApi = (apiBase: AxiosInstance) => {
         ...params,
       });
     },
-    Rpt_ETTicketDetailController_ExportExcel: async (): Promise<
-      ApiResponse<any>
-    > => {
+    Rpt_ETTicketDetailController_ExportExcel: async (
+      dataExport: any
+    ): Promise<ApiResponse<any>> => {
       return await apiBase.post<
         Partial<Rpt_ETTicketDetailControllerData>,
         ApiResponse<string>
       >("/RptETTicketDetail/Export", {
-        AgentCodeConditionList: "",
-        DepartmentCodeConditionList: "",
-        OrgIDConditionList: "",
-        TicketTypeConditionList: "",
-        CustomerName: "",
-        CustomerPhoneNo: "",
-        CustomerEmail: "",
-        CustomerCompany: "",
-        TicketStatusConditionList: "",
-        CreateDTimeUTCFrom: "",
-        CreateDTimeUTCTo: "",
-        LogLUDTimeUTCFrom: "",
-        LogLUDTimeUTCTo: "",
+        ...dataExport,
       });
     },
   };

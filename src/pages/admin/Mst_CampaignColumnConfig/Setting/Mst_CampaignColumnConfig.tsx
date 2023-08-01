@@ -210,9 +210,9 @@ export const Mst_CampaignColumnConfig_SettingPage = ({
                       <Icon name={"trash"} color={"#ff0000"} size={10} />
                     </Button>
                   </div>
-                  <div className={"w-[300px]"}>
+                  {/* <div className={"w-[300px]"}>
                     {item.CampaignColCfgCodeSys}
-                  </div>
+                  </div> */}
                   <div className={"w-[300px]"}>{item.CampaignColCfgCode}</div>
                   <div className={"w-[300px]"}>{item.CampaignColCfgName}</div>
                   <div className={"w-[300px]"}>

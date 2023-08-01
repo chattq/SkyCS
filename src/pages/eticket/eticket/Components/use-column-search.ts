@@ -10,6 +10,7 @@ interface Props {
   listOrg: any[];
   ListTicketPriority: any[];
   listEnterprise: any;
+  ticketSourceList: any;
 }
 
 export const useColumnSearch = ({
@@ -20,28 +21,11 @@ export const useColumnSearch = ({
   listOrg,
   ListTicketPriority,
   listEnterprise,
+  ticketSourceList,
 }: Props) => {
-  const { t } = useI18n("Eticket_Search");
-  const flagFilterOptions = {
-    searchEnabled: true,
-    valueExpr: "value",
-    displayExpr: "text",
-    items: [
-      {
-        value: "",
-        text: t("All"),
-      },
-      {
-        value: "1",
-        text: t("Active"),
-      },
-      {
-        value: "0",
-        text: t("Inactive"),
-      },
-    ],
-  };
+  console.log("listCustomer ", listCustomer);
 
+  const { t } = useI18n("Eticket_Search");
   const listStatus = [
     {
       label: t("NEW"),
@@ -84,6 +68,9 @@ export const useColumnSearch = ({
       label: {
         text: t("FlagOutOfDate"),
       },
+      colSpan: 2,
+      cssClass:
+        "flex align-items-center flex-direction-row-reverse justify-space-between",
       editorType: "dxCheckBox",
       editorOptions: {
         defaultValue: false,
@@ -95,6 +82,9 @@ export const useColumnSearch = ({
       label: {
         text: t("FlagNotRespondingSLA"),
       },
+      colSpan: 2,
+      cssClass:
+        "flex align-items-center flex-direction-row-reverse justify-space-between",
       editorType: "dxCheckBox",
       editorOptions: {
         defaultValue: false,
@@ -106,6 +96,7 @@ export const useColumnSearch = ({
       label: {
         text: t("DepartmentCode"),
       },
+      colSpan: 2,
       editorOptions: {
         dataSource: listDepart,
         valueExpr: "DepartmentCode",
@@ -119,6 +110,7 @@ export const useColumnSearch = ({
       label: {
         text: t("AgentCode"),
       },
+      colSpan: 2,
       editorOptions: {
         dataSource: listAgent,
         valueExpr: "UserCode",
@@ -132,6 +124,7 @@ export const useColumnSearch = ({
       label: {
         text: t("TicketStatus"),
       },
+      colSpan: 2,
       editorOptions: {
         dataSource: listStatus,
         valueExpr: "value",
@@ -145,6 +138,7 @@ export const useColumnSearch = ({
       label: {
         text: t("TicketPriority"),
       },
+      colSpan: 2,
       editorOptions: {
         dataSource: ListTicketPriority ?? [],
         valueExpr: "TicketPriority",
@@ -158,6 +152,7 @@ export const useColumnSearch = ({
       label: {
         text: t("TicketDeadline"),
       },
+      colSpan: 2,
       editorOptions: {
         type: "date",
         format: "yyyy-MM-dd",
@@ -170,6 +165,7 @@ export const useColumnSearch = ({
       label: {
         text: t("TicketType"),
       },
+      colSpan: 2,
       editorOptions: {
         dataSource: listTypeEticket,
         displayExpr: "CustomerTicketTypeName",
@@ -183,6 +179,7 @@ export const useColumnSearch = ({
       label: {
         text: t("CustomerCodeSys"),
       },
+      colSpan: 2,
       editorOptions: {
         dataSource: listCustomer,
         displayExpr: "CustomerName",
@@ -196,6 +193,7 @@ export const useColumnSearch = ({
       label: {
         text: t("TicketDetail"),
       },
+      colSpan: 2,
       editorOptions: {},
       editorType: "dxTextBox",
     },
@@ -205,6 +203,7 @@ export const useColumnSearch = ({
       label: {
         text: t("TicketName"),
       },
+      colSpan: 2,
       editorOptions: {},
       editorType: "dxTextBox",
     },
@@ -214,6 +213,7 @@ export const useColumnSearch = ({
       label: {
         text: t("TicketID"),
       },
+      colSpan: 2,
       editorOptions: {},
       editorType: "dxTextBox",
     },
@@ -221,7 +221,7 @@ export const useColumnSearch = ({
       dataField: "CreateDTimeUTCFrom", //
       caption: t("CreateDTimeUTCFrom"),
       label: {
-        text: t("CreateDTimeUTCFrom"),
+        text: t("CreateDTimeUTC"),
       },
       editorOptions: {
         type: "date",
@@ -234,6 +234,7 @@ export const useColumnSearch = ({
       caption: t("CreateDTimeUTCTo"),
       label: {
         text: t("CreateDTimeUTCTo"),
+        visible: false,
       },
       editorOptions: {
         type: "date",
@@ -245,7 +246,7 @@ export const useColumnSearch = ({
       dataField: "LogLUDTimeUTCFrom",
       caption: t("LogLUDTimeUTCFrom"),
       label: {
-        text: t("LogLUDTimeUTCFrom"),
+        text: t("LogLUDTimeUTC"),
       },
       editorOptions: {
         type: "date",
@@ -258,6 +259,7 @@ export const useColumnSearch = ({
       caption: t("LogLUDTimeUTCTo"),
       label: {
         text: t("LogLUDTimeUTCTo"),
+        visible: false,
       },
       editorOptions: {
         type: "date",
@@ -269,25 +271,30 @@ export const useColumnSearch = ({
       dataField: "TicketSourceFrom",
       caption: t("TicketSourceFrom"),
       label: {
-        text: t("TicketSourceFrom"),
+        text: t("TicketSource"),
       },
+      colSpan: 1,
       editorOptions: {
-        type: "date",
-        format: "yyyy-MM-dd",
+        dataSource: ticketSourceList,
+        displayExpr: "CustomerTicketSourceName",
+        valueExpr: "TicketSource",
       },
-      editorType: "dxDateBox",
+      editorType: "dxTagBox",
     },
     {
       dataField: "TicketSourceTo",
       caption: t("TicketSourceTo"),
       label: {
+        visible: false,
         text: t("TicketSourceTo"),
       },
+      colSpan: 1,
       editorOptions: {
-        type: "date",
-        format: "yyyy-MM-dd",
+        dataSource: ticketSourceList,
+        displayExpr: "CustomerTicketSourceName",
+        valueExpr: "TicketSource",
       },
-      editorType: "dxDateBox",
+      editorType: "dxTagBox",
     },
     {
       dataField: "CustomerCodeSys", // Doanh nghiệp
@@ -295,6 +302,7 @@ export const useColumnSearch = ({
       label: {
         text: t("CustomerCodeSys"),
       },
+      colSpan: 2,
       editorOptions: {
         dataSource: listEnterprise,
         displayExpr: "CustomerName",
@@ -308,6 +316,7 @@ export const useColumnSearch = ({
       label: {
         text: t("OrgID"),
       },
+      colSpan: 2,
       editorOptions: {
         dataSource: listOrg,
         displayExpr: "NNTFullName",
@@ -321,6 +330,7 @@ export const useColumnSearch = ({
       label: {
         text: t("TickerFollower"),
       },
+      colSpan: 2,
       editorOptions: {
         dataSource: listAgent,
         valueExpr: "UserCode",

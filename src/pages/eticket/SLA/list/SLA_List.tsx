@@ -1,15 +1,14 @@
 import { useI18n } from "@/i18n/useI18n";
 import { useClientgateApi } from "@/packages/api";
 import { useAuth } from "@/packages/contexts/auth";
-import { useConfiguration } from "@/packages/hooks";
+import { useConfiguration, useNetworkNavigate } from "@/packages/hooks";
 import { AdminContentLayout } from "@/packages/layouts/admin-content-layout";
 import { PageHeaderLayout } from "@/packages/layouts/page-header-layout";
 import { showErrorAtom } from "@/packages/store";
-import { BaseCardView } from "@/packages/ui/card-view/card-view";
+import { GridViewPopup } from "@/packages/ui/base-gridview";
 import { useQuery } from "@tanstack/react-query";
 import { useSetAtom } from "jotai";
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { HeaderPart } from "../components/header-part";
 import { SLA_EditType } from "../components/store";
@@ -24,7 +23,7 @@ const SLA_List = () => {
 
   const config = useConfiguration();
 
-  const navigate = useNavigate();
+  const navigate = useNetworkNavigate();
 
   const { auth } = useAuth();
 
@@ -55,7 +54,7 @@ const SLA_List = () => {
 
   const handleAddNew = () => {
     setType("create");
-    navigate(`/${auth.networkId}/eticket/SLA-Add`);
+    navigate(`/admin/SLA-Add`);
   };
 
   const handleSearch = async (params: any) => {
@@ -108,7 +107,7 @@ const SLA_List = () => {
 
   const handleOnEditRow = ({ row }: any) => {
     setType("edit");
-    navigate(`/${auth.networkId}/eticket/SLA/${row.key}`);
+    navigate(`/admin/SLA/${row.key}`);
   };
 
   const customCard = (item: any) => {
@@ -129,7 +128,7 @@ const SLA_List = () => {
   const customPopup = () => {};
 
   return (
-    <AdminContentLayout className={"Category_Manager"}>
+    <AdminContentLayout className={"Category_Manager overflow-hidden"}>
       <AdminContentLayout.Slot name={"Header"}>
         <PageHeaderLayout>
           <PageHeaderLayout.Slot name={"Before"}>
@@ -145,7 +144,7 @@ const SLA_List = () => {
         </PageHeaderLayout>
       </AdminContentLayout.Slot>
       <AdminContentLayout.Slot name={"Content"}>
-        <BaseCardView
+        <GridViewPopup
           isLoading={isLoading}
           dataSource={data?.isSuccess ? data.DataList ?? [] : []}
           columns={columns}
@@ -161,8 +160,6 @@ const SLA_List = () => {
           onEditRow={handleOnEditRow}
           storeKey={"card-view"}
           ref={null}
-          customCard={customCard}
-          defaultOption="table"
         />
       </AdminContentLayout.Slot>
     </AdminContentLayout>

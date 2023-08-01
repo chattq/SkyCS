@@ -34,7 +34,19 @@ export function Sidebar(props: React.PropsWithChildren<SidebarProps>) {
   const { isLarge } = useScreenSize();
   function normalizePath() {
     return items.filter(item => !item.isHidden).map((item) => (
-      { ...item, text: t(item.text), expanded: isLarge, path: item.path && !(/^\//.test(item.path)) ? `/${item.path}` : item.path }
+      { 
+        ...item,
+        text: t(item.text),
+        expanded: isLarge,
+        path: item.path && !(/^\//.test(item.path)) ? `/${item.path}` : item.path,
+        children: item.children?.filter((subItem: any) => !subItem.isHidden).map((subItem: any) => (
+          {
+            ...subItem,
+            path: subItem.subMenuTitle ? `${item.path}/${subItem.path}` : `/${subItem.path}`,
+          }
+        ))
+
+      }
     ));
   }
   const treeItems = useMemo(
@@ -63,9 +75,10 @@ export function Sidebar(props: React.PropsWithChildren<SidebarProps>) {
       return;
     }
     if (currentPath !== undefined) {
+      treeView.expandAll()
       const cleanedPath = currentPath.replace(`/${networkId}`, '');
       treeView.selectItem(cleanedPath);
-      treeView.expandItem(cleanedPath);
+      // treeView.expandItem(cleanedPath);
     }
 
     if (compactMode) {
@@ -88,6 +101,7 @@ export function Sidebar(props: React.PropsWithChildren<SidebarProps>) {
             keyExpr={'path'}
             selectionMode={'single'}
             focusStateEnabled={false}
+            itemsExpr={'children'}
             expandEvent={'click'}
             onItemClick={selectedItemChanged}
             onContentReady={onMenuReady}

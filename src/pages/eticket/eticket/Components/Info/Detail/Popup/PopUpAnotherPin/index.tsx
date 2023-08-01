@@ -9,9 +9,10 @@ import { PartMessageItem } from "../../part-message-item";
 interface Props {
   onClose: () => void;
   data: ET_TicketMessage[];
+  onGim: any;
 }
 
-const PopupAnotherPin = ({ onClose, data }: Props) => {
+const PopupAnotherPin = ({ onClose, data, onGim }: Props) => {
   const handleCancel = () => {
     onClose();
   };
@@ -80,6 +81,7 @@ const PopupAnotherPin = ({ onClose, data }: Props) => {
               key={`part-message-item-${idx}`}
               data={item}
               flag={flag}
+              onGim={onGim}
             />
           );
         })}

@@ -65,10 +65,15 @@ export const Mst_AreaControllerPage = () => {
   const { data: listArea } = useQuery(["listArea"], () =>
     api.Mst_Area_GetAllActive()
   );
+  const { data: listOrgID } = useQuery(
+    ["listOrgID", JSON.stringify(searchCondition)],
+    () => api.Mst_NNTController_GetAllActive()
+  );
 
   const columns = useBankDealerGridColumns({
     data: data?.DataList || [],
     listArea: listArea?.DataList,
+    datalistOrgID: listOrgID?.Data?.Lst_Mst_NNT,
   });
 
   const formItems: IItemProps[] = [

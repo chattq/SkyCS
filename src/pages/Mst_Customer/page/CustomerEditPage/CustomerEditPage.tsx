@@ -170,7 +170,11 @@ const CustomerEditPage = () => {
               CustomerGrpCode:
                 response?.Data?.Lst_Mst_CustomerInCustomerGroup?.map(
                   (item: any) => item?.CustomerGrpCode
-                ),
+                ) ?? [],
+              PartnerType:
+                response?.Data?.Lst_Mst_CustomerInPartnerType?.map(
+                  (item: any) => item?.PartnerType
+                ) ?? [],
             });
 
             return obj;
@@ -191,11 +195,25 @@ const CustomerEditPage = () => {
     },
   });
 
+  const { data: getCustomerCodeSysSeq, refetch: refetchSeq } = useQuery(
+    ["GetCustomerCodeSysSeq"],
+    async () => {
+      const resp: any = await api.Seq_GetCustomerCodeSys();
+
+      if (!param?.CustomerCodeSys) {
+        setFormValue({ ...formValue, CustomerCode: resp?.Data ?? undefined });
+      }
+
+      return resp?.Data;
+    }
+  );
+
   useEffect(() => {
     refetchCodeField();
     refetchGroupCode();
     refetchDynamic();
     refetchValueItem();
+    refetchSeq();
   }, []);
 
   const getFormField = useCallback(() => {
@@ -334,18 +352,31 @@ const CustomerEditPage = () => {
           };
         }) ?? [];
 
-      const response = await api.Mst_Customer_Update(
-        objParam,
-        value ?? [],
-        zaloList,
-        emailList,
-        phoneList,
-        customerGroup,
-        "SCRTPLCODESYS.2023"
-      );
+      const partnerType =
+        formValue["PartnerType"]?.map((item: any) => {
+          return {
+            OrgID: auth.orgId,
+            PartnerType: item,
+            CustomerCodeSys: param?.CustomerCodeSys,
+          };
+        }) ?? [];
+
+      const response = await api.Mst_Customer_Update({
+        key: objParam,
+        data: value ?? [],
+        ZaloUserFollower: zaloList,
+        Email: emailList,
+        Phone: phoneList,
+        CtmGroup: customerGroup,
+        ScrTplCodeSys: "SCRTPLCODESYS.2023",
+        PartnerType: partnerType,
+      });
 
       if (response.isSuccess) {
-        toast.success("Customer updated successfully");
+        toast.success("Cập nhật thông tin khách hàng thành công!", {
+          onClose: handleCancel,
+          delay: 500,
+        });
       } else {
         showError({
           message: response?.errorCode,
@@ -414,16 +445,28 @@ const CustomerEditPage = () => {
           };
         }) ?? [];
 
-      const response = await api.Mst_Customer_Create(
-        param,
-        formValue["ZaloUserFollowerId"] ?? [],
-        formValue["CtmEmail"] ?? [],
-        formValue["CtmPhoneNo"] ?? [],
-        customerGroup ?? [],
-        "SCRTPLCODESYS.2023"
-      );
+      const partnerType =
+        formValue["PartnerType"]?.map((item: any) => {
+          return {
+            OrgID: auth.orgId,
+            PartnerType: item,
+          };
+        }) ?? [];
+
+      const response = await api.Mst_Customer_Create({
+        data: param,
+        ZaloUserFollower: formValue["ZaloUserFollowerId"] ?? [],
+        CustomerGroup: customerGroup ?? [],
+        Email: formValue["CtmEmail"] ?? [],
+        Phone: formValue["CtmPhoneNo"] ?? [],
+        ScrTplCodeSys: "SCRTPLCODESYS.2023",
+        PartnerType: partnerType,
+      });
       if (response.isSuccess) {
-        toast.success(t("Thêm thành công"));
+        toast.success(t("Thêm thành công"), {
+          onClose: handleCancel,
+          delay: 500,
+        });
       } else {
         showError({
           message: response?.errorCode,
@@ -458,8 +501,9 @@ const CustomerEditPage = () => {
         NetworkID: auth?.networkId,
       });
       if (response.isSuccess) {
-        toast.success(t("Delete Success"));
-        navigate(`/customer/list`);
+        toast.success(t("Xoá khách hàng thành công!"), {
+          onClose: handleDelete,
+        });
       } else {
         showError({
           message: t(response.errorCode),
@@ -470,12 +514,10 @@ const CustomerEditPage = () => {
     }
   };
 
-  console.log(param);
-
   return (
     <AdminContentLayout className={"province-management"}>
       <AdminContentLayout.Slot name={"Header"}>
-        <div className="header flex justify-between items-center w-full px-2 py-3">
+        <div className="header flex justify-between items-center w-full px-2">
           <div className="breakcrumb flex gap-1">
             {param?.nav ? (
               <NavNetworkLink
@@ -522,14 +564,25 @@ const CustomerEditPage = () => {
               </Button>
             )}
 
-            <Button
-              onClick={handleDelete}
-              style={{
-                padding: "10px 20px",
-              }}
-            >
-              Xóa
-            </Button>
+            {param?.type == "add" ? (
+              <Button
+                onClick={handleCancel}
+                style={{
+                  padding: "10px 20px",
+                }}
+              >
+                Hủy
+              </Button>
+            ) : (
+              <Button
+                onClick={handleDelete}
+                style={{
+                  padding: "10px 20px",
+                }}
+              >
+                Xóa
+              </Button>
+            )}
           </div>
         </div>
       </AdminContentLayout.Slot>

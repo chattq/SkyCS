@@ -4,6 +4,10 @@ import DataGrid, {
   Editing,
   Button as DxButton,
   Texts,
+  ColumnFixing,
+  ColumnChooser,
+  HeaderFilter,
+  Pager,
 } from "devextreme-react/data-grid";
 import { Icon } from "@packages/ui/icons";
 import { nanoid } from "nanoid";
@@ -65,6 +69,11 @@ export const Category_ManagerPage = () => {
         KeyWord: keyword,
       } as any)
   );
+  const { data: Category_Manager_GetALL } = useQuery(
+    ["Category_Manager_GetALL", keyword],
+    () => api.KB_Category_GetAllActive()
+  );
+
   const columns = [
     {
       dataField: "CategoryName",
@@ -131,24 +140,33 @@ export const Category_ManagerPage = () => {
     },
   ];
   const handleCreate = async (data: any) => {
-    const resp = await api.KB_Category_Create({
-      ...data,
-      FlagActive: data.FlagActive === "true" ? "1" : "0",
-      OrgID: auth.orgId?.toString(),
-      CategoryCode: "",
-    });
-    if (resp.isSuccess) {
-      toast.success(t("Create Successfully"));
-      setPopupVisible(false);
-      await refetch();
-      return true;
+    if (
+      flattenCategories(
+        getCategories(Category_Manager_GetALL?.Data?.Lst_KB_Category)
+      ).filter((val: any) => val.CategoryName === data.CategoryName)?.length ===
+      0
+    ) {
+      const resp = await api.KB_Category_Create({
+        ...data,
+        FlagActive: data.FlagActive === "true" ? "1" : "0",
+        OrgID: auth.orgId?.toString(),
+        CategoryCode: "",
+      });
+      if (resp.isSuccess) {
+        toast.success(t("Create Successfully"));
+        setPopupVisible(false);
+        await refetch();
+        return true;
+      }
+      showError({
+        message: t(resp.errorCode),
+        debugInfo: resp.debugInfo,
+        errorInfo: resp.errorInfo,
+      });
+      throw new Error(resp.errorCode);
+    } else {
+      toast.error(t("Tên danh mục đã bị trùng"));
     }
-    showError({
-      message: t(resp.errorCode),
-      debugInfo: resp.debugInfo,
-      errorInfo: resp.errorInfo,
-    });
-    throw new Error(resp.errorCode);
   };
   const handleEdit = async (data: any) => {
     const resp = await api.KB_Category_GetByCategoryCode(
@@ -267,20 +285,32 @@ export const Category_ManagerPage = () => {
         </PageHeaderLayout>
       </AdminContentLayout.Slot>
       <AdminContentLayout.Slot name={"Content"}>
-        <div className="mt-5">
+        <div className="mt-5 categoryGrid">
           <DataGrid
             className="dataGridCategory"
             dataSource={
               flattenCategories(getCategories(data?.Data?.Lst_KB_Category)) ??
               []
             }
+            id="gridContainer"
             showBorders
             showColumnLines
             showRowLines
             onSaving={innerSavingRowHandler}
             keyExpr={"CategoryCode"}
+            allowColumnResizing
           >
             <Selection mode={"none"} selectAllMode={"page"} />
+            <Pager visible={false} />
+            <ColumnFixing enabled={true} />
+            <HeaderFilter
+              visible={true}
+              dataSource={
+                flattenCategories(getCategories(data?.Data?.Lst_KB_Category)) ??
+                []
+              }
+              allowSearch={true}
+            />
             <Editing
               mode={"row"}
               useIcons={true}

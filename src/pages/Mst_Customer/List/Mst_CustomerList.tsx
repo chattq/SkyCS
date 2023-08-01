@@ -35,6 +35,7 @@ import "../components/custom.scss";
 import HeaderPart from "../components/header-part";
 import { useColumn } from "../components/use-columns";
 import { useColumnsSearch } from "../components/use-columns-search";
+import { useWindowSize } from "@/packages/hooks/useWindowSize";
 
 interface DataFilter {
   staticField: MdMetaColGroupSpec[];
@@ -74,6 +75,8 @@ export const Mst_CustomerList = ({ bePopUp, isHideHeader = false }: Props) => {
   let gridRef: any = useRef<DataGrid | null>(null);
   const { auth } = useAuth();
 
+  const windowSize = useWindowSize();
+  const widthSearch = windowSize.width / 5;
   const { t } = useI18n("Mst_Customer"); // file biên dịch
 
   const config = useConfiguration();
@@ -516,7 +519,7 @@ export const Mst_CustomerList = ({ bePopUp, isHideHeader = false }: Props) => {
           <ContentSearchPanelLayout>
             {/* Search */}
             <ContentSearchPanelLayout.Slot name={"SearchPanel"}>
-              <div className={"w-[200px]"}>
+              <div className={`w-[${widthSearch + ""}px]`}>
                 {/* Search Component */}
                 <SearchPanelV2
                   conditionFields={getColumn}

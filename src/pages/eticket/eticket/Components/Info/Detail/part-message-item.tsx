@@ -293,8 +293,11 @@ export const PartMessageItem = ({
       TicketID: data.TicketID,
     };
 
+    console.log("flag", flag);
+
     switch (flag) {
-      case "zalo": {
+      case "zaloout":
+      case "zaloin": {
         obj = {
           ...obj,
           ObjType: "",
@@ -323,7 +326,8 @@ export const PartMessageItem = ({
         setCurrentTag(0);
         break;
       }
-      case "email": {
+      case "emailout":
+      case "emailin": {
         obj = {
           CtmEmail: data.ObjectReceiveId,
           SubTitleSend: "",
@@ -344,6 +348,14 @@ export const PartMessageItem = ({
         // };
         break;
       }
+      case "callin":
+      case "callmissedin":
+      case "callmissedout":
+      case "callOut": {
+        setReloadingtab(nanoid());
+        setCurrentTag(2);
+        break;
+      }
       default: {
         break;
       }
@@ -353,6 +365,7 @@ export const PartMessageItem = ({
   const showPopUp = () => {
     setCurrentPopUp(
       <PopupAnotherPin
+        onGim={onGim}
         data={data?.dataPin ?? []}
         onClose={() => {
           setCurrentPopUp(<></>);

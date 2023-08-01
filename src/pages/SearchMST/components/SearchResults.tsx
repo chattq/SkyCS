@@ -8,6 +8,8 @@ import { authAtom } from "@/packages/store";
 import { formatText } from "@/pages/Post_Manager/components/components/FormatCategory";
 import { ScrollView } from "devextreme-react";
 import { useWindowSize } from "@/packages/hooks/useWindowSize";
+import { useNavigate } from "react-router-dom";
+import { useNetworkNavigate } from "@/packages/hooks";
 
 export default function SearchResults() {
   const { t } = useI18n("SearchMST");
@@ -24,6 +26,12 @@ export default function SearchResults() {
       },
     });
   };
+  const navigate = useNetworkNavigate();
+  useEffect(() => {
+    if (dataSearch === null) {
+      navigate("/search/SearchInformation");
+    }
+  }, [dataSearch]);
 
   return (
     <div>
@@ -44,7 +52,7 @@ export default function SearchResults() {
                   <div className=" ">
                     <div>
                       <NavNetworkLink
-                        to={`/admin/SearchInformation/Detail/${item.PostCode}`}
+                        to={`/search/SearchInformation/Detail/${item.PostCode}`}
                       >
                         <div
                           className="text-[14px] search_history-title font-bold line-clamp-2"

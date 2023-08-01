@@ -1,5 +1,8 @@
+import { compareDates, getDateNow, getYearMonthDate } from "@/components/ulti";
+import { useNetworkNavigate } from "@/components/useNavigate";
 import { useI18n } from "@/i18n/useI18n";
 import { useClientgateApi } from "@/packages/api";
+import { ETICKET_REPONSE } from "@/packages/api/clientgate/ET_TicketApi";
 import { useAuth } from "@/packages/contexts/auth";
 import { useConfiguration, useVisibilityControl } from "@/packages/hooks";
 import { AdminContentLayout } from "@/packages/layouts/admin-content-layout";
@@ -8,39 +11,26 @@ import {
   searchPanelVisibleAtom,
 } from "@/packages/layouts/content-searchpanel-layout";
 import { showErrorAtom } from "@/packages/store";
+import { FlagActiveEnum } from "@/packages/types";
+import { GridViewCustomize } from "@/packages/ui/base-gridview/gridview-customize";
 import { SearchPanelV2 } from "@/packages/ui/search-panel";
 import { useQuery } from "@tanstack/react-query";
-import { useSetAtom } from "jotai";
-import React, {
-  ReactNode,
-  RefObject,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
-import HeaderPart from "./Components/header-part";
-import { useColumnSearch } from "./Components/use-column-search";
-import { GridViewCustomize } from "@/packages/ui/base-gridview/gridview-customize";
-import { useToolbar } from "./Components/toolbarItem";
 import { LoadPanel } from "devextreme-react";
-import { compareDates, getDateNow, getYearMonthDate } from "@/components/ulti";
 import { confirm } from "devextreme/ui/dialog";
-import { ETICKET_REPONSE } from "@/packages/api/clientgate/ET_TicketApi";
+import { useSetAtom } from "jotai";
+import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import { toast } from "react-toastify";
 import { match } from "ts-pattern";
+import HeaderPart from "./Components/header-part";
+import Eticket_Merger from "./Components/popup/Eticket_Merge";
+import Eticket_Split from "./Components/popup/Eticket_Split";
+import In_Charge_Of_Tranfer from "./Components/popup/In_Charge_Of_Tranfer";
 import TransformCustomer from "./Components/popup/TransformCustomer";
 import { popupVisibleAtom } from "./Components/popup/store";
-import Eticket_Merger from "./Components/popup/Eticket_Merge";
-import In_Charge_Of_Tranfer from "./Components/popup/In_Charge_Of_Tranfer";
-import { dataFormAtom } from "../SLA/components/store";
-import Eticket_Split from "./Components/popup/Eticket_Split";
-import { toast } from "react-toastify";
-import { useNetworkNavigate } from "@/components/useNavigate";
-import { number } from "ts-pattern/dist/patterns";
+import { useToolbar } from "./Components/toolbarItem";
+import { useColumnSearch } from "./Components/use-column-search";
 import { useColumn } from "./Components/use-columns";
-import { formatDate } from "@/packages/common";
-import DataGrid from "devextreme-react/data-grid";
-import { FlagActiveEnum } from "@/packages/types";
+import { useWindowSize } from "@/packages/hooks/useWindowSize";
 
 interface SearchProps {
   FlagOutOfDate: boolean;
@@ -80,6 +70,9 @@ const Eticket = () => {
   const setPopupVisible = useSetAtom(popupVisibleAtom);
   const loadingControl = useVisibilityControl({ defaultVisible: false });
   const navigate = useNetworkNavigate();
+  const windowSize = useWindowSize();
+  const widthSearch = windowSize.width / 5;
+
   const { data: dataUser, isLoading: isLoadingUser } = useQuery({
     queryKey: ["GetForCurrentUser"],
     queryFn: async () => {
@@ -95,6 +88,11 @@ const Eticket = () => {
       }
     },
   });
+  const { data: ticketSourceList, isLoading: isLoadingTicketSource } = useQuery(
+    ["ticketSourceList"],
+    api.Mst_TicketSource_GetAllActive
+  );
+
   const defaultCondition = {
     CreateDTimeUTCFrom: "",
     CreateDTimeUTCTo: "",
@@ -517,6 +515,7 @@ const Eticket = () => {
     listOrg: getListOrg ?? [],
     ListTicketPriority: getListTicketPriority ?? [],
     listEnterprise: getEnterprise ?? [],
+    ticketSourceList: ticketSourceList?.Data?.Lst_Mst_TicketSource ?? [],
   });
 
   const handleSearch = async (data: any) => {
@@ -525,6 +524,10 @@ const Eticket = () => {
     setSearchCondition({
       ...searchCondition,
       ...data,
+      TicketSourceFrom: data?.TicketSourceFrom
+        ? data.TicketSourceFrom.join(",")
+        : "",
+      TicketSourceTo: data?.TicketSourceTo ? data.TicketSourceTo.join(",") : "",
       TicketStatus: data?.TicketStatus ? data.TicketStatus.join(",") : "",
       TickerFollower: data?.TickerFollower ? data.TickerFollower.join(",") : "",
       CreateDTimeUTCFrom:
@@ -556,8 +559,9 @@ const Eticket = () => {
         : "",
     });
   };
-  console.log("data ", data);
-  const hanldeAdd = () => {};
+  const hanldeAdd = () => {
+    navigate("eticket/Add");
+  };
   return (
     <AdminContentLayout className={"Category_Manager"}>
       <AdminContentLayout.Slot name={"Header"}>
@@ -566,8 +570,12 @@ const Eticket = () => {
       <AdminContentLayout.Slot name={"Content"}>
         <ContentSearchPanelLayout>
           <ContentSearchPanelLayout.Slot name={"SearchPanel"}>
-            <div className={"w-[200px]"}>
+            <div
+              style={{ minWidth: "300px" }}
+              className={`w-[${widthSearch + ""}px]`}
+            >
               <SearchPanelV2
+                colCount={2}
                 conditionFields={columnSearch}
                 storeKey="Mst_BankAccount_Search"
                 data={searchCondition}
@@ -589,7 +597,8 @@ const Eticket = () => {
                 isLoadingListTicketPriority ||
                 isLoadingListOrg ||
                 isLoadingUser ||
-                isLoadingEnterprise
+                isLoadingEnterprise ||
+                isLoadingTicketSource
               }
               showIndicator={true}
               showPane={true}

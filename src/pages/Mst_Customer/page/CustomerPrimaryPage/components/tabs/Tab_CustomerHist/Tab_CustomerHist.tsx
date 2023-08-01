@@ -2,19 +2,20 @@ import { useClientgateApi } from "@/packages/api";
 import { BaseGridView } from "@/packages/ui/base-gridview";
 import { useQuery } from "@tanstack/react-query";
 import { useRef } from "react";
+import { useParams } from "react-router-dom";
 import { useMst_CustomerHist_Column } from "./use-columns";
 import { PopupViewComponent } from "./use-popup-view";
 
 const Tab_CustomerHist = () => {
-  const customerCodeSys = "CTMCS.D6G.10104";
+  const { CustomerCodeSys } = useParams();
 
   const api = useClientgateApi();
 
   let gridRef: any = useRef(null);
 
-  const { data, isLoading } = useQuery(["CustomerHist", customerCodeSys], () =>
+  const { data, isLoading } = useQuery(["CustomerHist", CustomerCodeSys], () =>
     api.Mst_CustomerHist_Search({
-      CustomerCodeSys: customerCodeSys,
+      CustomerCodeSys: CustomerCodeSys,
     })
   );
 

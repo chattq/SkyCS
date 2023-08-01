@@ -39,6 +39,7 @@ export const AdminPageLayout = () => {
     setSidebarOpen(true);
   };
   const { hasMenuPermission } = usePermissions();
+
   const sidebarItems = useMemo(() => {
     const mainKey = location.pathname.split("/")[2];
     return protectedRoutes
@@ -59,6 +60,10 @@ export const AdminPageLayout = () => {
             text: route.subMenuTitle,
             path: route.path,
             key: route.key,
+            children: route.children?.filter(route => !!route.subMenuTitle).map(item => ({
+              ...item,
+              text: item.subMenuTitle,
+            }))
           } as SidebarItem)
       );
   }, [location]);

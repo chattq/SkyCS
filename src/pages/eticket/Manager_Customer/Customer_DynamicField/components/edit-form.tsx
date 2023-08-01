@@ -61,7 +61,7 @@ export const SelectOneField = ({
     control: control,
   });
 
-  console.log("singleChoiceValuesFields ",singleChoiceValuesFields);
+  console.log("singleChoiceValuesFields ", singleChoiceValuesFields);
 
   const onAddNewItem = () => {
     append({
@@ -569,7 +569,7 @@ export const EditForm = ({ onCancel, onSave }: EditFormProps) => {
                     defaultValue={
                       options.length > 0 ? options?.[0].Value : null
                     }
-                    required
+                    required={true}
                     error={errors.DataSource}
                     displayExpr={"Value"}
                     valueExpr={"Key"}
@@ -582,6 +582,9 @@ export const EditForm = ({ onCancel, onSave }: EditFormProps) => {
                     }
                   />
                 );
+              }}
+              rules={{
+                required: { value: true, message: "MASTERDATA" },
               }}
             />
           )}
@@ -600,7 +603,7 @@ export const EditForm = ({ onCancel, onSave }: EditFormProps) => {
                     defaultValue={
                       options.length > 0 ? options?.[0].Value : null
                     }
-                    required
+                    required={true}
                     error={errors.DataSource}
                     displayExpr={"Value"}
                     valueExpr={"Key"}
@@ -609,6 +612,9 @@ export const EditForm = ({ onCancel, onSave }: EditFormProps) => {
                     }
                   />
                 );
+              }}
+              rules={{
+                required: { value: true, message: "MASTERDATASELECTMULTIPLE" },
               }}
             />
           )}

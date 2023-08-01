@@ -18,17 +18,14 @@ const CustomerCodeSysERPField = ({ param, customOptions }: any) => {
   const { data }: any = useQuery(
     ["CustomerCodeSysERPField", customerTypeValue],
     async () => {
-      if (customerTypeValue) {
-        const resp: any = await api.Mst_Customer_Search({
-          FlagActive: 1,
-          Ft_PageIndex: 0,
-          Ft_PageSize: 10000,
-          CustomerType: customerTypeValue,
-        });
+      const resp: any = await api.Mst_Customer_Search({
+        FlagActive: 1,
+        Ft_PageIndex: 0,
+        Ft_PageSize: 1000,
+        CustomerType: "TOCHUC",
+      });
 
-        return resp?.DataList ?? [];
-      }
-      return [];
+      return resp?.DataList ?? [];
     }
   );
 

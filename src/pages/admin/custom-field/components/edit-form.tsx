@@ -264,8 +264,6 @@ export const EditForm = ({ onCancel, onSave }: EditFormProps) => {
   }, [currentItem]);
 
   const handleSave = async (data: MdMetaColGroupSpecDto) => {
-    console.log(data);
-
     if (Object.keys(errors).length === 0) {
       if (!data.ColDataType) {
         setError("ColDataType", {
@@ -342,8 +340,6 @@ export const EditForm = ({ onCancel, onSave }: EditFormProps) => {
   const dataTypeValue = watch("ColDataType");
   const isSearchable = watch("IsSearchable");
   const choiceValues = watch("ListOption");
-
-  console.log("dataTypeValue", dataTypeValue);
 
   // const defaultIndexValue = watch("DefaultIndex");
   useEffect(() => {
@@ -494,7 +490,7 @@ export const EditForm = ({ onCancel, onSave }: EditFormProps) => {
                   field={field}
                   label={"Data Type"}
                   dataSource={listDataType}
-                  required
+                  required={true}
                   readonly={
                     flag == "update" ||
                     (flag !== "add" && currentItem.FlagIsColDynamic != "1")
@@ -606,6 +602,12 @@ export const EditForm = ({ onCancel, onSave }: EditFormProps) => {
             <Controller
               name={"DataSource"}
               control={control}
+              rules={{
+                required: {
+                  value: true,
+                  message: "Data Source is required!",
+                },
+              }}
               render={({ field }) => {
                 const jsonListOption = getValues("JsonListOption");
                 const options = JSON.parse(jsonListOption ?? "[]");
@@ -614,10 +616,10 @@ export const EditForm = ({ onCancel, onSave }: EditFormProps) => {
                     field={field}
                     label={"Data Source"}
                     dataSource={listMasterData}
-                    defaultValue={
-                      options.length > 0 ? options?.[0].Value : null
-                    }
-                    required
+                    // defaultValue={
+                    //   options.length > 0 ? options?.[0].Value : null
+                    // }
+                    required={true}
                     error={errors.DataSource}
                     displayExpr={"Value"}
                     valueExpr={"Key"}
@@ -633,6 +635,12 @@ export const EditForm = ({ onCancel, onSave }: EditFormProps) => {
             <Controller
               name={"DataSource"}
               control={control}
+              rules={{
+                required: {
+                  value: true,
+                  message: "Data Source is required!",
+                },
+              }}
               render={({ field }) => {
                 const jsonListOption = getValues("JsonListOption");
                 const options = JSON.parse(jsonListOption ?? "[]");
@@ -642,9 +650,9 @@ export const EditForm = ({ onCancel, onSave }: EditFormProps) => {
                     field={field}
                     label={"Data Source"}
                     dataSource={listMasterData}
-                    defaultValue={
-                      options.length > 0 ? options?.[0].Value : null
-                    }
+                    // defaultValue={
+                    //   options.length > 0 ? options?.[0].Value : null
+                    // }
                     required
                     error={errors.DataSource}
                     displayExpr={"Value"}

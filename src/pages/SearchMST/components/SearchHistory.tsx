@@ -41,7 +41,7 @@ export default function SearchHistory() {
                   </div>
                   <div>
                     <NavNetworkLink
-                      to={`/admin/SearchInformation/Detail/${item.PostCode}`}
+                      to={`/search/SearchInformation/Detail/${item.PostCode}`}
                     >
                       <div className="text-[14px] w-[711px] search_history-title font-bold line-clamp-2">
                         {item.Title}

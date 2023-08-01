@@ -168,7 +168,11 @@ const Tab_CustomerDetail = () => {
               CustomerGrpCode:
                 response?.Data?.Lst_Mst_CustomerInCustomerGroup?.map(
                   (item: any) => item?.CustomerGrpCode
-                ),
+                ) ?? [],
+              PartnerType:
+                response?.Data?.Lst_Mst_CustomerInPartnerType?.map(
+                  (item: any) => item?.PartnerType
+                ) ?? [],
             });
 
             return obj;

@@ -58,7 +58,6 @@ export const Cpn_CampaignPerformPage = () => {
     setCurrentCpnCustomer(item);
   };
 
-  console.log("currentCpnCustomer ", currentCpnCustomer);
   const { t } = useI18n("Cpn_CampaignPerformPage");
   const formSearchRef = useRef(null);
   const config = useConfiguration();
@@ -67,8 +66,6 @@ export const Cpn_CampaignPerformPage = () => {
   const [campaignListData, setCampaignListData] = useState<
     (Cpn_Campaign | undefined)[]
   >([]);
-
-  console.log("campaignListData ", campaignListData);
 
   const [formData, setFormData] = useState({
     Status: ["NOANSWER", "CALLAGAIN", "FAILED"],
@@ -181,9 +178,9 @@ export const Cpn_CampaignPerformPage = () => {
     if (!!selectedCp && selectedCp !== "") {
       const response = await api.Cpn_CampaignCustomer_Get({
         CampaignCode: selectedCp,
-        // CampaignCustomerStatus: "",
-        //CustomerCodeSys: null
       });
+
+      console.log("response customer", response);
 
       if (response.isSuccess && !!response.Data) {
         setCampaignCustomerData(response.Data);
@@ -235,15 +232,19 @@ export const Cpn_CampaignPerformPage = () => {
         CallID: objCpn_CampaignCustomerData.CallID,
       };
 
-      const response = await api.Cpn_CampaignCustomer_Save(obj);
-      if (response.isSuccess) {
-        toast.success(t(`${text} Success`));
+      if (objCpn_CampaignCustomerData.CallID) {
+        const response = await api.Cpn_CampaignCustomer_Save(obj);
+        if (response.isSuccess) {
+          toast.success(t(`${text} Success`));
+        } else {
+          showError({
+            message: t(response.errorCode),
+            debugInfo: response.debugInfo,
+            errorInfo: response.errorInfo,
+          });
+        }
       } else {
-        showError({
-          message: t(response.errorCode),
-          debugInfo: response.debugInfo,
-          errorInfo: response.errorInfo,
-        });
+        toast.error("Không thể thêm dữ liệu");
       }
     }
   };
@@ -465,12 +466,10 @@ export const Cpn_CampaignPerformPage = () => {
                       <SelectBox
                         className="mb-2"
                         onSelectionChanged={(ddata) => {
-                          // setCurrentCpnCustomer(null);
                           setSelectedCp(ddata.selectedItem.CampaignCode);
                         }}
                         onValueChange={() => {
                           setCurrentCpnCustomer(null);
-                          // console.log("coming");
                         }}
                         value={selectedCp}
                         dataSource={campaignListData}

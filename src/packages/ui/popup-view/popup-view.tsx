@@ -29,6 +29,7 @@ export const PopupView = ({
     handleCancel();
   };
   const innerHandleEdit = () => {
+    console.log("data ", data);
     handleEdit();
   };
   return (

@@ -39,6 +39,8 @@ const Cpn_Campaign_Info_Common = forwardRef(
     const setListCampaignAgent = useSetAtom(listCampaignAgentAtom);
     const currentCampaign = useAtomValue(currentInfo);
 
+    console.log("formData ", formData);
+
     const { data: listCampaignType, isLoading: isLoadingCapaignType } =
       useQuery({
         queryKey: ["listCampaginType"],
@@ -205,6 +207,8 @@ const FormInfoCommon = forwardRef(
       },
     ];
 
+    console.log("param?.flag ", param?.flag, param?.flag === "detail");
+
     const columns: ColumnOptions[] = [
       {
         dataField: "CampaignCode", // mã chiến dịch
@@ -283,8 +287,8 @@ const FormInfoCommon = forwardRef(
         editorOptions: {
           readOnly: param?.flag === "detail",
         },
-        render: (param: any) => {
-          const { component: formComponent, dataField } = param;
+        render: (paramValue: any) => {
+          const { component: formComponent, dataField } = paramValue;
           return (
             <UploadFilesField
               formInstance={formComponent}
@@ -343,18 +347,18 @@ const FormInfoCommon = forwardRef(
           placeholder: t("Select"),
           dataSource: [
             {
-              value: "1",
+              value: 1,
               label: t("All Agent"),
             },
             {
-              value: "0",
+              value: 0,
               label: t("Select Single"),
             },
           ],
           displayExpr: "label",
           valueExpr: "value",
           onValueChanged: (newValue: any) => {
-            setIsShow(newValue.value === "1");
+            setIsShow(newValue.value === 1);
           },
         },
       },

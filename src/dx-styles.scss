@@ -377,8 +377,13 @@ body {
   background: #fff;
   border: solid 1px #444;
   border-radius: 2px;
+  border-radius: 5px !important;
   text-decoration: none;
   outline: none;
+  -webkit-border-radius: 5px !important;
+  -moz-border-radius: 5px !important;
+  -ms-border-radius: 5px !important;
+  -o-border-radius: 5px !important;
 }
 
 .dx-texteditor-input-container {
@@ -404,6 +409,10 @@ body {
   background: #fff;
   border: none;
   outline: none;
+  margin-top: 0px !important;
+  display: flex;
+  align-items: center;
+  height: 100%;
 }
 
 .dx-texteditor-input:focus {
@@ -539,5 +548,38 @@ body {
 }
 
 .dx-scrollable-wrapper {
-  
+}
+
+.search-panel-visible {
+}
+
+.dx-tagbox.dx-editor-filled .dx-tag-container,
+.dx-tagbox.dx-editor-outlined .dx-tag-container {
+}
+
+.dx-texteditor-container {
+}
+
+.flex-direction-row-reverse {
+  flex-direction: row-reverse;
+  flex: 1;
+}
+
+.justify-space-between {
+  justify-content: space-between;
+}
+
+#search-panel {
+  .dx-layout-manager {
+    .dx-field-item:not(.dx-first-col) {
+      padding-left: 5px !important;
+    }
+    .dx-field-item:not(.dx-last-col) {
+      padding-right: 5px !important;
+    }
+
+    .dx-item-content {
+      align-self: flex-end;
+    }
+  }
 }

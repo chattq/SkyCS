@@ -1,4 +1,4 @@
-import {ValidationRule} from "devextreme/common";
+import { ValidationRule } from "devextreme/common";
 
 const regexLat = /^(-?[1-8]?\d(?:\.\d{1,18})?|90(?:\.0{1,18})?)$/;
 const regexLon = /^(-?(?:1[0-7]|[1-9])?\d(?:\.\d{1,18})?|180(?:\.0{1,18})?)$/;
@@ -7,7 +7,7 @@ const regexNumber =
 const stringType = /[a-zA-Z0-9]/;
 const onlyNumberType = /[0-9]/;
 const phoneType = /^(\()?\d{3}(\))?(-|\s)?\d{3}(-|\s)\d{4}$/;
-
+export const specailType = [/^[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*$/];
 const emailType =
   /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
@@ -22,6 +22,11 @@ export const requiredEmailType = {
 export const requiredPhoneType = {
   type: "pattern",
   pattern: phoneType,
+};
+
+export const requiredSpecialType = {
+  type: "pattern",
+  parseInt: specailType,
 };
 
 export const requiredStringType = {

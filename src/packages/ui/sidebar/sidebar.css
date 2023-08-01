@@ -5,19 +5,19 @@
   display: -ms-flexbox;
   display: flex;
   -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
   padding: 14px;
   background: #ececec;
 }
 
 .dx-popup-normal .dx-popup-bottom {
-  background: #FFFFFF;
+  background: #ffffff;
 }
 
 .dx-popup-normal .dx-popup-bottom.dx-toolbar {
   border-top: 1px solid #dfdfdf;
-  background: #FFFFFF;
+  background: #ffffff;
 }
 
 .confirmation-box .dx-popup-title {
@@ -26,8 +26,8 @@
   display: -ms-flexbox;
   display: flex;
   -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
   padding: 14px;
   background: #ececec;
 }
@@ -39,11 +39,11 @@
   display: flex;
   -webkit-box-orient: horizontal;
   -webkit-box-direction: reverse;
-      -ms-flex-direction: row-reverse;
-          flex-direction: row-reverse;
+  -ms-flex-direction: row-reverse;
+  flex-direction: row-reverse;
   -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
 }
 
 .dx-button-text {
@@ -60,8 +60,8 @@
   display: -ms-flexbox;
   display: flex;
   -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
   padding: 14px;
   background: #ececec;
 }
@@ -78,7 +78,12 @@
   margin-bottom: -10px;
 }
 
-.dx-widget .dx-toolbar-button .dx-item-content .toggle-sidebar .dx-button-content .dx-icon-menu:before {
+.dx-widget
+  .dx-toolbar-button
+  .dx-item-content
+  .toggle-sidebar
+  .dx-button-content
+  .dx-icon-menu:before {
   color: #00703c;
 }
 
@@ -104,11 +109,11 @@
 }
 
 .dx-selectbox-popup-wrapper .dx-item.dx-list-item.dx-state-hover {
-  background-color: #EAF9F2;
+  background-color: #eaf9f2;
 }
 
 .dx-selectbox-popup-wrapper .dx-item.dx-list-item.dx-list-item-selected {
-  background-color: #EAF9F2;
+  background-color: #eaf9f2;
 }
 
 .dx-dropdownbutton-popup-wrapper .dx-item.dx-list-item {
@@ -117,7 +122,7 @@
 }
 
 .dx-dropdownbutton-popup-wrapper .dx-item.dx-list-item.dx-state-hover {
-  background-color: #EAF9F2;
+  background-color: #eaf9f2;
 }
 
 .dx-button {
@@ -154,12 +159,17 @@
   border: none;
 }
 
-.dx-selectbox .dx-selectbox-container .dx-texteditor-input-container input.dx-texteditor-input {
+.dx-selectbox
+  .dx-selectbox-container
+  .dx-texteditor-input-container
+  input.dx-texteditor-input {
   padding: 4px;
   font-size: 1em;
 }
 
-.dx-editor-filled .dx-texteditor-buttons-container:last-child .dx-dropdowneditor-button:last-child {
+.dx-editor-filled
+  .dx-texteditor-buttons-container:last-child
+  .dx-dropdowneditor-button:last-child {
   margin-right: 0;
 }
 
@@ -191,8 +201,8 @@
 .app .content {
   line-height: 1.5;
   -webkit-box-flex: 1;
-      -ms-flex-positive: 1;
-          flex-grow: 1;
+  -ms-flex-positive: 1;
+  flex-grow: 1;
 }
 
 .app .content h2 {
@@ -205,8 +215,8 @@
   height: 100%;
   -webkit-box-orient: vertical;
   -webkit-box-direction: normal;
-      -ms-flex-direction: column;
-          flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -215,8 +225,8 @@
 
 .app .layout-body {
   -webkit-box-flex: 1;
-      -ms-flex: 1;
-          flex: 1;
+  -ms-flex: 1;
+  flex: 1;
   min-height: 0;
 }
 
@@ -252,23 +262,24 @@
 }
 
 .with-footer
-> .dx-scrollable-wrapper
-> .dx-scrollable-container
-> .dx-scrollable-content {
+  > .dx-scrollable-wrapper
+  > .dx-scrollable-container
+  > .dx-scrollable-content {
   height: 100%;
 }
 
 .with-footer
-> .dx-scrollable-wrapper
-> .dx-scrollable-container
-> .dx-scrollable-content > .dx-scrollview-content {
+  > .dx-scrollable-wrapper
+  > .dx-scrollable-container
+  > .dx-scrollable-content
+  > .dx-scrollview-content {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
   -webkit-box-orient: vertical;
   -webkit-box-direction: normal;
-      -ms-flex-direction: column;
-          flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
   min-height: 100%;
 }
 
@@ -293,7 +304,7 @@ body {
 
 * {
   -webkit-box-sizing: border-box;
-          box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 .dx-dropdownbox {
@@ -363,8 +374,8 @@ body {
   display: flex;
   -webkit-box-orient: vertical;
   -webkit-box-direction: normal;
-      -ms-flex-direction: column;
-          flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
   min-height: 100%;
   height: 100%;
   width: 250px !important;
@@ -376,10 +387,10 @@ body {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   -webkit-box-flex: 1;
-      -ms-flex: 1;
-          flex: 1;
+  -ms-flex: 1;
+  flex: 1;
 }
 
 .side-navigation-menu .menu-container .menu-list {
@@ -400,48 +411,92 @@ body {
   margin: 0 !important;
 }
 
-.side-navigation-menu .menu-container .dx-treeview .dx-treeview-item.dx-state-hover {
-  background-color: #EAF9F2 !important;
-  color: #00703C;
+.side-navigation-menu
+  .menu-container
+  .dx-treeview
+  .dx-treeview-item.dx-state-hover {
+  background-color: #eaf9f2 !important;
+  color: #00703c;
 }
 
 .side-navigation-menu .menu-container .dx-treeview .dx-treeview-node {
   padding: 0 0 !important;
 }
 
-.side-navigation-menu .menu-container .dx-treeview .dx-treeview-toggle-item-visibility {
+.side-navigation-menu
+  .menu-container
+  .dx-treeview
+  .dx-treeview-toggle-item-visibility {
   right: 10px;
   left: auto;
 }
 
-.side-navigation-menu .menu-container .dx-treeview .dx-rtl .dx-treeview-toggle-item-visibility {
+.side-navigation-menu
+  .menu-container
+  .dx-treeview
+  .dx-rtl
+  .dx-treeview-toggle-item-visibility {
   left: 10px;
   right: auto;
 }
 
-.side-navigation-menu .menu-container .dx-treeview .dx-treeview-node[aria-level='1'] {
+.side-navigation-menu
+  .menu-container
+  .dx-treeview
+  .dx-treeview-node[aria-level="1"] {
   font-weight: bold;
   border-bottom: 1px solid #dfdfdf;
 }
 
-.side-navigation-menu .menu-container .dx-treeview .dx-treeview-node[aria-level='2'] .dx-treeview-item-content {
-  font-weight: normal;
-  padding: 0 60px;
+.side-navigation-menu .dx-item-content .dx-treeview-item-content {
+  padding: 0 15px !important;
 }
 
-.side-navigation-menu .menu-container .dx-treeview .dx-treeview-node-container .dx-treeview-node.dx-state-selected:not(.dx-state-focused) > .dx-treeview-item {
+.side-navigation-menu
+  .menu-container
+  .dx-treeview
+  .dx-treeview-node[aria-level="2"]
+  .dx-treeview-item-content {
+  font-weight: normal;
+  padding: 0 15px !important;
+}
+
+.side-navigation-menu
+  .menu-container
+  .dx-treeview
+  .dx-treeview-node-container
+  .dx-treeview-node.dx-state-selected:not(.dx-state-focused)
+  > .dx-treeview-item {
   background: transparent;
 }
 
-.side-navigation-menu .menu-container .dx-treeview .dx-treeview-node-container .dx-treeview-node.dx-state-selected > .dx-treeview-item * {
+.side-navigation-menu
+  .menu-container
+  .dx-treeview
+  .dx-treeview-node-container
+  .dx-treeview-node.dx-state-selected
+  > .dx-treeview-item
+  * {
   color: #00703c;
 }
 
-.side-navigation-menu .menu-container .dx-treeview .dx-treeview-node-container .dx-treeview-node:not(.dx-state-focused) > .dx-treeview-item.dx-state-hover {
+.side-navigation-menu
+  .menu-container
+  .dx-treeview
+  .dx-treeview-node-container
+  .dx-treeview-node:not(.dx-state-focused)
+  > .dx-treeview-item.dx-state-hover {
   background-color: white;
 }
 
-.side-navigation-menu .menu-container .dx-theme-generic .dx-treeview .dx-treeview-node-container .dx-treeview-node.dx-state-selected.dx-state-focused > .dx-treeview-item * {
+.side-navigation-menu
+  .menu-container
+  .dx-theme-generic
+  .dx-treeview
+  .dx-treeview-node-container
+  .dx-treeview-node.dx-state-selected.dx-state-focused
+  > .dx-treeview-item
+  * {
   color: inherit;
 }
 
@@ -449,7 +504,8 @@ body {
   padding-left: 60px;
 }
 
-.dx-drawer-overlap.pre-init-blink-fix .dx-drawer-panel-content.dx-overlay::before {
+.dx-drawer-overlap.pre-init-blink-fix
+  .dx-drawer-panel-content.dx-overlay::before {
   content: "";
   width: 60px;
   height: 100%;

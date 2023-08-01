@@ -75,12 +75,14 @@ export const useSys_UserApi = (apiBase: AxiosInstance) => {
       );
     },
     Sys_User_Create: async (
-      data: Partial<SysUserData>
+      data: Partial<SysUserData>,
+      flagExist: boolean
     ): Promise<ApiResponse<Partial<SysUserData>>> => {
       return apiBase.post<Partial<SysUserData>, ApiResponse<SysUserData>>(
         "/SysUser/Create",
         {
           strJson: JSON.stringify(data),
+          flagExist: flagExist ? 1 : 0,
         }
       );
     },

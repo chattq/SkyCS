@@ -67,7 +67,7 @@ export const SearchMSTPage = () => {
       const resp = await api.KB_PostData_SearchMore(searchTerm);
       if (resp.isSuccess) {
         setDataSearch(resp?.Data);
-        navigate("admin/SearchInformation/Results");
+        navigate("search/SearchInformation/Results");
       }
     }
   };

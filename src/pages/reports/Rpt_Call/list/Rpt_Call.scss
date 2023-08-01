@@ -5,14 +5,23 @@
 // .button_Search.dx-button {
 //   background: transparent !important;
 // }
+// .Tab_CallHistoryAgent
+//   .dx-datagrid
+//   .dx-datagrid-content
+//   .dx-datagrid-table
+//   .dx-row
+//   > td:not(.dx-validation-pending):not(.dx-datagrid-select-all) {
+//   vertical-align: initial !important;
+// }
+.Tab_CallHistoryAgent .dx-toolbar-after {
+  display: none !important;
+}
+
 .Tab_CallHistoryAgent
   .dx-datagrid
   .dx-datagrid-content
   .dx-datagrid-table
   .dx-row
   > td:not(.dx-validation-pending):not(.dx-datagrid-select-all) {
-  vertical-align: initial !important;
-}
-.Tab_CallHistoryAgent .dx-toolbar-after {
-  display: none !important;
+  vertical-align: bottom;
 }

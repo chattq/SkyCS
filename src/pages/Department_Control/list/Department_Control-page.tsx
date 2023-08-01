@@ -48,7 +48,6 @@ export const Department_ControlPage = () => {
   const setDataTable = useSetAtom(dataTableUserAtom);
   const setDataForm = useSetAtom(dataFormAtom);
   const setFlag = useSetAtom(flagEdit);
-  const auth = useAtomValue(authAtom);
 
   const [searchCondition, setSearchCondition] = useState<SearchParam>({
     FlagActive: FlagActiveEnum.All,
@@ -56,14 +55,6 @@ export const Department_ControlPage = () => {
     Ft_PageSize: config.MAX_PAGE_ITEMS,
     KeyWord: "",
   });
-
-  // const { data: listMst_DepartmentControl } = useQuery(
-  //   ["listMst_DepartmentControl", viewingItem.item?.DepartmentCode],
-  //   () =>
-  //     api.Mst_DepartmentControl_GetByDepartmentCode(
-  //       viewingItem.item?.DepartmentCode
-  //     )
-  // );
 
   const setSelectedItems = useSetAtom(selectedItemsAtom);
 
@@ -144,6 +135,7 @@ export const Department_ControlPage = () => {
             UserName: item.FullName,
             EMail: item.Email,
             PhoneNo: item.PhoneNo,
+            OrgID: item.OrgID,
           };
         })
       );

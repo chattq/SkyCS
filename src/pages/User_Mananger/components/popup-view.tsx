@@ -1,31 +1,18 @@
 import { useI18n } from "@/i18n/useI18n";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 
-import {
-  Button,
-  Form,
-  List,
-  LoadPanel,
-  Popup,
-  ScrollView,
-} from "devextreme-react";
+import { Button, Form, LoadPanel, Popup, ScrollView } from "devextreme-react";
 import { GroupItem, SimpleItem } from "devextreme-react/form";
 import DataGrid, {
   Column,
   Editing,
-  FilterRow,
   Item,
-  Paging,
-  Selection,
   Toolbar,
 } from "devextreme-react/data-grid";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ToolbarItemProps } from "@/packages/ui/base-gridview";
-import { logger } from "@/packages/logger";
 import {
-  AvatarData,
   avatar,
-  checkDataPopPup,
   dataFormAtom,
   dataTableAtom,
   fileAtom,
@@ -37,8 +24,8 @@ import { useClientgateApi } from "@/packages/api";
 import { useQuery } from "@tanstack/react-query";
 import { viewingDataAtom } from "@/pages/User_Mananger/components/store";
 import UploadAvatar from "./UploadAvatar";
-import { Icon } from "@/packages/ui/icons";
 import { authAtom } from "@/packages/store";
+import { isExists } from "date-fns";
 
 export interface DealerPopupViewProps {
   onEdit: any;
@@ -61,7 +48,6 @@ export const PopupView = ({
   const { t } = useI18n("Common");
   const dataRef = useRef<any>(null);
   const detailForm = useAtomValue(showDetail);
-  const [viewingItem, setViewingItem] = useAtom(viewingDataAtom);
   const [dataTable, setDataTable] = useAtom(dataTableAtom);
   const [dataForm, setDataForm] = useAtom(dataFormAtom);
   const setPopupVisible = useSetAtom(showPopup);
@@ -73,23 +59,35 @@ export const PopupView = ({
   const auth = useAtomValue(authAtom);
   const api = useClientgateApi();
 
-  const [changePassWord, setChangePassword] = useState("");
-  const [rePassword, setRePassword] = useState("");
-
   const { data: listUserActive } = useQuery(
     ["listMst_DepartmentControl"],
     () => api.Sys_User_GetAllActive() as any
   );
-  const { data: dataMST } = useQuery(
-    ["MSTController"],
-    () => api.Mst_NNTController_GetOrgCode(auth.orgId.toString()) as any
+  const [dataMST, setValueMST] = useState("0317844394");
+  const { data: dataDepartmentORGID } = useQuery(
+    ["dataDepartment", dataForm?.OrgID],
+    () =>
+      api.Mst_DepartmentControl_GetByOrgID(
+        dataForm.OrgID ? dataForm.OrgID : auth.orgId.toString()
+      ) as any
   );
 
+  useEffect(() => {
+    if (dataForm) {
+      setValueMST(dataForm.MST);
+    }
+  }, [dataForm]);
+  const [dataPB, setDataPB] = useState<any>([]);
+  useEffect(() => {
+    if (dataDepartmentORGID) {
+      setDataPB(dataDepartmentORGID?.Data?.Lst_Mst_Department);
+    }
+  }, [dataDepartmentORGID]);
   const handleCancel = () => {
     setFile(undefined);
     setPopupVisible(false);
+    setValue(false);
   };
-
   const toolbarItems: ToolbarItemProps[] = [
     {
       location: "before",
@@ -123,19 +121,19 @@ export const PopupView = ({
           ? dataSaveForm.UserPassword ?? ""
           : dataForm.UserPassword,
         UserCode: dataSaveForm.EMail ?? "",
-        // UserCode: dataSaveForm.EMail.split("@")[0] ?? "",
         Lst_Sys_UserMapDepartment:
           derpartmentTag.length !== 0
             ? derpartmentTag?.map((item: any) => {
                 return {
                   UserCode: dataSaveForm.EMail,
-                  // UserCode: dataSaveForm.EMail.split("@")[0] ?? "",
                   DepartmentCode: item,
+                  OrgID: dataPB[0].OrgID,
                 };
               })
             : dataForm?.DepartmentName?.map((item: any) => {
                 return {
                   UserCode: dataSaveForm.EMail,
+                  OrgID: dataForm.OrgID,
                   DepartmentCode: item,
                 };
               }) || [],
@@ -144,19 +142,21 @@ export const PopupView = ({
             ? groupTag?.map((item: any) => {
                 return {
                   UserCode: dataSaveForm.EMail,
-                  // UserCode: dataSaveForm.EMail.split("@")[0] ?? "",
+                  OrgID: dataPB[0].OrgID,
                   GroupCode: item,
                 };
               })
             : dataForm?.GroupName?.map((item: any) => {
                 return {
                   UserCode: dataSaveForm.EMail,
+                  OrgID: dataForm.OrgID,
                   GroupCode: item,
                 };
               }) || [],
       };
+
       if (flagCheckCRUD) {
-        onCreate(dataSave);
+        onCreate(dataSave, value);
       } else {
         onEdit({
           ...dataSave,
@@ -166,9 +166,10 @@ export const PopupView = ({
         });
       }
     },
-    [avt, flagCheckCRUD, groupTag, derpartmentTag, dataForm]
+    [avt, flagCheckCRUD, groupTag, derpartmentTag, dataForm, dataPB]
   );
 
+  console.log(dataForm);
   const handleDatatable = (e: any) => {
     console.log(122, e.component.totalCount());
   };
@@ -193,23 +194,9 @@ export const PopupView = ({
 
   const customizeItem = useCallback(
     (item: any) => {
-      // if (
-      //   [
-      //     "UserName",
-      //     "PhoneNo",
-      //     "ACLanguage",
-      //     "ACTimeZone",
-      //     "UserPassword",
-      //     "ReUserPassword",
-      //   ].includes(item.dataField)
-      // ) {
-      //   if (value === true) {
-      //     item.editorOptions.readOnly = true;
-      //   } else {
-      //     item.editorOptions.readOnly = false;
-      //   }
-      // }
-
+      if (item.dataField === "MST") {
+        item.editorOptions.value = dataMST;
+      }
       if (
         [
           "UserName",
@@ -227,6 +214,11 @@ export const PopupView = ({
         } else if (flagCheckCRUD === false) {
           item.editorOptions.readOnly = true;
         }
+      }
+      if (item.dataField === "DepartmentName") {
+        item.editorOptions.dataSource = dataPB;
+        item.editorOptions.displayExpr = "DepartmentName";
+        item.editorOptions.valueExpr = "DepartmentCode";
       }
 
       if (
@@ -280,16 +272,12 @@ export const PopupView = ({
       if (item.dataField === "ACLanguage") {
         item.editorOptions.value = "vi";
       }
-      if (item.dataField === "MST") {
-        item.editorOptions.value = dataMST?.Data?.MST;
-      }
     },
-    [flagCheckCRUD, value, dataMST]
+    [flagCheckCRUD, value, dataMST, dataPB]
   );
-  console.log(257, value);
+
   const handleFieldDataChanged = useCallback(
     async (changedData: any) => {
-      // Handle the changed field data
       if (changedData.dataField === "EMail") {
         const checkUser = await api.Sys_User_CheckUser(changedData.value);
         setValue(checkUser?.Data?.FlagExist);
@@ -303,7 +291,7 @@ export const PopupView = ({
             ACTimeZone: checkUser?.Data?.User.TimeZone === 7 ? "7" : "7",
             ACLanguage: checkUser?.Data?.User.Language === "vn" ? "vi" : "vi",
             PhoneNo: checkUser?.Data?.User.Phone ?? "",
-            MST: dataMST?.Data?.MST,
+            MST: dataMST,
           });
         }
       }
@@ -313,8 +301,18 @@ export const PopupView = ({
       if (changedData.dataField === "GroupName") {
         setGroupTag(changedData.value);
       }
+      if (changedData.dataField === "MST") {
+        setValueMST(changedData.vale);
+        const dataMSTNNT = await api.Mst_NNTController_GetNNTCode(
+          changedData.value || "0317844394"
+        );
+        const dataDepartment = await api.Mst_DepartmentControl_GetByOrgID(
+          dataMSTNNT.Data?.OrgID || "7206207001"
+        );
+        setDataPB(dataDepartment?.Data?.Lst_Mst_Department);
+      }
     },
-    [listUserActive?.DataList, derpartmentTag, groupTag, dataMST]
+    [listUserActive?.DataList, derpartmentTag, groupTag, dataMST, dataPB]
   );
 
   return (
@@ -380,33 +378,86 @@ export const PopupView = ({
                 onFieldDataChanged={handleFieldDataChanged}
               >
                 <SimpleItem />
-                {formSettings
-                  .filter((item: any) => item.typeForm === "textForm")
-                  .map((value: any) => {
-                    return (
-                      <GroupItem colCount={value.colCount}>
-                        {value.items.map((items: any) => {
-                          return (
-                            <GroupItem colSpan={items.colSpan}>
-                              {items.items.map((valueFrom: any) => {
-                                return (
-                                  <SimpleItem
-                                    key={valueFrom.caption}
-                                    {...valueFrom}
-                                  />
-                                );
-                              })}
-                            </GroupItem>
-                          );
-                        })}
-                      </GroupItem>
-                    );
-                  })}
+                {!value
+                  ? formSettings.formSettings
+                      .filter((item: any) => item.typeForm === "textForm")
+                      .map((value: any) => {
+                        return (
+                          <GroupItem colCount={value.colCount}>
+                            {value
+                              ? value.items.map((items: any) => {
+                                  return (
+                                    <GroupItem colSpan={items.colSpan}>
+                                      {items.items.map((valueFrom: any) => {
+                                        return (
+                                          <SimpleItem
+                                            key={valueFrom.caption}
+                                            {...valueFrom}
+                                          />
+                                        );
+                                      })}
+                                    </GroupItem>
+                                  );
+                                })
+                              : value.items.map((items: any) => {
+                                  return (
+                                    <GroupItem colSpan={items.colSpan}>
+                                      {items.items.map((valueFrom: any) => {
+                                        return (
+                                          <SimpleItem
+                                            key={valueFrom.caption}
+                                            {...valueFrom}
+                                          />
+                                        );
+                                      })}
+                                    </GroupItem>
+                                  );
+                                })}
+                          </GroupItem>
+                        );
+                      })
+                  : formSettings.formSettingWhenSuccess
+                      .filter((item: any) => item.typeForm === "textForm")
+                      .map((value: any) => {
+                        return (
+                          <GroupItem colCount={value.colCount}>
+                            {value
+                              ? value.items.map((items: any) => {
+                                  return (
+                                    <GroupItem colSpan={items.colSpan}>
+                                      {items.items.map((valueFrom: any) => {
+                                        return (
+                                          <SimpleItem
+                                            key={valueFrom.caption}
+                                            {...valueFrom}
+                                          />
+                                        );
+                                      })}
+                                    </GroupItem>
+                                  );
+                                })
+                              : value.items.map((items: any) => {
+                                  return (
+                                    <GroupItem colSpan={items.colSpan}>
+                                      {items.items.map((valueFrom: any) => {
+                                        return (
+                                          <SimpleItem
+                                            key={valueFrom.caption}
+                                            {...valueFrom}
+                                          />
+                                        );
+                                      })}
+                                    </GroupItem>
+                                  );
+                                })}
+                          </GroupItem>
+                        );
+                      })}
               </Form>
             </form>
             <div
               className={`mt-2 hidden ${
-                formSettings.filter(
+                formSettings.formSettings.filter(
                   (item: any) => item.typeForm === "TableForm"
                 )[0].hidden
                   ? "hidden"
@@ -448,13 +499,21 @@ export const PopupView = ({
                   allowDeleting={!detailForm}
                   allowAdding={!detailForm}
                 />
-                {formSettings
-                  .filter((item: any) => item.typeForm === "TableForm")
-                  .map((value: any) =>
-                    value.items.map((item: any) => {
-                      return <Column key={item.caption} {...item} />;
-                    })
-                  )}
+                {!value
+                  ? formSettings.formSettings
+                      .filter((item: any) => item.typeForm === "TableForm")
+                      .map((value: any) =>
+                        value.items.map((item: any) => {
+                          return <Column key={item.caption} {...item} />;
+                        })
+                      )
+                  : formSettings.formSettingWhenSuccess
+                      .filter((item: any) => item.typeForm === "TableForm")
+                      .map((value: any) =>
+                        value.items.map((item: any) => {
+                          return <Column key={item.caption} {...item} />;
+                        })
+                      )}
               </DataGrid>
             </div>
           </div>

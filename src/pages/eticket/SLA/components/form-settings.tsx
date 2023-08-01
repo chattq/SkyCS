@@ -51,6 +51,7 @@ export const useFormSettings = () => {
           visible: true,
           format: "HH:mm",
         },
+        {},
         {
           caption: t("Trạng thái"),
           dataField: "SLAStatus",

@@ -16,7 +16,7 @@ export const GridCustomToolbar = ({ items }: any) => {
   // console.log(ref?.instance.getSelectedRowsData());
   if (!items || !items.length || !ref) return null;
   return (
-    <div className="flex">
+    <div className="flex items-center">
       {items.map((item: GridCustomerToolBarItem, idx: number) => {
         if (item?.widget === "customize") {
           if (item.shouldShow(ref)) {
@@ -30,6 +30,12 @@ export const GridCustomToolbar = ({ items }: any) => {
           } else {
             return <></>;
           }
+        } else if (item?.widget === "dxTextBox") {
+          return (
+            <span className="font-bold px-2" key={`button-toolbar-${idx}`}>
+              {item.text}
+            </span>
+          );
         } else {
           return (
             <Button

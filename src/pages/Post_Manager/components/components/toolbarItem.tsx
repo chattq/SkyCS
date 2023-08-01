@@ -42,15 +42,7 @@ export const useToolbar = ({
       text: "",
       onClick: () => {},
       shouldShow: (ref: any) => {
-        let check = false;
-        if (ref) {
-          if (ref.instance.getSelectedRowsData().length === 0) {
-            check = true;
-          }
-          return check;
-        } else {
-          return false;
-        }
+        return true;
       },
       widget: "customize",
       customize: (ref: any) => (
@@ -69,45 +61,21 @@ export const useToolbar = ({
       // text: t(`Responsibility`),
       onClick: (e: any, ref: any) => onSetStatus("All", ref),
       shouldShow: (ref: any) => {
-        let check = false;
-        if (ref) {
-          if (ref.instance.getSelectedRowsData().length < 1) {
-            check = true;
-          }
-          return check;
-        } else {
-          return false;
-        }
+        return true;
       },
     },
     {
       text: t(`Published`) + `(${getValue.PUBLISHED})`,
       onClick: (e: any, ref: any) => onSetStatus("PUBLISHED", ref),
       shouldShow: (ref: any) => {
-        let check = false;
-        if (ref) {
-          if (ref.instance.getSelectedRowsData().length < 1) {
-            check = true;
-          }
-          return check;
-        } else {
-          return false;
-        }
+        return true;
       },
     },
     {
       text: t(`Darft`) + `(${getValue.DRAFT})`,
       onClick: (e: any, ref: any) => onSetStatus("DRAFT", ref),
       shouldShow: (ref: any) => {
-        let check = false;
-        if (ref) {
-          if (ref.instance.getSelectedRowsData().length < 1) {
-            check = true;
-          }
-          return check;
-        } else {
-          return false;
-        }
+        return true;
       },
     },
   ];

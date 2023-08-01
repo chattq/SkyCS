@@ -76,13 +76,15 @@
       display: inline-block;
     }
   }
-
+  .message-type.callmissedout {
+    background: #ffeae1;
+  }
   .message-type.callmissedin {
-    
+    background-color: #d5f9e8;
   }
 
   .message-type.call {
-
+    background-color: #d5f9e8;
   }
 
   .message-type.call.in {
@@ -141,11 +143,11 @@
     background: rgba(213, 249, 232, 1);
   }
 
-  .message-type.CallMissedIn {
+  .message-type.callMissedIn {
     background: rgba(255, 232, 238, 1);
   }
 
-  .message-type.CallMissingOut {
+  .message-type.callMissingOut {
     background: rgba(255, 234, 225, 1);
   }
 
@@ -240,6 +242,28 @@
       // background-color: ;
       background: #cfb929;
     }
+    .status.new {
+      background: rgba(15, 188, 43, 1);
+    }
+    .status.sloved {
+      background: rgba(41, 142, 242, 1);
+    }
+    .status.closed {
+      background: rgba(167, 167, 167, 1);
+    }
+    .status.processing {
+      background: rgba(228, 130, 3, 1);
+    }
+    .status.on-hold {
+      background: rgba(139, 98, 192, 1);
+    }
+    .status.waiting.on.customer {
+      background: rgba(255, 255, 255, 1);
+    }
+    .status.Waiting.on.third.party {
+      background: rgba(211, 72, 72, 1);
+    }
+
     .dx-tab {
       .dx-tab-text {
         font-weight: 400 !important;
@@ -444,7 +468,7 @@
       -moz-border-radius: 30px;
       -ms-border-radius: 30px;
       -o-border-radius: 30px;
-}
+    }
 
     .tag:nth-child(1) {
       background-color: #3abfbf;
@@ -784,6 +808,4 @@
     font-weight: 400;
     line-height: normal;
   }
-
-  
 }

@@ -21,7 +21,6 @@ const PartHeaderInfo = ({ data }: { data: EticketT }) => {
   const showError = useSetAtom(showErrorAtom);
   const phone = usePhone();
   const useRefPhoneNo = useRef("");
-
   // const hanldleOnChangePhoneNo = (_value: any, index: string) => {
   //   const _index = _value?.component?._dataSource?._items?.findIndex(
   //     (x: any) => x.phoneCode === _value.value
@@ -39,7 +38,11 @@ const PartHeaderInfo = ({ data }: { data: EticketT }) => {
   };
 
   useEffect(() => {
-    if (Lst_ET_TicketCustomer !== undefined && Lst_ET_TicketCustomer !== null) {
+    if (
+      Lst_ET_TicketCustomer !== undefined &&
+      Lst_ET_TicketCustomer !== null &&
+      Lst_ET_TicketCustomer.length
+    ) {
       useRefPhoneNo.current = Lst_ET_TicketCustomer[0].CustomerPhoneNo;
     }
   }, []);

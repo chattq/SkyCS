@@ -1,13 +1,15 @@
 import { useClientgateApi } from "@/packages/api";
 import { useAuth } from "@/packages/contexts/auth";
+import { useNetworkNavigate } from "@/packages/hooks";
 import { authAtom, showErrorAtom } from "@/packages/store";
 import { getDay, getMonth } from "@/utils/time";
 import { useQuery } from "@tanstack/react-query";
 import { Button, Tabs } from "devextreme-react";
+import { Item } from "devextreme-react/tabs";
 import { useAtomValue, useSetAtom } from "jotai";
 import { nanoid } from "nanoid";
 import { useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import HeaderForm from "../components/header-form";
 import {
@@ -42,7 +44,7 @@ const SLA_Page = () => {
 
   const api = useClientgateApi();
 
-  const navigate = useNavigate();
+  const navigate = useNetworkNavigate();
 
   const { auth } = useAuth();
 
@@ -75,7 +77,9 @@ const SLA_Page = () => {
       }
       const resp: any = await api.Mst_SLA_GetBySLAID(SLAID);
 
-      if (resp.isSuccess && SLAID) {
+      console.log(resp);
+
+      if (resp.isSuccess && SLAID && resp?.Data) {
         const firstTime = (resp?.Data?.Mst_SLA?.FirstResTime - 420) * 60000;
 
         const resolutionTime =
@@ -196,6 +200,7 @@ const SLA_Page = () => {
           debugInfo: resp?.debugInfo,
           errorInfo: resp?.errorInfo,
         });
+        handleCancel();
       }
     }
   );
@@ -234,7 +239,7 @@ const SLA_Page = () => {
   };
 
   const handleCancel = () => {
-    navigate(`/${auth.networkId}/eticket/SLA`);
+    navigate(`/admin/SLA`);
   };
 
   const headerFormValue = useAtomValue(headerForm);
@@ -361,8 +366,10 @@ const SLA_Page = () => {
     const resp: any = await api.Mst_SLA_Create(result);
 
     if (resp.isSuccess) {
-      toast.success("Tạo mới thành công!");
-      navigate(`/${auth.networkId}/eticket/SLA`);
+      toast.success("Tạo mới thành công!", {
+        onClose: handleCancel,
+        delay: 500,
+      });
     } else {
       showError({
         message: resp?.errorCode,
@@ -493,8 +500,10 @@ const SLA_Page = () => {
     const resp: any = await api.Mst_SLA_Update(result);
 
     if (resp.isSuccess) {
-      toast.success("Cập nhật thành công!");
-      navigate(`/${auth.networkId}/eticket/SLA`);
+      toast.success("Cập nhật thành công!", {
+        onClose: handleCancel,
+        delay: 500,
+      });
     } else {
       showError({
         message: resp?.errorCode,
@@ -521,8 +530,10 @@ const SLA_Page = () => {
     const resp: any = await api.Mst_SLA_Delete(req);
 
     if (resp.isSuccess) {
-      toast.success("Xoá thành công!");
-      navigate(`/${auth.networkId}/eticket/SLA`);
+      toast.success("Xoá thành công!", {
+        onClose: handleCancel,
+        delay: 500,
+      });
     } else {
       showError({
         message: resp?.errorCode,
@@ -614,12 +625,19 @@ const SLA_Page = () => {
       <HeaderForm ref={headerFormRef} />
 
       <Tabs
-        dataSource={tabOptions}
         selectedIndex={currentTab}
         onItemClick={(value: any) => {
           setCurrentTab(value.itemIndex);
         }}
-      ></Tabs>
+      >
+        {tabOptions?.map((item: any) => {
+          return (
+            <Item
+              render={() => <div className="normal-case">{item?.text}</div>}
+            ></Item>
+          );
+        })}
+      </Tabs>
 
       {currentComponent}
     </>

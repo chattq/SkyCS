@@ -3,18 +3,7 @@ import { useAtom, useAtomValue, useSetAtom } from "jotai";
 
 import { Button, Form, List, Popup, ScrollView } from "devextreme-react";
 import { GroupItem, SimpleItem } from "devextreme-react/form";
-import DataGrid, {
-  Column,
-  Editing,
-  FilterRow,
-  Item,
-  Paging,
-  Selection,
-  Toolbar,
-} from "devextreme-react/data-grid";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ToolbarItemProps } from "@/packages/ui/base-gridview";
-import { logger } from "@/packages/logger";
 import {
   bottomAtom,
   dataFormAtom,
@@ -22,10 +11,6 @@ import {
   showDetail,
   showPopup,
 } from "./store";
-import { useClientgateApi } from "@/packages/api";
-import { useQuery } from "@tanstack/react-query";
-import { viewingDataAtom } from "@/pages/User_Mananger/components/store";
-import { Icon } from "@/packages/ui/icons";
 
 export interface DealerPopupViewProps {
   onEdit: any;

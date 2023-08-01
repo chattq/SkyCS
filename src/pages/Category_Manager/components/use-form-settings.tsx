@@ -24,6 +24,7 @@ export const useFormSettings = ({ data }: any) => {
               dataField: "CategoryName",
               editorOptions: {
                 placeholder: t("Input"),
+                maxLength: 120,
               },
               label: {
                 text: t("CategoryName"),
@@ -37,11 +38,13 @@ export const useFormSettings = ({ data }: any) => {
               dataField: "CategoryDesc",
               editorOptions: {
                 placeholder: t("Input"),
+                maxLength: 500,
+                height: 60,
               },
               label: {
                 text: t("CategoryDesc"),
               },
-              editorType: "dxTextBox",
+              editorType: "dxTextArea",
               caption: t("CategoryDesc"),
               visible: true,
             },

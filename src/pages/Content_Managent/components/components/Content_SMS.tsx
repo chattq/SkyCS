@@ -64,7 +64,7 @@ export default memo(function Content_SMS({ formRef, markup }: any) {
   };
 
   return (
-    <div className="flex px-5">
+    <div className="flex px-5 mt-6">
       <div className="w-[61%]">
         <div className="flex justify-between pb-[15px] w-[81%]">
           <div className="">{t("Message Content")}</div>

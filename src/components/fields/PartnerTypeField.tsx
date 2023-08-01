@@ -1,6 +1,6 @@
 import { useClientgateApi } from "@/packages/api";
 import { useQuery } from "@tanstack/react-query";
-import { SelectBox } from "devextreme-react";
+import { TagBox } from "devextreme-react";
 import { useEffect, useState } from "react";
 
 const PartnerTypeField = ({ param, customOptions }: any) => {
@@ -20,14 +20,14 @@ const PartnerTypeField = ({ param, customOptions }: any) => {
       setValue(formData["PartnerType"]);
     } else {
       if (data?.DataList?.length > 0) {
-        setValue("CUSTOMER");
-        component.updateData("PartnerType", "CUSOMTER");
+        setValue(["CUSTOMER"]);
+        component.updateData("PartnerType", ["CUSOMTER"]);
       }
     }
   }, [data]);
 
   return (
-    <SelectBox
+    <TagBox
       dataSource={data?.DataList ?? []}
       valueExpr="PartnerType"
       displayExpr="PartnerTypeName"
@@ -37,7 +37,7 @@ const PartnerTypeField = ({ param, customOptions }: any) => {
       }}
       value={value}
       readOnly={customOptions?.editType == "detail"}
-    ></SelectBox>
+    ></TagBox>
   );
 };
 

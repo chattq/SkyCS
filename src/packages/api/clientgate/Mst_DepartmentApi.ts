@@ -27,6 +27,16 @@ export const useMst_DepartmentControlApi = (apiBase: AxiosInstance) => {
         DepartmentCode: code,
       });
     },
+    Mst_DepartmentControl_GetByOrgID: async (
+      code: any
+    ): Promise<ApiResponse<Mst_DepartmentControl>> => {
+      return await apiBase.post<
+        SearchParam,
+        ApiResponse<Mst_DepartmentControl>
+      >("/MstDepartment/GetByOrgID", {
+        OrgID: code,
+      });
+    },
     Mst_DepartmentControl_GetAllActive: async (): Promise<
       ApiResponse<Mst_DepartmentControl[]>
     > => {
@@ -55,6 +65,15 @@ export const useMst_DepartmentControlApi = (apiBase: AxiosInstance) => {
       >("/MstDepartment/Create", {
         strJson: JSON.stringify(data),
       });
+    },
+
+    Mst_DepartmentControl_By_OrgID: async (
+      OrgID: string
+    ): Promise<ApiResponse<Partial<Mst_DepartmentControl>>> => {
+      return apiBase.post<
+        Partial<Mst_DepartmentControl>,
+        ApiResponse<Mst_DepartmentControl>
+      >("/MstDepartment/GetByOrgID", { OrgID: OrgID });
     },
 
     Mst_DepartmentControl_Update: async (

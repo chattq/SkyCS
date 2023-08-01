@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useI18n } from "@/i18n/useI18n";
 
 import "./Rpt_Call.scss";
@@ -12,11 +12,15 @@ import { EticketLayout } from "@/packages/layouts/eticket-layout";
 import { Tab_CallHistory } from "../components/Tabs_RptCall/Tab_CallHistory/Tab_CallHistory";
 import Tab_Call from "../components/Tabs_RptCall/Tab_Call/Tab_Call";
 import { Tab_CallHistoryToAgent } from "../components/Tabs_RptCall/Tab_CallHistoryToAgent/Tab_CallHistoryToAgent";
+import { callApi } from "@/packages/api/call-api";
+import { useAuth } from "@/packages/contexts/auth";
 
 export const Rpt_CallPage = () => {
   const { t } = useI18n("Rpt_Call");
-
   const [currentTab, setCurrentTab] = useState(0);
+  const [dataCallSummary, setDataCallSummary] = useState({});
+  const [dataCallHistory, setDataCallHistory] = useState<any>({});
+
   const ListTab = [
     {
       id: 0,
@@ -39,6 +43,43 @@ export const Rpt_CallPage = () => {
   const onItemClick = (e: any) => {
     setCurrentTab(e.itemIndex);
   };
+  console.log(
+    "dataCallSummary ",
+    dataCallSummary,
+    "dataCallHistory ",
+    dataCallHistory
+  );
+
+  const { auth } = useAuth();
+  useEffect(() => {
+    callApi
+      .rpt_GetCallHistoryFull(auth.networkId, {
+        fromDate: "2023-07-01",
+        toDate: "2023-07-31",
+        agentId: 0,
+        ccNumber: "", //số tổng đài
+        callType: "All", // All/Incoming/Outgoing
+        callStatus: "Succeed", // 'Succeed/Missed/""'
+        callId: 0,
+        tag: "", //nghiệp vụ
+      })
+      .then((resp) => {
+        setDataCallHistory(resp.Data);
+      });
+
+    callApi
+      .rpt_GetCallSummary(auth.networkId, {
+        period: "day", //day/hour
+        fromDate: "2023-07-01",
+        toDate: "2023-07-31",
+        agentId: 0,
+        ccNumber: "", //số tổng đài
+        callType: "All", // All/Incoming/Outgoing
+      })
+      .then((resp) => {
+        setDataCallSummary(resp.Data);
+      });
+  }, []);
 
   return (
     <EticketLayout className={"eticket monitor"}>

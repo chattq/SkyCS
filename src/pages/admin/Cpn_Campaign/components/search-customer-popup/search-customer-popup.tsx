@@ -12,6 +12,7 @@ import { useConfiguration } from "@packages/hooks";
 import { SearchCustomerResult } from "@/pages/admin/Cpn_Campaign/components/search-customer-popup/search-customer-result";
 import { DataGrid } from "devextreme-react";
 import { distinguish } from "@/components/ulti";
+import { useWindowSize } from "@/packages/hooks/useWindowSize";
 
 interface DataFilter {
   staticField: MdMetaColGroupSpec[];
@@ -35,7 +36,7 @@ export const SearchCustomerPopup = ({
   const api = useClientgateApi(); // api
   const showError = useSetAtom(showErrorAtom);
   const [formValue, setFormValue] = useState({});
-
+  const windowSize = useWindowSize();
   const [dataFilter, setDataFilter] = useState<DataFilter>({
     staticField: [],
     dynamicFields: [],
@@ -287,13 +288,13 @@ export const SearchCustomerPopup = ({
         !isLoadingDynamic &&
         !isLoadingDynamic &&
         !isLoadingListGroup && (
-          <ScrollView
-            className="popup-customer-content"
-            width={"100%"}
-            height={700}
-          >
+          // <ScrollView
+          //   className="popup-customer-content"
+          //   width={"100%"}
+          //   height={windowSize.height - 310}
+          // >
             <SearchCustomerResult
-              customizeClass={`h-[50%]`}
+              customizeClass={``}
               ref={gridRef}
               data={data?.DataList!}
               listColumn={listColumn!}
@@ -301,7 +302,7 @@ export const SearchCustomerPopup = ({
               listDynamic={listDynamic!}
               onSearch={handleSearch}
             />
-          </ScrollView>
+          // </ScrollView>
         )}
       <ToolbarItem toolbar={"bottom"} location={"center"}>
         <Button

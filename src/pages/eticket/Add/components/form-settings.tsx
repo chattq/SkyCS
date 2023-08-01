@@ -4,12 +4,12 @@ import { requiredType } from "@/packages/common/Validation_Rules";
 import { useAuth } from "@/packages/contexts/auth";
 import { UploadFilesField } from "@/pages/admin/test-upload/upload-field";
 import { useQuery } from "@tanstack/react-query";
-import { Autocomplete, Button, DateBox, Form } from "devextreme-react";
+import { Button, DateBox, Form, SelectBox } from "devextreme-react";
 import { GroupItem, Item } from "devextreme-react/form";
 import CustomStore from "devextreme/data/custom_store";
 import { atom, useAtomValue, useSetAtom } from "jotai";
 import { nanoid } from "nanoid";
-import { forwardRef, useMemo } from "react";
+import { forwardRef, useMemo, useState } from "react";
 import { ticketAddSLAID, ticketDeadline } from "../EticketAdd";
 
 export const customerPopup = atom<boolean>(false);
@@ -43,14 +43,73 @@ const CustomerUserPopup = () => {
   );
 };
 
+const CustomerSearchBox = ({ param }: any) => {
+  const { component } = param;
+
+  const defaultValue = component?.option("formData")["CustomerCodeSys"];
+
+  const [value, setValue] = useState<string | undefined>(
+    defaultValue ?? undefined
+  );
+
+  const api = useClientgateApi();
+
+  const store = new CustomStore({
+    key: "CustomerCodeSys",
+    load: async (loadOptions) => {
+      const resp: any = await api.Mst_Customer_Search({
+        KeyWord: loadOptions?.searchValue,
+      });
+      return resp?.DataList ?? [];
+    },
+    byKey: async (key: any) => {
+      const resp: any = await api.Mst_Customer_Search({
+        KeyWord: key,
+      });
+      return resp?.DataList ?? [];
+    },
+  });
+
+  return (
+    <div className="flex gap-3">
+      <SelectBox
+        dataSource={store}
+        showClearButton
+        className="flex-grow"
+        itemRender={(e: any) => {
+          return e.CustomerName;
+        }}
+        valueExpr="CustomerCodeSys"
+        displayExpr="CustomerName"
+        value={value}
+        onSelectionChanged={(e: any) => {
+          if (e.selectedItem) {
+            component.updateData(
+              "CustomerCodeSys",
+              e?.selectedItem?.CustomerCodeSys
+            );
+            setValue(e?.selectedItem?.CustomerCodeSys);
+          } else {
+            component.updateData("CustomerCodeSys", undefined);
+            setValue(undefined);
+          }
+        }}
+        searchEnabled
+        searchTimeout={200}
+      />
+      <CustomerUserPopup />
+    </div>
+  );
+};
+
 export const useFormSettings = (formValue: any) => {
   const { t } = useI18n("Ticket_Add");
 
   const api = useClientgateApi();
 
-  const { data: ticketStatusList } = useQuery(
-    ["TicketStatusList"],
-    api.Mst_TicketStatus_GetAllActive
+  const { data: MstTicketEstablishInfo } = useQuery(
+    ["MstTicketEstablishInfoType"],
+    api.Mst_TicketEstablishInfoApi_GetAllInfo
   );
 
   const { data: customerList } = useQuery(
@@ -69,25 +128,11 @@ export const useFormSettings = (formValue: any) => {
     api.Mst_NNTController_GetAllActive
   );
 
-  // Phân loại
-  const { data: ticketTypeList } = useQuery(
-    ["ticketTypeList"],
-    api.Mst_TicketType_GetAllActive
-  );
-
   // Agent
   const { data: agentList } = useQuery(
     ["agentList"],
     api.Sys_User_GetAllActive
   );
-
-  // Mức ưu tiên
-  const { data: ticketPriority } = useQuery(
-    ["ticketPriority"],
-    api.Mst_TicketPriority_GetAllActive
-  );
-
-  console.log(formValue);
 
   const formSettings: any = useMemo(() => {
     return [
@@ -98,75 +143,28 @@ export const useFormSettings = (formValue: any) => {
         hidden: false,
         items: [
           {
-            caption: t("Trạng thái"),
+            caption: t("TicketStatus"),
             dataField: "TicketStatus",
             editorOptions: {
-              dataSource: ticketStatusList?.Data?.Lst_Mst_TicketStatus ?? [],
+              dataSource:
+                MstTicketEstablishInfo?.Data?.Lst_Mst_TicketStatus ?? [],
               valueExpr: "TicketStatus",
-              displayExpr: "CustomerTicketStatusName",
+              displayExpr: "AgentTicketStatusName",
             },
             editorType: "dxSelectBox",
             visible: true,
             validationRules: [requiredType],
           },
           {
-            caption: t("Khách hàng"),
+            caption: t("CustomerCodeSys"),
             dataField: "CustomerCodeSys",
-            editorOptions: {
-              searchEnabled: true,
-              showClearButton: true,
-              dataSource: customerList?.DataList ?? [],
-              displayExpr: "CustomerName",
-              valueExpr: "CustomerCodeSys",
-            },
             editorType: "dxSelectBox",
             visible: true,
             validationRules: [requiredType],
-            render: (param: any) => {
-              const { component } = param;
-
-              const store = new CustomStore({
-                key: "CustomerCodeSys",
-                load: async (loadOptions) => {
-                  const resp: any = await api.Mst_Customer_Search({
-                    KeyWord: loadOptions?.searchValue,
-                  });
-                  return resp?.DataList ?? [];
-                },
-              });
-
-              return (
-                <div className="flex gap-3">
-                  <Autocomplete
-                    dataSource={store ?? []}
-                    showClearButton
-                    className="flex-grow"
-                    itemRender={(e: any) => {
-                      return e.CustomerName;
-                    }}
-                    valueExpr="CustomerName"
-                    defaultValue={
-                      component?.option("formData")["CustomerCodeSys"]
-                    }
-                    onSelectionChanged={(e: any) => {
-                      if (e.selectedItem) {
-                        component.updateData(
-                          "CustomerCodeSys",
-                          e?.selectedItem?.CustomerCodeSys
-                        );
-                      } else {
-                        component.updateData("CustomerCodeSys", "");
-                      }
-                    }}
-                    searchEnabled
-                  />
-                  <CustomerUserPopup />
-                </div>
-              );
-            },
+            render: (param: any) => <CustomerSearchBox param={param} />,
           },
           {
-            caption: t("Tên eTicket"),
+            caption: t("TicketName"),
             dataField: "TicketName",
             editorOptions: {
               placeholder: t("Input"),
@@ -183,7 +181,6 @@ export const useFormSettings = (formValue: any) => {
             editorType: "dxHtmlEditor",
             caption: t("Mô tả"),
             visible: true,
-            validationRules: [requiredType],
           },
         ],
       },
@@ -194,24 +191,24 @@ export const useFormSettings = (formValue: any) => {
         hidden: false,
         items: [
           {
-            caption: t("Chi nhánh/Đại lý"),
+            caption: t("OrgID"),
             dataField: "OrgID",
             editorOptions: {
               dataSource: nntList?.Data?.Lst_Mst_NNT ?? [],
               valueExpr: "OrgID",
               displayExpr: "NNTFullName",
-              defaultValue: formValue?.OrgID,
             },
             editorType: "dxSelectBox",
             visible: true,
             validationRules: [requiredType],
           },
           {
-            caption: t("Phần loại"),
+            caption: t("TicketType"),
             dataField: "TicketType",
             editorOptions: {
-              dataSource: ticketTypeList?.Data?.Lst_Mst_TicketType ?? [],
-              displayExpr: "CustomerTicketTypeName",
+              dataSource:
+                MstTicketEstablishInfo?.Data?.Lst_Mst_TicketType ?? [],
+              displayExpr: "AgentTicketTypeName",
               valueExpr: "TicketType",
             },
             editorType: "dxSelectBox",
@@ -219,7 +216,7 @@ export const useFormSettings = (formValue: any) => {
             validationRules: [requiredType],
           },
           {
-            caption: t("Phòng ban"),
+            caption: t("DepartmentCode"),
             dataField: "DepartmentCode",
             editorOptions: {
               dataSource: departmentList?.DataList ?? [],
@@ -228,7 +225,6 @@ export const useFormSettings = (formValue: any) => {
             },
             editorType: "dxSelectBox",
             visible: true,
-            validationRules: [requiredType],
           },
           {
             caption: t("Deadline"),
@@ -259,9 +255,10 @@ export const useFormSettings = (formValue: any) => {
             caption: t("TicketPriority"),
             dataField: "TicketPriority",
             editorOptions: {
-              dataSource: ticketPriority?.Data?.Lst_Mst_TicketPriority ?? [],
+              dataSource:
+                MstTicketEstablishInfo?.Data?.Lst_Mst_TicketPriority ?? [],
               valueExpr: "TicketPriority",
-              displayExpr: "CustomerTicketPriorityName",
+              displayExpr: "AgentTicketPriorityName",
             },
             editorType: "dxSelectBox",
             visible: true,
@@ -294,13 +291,11 @@ export const useFormSettings = (formValue: any) => {
       },
     ];
   }, [
-    ticketStatusList,
+    MstTicketEstablishInfo,
     customerList,
     departmentList,
     nntList,
-    ticketTypeList,
     agentList,
-    ticketPriority,
   ]);
 
   return formSettings;
@@ -335,7 +330,10 @@ export const DefaultForm = forwardRef(({ formValue }: any, ref: any) => {
 
       if (resp?.isSuccess) {
         // component.updateData("SLAID", resp?.Data?.Mst_SLA?.SLAID ?? "");
-        setSLAID(resp?.Data?.Mst_SLA?.SLAID ?? "");
+        setSLAID({
+          SLAID: resp?.Data?.Mst_SLA?.SLAID,
+          SLALevel: resp?.Data?.Mst_SLA?.SLAID,
+        });
         const min = resp?.Data?.Mst_SLA?.ResolutionTime;
         const time = ticketDeadlineValue.setMinutes(
           ticketDeadlineValue.getMinutes() + min

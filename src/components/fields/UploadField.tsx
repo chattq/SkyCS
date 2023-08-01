@@ -56,11 +56,15 @@ export const UploadField = ({
   const { t } = useI18n("Upload File");
 
   useEffect(() => {
-    const files = formInstance.option("formData")[
-      field?.ColCodeSys
-    ] as unknown as UploadedFile[];
-
-    console.log(files);
+    const files = Array.isArray(
+      formInstance.option("formData")[
+        field?.ColCodeSys
+      ] as unknown as UploadedFile[]
+    )
+      ? (formInstance.option("formData")[
+          field?.ColCodeSys
+        ] as unknown as UploadedFile[])
+      : [];
 
     files?.forEach((file: UploadedFile) => {
       dispatchFileAction({

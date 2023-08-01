@@ -105,16 +105,16 @@ export const Rpt_ETTicketDetailControllerPage = () => {
     queryFn: async () => {
       const resp = await api.Rpt_ETTicketDetailController_Search({
         AgentCodeConditionList: searchCondition.AgentCodeConditionList
-          ? searchCondition.AgentCodeConditionList
+          ? searchCondition.AgentCodeConditionList.join(",")
           : "",
         DepartmentCodeConditionList: searchCondition.DepartmentCodeConditionList
-          ? searchCondition.DepartmentCodeConditionList
+          ? searchCondition.DepartmentCodeConditionList.join(",")
           : "",
         OrgIDConditionList: searchCondition.OrgIDConditionList
-          ? searchCondition.OrgIDConditionList
+          ? searchCondition.OrgIDConditionList.join(",")
           : "",
         TicketTypeConditionList: searchCondition.TicketTypeConditionList
-          ? searchCondition.TicketTypeConditionList
+          ? searchCondition.TicketTypeConditionList.join(",")
           : "",
         CustomerName: searchCondition.CustomerName
           ? searchCondition.CustomerName
@@ -129,7 +129,7 @@ export const Rpt_ETTicketDetailControllerPage = () => {
           ? searchCondition.CustomerCompany
           : "",
         TicketStatusConditionList: searchCondition.TicketStatusConditionList
-          ? searchCondition.TicketStatusConditionList
+          ? searchCondition.TicketStatusConditionList.join(",")
           : "",
         CreateDTimeUTCFrom: searchCondition.CreateDTimeUTCFrom
           ? format(searchCondition.CreateDTimeUTCFrom, "yyyy-MM-dd")
@@ -155,57 +155,273 @@ export const Rpt_ETTicketDetailControllerPage = () => {
     ["listAgent"],
     () => api.Sys_User_GetAllActive() as any
   );
+  console.log(listUser);
 
   const columns = useBankDealerGridColumns({
     data: data?.Data?.Rpt_Cpn_CampaignResultCall || [],
   });
 
-  const formItems: IItemProps[] = useMemo(() => {
-    return [
-      {
-        dataField: "CreateDTimeUTCFrom",
-        caption: t("CreateDTimeUTCFrom"),
-        label: {
-          text: t("CreateDTimeUTCFrom"),
-        },
-        editorType: "dxDateBox",
-        editorOptions: {
-          type: "date",
-          format: "yyyy-MM-dd",
+  const { data: getListDepart, isLoading: isLoadingListDepart } = useQuery({
+    queryKey: ["Mst_DepartmentControl_GetAllActive"],
+    queryFn: async () => {
+      const response = await api.Mst_DepartmentControl_GetAllActive();
+      if (response.isSuccess) {
+        return response.DataList ?? [];
+      } else {
+        showError({
+          message: t(response.errorCode),
+          debugInfo: response.debugInfo,
+          errorInfo: response.errorInfo,
+        });
+        return [];
+      }
+    },
+  });
+  const { data: getListEticketType, isLoading: isLoadingListEticketType } =
+    useQuery({
+      queryKey: ["Mst_TicketEstablishInfoApi_GetTicketType"],
+      queryFn: async () => {
+        const response = await api.Mst_TicketEstablishInfoApi_GetTicketType();
+        if (response.isSuccess) {
+          return response.Data.Lst_Mst_TicketType;
+        } else {
+          showError({
+            message: t(response.errorCode),
+            debugInfo: response.debugInfo,
+            errorInfo: response.errorInfo,
+          });
+          return [];
+        }
+      },
+    });
+
+  const listStatus = [
+    {
+      label: t("NEW"),
+      value: "NEW",
+    },
+    {
+      label: t("OPEN"),
+      value: "OPEN",
+    },
+    {
+      label: t("PROCESSING"),
+      value: "PROCESSING",
+    },
+    {
+      label: t("ON HOLD"),
+      value: "ON HOLD",
+    },
+    {
+      label: t("WATING ON CUSTOMER"),
+      value: "WATING ON CUSTOMER",
+    },
+    {
+      label: t("WAITING ON THIRD PARTY"),
+      value: "WAITING ON THIRD PARTY",
+    },
+    {
+      label: t("SOLVED"),
+      value: "SOLVED",
+    },
+    {
+      label: t("CLOSED"),
+      value: "CLOSED",
+    },
+  ];
+  const formItems: any[] = [
+    {
+      dataField: "AgentCodeConditionList",
+      caption: t("AgentCodeConditionList"),
+      label: {
+        text: t("Agent list"),
+      },
+      editorType: "dxTagBox",
+      editorOptions: {
+        readOnly: false,
+        searchEnabled: true,
+        dataSource: listUser?.DataList ?? [],
+        displayExpr: "UserName",
+        valueExpr: "UserCode",
+      },
+    },
+    {
+      caption: t("DepartmentCodeConditionList"),
+      dataField: "DepartmentCodeConditionList",
+      label: {
+        text: t("Team"),
+      },
+      editorType: "dxTagBox",
+      editorOptions: {
+        dataSource: getListDepart ?? [],
+        valueExpr: "DepartmentCode",
+        displayExpr: "DepartmentName",
+        searchEnabled: true,
+      },
+    },
+    {
+      caption: t("OrgIDConditionList"),
+      dataField: "OrgIDConditionList",
+      label: {
+        text: t("Chi nhánh"),
+      },
+      editorType: "dxTagBox",
+      editorOptions: {
+        searchEnabled: true,
+        dataSource: listUser?.DataList ?? [],
+        displayExpr: "UserName",
+        valueExpr: "UserCode",
+      },
+    },
+    {
+      caption: t("TicketTypeConditionList"),
+      dataField: "TicketTypeConditionList",
+      label: {
+        text: t("Loại eTicket"),
+      },
+      editorType: "dxTagBox",
+      editorOptions: {
+        searchEnabled: true,
+        dataSource: getListEticketType ?? [],
+        displayExpr: "CustomerTicketTypeName",
+        valueExpr: "TicketType",
+      },
+    },
+    {
+      caption: t("TicketStatusConditionList"),
+      dataField: "TicketStatusConditionList",
+      label: {
+        text: t("Trạng thái eTicket"),
+      },
+      editorType: "dxTagBox",
+      editorOptions: {
+        dataSource: listStatus,
+        valueExpr: "value",
+        displayExpr: "label",
+        readOnly: false,
+        placeholder: t("Input"),
+      },
+    },
+    {
+      caption: t("CustomerName"),
+      dataField: "CustomerName",
+      label: {
+        text: t("Khách hàng"),
+      },
+      editorType: "dxTextBox",
+      editorOptions: {
+        readOnly: false,
+        placeholder: t("Input"),
+      },
+    },
+    {
+      caption: t("CustomerCompany"),
+      dataField: "CustomerCompany",
+      label: {
+        text: t("Công ty"),
+      },
+      editorType: "dxTextBox",
+      editorOptions: {
+        readOnly: false,
+        placeholder: t("Input"),
+      },
+    },
+
+    {
+      dataField: "MonthReport",
+      visible: true,
+      caption: t("MonthReport"),
+      label: {
+        text: t("Thời gian tạo"),
+      },
+      editorType: "dxDateBox",
+      render: ({ editorOptions, component: formRef }: any) => {
+        return (
+          <div className={"flex items-center"}>
+            <DateBox
+              className="pr-[3px]"
+              {...editorOptions}
+              type="date"
+              displayFormat="yyyy-MM-dd"
+              defaultValue={searchCondition.CreateDTimeUTCFrom}
+              onValueChanged={(e: any) => {
+                formRef.instance().updateData("CreateDTimeUTCFrom", e.value);
+              }}
+            ></DateBox>
+            -
+            <DateBox
+              {...editorOptions}
+              type="date"
+              displayFormat="yyyy-MM-dd"
+              defaultValue={searchCondition.CreateDTimeUTCTo}
+              onValueChanged={(e: any) => {
+                formRef.instance().updateData("CreateDTimeUTCTo", e.value);
+              }}
+            ></DateBox>
+          </div>
+        );
+      },
+      editorOptions: {
+        placeholder: t("Input"),
+        type: "date",
+        displayFormat: "yyyy-MM-dd",
+        dataSource: monthYearDs,
+        displayExpr: (item: Date | null) => {
+          if (!!item) {
+            return format(item, "yyyy-MM-dd");
+          }
+          return "";
         },
       },
-      {
-        caption: t("CampaignCodeConditionList"),
-        dataField: "CampaignCodeConditionList",
-        label: {
-          text: t("Campaign list"),
-        },
-        editorType: "dxTagBox",
-        editorOptions: {
-          dataSource: CampaignList?.Data ?? [],
-          displayExpr: "CampaignName",
-          valueExpr: "CampaignCode",
-          placeholder: t("Input"),
-          searchEnabled: true,
+    },
+    {
+      dataField: "MonthUpdate",
+      visible: true,
+      caption: t("MonthUpdate"),
+      label: {
+        text: t("Thời gian cập nhật"),
+      },
+      editorType: "dxDateBox",
+      render: ({ editorOptions, component: formRef }: any) => {
+        return (
+          <div className={"flex items-center"}>
+            <DateBox
+              className="pr-[3px]"
+              {...editorOptions}
+              type="date"
+              displayFormat="yyyy-MM-dd"
+              defaultValue={searchCondition.LogLUDTimeUTCFrom}
+              onValueChanged={(e: any) => {
+                formRef.instance().updateData("LogLUDTimeUTCFrom", e.value);
+              }}
+            ></DateBox>
+            -
+            <DateBox
+              {...editorOptions}
+              type="date"
+              displayFormat="yyyy-MM-dd"
+              defaultValue={searchCondition.LogLUDTimeUTCTo}
+              onValueChanged={(e: any) => {
+                formRef.instance().updateData("LogLUDTimeUTCTo", e.value);
+              }}
+            ></DateBox>
+          </div>
+        );
+      },
+      editorOptions: {
+        placeholder: t("Input"),
+        type: "date",
+        displayFormat: "yyyy-MM-dd",
+        dataSource: monthYearDs,
+        displayExpr: (item: Date | null) => {
+          if (!!item) {
+            return format(item, "yyyy-MM-dd");
+          }
+          return "";
         },
       },
-      {
-        caption: t("AgentCodeConditionList"),
-        dataField: "AgentCodeConditionList",
-        label: {
-          text: t("Agent list"),
-        },
-        editorType: "dxTagBox",
-        editorOptions: {
-          placeholder: t("Input"),
-          searchEnabled: true,
-          dataSource: listUser?.DataList ?? [],
-          displayExpr: "UserName",
-          valueExpr: "UserCode",
-        },
-      },
-    ];
-  }, []);
+    },
+  ];
 
   const handleDeleteRows = async (rows: any) => {
     console.log(175, rows);
@@ -348,8 +564,47 @@ export const Rpt_ETTicketDetailControllerPage = () => {
   };
   const handleEditRowChanges = () => {};
   const handleExportExcel = async () => {
-    console.log("a");
-    const resp = await api.Rpt_ETTicketDetailController_ExportExcel();
+    const resp = await api.Rpt_ETTicketDetailController_ExportExcel({
+      AgentCodeConditionList: searchCondition.AgentCodeConditionList
+        ? searchCondition.AgentCodeConditionList.join(",")
+        : "",
+      DepartmentCodeConditionList: searchCondition.DepartmentCodeConditionList
+        ? searchCondition.DepartmentCodeConditionList.join(",")
+        : "",
+      OrgIDConditionList: searchCondition.OrgIDConditionList
+        ? searchCondition.OrgIDConditionList.join(",")
+        : "",
+      TicketTypeConditionList: searchCondition.TicketTypeConditionList
+        ? searchCondition.TicketTypeConditionList.join(",")
+        : "",
+      CustomerName: searchCondition.CustomerName
+        ? searchCondition.CustomerName
+        : "",
+      CustomerPhoneNo: searchCondition.CustomerPhoneNo
+        ? searchCondition.CustomerPhoneNo
+        : "",
+      CustomerEmail: searchCondition.CustomerEmail
+        ? searchCondition.CustomerEmail
+        : "",
+      CustomerCompany: searchCondition.CustomerCompany
+        ? searchCondition.CustomerCompany
+        : "",
+      TicketStatusConditionList: searchCondition.TicketStatusConditionList
+        ? searchCondition.TicketStatusConditionList.join(",")
+        : "",
+      CreateDTimeUTCFrom: searchCondition.CreateDTimeUTCFrom
+        ? format(searchCondition.CreateDTimeUTCFrom, "yyyy-MM-dd")
+        : "",
+      CreateDTimeUTCTo: searchCondition.CreateDTimeUTCTo
+        ? format(searchCondition.CreateDTimeUTCTo, "yyyy-MM-dd")
+        : "",
+      LogLUDTimeUTCFrom: searchCondition.ReportDTimeFrom
+        ? format(searchCondition.ReportDTimeFrom, "yyyy-MM-dd")
+        : "",
+      LogLUDTimeUTCTo: searchCondition.LogLUDTimeUTCTo
+        ? format(searchCondition.LogLUDTimeUTCTo, "yyyy-MM-dd")
+        : "",
+    });
     if (resp.isSuccess) {
       toast.success(t("Download Successfully"));
       window.location.href = resp.Data;

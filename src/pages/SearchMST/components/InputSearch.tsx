@@ -12,6 +12,7 @@ import {
 } from "./store";
 import { useNetworkNavigate } from "@/components/useNavigate";
 import { useQuery } from "@tanstack/react-query";
+import SearchHistory from "./SearchHistory";
 interface Window {
   webkitSpeechRecognition: any;
   SpeechRecognition: any;
@@ -22,33 +23,11 @@ export default function InputSearch(hidenInput: any) {
   const [searchVoice, setSearchVoice] = useState("inActive");
   const { pathname, search } = useLocation();
   const tabResults = pathname.split("/").pop();
-  const [searchQuery, setSearchQuery] = useState<any>("");
   const [searchTerm, setSearchTerm] = useState("");
   const [dataSearch, setDataSearch] = useAtom(dataSearchAtom);
-  const setKeySearch = useSetAtom(keySearchAtom);
+  const [searchQuery, setKeySearch] = useAtom(keySearchAtom);
   const navigate = useNetworkNavigate();
   const api = useClientgateApi();
-  const checkIcon = useAtomValue(checkIconAtom);
-
-  // const {
-  //   data: dataDetail,
-  //   isLoading: isLoadingGetByCode,
-  //   refetch: refetchGetByCode,
-  // } = useQuery({
-  //   queryKey: ["SearchVoice", searchQuery],
-  //   queryFn: async () => {
-  //     if (searchQuery) {
-  //       const response = await api.KB_PostData_SearchMore(searchQuery);
-  //       if (response.isSuccess) {
-  //         setDataSearch(response?.Data);
-  //         navigate("admin/SearchInformation/Results");
-  //         return response.Data;
-  //       }
-  //     } else {
-  //       return {};
-  //     }
-  //   },
-  // });
 
   const handleSpeechRecognition = async () => {
     setSearchVoice("Active");
@@ -59,13 +38,13 @@ export default function InputSearch(hidenInput: any) {
 
     recognition.onresult = async (event: any) => {
       const transcript = event.results[0][0].transcript;
-      setSearchQuery(transcript);
+
       setKeySearch(transcript);
       if (transcript) {
-        const response = await api.KB_PostData_SearchMore(searchQuery);
+        const response = await api.KB_PostData_SearchMore(transcript);
         if (response.isSuccess) {
           setDataSearch(response?.Data);
-          navigate("admin/SearchInformation/Results");
+          navigate("search/SearchInformation/Results");
           return response.Data;
         }
       }
@@ -85,17 +64,18 @@ export default function InputSearch(hidenInput: any) {
       id: 2,
       title: t("History"),
       icon: "/images/icons/search.svg",
-      pathName: "/admin/SearchInformation/History",
-      active: false,
+      pathName: "/search/SearchInformation/History",
+      active: tabResults === "SearchInformation" ? true : false,
     },
     {
       id: 3,
       title: t("Category"),
       icon: "/images/icons/search.svg",
-      pathName: "/admin/SearchInformation/Category",
+      pathName: "/search/SearchInformation/Category",
       active: false,
     },
   ]);
+
   const handleItemClick = (itemId: any) => {
     const updatedMapItems = nav.map((item) => {
       if (item.title === itemId.split("/").pop()) {
@@ -120,7 +100,7 @@ export default function InputSearch(hidenInput: any) {
       const resp = await api.KB_PostData_SearchMore(searchTerm);
       if (resp.isSuccess) {
         setDataSearch(resp?.Data);
-        navigate("admin/SearchInformation/Results");
+        navigate("search/SearchInformation/Results");
       }
       setKeySearch(searchTerm);
     }
@@ -128,7 +108,6 @@ export default function InputSearch(hidenInput: any) {
   const handleSearch = (event: any) => {
     setSearchTerm(event.target.value);
   };
-  console.log(87, hidenInput);
 
   return (
     <div className="flex justify-center">
@@ -165,7 +144,7 @@ export default function InputSearch(hidenInput: any) {
               <input
                 onChange={handleSearch}
                 onKeyPress={handleKeyPress}
-                defaultValue={searchQuery}
+                defaultValue={tabResults === "Results" ? searchQuery : ""}
                 type="text"
                 placeholder={t("Search")}
                 className="w-[530px] SearchMST-input border-none focus:rounded-xl outline-none "
@@ -184,7 +163,7 @@ export default function InputSearch(hidenInput: any) {
           </div>
         </div>
         <div className="text-center py-3">
-          {searchQuery === ""
+          {searchQuery !== "" && tabResults !== "Results"
             ? searchVoice === "inActive"
               ? t(`Say 'Lookup igoss' to start a voice search`)
               : t(`Please say`)
@@ -192,7 +171,7 @@ export default function InputSearch(hidenInput: any) {
         </div>
         <div className="flex items-center justify-center gap-3 mb-[30px]">
           {tabResults === "Results" ? (
-            <NavNetworkLink to={"/admin/SearchInformation/Results"}>
+            <NavNetworkLink to={"/search/SearchInformation/Results"}>
               <div
                 className={`${
                   tabResults === "Results"
@@ -234,6 +213,7 @@ export default function InputSearch(hidenInput: any) {
             );
           })}
         </div>
+        {tabResults === "SearchInformation" ? <SearchHistory /> : ""}
       </div>
     </div>
   );

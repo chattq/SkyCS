@@ -34,6 +34,18 @@ UseBankDealerGridColumnsProps) => {
   const columns: ColumnOptions[] = [
     {
       groupKey: "BASIC_INFORMATION",
+      dataField: "Idx", // Số thứ tự
+      caption: t("Idx"),
+      width: 100,
+      editorType: "dxTextBox",
+      editorOptions: {
+        readOnly: false,
+        placeholder: t("Input"),
+      },
+      columnIndex: 1,
+    },
+    {
+      groupKey: "BASIC_INFORMATION",
       dataField: "CampaignTypeName", // Mã ngân hàng
       caption: t("CampaignTypeName"),
       editorType: "dxTextBox",
@@ -46,7 +58,7 @@ UseBankDealerGridColumnsProps) => {
       cellRender: ({ data, rowIndex, value }) => {
         return (
           <NavNetworkLink
-            to={`/campaign/Mst_CampaignTypePage/Customize/${data.CampaignTypeCode}`}
+            to={`/campaign/Mst_CampaignTypePage/Customize/update/${data.CampaignTypeCode}`}
           >
             {data.CampaignTypeName}
           </NavNetworkLink>
@@ -65,7 +77,6 @@ UseBankDealerGridColumnsProps) => {
       },
       columnIndex: 1,
     },
-
     {
       groupKey: "BASIC_INFORMATION",
       dataField: "LogLUDTimeUTC", // Tên ngân hàng

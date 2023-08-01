@@ -1,11 +1,11 @@
 import { AdminContentLayout } from "@layouts/admin-content-layout";
 import { GridViewPopup } from "@packages/ui/base-gridview";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useI18n } from "@/i18n/useI18n";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useQuery } from "@tanstack/react-query";
 import { FlagActiveEnum, Mst_PaymentTermData } from "@packages/types";
-import { useConfiguration } from "@packages/hooks";
+import { useConfiguration, useNetworkNavigate } from "@packages/hooks";
 import { IPopupOptions } from "devextreme-react/popup";
 import { IFormOptions, IItemProps } from "devextreme-react/form";
 import { flagEditorOptionsSearch, zip } from "@packages/common";
@@ -43,6 +43,7 @@ export const Mst_CampaignTypePage = () => {
   const { t } = useI18n("Mst_CampaignTypePage");
   let gridRef: any = useRef(null);
   const config = useConfiguration();
+  const navigate = useNetworkNavigate();
   const setListValue = useSetAtom(ListInfoDetailCampaignValue);
   const showError = useSetAtom(showErrorAtom);
   const getDefaultValue = useAtomValue(defaultValue);
@@ -60,15 +61,38 @@ export const Mst_CampaignTypePage = () => {
 
   const api = useClientgateApi();
 
-  const { data, isLoading, refetch } = useQuery(
-    ["Mst_CampaignTypePage", JSON.stringify(searchCondition)],
-    () =>
-      api.Mst_CampaignType_Search({
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ["Mst_CampaignTypePage", JSON.stringify(searchCondition)],
+    queryFn: async () => {
+      const response = await api.Mst_CampaignType_Search({
         ...searchCondition,
-      })
-  );
+      });
 
-  const columns = useBankDealerGridColumns({ data: data?.DataList || [] });
+      if (response.isSuccess) {
+        console.log("response.DataList ", response.DataList);
+
+        const data: any[] = response.DataList ?? [];
+        return data.map((item, index) => {
+          return {
+            Idx: index + 1,
+            ...item,
+          };
+        });
+      } else {
+        showError({
+          message: t(response.errorCode),
+          debugInfo: response.debugInfo,
+          errorInfo: response.errorInfo,
+        });
+      }
+    },
+  });
+
+  useEffect(() => {
+    refetch();
+  }, []);
+
+  const columns = useBankDealerGridColumns({ data: data || [] });
 
   const formItems: IItemProps[] = [
     {
@@ -83,11 +107,11 @@ export const Mst_CampaignTypePage = () => {
       },
     },
     {
-      caption: t("CampaignTypeName"),
+      caption: t("CampaignTypeDesc"),
       label: {
-        text: t("CampaignTypeName"),
+        text: t("CampaignTypeDesc"),
       },
-      dataField: "CampaignTypeName",
+      dataField: "CampaignTypeDesc",
       editorType: "dxTextBox",
       editorOptions: {
         placeholder: t("Input"),
@@ -106,26 +130,29 @@ export const Mst_CampaignTypePage = () => {
 
   const handleDeleteRows = async (rows: any[]) => {
     console.log("row ", rows);
-    const build: any = {
-      Mst_CampaignType: {
-        CampaignTypeCode: rows[0],
-        NetworkID: auth.networkId,
-        OrgID: auth.orgData?.Id,
-      },
-      Lst_Mst_CustomColumnCampaignType: [],
-      Lst_Mst_CustomerFeedBack: [],
-    };
-    const resp = await api.Mst_CampaignType_Delete(build);
-    if (resp.isSuccess) {
-      toast.success(t("Delete Successfully"));
-      await refetch();
-    } else {
-      showError({
-        message: t(resp.errorCode),
-        debugInfo: resp.debugInfo,
-        errorInfo: resp.errorInfo,
-      });
-    }
+    // cái này em xóa nhiều theo cách fix tay cơ mà vẫn cần có api
+    rows.forEach(async (item, index) => {
+      const build: any = {
+        Mst_CampaignType: {
+          CampaignTypeCode: rows[index],
+          NetworkID: auth.networkId,
+          OrgID: auth.orgData?.Id,
+        },
+        Lst_Mst_CustomColumnCampaignType: [],
+        Lst_Mst_CustomerFeedBack: [],
+      };
+      const resp = await api.Mst_CampaignType_Delete(build);
+      if (resp.isSuccess) {
+        toast.success(t("Delete Successfully"));
+        await refetch();
+      } else {
+        showError({
+          message: t(resp.errorCode),
+          debugInfo: resp.debugInfo,
+          errorInfo: resp.errorInfo,
+        });
+      }
+    });
   };
 
   const handleSelectionChanged = (rows: string[]) => {
@@ -142,8 +169,12 @@ export const Mst_CampaignTypePage = () => {
   const handleCancel = () => {
     gridRef.current?.instance?.cancelEditData();
   };
-  const handleEdit = (rowIndex: number) => {
-    gridRef.current?.instance?.editRow(rowIndex);
+  const handleEdit = (rowData: any) => {
+    // gridRef.current?.instance?.editRow(rowData);
+    // console.log("rowData ", rowData.CampaignTypeCode);
+    navigate(
+      `/campaign/Mst_CampaignTypePage/Customize/detail/${rowData.CampaignTypeCode}`
+    );
   };
   const handleSubmit = () => {
     gridRef.current?.instance?.saveEditData();
@@ -257,7 +288,7 @@ export const Mst_CampaignTypePage = () => {
   };
   const handleOnEditRow = (e: any) => {
     const { row, column } = e;
-    handleEdit(row.rowIndex);
+    handleEdit(row.data);
   };
   const handleEditRowChanges = (e: any) => {
     console.log("e", e);
@@ -282,7 +313,7 @@ export const Mst_CampaignTypePage = () => {
           <ContentSearchPanelLayout.Slot name={"ContentPanel"}>
             <GridViewPopup
               isLoading={isLoading}
-              dataSource={data?.isSuccess ? data.DataList ?? [] : []}
+              dataSource={data ?? []}
               columns={columns}
               keyExpr={"CampaignTypeCode"}
               popupSettings={popupSettings}

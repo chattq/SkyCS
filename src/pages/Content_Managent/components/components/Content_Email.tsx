@@ -104,7 +104,7 @@ export default function Content_Email({ formRef, markup }: any) {
                       args.clipboardData.types.indexOf("Files") > -1;
                     const regex =
                       /^[a-zA-Z0-9@  `!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]+$/;
-                    console.log("title", pastedData);
+
                     // console.log(regex.test(pastedData));
                     if (
                       pastedData &&

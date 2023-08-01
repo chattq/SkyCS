@@ -68,8 +68,6 @@ export const CustomerPrimaryPage = () => {
     },
   });
 
-  // console.log(customer, listCodeField);
-
   const getFormField = useMemo(() => {
     if (!isLoadingCodeField && customer && customer?.Lst_Mst_Customer[0]) {
       const list = JSON.parse(customer?.Lst_Mst_Customer[0].JsonCustomerInfo);
@@ -142,8 +140,6 @@ export const CustomerPrimaryPage = () => {
           });
           return prev;
         }, []);
-
-      console.log(listGroup);
 
       return listGroup;
     } else {
@@ -271,7 +267,7 @@ const CustomerContent = ({ customer, listCodeField, formField }: any) => {
   const editType = useAtomValue(editTypeAtom);
 
   return (
-    <form ref={formRef} className="overflow-auto pt-[20px]">
+    <form ref={formRef} className="pt-[20px]">
       <Form
         // className="form-test"
         formData={formValue}

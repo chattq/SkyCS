@@ -277,7 +277,9 @@ export const CustomFieldListPageContent = ({
             itemRender={(item) => {
               return (
                 <List
-                  dataSource={fieldByGroup[buildKey(item.ColGrpCodeSys)]}
+                  dataSource={fieldByGroup[buildKey(item.ColGrpCodeSys)]?.sort(
+                    (a: any, b: any) => a?.OrderIdx - b?.OrderIdx
+                  )}
                   keyExpr="ColCodeSys"
                   allowItemDeleting={false}
                   onItemReordered={handleItemReordered}

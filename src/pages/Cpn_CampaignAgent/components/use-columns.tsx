@@ -52,6 +52,7 @@ UseBankDealerGridColumnsProps) => {
       groupKey: "BASIC_INFORMATION",
       dataField: "CampaignCode", // Mã ngân hàng
       caption: t("CampaignCode"),
+      visible: true,
       editorType: "dxTextBox",
       validationRules: [requiredType],
       editorOptions: {
@@ -73,6 +74,7 @@ UseBankDealerGridColumnsProps) => {
       groupKey: "BASIC_INFORMATION",
       dataField: "CampaignName", // Mã ngân hàng
       caption: t("CampaignName"),
+      visible: true,
       editorType: "dxTextBox",
       validationRules: [requiredType],
       editorOptions: {
@@ -86,6 +88,7 @@ UseBankDealerGridColumnsProps) => {
       groupKey: "BASIC_INFORMATION",
       dataField: "CampaignStatus", // Tên ngân hàng
       caption: t("CampaignStatus"),
+      visible: true,
       editorType: "dxTextBox",
       editorOptions: {
         readOnly: false,
@@ -101,6 +104,7 @@ UseBankDealerGridColumnsProps) => {
       groupKey: "BASIC_INFORMATION",
       dataField: "UserName", // Mã đại lý
       caption: t("UserName"),
+      visible: true,
       editorType: "dxTextBox",
       editorOptions: {
         readOnly: false,
@@ -116,6 +120,7 @@ UseBankDealerGridColumnsProps) => {
         readOnly: false,
         placeholder: t("Input"),
       },
+      visible: true,
       editorType: "dxTextBox",
       columnIndex: 2,
     },
@@ -127,6 +132,7 @@ UseBankDealerGridColumnsProps) => {
         readOnly: false,
         placeholder: t("Input"),
       },
+      visible: true,
       editorType: "dxTextBox",
       columnIndex: 2,
     },
@@ -138,6 +144,7 @@ UseBankDealerGridColumnsProps) => {
         readOnly: false,
         placeholder: t("Input"),
       },
+      visible: true,
       editorType: "dxTextBox",
       columnIndex: 2,
     },

@@ -2,6 +2,7 @@ import { useI18n } from "@/i18n/useI18n";
 
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
+  UserAutoAssignTicketAtom,
   dataFormAtom,
   dataTableAtom,
   dataTableUserAtom,
@@ -64,18 +65,19 @@ export const DepartMentControlPopupView = ({
   const { t } = useI18n("Common");
   const [userSelect, setUserSelect] = useAtom(dataTableAtom);
   const dataForm = useAtomValue(dataFormAtom);
+  const dataUserAutoTicket = useAtomValue(UserAutoAssignTicketAtom);
   const auth = useAtomValue(authAtom);
   const [hidenPopupAddUser, setHidenPopupAddUser] = useState(false);
   const [dataUser, setDataUser] = useAtom(dataUserAtom);
   const [dataTable, setDataTable] = useAtom(dataTableUserAtom);
+  const radioRef = useRef<any>();
+  const [valueRadio, setValueRadio] = useState("");
 
   const api = useClientgateApi();
 
   const { data: listUser, isLoading } = useQuery(["listDataUser"], () =>
     api.Sys_User_GetAllActive()
   );
-
-  const [removeData, setRemoveData] = useState(false);
 
   useEffect(() => {
     if (listUser && flagCheckCRUD === true) {
@@ -108,6 +110,7 @@ export const DepartMentControlPopupView = ({
           DepartmentCode: dataSaveForm.DepartmentCode,
           FlagActive: dataSaveForm.FlagActive === "true" ? "1" : "0",
           OrgID: auth.orgData.Id.toString(),
+          FlagAutoDiv: valueRadio,
         },
         Lst_Sys_UserMapDepartment: dataTable
           .filter(
@@ -123,14 +126,25 @@ export const DepartMentControlPopupView = ({
               PhoneNo: item.PhoneNo,
             };
           }),
+        Lst_Sys_UserAutoAssignTicket:
+          valueRadio === "0"
+            ? [
+                {
+                  DepartmentCode: dataSaveForm.DepartmentCode,
+                  UserCode: radioRef.current,
+                  OrgID: auth.orgId.toString(),
+                },
+              ]
+            : [],
       };
+      console.log(142, dataSave);
       if (flagCheckCRUD) {
         onCreate(dataSave);
       } else {
         onEdit(dataSave);
       }
     },
-    [flagCheckCRUD, dataTable]
+    [flagCheckCRUD, dataTable, valueRadio, radioRef]
   );
 
   const customizeItem = useCallback(
@@ -161,6 +175,7 @@ export const DepartMentControlPopupView = ({
   }
   const handleChooseUser = (user: any, userCode: any, check: any) => {
     if (check) {
+      // console.log(164, user);
       setUserSelect([...userSelect, user]);
     } else {
       setUserSelect(userSelect?.filter((e: any) => e.UserCode !== userCode));
@@ -183,7 +198,6 @@ export const DepartMentControlPopupView = ({
   const handleSubmitUser = (e: any) => {
     toast.success(t("Save User Successfully"));
     setDataTable(userSelect.concat(dataTable));
-    setRemoveData(true);
     setTimeout(() => {
       setHidenPopupAddUser(false);
     }, 1000);
@@ -207,33 +221,44 @@ export const DepartMentControlPopupView = ({
   };
 
   const handleDeleteRow = (e: any) => {
+    const dataRow = e.row.data;
+    setDataUser(dataUser.concat(dataRow));
     setDataTable(
       dataTable?.filter((item: any) => item?.UserCode !== e.row.key.UserCode)
     );
-    const dataRow = e.row.data;
-    setDataUser([{ dataUser, dataRow }]);
+    setUserSelect(
+      userSelect?.filter((item: any) => item?.UserCode !== e.row.key.UserCode)
+    );
   };
 
   const dataSource = [
     {
+      id: 0,
       text: t("Phân chia tự động đều cho các thành viên"),
-      check: false,
+      FlagAutoDiv: "1",
     },
     {
+      id: 1,
       text: t("Giao cho User"),
-      check: true,
+      FlagAutoDiv: "0",
       component: (
         <SelectBox
           dataSource={dataTable.filter(
             (value: any, index: any, self: any) => self.indexOf(value) === index
           )}
+          onValueChanged={(e) => handleUserTicket(e.value)}
           valueExpr={"UserCode"}
           displayExpr={"UserName"}
           searchEnabled={true}
+          defaultValue={dataUserAutoTicket}
         />
       ),
     },
   ];
+
+  const handleUserTicket = (data: any) => {
+    radioRef.current = data;
+  };
 
   const renderRadioGroupItem = (itemData: any) => {
     return (
@@ -245,6 +270,11 @@ export const DepartMentControlPopupView = ({
       </div>
     );
   };
+
+  const handleChangeRadio = (data: any) => {
+    setValueRadio(data);
+  };
+
   return (
     <Popup
       visible={popupVisible}
@@ -320,7 +350,7 @@ export const DepartMentControlPopupView = ({
               })}
           </Form>
 
-          <div className="flex items-center px-2 mb-2 justify-between">
+          <div className="flex items-center mt-1 px-2 mb-2 justify-between">
             {detailForm ? (
               ""
             ) : (
@@ -375,10 +405,10 @@ export const DepartMentControlPopupView = ({
             isSingleSelection={false}
             isHidenHeaderFilter={false}
             isHiddenCheckBox={true}
-            customToolbarItems={[]}
           />
         </form>
-        <div>
+
+        <div className="mt-3">
           {dataTable?.length !== 0 ? (
             <div>
               <span className="font-bold">
@@ -387,14 +417,20 @@ export const DepartMentControlPopupView = ({
               <div className="ml-3 mt-3">
                 <div>
                   <RadioGroup
+                    ref={radioRef}
+                    readOnly={detailForm}
                     dataSource={dataSource}
                     itemRender={renderRadioGroupItem}
+                    defaultValue={dataForm?.FlagAutoDiv}
+                    onValueChanged={(e) => handleChangeRadio(e.value)}
+                    valueExpr="FlagAutoDiv"
                   />
                 </div>
               </div>
             </div>
           ) : null}
         </div>
+
         <Popup
           visible={hidenPopupAddUser}
           onHiding={handleCancelUser}

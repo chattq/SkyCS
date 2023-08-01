@@ -70,28 +70,28 @@ export default function Email_Channel({ data, setFlagEmail }: any) {
               editorType: "dxTextBox",
               visible: true,
             },
-            {
-              dataField: "APIsSendMail",
-              editorOptions: {
-                placeholder: t("Input"),
-              },
-              label: {
-                text: t("APIsSendMail:"),
-              },
-              editorType: "dxTextBox",
-              visible: true,
-            },
-            {
-              dataField: "ApiKeySendMail",
-              editorOptions: {
-                placeholder: t("Input"),
-              },
-              label: {
-                text: t("ApiKeySendMail:"),
-              },
-              editorType: "dxTextBox",
-              visible: true,
-            },
+            // {
+            //   dataField: "APIsSendMail",
+            //   editorOptions: {
+            //     placeholder: t("Input"),
+            //   },
+            //   label: {
+            //     text: t("APIsSendMail:"),
+            //   },
+            //   editorType: "dxTextBox",
+            //   visible: true,
+            // },
+            // {
+            //   dataField: "ApiKeySendMail",
+            //   editorOptions: {
+            //     placeholder: t("Input"),
+            //   },
+            //   label: {
+            //     text: t("ApiKeySendMail:"),
+            //   },
+            //   editorType: "dxTextBox",
+            //   visible: true,
+            // },
             {
               dataField: "FlagIsCreateET",
               editorOptions: {

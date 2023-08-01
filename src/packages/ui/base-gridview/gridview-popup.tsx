@@ -174,7 +174,7 @@ const GridViewRaw = ({
     },
     [setColumnsState, setVisible]
   );
-
+  const chooserVisible = useVisibilityControl({ defaultVisible: false });
   const onToolbarPreparing = useCallback((e: any) => {
     e.toolbarOptions.items.push({
       widget: "dxButton",
@@ -237,6 +237,25 @@ const GridViewRaw = ({
   const handlePageChanged = useCallback((pageIndex: number) => {
     dataGridRef.current?.instance.pageIndex(pageIndex);
   }, []);
+
+  const renderColumnChooser = useCallback(() => {
+    return (
+      <CustomColumnChooser
+        title={t("ToggleColum")}
+        applyText={t("Apply")}
+        cancelText={t("Cancel")}
+        selectAllText={t("SelectAll")}
+        container={"#gridContainer"}
+        button={"#myColumnChooser"}
+        visible={chooserVisible.visible}
+        columns={columns}
+        onHiding={onHiding}
+        onApply={onApply}
+        actualColumns={realColumns}
+      />
+    );
+  }, [chooserVisible, realColumns, columns]);
+
   const allToolbarItems: ToolbarItemProps[] = [
     ...(toolbarItems || []),
     {
@@ -324,6 +343,7 @@ const GridViewRaw = ({
     e.cancel = true;
   }, []);
   const setGridAtom = useSetAtom(popupGridStateAtom);
+
   return (
     <div className={"base-gridview bg-white"}>
       <ScrollView
@@ -337,7 +357,7 @@ const GridViewRaw = ({
           errorRowEnabled={false}
           cacheEnabled={false}
           id="gridContainer"
-          height={`${windowSize.height - 115}px`}
+          height={`${windowSize.height - 130}px`}
           width={"100%"}
           ref={(r) => setRef(r)}
           dataSource={dataSource}

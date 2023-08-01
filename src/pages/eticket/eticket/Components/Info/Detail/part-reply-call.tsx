@@ -108,9 +108,9 @@ export const PartReplyCall = ({onReload} : {onReload: any}) => {
                 flag === "call";
               } else {
                 if (item.Type === "Incoming") {
-                  flag = "CallMissedIn";
+                  flag = "callmissedin";
                 } else {
-                  flag = "CallMissingOut";
+                  flag = "callmissedout";
                 }
               }
               return (

@@ -238,7 +238,7 @@ export default function Post_add() {
                 readOnly: false,
                 placeholder: t("Input"),
                 height: 70,
-                maxLength: 400,
+                maxLength: 120,
               },
               editorType: "dxTextArea",
               caption: t("Synopsis"),
@@ -385,7 +385,7 @@ export default function Post_add() {
             <Button
               stylingMode={"contained"}
               type="default"
-              text={t("Add new")}
+              text={t("Save")}
               onClick={handleAddNew}
             />
             <Button

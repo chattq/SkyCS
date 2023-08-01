@@ -29,7 +29,7 @@ export const useHeaderItems = () => {
       },
       {
         text: t("eTicket"),
-        path: `/eticket`,
+        path: `/eticket/eticket_manager`,
         permissionCode: "MNU_ETICKET",
       },
       {
@@ -38,14 +38,19 @@ export const useHeaderItems = () => {
         permissionCode: "MNU_MONITOR",
       },
       {
-        text: t("Report"),
-        path: "/report",
-        permissionCode: "MNU_REPORT",
+        text: t("Search"),
+        path: `/search`,
+        permissionCode: "MNU_SEARCH",
       },
       {
         text: t("Admin"),
         path: `/admin`,
         permissionCode: "MENU_ADMIN",
+      },
+      {
+        text: t("Report"),
+        path: "/report",
+        permissionCode: "MNU_REPORT",
       },
     ].filter(
       (item) => item.permissionCode && hasMenuPermission(item.permissionCode)

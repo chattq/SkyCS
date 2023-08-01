@@ -27,7 +27,6 @@ export const useColumn = ({
 }: UseCustomerGridColumnsProps) => {
   const { t } = useI18n("column");
   const param = useParams();
-  const flagSelector = useAtomValue(flagSelectorAtom);
   let columnsDetail: ColumnOptions[] = [
     {
       dataField: "CustomerName", // tên khách hàng
@@ -93,7 +92,7 @@ export const useColumn = ({
       },
     },
     {
-      dataField: "AgentName", // Agent Phụ trách
+      dataField: "AgentName", // Khách hàng phản hổi
       caption: t("AgentName"),
       editorOptions: {
         readOnly: true,
@@ -148,6 +147,7 @@ export const useColumn = ({
           // readOnly: true,
           placeholder: "",
           readOnly: param?.flag === "detail",
+          disabled: param?.flag === "detail",
         },
         visible: true,
       };
@@ -182,6 +182,8 @@ export const useColumn = ({
           dataSource: listCampaignAgentValue,
           placeholder: t("Input"),
           displayExpr: "UserName",
+          readOnly: param?.flag === "detail",
+          disabled: param?.flag === "detail",
           valueExpr: "UserCode",
         },
       };
@@ -205,6 +207,8 @@ export const useColumn = ({
           placeholder: t("Input"),
           displayExpr: "UserName",
           valueExpr: "UserCode",
+          // readOnly: param?.flag === "detail",
+          // disabled: param?.flag === "detail",
         },
         visible: true,
       };
@@ -241,6 +245,8 @@ export const useColumn = ({
   ];
 
   if (param?.flag === "detail") {
+    const result = [...columnsDetail, ...newColumn, ...buttonShowWhenDetail];
+    console.log("result ", result);
     return [...columnsDetail, ...newColumn, ...buttonShowWhenDetail];
   }
   const response = [...columns, ...fieldCustomer, ...newColumn];

@@ -15,7 +15,6 @@ const AgentItem = ({ data, idx }: { data: CcAgent, idx: number }) => {
     const [selectedNumber, setSelectedNumber] = useState('');
 
 
-    
     const onValueNumberChanged = useCallback((e: any) => {
         setSelectedNumber(e.value);
     }, []);
@@ -58,8 +57,15 @@ const AgentItem = ({ data, idx }: { data: CcAgent, idx: number }) => {
 }
 export const TabInternal = ({ callingInfo }: { callingInfo: CcCallingInfo }) => {
     const { auth } = useAuth();
-    
+
     const [data, setData] = useState<CcOrgInfo | null>(null);
+
+    const [agentList, setAgentList] = useState<CcAgent[]>([]);
+
+    const [filterOrg, setFilterOrg] = useState(auth.orgData?.Id ? Number(auth.orgData?.Id) : 0);
+
+    const [keyword, setKeyword] = useState('');
+
 
     useEffect(() => {
 
@@ -67,31 +73,76 @@ export const TabInternal = ({ callingInfo }: { callingInfo: CcCallingInfo }) => 
 
     }, []);
 
+    useEffect(() => {
+
+        var list = data?.AgentList.filter(a => {
+            if (a.UserId == auth.currentUser?.Id) return false;
+            if (filterOrg != 0)
+                if (a.OrgId != filterOrg) return false;
+
+            if (keyword != '') {
+                if (!!a.Name && a.Name?.toLowerCase().indexOf(keyword) >= 0) return true;
+                if (!!a.Alias && a.Alias?.indexOf(keyword) >= 0) return true;
+                if (!!a.PhoneNumber && a.PhoneNumber?.indexOf(keyword) >= 0) return true;
+
+
+                return false;
+            }
+
+            else return true;
+
+
+        });
+
+        if (!!list) setAgentList(list);
+        else setAgentList([]);
+
+    }, [data, keyword, filterOrg]);
+
+
     return <div className="w-full p-3">
         <SelectBox className="mb-2"
+            
             dataSource={data?.OrgList}
             searchEnabled={true}
             displayExpr="Name"
+            valueExpr="Id"
             placeholder="Chi nhánh"
+            value={filterOrg}
+            onValueChange={(v) => {
+
+                setFilterOrg(v);
+            }}
         ></SelectBox>
-        <TextBox className="mb-2" placeholder="Nhập tên agent, SĐT, số máy lẻ..."></TextBox>
+        <TextBox className="mb-2" placeholder="Nhập tên agent, SĐT, số máy lẻ..."
+            value={keyword}
+            onKeyUp={(e) => {
+                var t: any = e.event?.currentTarget;
+                setKeyword(t.value.toLowerCase())
+            }}
+        //onValueChange={(v) => setKeyword(v)}
+        ></TextBox>
         <ScrollView style={{ maxHeight: 200 }}>
             <table className="tb-list w-full">
-                <tr>
-                    <th style={{ width: 30 }}>STT</th>
-                    <th>Agent</th>
-                    <th style={{ width: 110 }}>Liên hệ</th>
-                    <th style={{ width: 30 }}></th>
-                </tr>
+                <thead>
+                    <tr>
+                        <th style={{ width: 30 }}>STT</th>
+                        <th>Agent</th>
+                        <th style={{ width: 110 }}>Liên hệ</th>
+                        <th style={{ width: 30 }}></th>
+                    </tr>
+                </thead>
                 <tbody>
-                    {data?.AgentList.map((item, idx) => {
-                        if(item.UserId==auth.currentUser?.Id) return <></>
+                    {agentList.length > 0 && agentList.map((item, idx) => {
                         return <AgentItem key={nanoid()} data={item} idx={idx}></AgentItem>
 
                     })}
+                    {agentList.length == 0 && <tr>
+                        <td colSpan={99}>Không tìm thấy agent</td>
+                    </tr>}
                 </tbody>
             </table>
 
         </ScrollView>
-    </div>
+    </div >
 }

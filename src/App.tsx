@@ -35,7 +35,7 @@ export default function Root() {
                     <Route
                       key={route.key}
                       path={`${route.path}`}
-                      element={route.getPageElement()}
+                      element={route.getPageElement?.()}
                     >
                       {route.children &&
                         route.children.length > 0 &&
@@ -44,7 +44,7 @@ export default function Root() {
                             <Route
                               key={child.key}
                               path={`${child.path}`}
-                              element={child.getPageElement()}
+                              element={child.getPageElement?.()}
                             />
                           );
                         })}
@@ -58,7 +58,7 @@ export default function Root() {
                     <Route
                       key={route.key}
                       path={`${route.path}`}
-                      element={route.getPageElement()}
+                      element={route.getPageElement?.()}
                     >
                       {route.children &&
                         route.children.length > 0 &&
@@ -67,7 +67,7 @@ export default function Root() {
                             <Route
                               key={child.key}
                               path={`${child.path}`}
-                              element={child.getPageElement()}
+                              element={child.getPageElement?.()}
                             />
                           );
                         })}

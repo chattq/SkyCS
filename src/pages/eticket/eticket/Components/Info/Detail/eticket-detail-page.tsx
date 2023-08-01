@@ -19,15 +19,20 @@ import { showErrorAtom } from "@/packages/store";
 import { useSetAtom } from "jotai";
 import { useConfiguration, useNetworkNavigate } from "@/packages/hooks";
 import { useHub } from "@/packages/hooks/useHub";
-import { Icon } from "@/packages/ui/icons";
+import { Icon, IconName } from "@/packages/ui/icons";
+import { currentTabAtom, currentValueTabAtom, reloadingtabAtom } from "./store";
+import { nanoid } from "nanoid";
 
 export const EticketDetailPage = () => {
   const { t } = useI18n("Eticket_Detail");
   const { auth } = useAuth();
   const param = useParams();
   const api = useClientgateApi();
+  const setCurrentTag = useSetAtom(currentTabAtom);
   const showError = useSetAtom(showErrorAtom);
   const config = useConfiguration();
+  const setCurrentValueTab = useSetAtom(currentValueTabAtom);
+  const setReloadingtab = useSetAtom(reloadingtabAtom);
   const navigate = useNetworkNavigate();
   //const { auth: { currentUser } } = useAuth();
   // const hub = useHub("global");
@@ -184,8 +189,6 @@ export const EticketDetailPage = () => {
 
   const [currentTab, setCurrentTab] = useState(0);
 
-  const ticketApi = useEticket_api();
-
   const onItemClick = (e: any) => {
     setCurrentTab(e.itemIndex);
   };
@@ -196,6 +199,146 @@ export const EticketDetailPage = () => {
 
   const handleBackToManager = () => {
     navigate("/eticket/eticket_manager");
+  };
+
+  const handleResponse = () => {
+    const messList = dataTicket.Lst_ET_TicketMessage;
+    if (Array.isArray(messList)) {
+      if (messList.length) {
+        const item = messList[0];
+        const itemFind = messList.find((item) => item?.ConvMessageType !== "9");
+        let flag: IconName | "eventlog" = "remark";
+        let flagIncoming = "";
+        if (item.IsIncoming === "0") {
+          flagIncoming = "out";
+        }
+        if (item.IsIncoming === "1") {
+          flagIncoming = "in";
+        }
+        let obj: any = {
+          ActionType: "0",
+          MessageSend: "",
+          OrgID: item.OrgID,
+          SubFormCode: "",
+          SubTitleSend: "",
+          TicketID: item.TicketID,
+        };
+
+        // const { flag } = firtChild;
+
+        switch (itemFind?.ConvMessageType) {
+          case "1": {
+            if (itemFind.ChannelId === "0") {
+              flag = "note";
+            }
+            break;
+          }
+          case "9": {
+            if (itemFind.ChannelId === "0") {
+              flag = "eventlog";
+            }
+            break;
+          }
+          case "3": {
+            if (itemFind?.ChannelId === "1") {
+              flag = "email" + flagIncoming;
+            }
+            break;
+          }
+          case "11": {
+            if (itemFind?.ChannelId === "2") {
+              console.log("itemFind ", itemFind);
+              if (itemFind.State === "6") {
+                flag = "call";
+              } else {
+                flag = "callmissed" + flagIncoming;
+              }
+              // flag = "call";
+            }
+            break;
+          }
+          case "8":
+          case "10": {
+            if (itemFind?.ChannelId === "6") {
+              flag = "zalo" + flagIncoming;
+            }
+            break;
+          }
+
+          default: {
+            flag = "remark";
+            break;
+          }
+        }
+
+        switch (flag) {
+          case "zaloout":
+          case "zaloin": {
+            obj = {
+              ...obj,
+              ObjType: "",
+              ObjCode: "",
+            };
+
+            if (
+              itemFind.ChannelId === "6" &&
+              itemFind.ConvMessageType === "8"
+            ) {
+              obj = {
+                // zalo
+                ...obj,
+                ObjType: "ZaloUserId",
+                ObjCode: itemFind.ObjectReceiveId,
+              };
+            }
+            if (
+              itemFind.ChannelId === "6" &&
+              itemFind.ConvMessageType === "10"
+            ) {
+              obj = {
+                // phone
+                ...obj,
+                ObjType: "PhoneNo",
+                ObjCode: itemFind.ObjectReceiveId,
+                ZNS: [],
+              };
+            }
+            setCurrentValueTab(obj);
+            setReloadingtab(nanoid());
+            setCurrentTag(0);
+            break;
+          }
+          case "emailout":
+          case "emailin": {
+            obj = {
+              CtmEmail: itemFind.ObjectReceiveId,
+              SubTitleSend: "",
+              SubFormCode: "",
+            };
+            setCurrentValueTab(obj);
+            setReloadingtab(nanoid());
+            setCurrentTag(1);
+            break;
+          }
+          case "remark": {
+            setCurrentTag(4);
+
+            break;
+          }
+          case "callin":
+          case "callmissedin":
+          case "callmissedout":
+          case "callOut": {
+            setReloadingtab(nanoid());
+            setCurrentTag(2);
+            break;
+          }
+          default: {
+            break;
+          }
+        }
+      }
+    }
   };
 
   return (
@@ -219,12 +362,13 @@ export const EticketDetailPage = () => {
                 </div>
               </div>
               <div className={"center flex flex-grow justify-end ml-auto"}>
-                {/* <Button
-                stylingMode={"contained"}
-                type="default"
-                text={t("response")}
-                className="mr-1"
-              /> */}
+                <Button
+                  stylingMode={"contained"}
+                  type="default"
+                  text={t("Response")}
+                  className="mr-1"
+                  onClick={handleResponse}
+                />
                 <Button
                   stylingMode={"contained"}
                   type="default"

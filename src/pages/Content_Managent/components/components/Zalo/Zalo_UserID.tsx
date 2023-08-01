@@ -76,7 +76,7 @@ export default function Zalo_UserID({ formRef, markup }: any) {
           activeStateEnabled={true}
           isValid={true}
           height="300px"
-          width={"718px"}
+          width={"80%"}
           className="htmlEditor_Content_SMS"
           defaultValue={markup?.Lst_Mst_SubmissionFormMessage[0]?.Message || ""}
           ref={editorRef}

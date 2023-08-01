@@ -157,7 +157,7 @@ export default function Post_detail() {
           }))
         : [],
     };
-    console.log(96, dataSave);
+    // console.log(96, dataSave);
     // const respDataSave = await api.KB_PostData_Create(dataSave);
     // if (respDataSave.isSuccess) {
     //   toast.success(t("Create Successfully"));
@@ -173,7 +173,6 @@ export default function Post_detail() {
     // });
     // throw new Error(resp.errorCode);
   };
-  console.log(176, dataCurrentRight?.Tag);
 
   const formSettings: any = [
     {

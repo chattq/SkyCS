@@ -136,7 +136,6 @@ const Tab_CustomerHistCall = () => {
           storeKey={"card-view"}
           ref={null}
           customCard={customCard}
-          defaultOption="card"
         />
       </AdminContentLayout.Slot>
     </AdminContentLayout>

@@ -69,6 +69,8 @@ const index = ({ onCancel, onSave, dataRow }: Props) => {
     queryFn: async () => {
       const response = await api.Mst_NNTController_GetAllActive();
       if (response.isSuccess) {
+        console.log("Org ", response);
+
         return response.DataList;
       } else {
         showError({
@@ -81,21 +83,23 @@ const index = ({ onCancel, onSave, dataRow }: Props) => {
     },
   });
 
-  const { data, isLoading, refetch } = useQuery({
-    queryKey: [""],
-    queryFn: async () => {
-      const response = await api.Mst_Customer_Search(formValue);
-      if (response.isSuccess) {
-        return response.DataList;
-      } else {
-        showError({
-          message: t(response.errorCode),
-          debugInfo: response.debugInfo,
-          errorInfo: response.errorInfo,
-        });
-      }
-    },
-  });
+  console.log("getListOrg ", getListOrg);
+
+  // const { data, isLoading, refetch } = useQuery({
+  //   queryKey: [""],
+  //   queryFn: async () => {
+  //     const response = await api.Mst_Customer_Search(formValue);
+  //     if (response.isSuccess) {
+  //       return response.DataList;
+  //     } else {
+  //       showError({
+  //         message: t(response.errorCode),
+  //         debugInfo: response.debugInfo,
+  //         errorInfo: response.errorInfo,
+  //       });
+  //     }
+  //   },
+  // });
   const { data: getListAgent, isLoading: isLoadingListAgent } = useQuery({
     queryKey: ["Sys_User_GetAllActive"],
     queryFn: async () => {
@@ -187,10 +191,7 @@ const index = ({ onCancel, onSave, dataRow }: Props) => {
     >
       <LoadPanel
         visible={
-          isLoading ||
-          isLoadingListOrg ||
-          isLoadingListAgent ||
-          isLoadingListDepartment
+          isLoadingListOrg || isLoadingListAgent || isLoadingListDepartment
         }
         showIndicator={true}
         showPane={true}

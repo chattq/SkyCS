@@ -17,7 +17,6 @@ UseBankDealerGridColumnsProps) => {
       dataField: "kbc_CategoryName", // Mã ngân hàng
       caption: t("kbc_CategoryName"),
       editorType: "dxTextBox",
-
       editorOptions: {
         readOnly: false,
         placeholder: t("Input"),
@@ -36,13 +35,23 @@ UseBankDealerGridColumnsProps) => {
     {
       groupKey: "BASIC_INFORMATION",
       dataField: "CreateDTimeUTC", // Mã đại lý
-      caption: t("CreateDTimeUTC"),
+      caption: t("Thời gian của Agent"),
       editorType: "dxTextBox",
       editorOptions: {
         readOnly: false,
         placeholder: t("Input"),
       },
       columnIndex: 2,
+      columns: [
+        {
+          dataField: "PERIODBEGIN_OSOD_APPROVEDDATE", // ngày xác nhận đơn hàng
+          caption: t("PERIODBEGIN_OSOD_APPROVEDDATE"),
+        },
+        {
+          dataField: "PERIODBEGIN_CDOD_DELIVERYOUTDATE", // ngày xuất kho
+          caption: t("PERIODBEGIN_CDOD_DELIVERYOUTDATE"),
+        },
+      ],
     },
     {
       groupKey: "BASIC_INFORMATION",
@@ -54,6 +63,16 @@ UseBankDealerGridColumnsProps) => {
         placeholder: t("Input"),
       },
       columnIndex: 2,
+      columns: [
+        {
+          dataField: "PERIODBEGIN_OSOD_APPROVEDDATE", // ngày xác nhận đơn hàng
+          caption: t("PERIODBEGIN_OSOD_APPROVEDDATE"),
+        },
+        {
+          dataField: "PERIODBEGIN_CDOD_DELIVERYOUTDATE", // ngày xuất kho
+          caption: t("PERIODBEGIN_CDOD_DELIVERYOUTDATE"),
+        },
+      ],
     },
     {
       dataField: "PostStatus",

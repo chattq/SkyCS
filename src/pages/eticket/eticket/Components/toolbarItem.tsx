@@ -115,10 +115,10 @@ export const useToolbar = ({
     const count = ref.instance.getSelectedRowsData().length;
     let arr: any = [];
     if (count === 1) {
-      arr = listCheckOne;
+      arr = [...listCheckOne, ...listCheckMulti];
     }
     if (count > 1) {
-      arr = [...listCheckMulti];
+      arr = [];
     }
 
     return (
@@ -316,6 +316,24 @@ export const useToolbar = ({
       },
     },
     {
+      text: t(`Close`),
+      onClick: (e: any, ref: any) => {
+        const listData: ETICKET_REPONSE[] = ref.instance.getSelectedRowsData();
+        onClose(listData);
+      },
+      shouldShow: (ref: any) => {
+        let check = false;
+        if (ref) {
+          if (ref.instance.getSelectedRowsData().length > 1) {
+            check = true;
+          }
+          return check;
+        } else {
+          return false;
+        }
+      },
+    },
+    {
       text: "",
       onClick: () => {},
       shouldShow: (ref: any) => {
@@ -407,7 +425,7 @@ export const useToolbar = ({
       shouldShow: (ref: any) => {
         let check = false;
         if (ref) {
-          if (ref.instance.getSelectedRowsData().length > 0) {
+          if (ref.instance.getSelectedRowsData().length === 1) {
             check = true;
           }
           return check;

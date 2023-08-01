@@ -83,7 +83,6 @@ export const useDealerGridColumns = ({ data }: UseDealerGridColumnsProps) => {
       groupKey: "BASIC_INFORMATION",
       visible: true,
     },
-
     {
       dataField: "UserName",
       editorOptions: {

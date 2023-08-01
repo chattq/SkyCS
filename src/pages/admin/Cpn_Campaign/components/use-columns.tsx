@@ -42,6 +42,7 @@ UseBankDealerGridColumnsProps) => {
     {
       dataField: "CampaignCode", // Mã chien dich
       caption: t("CampaignCode"),
+      visible: true,
       editorType: "dxTextBox",
       editorOptions: {
         placeholder: t("Input"),
@@ -66,14 +67,16 @@ UseBankDealerGridColumnsProps) => {
     {
       dataField: "CampaignName", // Tên chiến dịch
       caption: t("CampaignName"),
+      visible: true,
       editorType: "dxTextBox",
       editorOptions: {
         placeholder: t("Input"),
       },
     },
     {
-      dataField: "CampaignTypeCode", // Loại chiến dịch
-      caption: t("CampaignTypeCode"),
+      dataField: "CampaignTypeName", // Loại chiến dịch
+      caption: t("CampaignTypeName"),
+      visible: true,
       editorType: "dxTextBox",
       editorOptions: {
         placeholder: t("Input"),
@@ -82,26 +85,31 @@ UseBankDealerGridColumnsProps) => {
     {
       dataField: "DTimeStart", // Thời gian
       caption: t("DTimeStart"),
+      visible: true,
       editorType: "dxTextBox",
     },
     {
       dataField: "DTimeEnd", // Thời gian kết thúc
       caption: t("DTimeEnd"),
+      visible: true,
       editorType: "dxTextBox",
     },
     {
       dataField: "QtyCustomer", // SL khách hàng
       caption: t("QtyCustomer"),
+      visible: true,
       editorType: "dxTextBox",
     },
     {
       dataField: "CreateBy", // Agent phụ trách
       caption: t("CreateBy"),
+      visible: true,
       editorType: "dxTextBox",
     },
     {
       dataField: "CampaignStatus", // trạng thái
       caption: t("CampaignStatus"),
+      visible: true,
       editorType: "dxTextBox",
       cellRender: ({ data }: any) => {
         return FlagStatus(data.CampaignStatus);
@@ -110,6 +118,7 @@ UseBankDealerGridColumnsProps) => {
     {
       dataField: "CampaignDesc", // Mô tả
       caption: t("CampaignDesc"),
+      visible: true,
       editorType: "dxTextBox",
     },
   ];

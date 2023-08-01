@@ -260,20 +260,27 @@ export const UserManangerPage = () => {
     }
   };
   // Section: CRUD operations
-  const onCreateNew = async (data: SysUserData & { __KEY__: string }) => {
+  const onCreateNew = async (
+    data: SysUserData & { __KEY__: string },
+    exist: boolean
+  ) => {
     const { __KEY__, ...rest } = data;
     if (
-      data.EMail !== "" &&
-      data.UserCode !== "" &&
-      data.UserPassword !== "" &&
-      data.ReUserPassword !== "" &&
-      data.ReUserPassword === data.UserPassword
+      (data.EMail !== "" &&
+        data.UserCode !== "" &&
+        data.UserPassword !== "" &&
+        data.ReUserPassword !== "" &&
+        data.ReUserPassword === data.UserPassword) ||
+      exist
     ) {
-      const resp = await api.Sys_User_Create({
-        ...rest,
-        FlagNNTAdmin: rest.FlagNNTAdmin === "true" ? "1" : "0",
-        FlagSysAdmin: rest.FlagSysAdmin === "true" ? "1" : "0",
-      });
+      const resp = await api.Sys_User_Create(
+        {
+          ...rest,
+          FlagNNTAdmin: rest.FlagNNTAdmin === "true" ? "1" : "0",
+          FlagSysAdmin: rest.FlagSysAdmin === "true" ? "1" : "0",
+        },
+        exist
+      );
       if (resp.isSuccess) {
         toast.success(t("Create Successfully"));
         setPopupVisible(false);
@@ -376,7 +383,7 @@ export const UserManangerPage = () => {
           columns={columns}
           keyExpr={"UserCode"}
           popupSettings={popupSettings}
-          formSettings={formSettings}
+          formSettings={formSettings.formSettings}
           onReady={(ref) => (gridRef = ref)}
           allowSelection={true}
           onSelectionChanged={handleSelectionChanged}

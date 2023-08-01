@@ -242,7 +242,7 @@ export const SearchDataGrid = forwardRef(
     return (
       <ScrollView
       showScrollbar={"always"}
-      height={windowSize.height - 150}
+      height={windowSize.height - 310}
       className={"mb-5"}
     >
       <DataGrid
@@ -262,6 +262,7 @@ export const SearchDataGrid = forwardRef(
         columnResizingMode={"widget"}
         allowColumnReordering={false}
         allowColumnResizing
+        height={windowSize.height - 310}
         columnAutoWidth={true}
         selectedRowKeys={selectedRows}
         onSelectionChanged={handleSelectionChanged}

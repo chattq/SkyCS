@@ -64,14 +64,29 @@ export const useMst_Customer = (apiBase: AxiosInstance) => {
       );
     },
 
-    Mst_Customer_Create: async (
-      data: Partial<Mst_Customer>,
-      ZaloUserFollower: any,
-      Email: any,
-      Phone: any,
-      CustomerGroup: any,
-      ScrTplCodeSys: string
-    ): Promise<ApiResponse<Partial<Mst_Customer>>> => {
+    Mst_Customer_Create: async ({
+      data,
+      ZaloUserFollower,
+      Email,
+      Phone,
+      CustomerGroup,
+      PartnerType,
+      ScrTplCodeSys,
+    }: {
+      data: any;
+      ZaloUserFollower: any;
+      Email: any;
+      Phone: any;
+      CustomerGroup: any;
+      PartnerType: any;
+      ScrTplCodeSys: any;
+    }): // data: Partial<Mst_Customer>,
+    // ZaloUserFollower: any,
+    // Email: any,
+    // Phone: any,
+    // CustomerGroup: any,
+    // ScrTplCodeSys: string
+    Promise<ApiResponse<Partial<Mst_Customer>>> => {
       return apiBase.post<Partial<any>, ApiResponse<Mst_Customer>>(
         "/MstCustomer/Create",
         {
@@ -80,20 +95,31 @@ export const useMst_Customer = (apiBase: AxiosInstance) => {
           strJsonEmail: JSON.stringify(Email),
           strJsonPhone: JSON.stringify(Phone),
           strJsonCtmGroup: JSON.stringify(CustomerGroup),
+          strJsonCtmPartnerType: JSON.stringify(PartnerType),
           ScrTplCodeSys,
         }
       );
     },
 
-    Mst_Customer_Update: async (
-      key: Partial<Mst_Customer>,
-      data: any[],
-      ZaloUserFollower: any,
-      Email: any,
-      Phone: any,
-      CtmGroup: any,
-      ScrTplCodeSys: string
-    ): Promise<ApiResponse<Mst_Customer>> => {
+    Mst_Customer_Update: async ({
+      key,
+      data,
+      ZaloUserFollower,
+      Email,
+      Phone,
+      CtmGroup,
+      ScrTplCodeSys,
+      PartnerType,
+    }: {
+      key: any;
+      data: any;
+      ZaloUserFollower: any;
+      Email: any;
+      Phone: any;
+      CtmGroup: any;
+      PartnerType: any;
+      ScrTplCodeSys: any;
+    }): Promise<ApiResponse<Mst_Customer>> => {
       return await apiBase.post("/MstCustomer/Update", {
         strJson: JSON.stringify({
           ...key,
@@ -104,6 +130,7 @@ export const useMst_Customer = (apiBase: AxiosInstance) => {
         strJsonEmail: JSON.stringify(Email),
         strJsonPhone: JSON.stringify(Phone),
         strJsonCtmGroup: JSON.stringify(CtmGroup),
+        strJsonCtmPartnerType: JSON.stringify(PartnerType),
       });
     },
     Mst_Customer_DeleteMultiple: async (data: string[]) => {

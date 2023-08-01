@@ -225,6 +225,7 @@ export const ListCustomerContent = forwardRef(
           onCustomerEditing={handleStartEditing}
           onEditRowChanges={handleEditRowChanges}
           toolbarItems={[...toolbar()]}
+          showButton={!(param?.flag === "detail")}
         ></GridViewRaw>
       );
     }, [columns, listCampaignAgent]);
@@ -439,12 +440,14 @@ const Cpn_Campaign_List_Customer = forwardRef(
           toast.success(t("Import Success"));
           const obj = response.Data;
           setListCampaign([...obj]);
+          setCurrentCode(<></>);
         } else {
           showError({
             message: response?.errorCode,
             debugInfo: response?.debugInfo,
             errorInfo: response?.errorInfo,
           });
+          setCurrentCode(<></>);
         }
       } else {
         toast.error(t("Please Input Campaign Type"));

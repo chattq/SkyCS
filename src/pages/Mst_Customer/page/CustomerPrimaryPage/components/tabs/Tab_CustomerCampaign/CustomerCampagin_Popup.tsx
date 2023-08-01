@@ -87,8 +87,6 @@ const CustomerCampaign_Popup = ({ CampaignCode }: any) => {
           auth.orgData?.Id ?? ""
         );
 
-        console.log(response);
-
         const item: any = response.Data?.Lst_Cpn_Campaign?.[0];
         if (response.isSuccess) {
           const listAgent = response?.Data?.Lst_Cpn_CampaignAgent?.map(
@@ -274,7 +272,7 @@ const CustomerCampaign_Popup = ({ CampaignCode }: any) => {
       <AdminContentLayout.Slot name={"Content"}>
         {!dataGetByCode && <LoadPanel />}
         {!!dataGetByCode && (
-          <Form validationGroup="campaignForm" ref={formRef}>
+          <Form validationGroup="campaignForm" ref={formRef} readOnly>
             <GroupItem>
               <TabbedItem>
                 <TabPanelOptions

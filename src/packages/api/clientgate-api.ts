@@ -34,7 +34,6 @@ import { useSys_GroupControllerApi } from "./clientgate/SysGroupControllerApi";
 import { useSys_AccessApi } from "./clientgate/Sys_AccessApi";
 import { useSys_UserApi } from "./clientgate/Sys_UserApi";
 
-import { useNotificationApi } from "./clientgate/NotificationApi";
 import { useCallCallApi } from "./clientgate/CallCallApi";
 import { useETTicket } from "./clientgate/ET_TicketApi";
 import { useKB_CategoryApi } from "./clientgate/KB_CategoryApi";
@@ -54,12 +53,16 @@ import { useMst_TicketPriorityApi } from "./clientgate/Mst_TicketPriorityApi";
 import { useMst_TicketSourceApi } from "./clientgate/Mst_TicketSourceApi";
 import { useMst_TicketStatusApi } from "./clientgate/Mst_TicketStatusApi";
 import { useMst_TicketTypeApi } from "./clientgate/Mst_TicketTypeApi";
+import { useNotificationApi } from "./clientgate/NotificationApi";
 import { useUtil_Api } from "./clientgate/Util_Api";
 import { useZalo_Api } from "./clientgate/Zalo_Api";
 
 import { useCpn_CampaignCustomerApi } from "./clientgate/Cpn_CampaignCustomerApi";
 import { useRpt_ETTicketDetailControllerApi } from "./clientgate/Rpt_ETTicketDetailControllerApi";
 import { useRptETTicketSynthesisControllerApi } from "./clientgate/Rpt_ETTicketSynthesisController";
+import { useSeq_Api } from "./clientgate/Seq_Api";
+import { useRptMissedCallsApi } from "./clientgate/Rpt_MissedCallsApi";
+import { useRptSLAControllerApi } from "./clientgate/Rpt_SLAControllerApi";
 // report end
 
 /**
@@ -201,7 +204,7 @@ export const createClientGateApiBase = (
           !!data.Data?._objResult &&
           typeof data.Data?._objResult === "object"
         ) {
-          result.Data = data.Data?._objResult.Data;
+          result.Data = data.Data?._objResult.Data || data.Data?._objResult;
         } else if (typeof data.Data?._objResult !== "string") {
           result.Data = data.Data?._objResult?.map((item: any) => {
             // if `item` has `FlagActive` property
@@ -268,6 +271,7 @@ export const createClientGateApi = (
   const sysAccessApi = useSys_AccessApi(apiBase);
   const mstCustomerGroupApi = useMst_CustomerGroupApi(apiBase);
   const mstPartnerTypeApi = useMst_PartnerTypeApi(apiBase);
+  const seqApi = useSeq_Api(apiBase);
 
   const mstCustomerHist = useMst_CustomerHist(apiBase);
   const mstCustomerCampaign = useMst_CustomerCampaign(apiBase);
@@ -275,7 +279,7 @@ export const createClientGateApi = (
   const mstCustomerType = useMst_CustomerTypeApi(apiBase);
   const zaloApi = useZalo_Api(apiBase);
   const callcallApi = useCallCallApi(apiBase);
-  const notificationApi= useNotificationApi(apiBase);
+  const notificationApi = useNotificationApi(apiBase);
 
   const mstPaymentTermControllerApi = useMst_PaymentTermControllerApi(apiBase);
   const mstCampaignTypeApi = use_MstCampaignTypeApi(apiBase);
@@ -312,8 +316,10 @@ export const createClientGateApi = (
     useRpt_ETTicketDetailControllerApi(apiBase);
   const rptETTicketSynthesisControllerApi =
     useRptETTicketSynthesisControllerApi(apiBase);
+  const rptSLAControllerApi = useRptSLAControllerApi(apiBase);
 
   const cpnCampaignCustomerApi = useCpn_CampaignCustomerApi(apiBase);
+  const rptMissedCallsApi = useRptMissedCallsApi(apiBase);
 
   return {
     ...kb_Category,
@@ -321,7 +327,9 @@ export const createClientGateApi = (
     ...KB_Post,
     ...useMstTicketColumnConfigApi,
     ...useMstSubmissionForm,
+    ...rptMissedCallsApi,
     // ...mst_BizColumn,
+    ...rptSLAControllerApi,
     ...rptETTicketDetailController,
     ...rptETTicketSynthesisControllerApi,
     ...mst_ContentApi,
@@ -371,6 +379,7 @@ export const createClientGateApi = (
     ...callcallApi,
     ...notificationApi,
     ...mstPartnerTypeApi,
+    ...seqApi,
     ...cpnCampaignCustomerApi,
   };
 };

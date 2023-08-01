@@ -19,26 +19,14 @@ export const useRptETTicketSynthesisControllerApi = (
         ...params,
       });
     },
-    Rpt_ETTicketSynthesisController_ExportExcel: async (): Promise<
-      ApiResponse<any>
-    > => {
+    Rpt_ETTicketSynthesisController_ExportExcel: async (
+      dataExport: any
+    ): Promise<ApiResponse<any>> => {
       return await apiBase.post<
         Partial<Rpt_ETTicketSynthesisController>,
         ApiResponse<string>
       >("/RptETTicketSynthesis/Export", {
-        AgentCodeConditionList: "",
-        DepartmentCodeConditionList: "",
-        OrgIDConditionList: "",
-        TicketTypeConditionList: "",
-        CustomerName: "",
-        CustomerPhoneNo: "",
-        CustomerEmail: "",
-        CustomerCompany: "",
-        TicketStatusConditionList: "",
-        CreateDTimeUTCFrom: "",
-        CreateDTimeUTCTo: "",
-        LogLUDTimeUTCFrom: "",
-        LogLUDTimeUTCTo: "",
+        ...dataExport,
       });
     },
   };

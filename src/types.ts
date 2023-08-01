@@ -110,7 +110,7 @@ export interface RouteItem {
   mainMenuKey: string;
   subMenuKey?: string;
   permissionCode?: string;
-  getPageElement: Function;
+  getPageElement?: Function;
   children?: RouteItem[];
 }
 

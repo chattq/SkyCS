@@ -14,16 +14,28 @@ export const FileType =
   "zip" ||
   "7Z";
 
+export const checkNumberWith = (number: number, compare: number) => {
+  if (number < compare) {
+    return `0${number}`;
+  } else {
+    return number.toString();
+  }
+};
+
 export const sortByKey = (array: any[], key: string) => {
   return array.sort((a, b) => (a[key] > b[key] ? 1 : -1));
 };
 
-export const getYearMonthDate = (a: Date) => {
-  var month = a.getUTCMonth() + 1;
-  var day = a.getUTCDate();
-  var year = a.getUTCFullYear();
+export const getYearMonthDate = (date: Date) => {
+  var month = date.getUTCMonth() + 1;
+  var day = date.getUTCDate();
+  var year = date.getUTCFullYear();
 
-  return year + "-" + month + "-" + day;
+  const result = `${year}-${checkNumberWith(month, 10)}-${checkNumberWith(
+    day,
+    10
+  )}`;
+  return result;
 };
 
 export const distinguish = (a: any) => {
@@ -157,4 +169,155 @@ export const splitString = (chuoi: string, soluongkytu: number) => {
     }
   }
   return chuoiSub;
+};
+const isNullOrEmpty = function (_value: any) {
+  if (
+    _value !== undefined &&
+    _value !== null &&
+    _value.toString().trim().length > 0
+  ) {
+    return false;
+  }
+  return true;
+};
+
+export const returnValue = function (_data: any) {
+  var value = "";
+  if (!isNullOrEmpty(_data)) {
+    value = _data.toString().trim();
+  }
+  return value;
+};
+
+export const sNumber = (number: number) => {
+  // commonUtils.isNumber('a') => true; (không là số)
+  // commonUtils.isNumber(1.5.5) => true; (không là số)
+  // commonUtils.isNumber(1,5) => true; (không là số) (dấu '.' mới hợp lệ (là phần phân cách thập phân))
+  // commonUtils.isNumber(1111.555) => false; (là số)
+  var check = false;
+  if (!isNullOrEmpty(number)) {
+    if (!isNaN(number)) {
+      check = true; // là số
+    }
+  }
+  return check;
+  //return /^-?[\d.]+(?:e-?\d+)?$/.test(number);
+};
+
+export const checkElementUndefinedOrNull = (element: any) => {
+  if (element !== undefined && element !== null) {
+    return false;
+  }
+  return true;
+};
+
+export const checkDate = (date: any) => {
+  if (isNullOrEmpty(date)) {
+    return false;
+  }
+  var _date = new Date(date);
+  var check = _date instanceof Date;
+  return check;
+};
+
+export const locDau = (thiz: string) => {
+  // using : onkeyup="commonUtils.locDau(this);"
+  var str;
+  if (eval(thiz)) {
+    str = eval(thiz).value;
+  } else {
+    str = thiz;
+  }
+
+  str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ |ặ|ẳ|ẵ/g, "a");
+
+  str = str.replace(/À|Á|Ạ|Ả|Ã|Â|Ầ|Ấ|Ậ|Ẩ|Ẫ|Ă|Ằ|Ắ |Ặ|Ẳ|Ẵ/g, "A");
+
+  str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e");
+
+  str = str.replace(/È|É|Ẹ|Ẻ|Ẽ|Ê|Ề|Ế|Ệ|Ể|Ễ/g, "E");
+
+  str = str.replace(/ì|í|ị|ỉ|ĩ/g, "i");
+
+  str = str.replace(/Ì|Í|Ị|Ỉ|Ĩ/g, "I");
+
+  str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ |ợ|ở|ỡ/g, "o");
+
+  str = str.replace(/Ò|Ó|Ọ|Ỏ|Õ|Ô|Ồ|Ố|Ộ|Ổ|Ỗ|Ơ|Ờ|Ớ |Ợ|Ở|Ỡ/g, "O");
+
+  str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u");
+
+  str = str.replace(/Ù|Ú|Ụ|Ủ|Ũ|Ư|Ừ|Ứ|Ự|Ử|Ữ/g, "U");
+
+  str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y");
+
+  str = str.replace(/Ỳ|Ý|Ỵ|Ỷ|Ỹ/g, "Y");
+
+  str = str.replace(/đ/g, "d");
+
+  str = str.replace(/Đ/g, "D");
+
+  //str = str.replace(/!|@|%|\^|\*|\(|\)|\+|\=|\\|\||\<|\>|\?|\/|,|\.|\:|\;|\'| |\"|\&|\#|\[|\]|~|$|_/g, "-");
+  //str = str.replace(/!|@|%|\^|\*|\(|\)|\+|\=|\\|\||\<|\>|\?|\/|,|\:|\;|\'| |\"|\&|\#|\$|\`|\[|\]|~|$|_/g, "-"); // cho phép nhập dấu ., các ký tự ko cho phép -> -
+  //str = str.replace(/!|@|%|\^|\*|\(|\)|\+|\=|\\|\||\<|\>|\?|\/|,|\:|\;|\'| |\"|\&|\#|\$|\`|\[|\]|~|$|/g, ""); // cho phép nhập dấu ., các ký tự ko cho phép -> -
+  str = str.replace(
+    /!|@|%|\^|\*|\(|\)|\+|\=|\\|\||\<|\>|\?|,|\:|\;|\'| |\"|\&|\#|\$|\`|\[|\]|~|$|/g,
+    ""
+  ); // cho phép nhập dấu ., các ký tự ko cho phép -> -
+  /* tìm và thay thế các kí tự đặc biệt trong chuỗi sang kí tự - */
+
+  str = str.replace(/-+-/g, "-"); //thay thế 2- thành 1-
+  str = str.replace(/_+_/g, "_"); //thay thế 2 _ thành 1 _
+  str = str.replace(/\.+\./g, "."); //thay thế 2 . thành 1 .
+
+  str = str.replace(/^\-+/g, ""); //cắt bỏ ký tự - ở đầu
+  str = str.replace(/^\_+/g, ""); //cắt bỏ ký tự _ ở đầu
+  str = str.replace(/^\.+/g, ""); //cắt bỏ ký tự . ở đầu
+
+  //str = str.replace(/^\-+|\-+$/g, ""); //
+  //str = str.replace(/\-/g, "");
+  //cắt bỏ ký tự - ở đầu và cuối chuỗi
+
+  eval(thiz).value = str.trim();
+};
+
+export const getLastDateOfMonth = (dateParam: Date | string) => {
+  if (typeof dateParam === "string") {
+    return dateParam;
+  } else {
+    var lastDayOfMonth = new Date(
+      dateParam.getFullYear(),
+      dateParam.getMonth() + 1,
+      0
+    );
+    var year = lastDayOfMonth.getFullYear();
+    var month = lastDayOfMonth.getMonth() + 1;
+    var date = lastDayOfMonth.getDate();
+    const result = `${year}-${checkNumberWith(month, 10)}-${checkNumberWith(
+      date,
+      10
+    )}`;
+    console.log("result last date of month ", result);
+    return result;
+    //return `${year}-${month}-${date}`;
+  }
+};
+
+export const getFirstDateOfMonth = (dateParam: Date | string) => {
+  if (typeof dateParam === "string") {
+    return dateParam;
+  } else {
+    var lastDayOfMonth = new Date(
+      dateParam.getFullYear(),
+      dateParam.getMonth() + 1,
+      0
+    );
+    var year = lastDayOfMonth.getFullYear();
+    var month = lastDayOfMonth.getMonth() + 1;
+
+    //return `${year}-${month}-01`;
+    const result = `${year}-${checkNumberWith(month, 10)}-01`;
+    console.log("result first date of month ", result);
+    return result;
+  }
 };
