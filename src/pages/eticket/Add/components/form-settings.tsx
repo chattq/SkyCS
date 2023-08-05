@@ -9,7 +9,7 @@ import { GroupItem, Item } from "devextreme-react/form";
 import CustomStore from "devextreme/data/custom_store";
 import { atom, useAtomValue, useSetAtom } from "jotai";
 import { nanoid } from "nanoid";
-import { forwardRef, useMemo, useState } from "react";
+import { forwardRef, useState } from "react";
 import { ticketAddSLAID, ticketDeadline } from "../EticketAdd";
 
 export const customerPopup = atom<boolean>(false);
@@ -96,7 +96,11 @@ const CustomerSearchBox = ({ param }: any) => {
         }}
         searchEnabled
         searchTimeout={200}
-      />
+        name="CustomerCodeSys"
+        validationError={requiredType}
+        validationMessagePosition={"bottom"}
+        validationMessageMode={"always"}
+      ></SelectBox>
       <CustomerUserPopup />
     </div>
   );
@@ -134,169 +138,161 @@ export const useFormSettings = (formValue: any) => {
     api.Sys_User_GetAllActive
   );
 
-  const formSettings: any = useMemo(() => {
-    return [
-      {
-        colCount: 1,
-        labelLocation: "left",
-        typeForm: "textForm",
-        hidden: false,
-        items: [
-          {
-            caption: t("TicketStatus"),
-            dataField: "TicketStatus",
-            editorOptions: {
-              dataSource:
-                MstTicketEstablishInfo?.Data?.Lst_Mst_TicketStatus ?? [],
-              valueExpr: "TicketStatus",
-              displayExpr: "AgentTicketStatusName",
-            },
-            editorType: "dxSelectBox",
-            visible: true,
-            validationRules: [requiredType],
+  const formSettings: any = [
+    {
+      colCount: 1,
+      labelLocation: "left",
+      typeForm: "textForm",
+      hidden: false,
+      items: [
+        {
+          caption: t("TicketStatus"),
+          dataField: "TicketStatus",
+          editorOptions: {
+            dataSource:
+              MstTicketEstablishInfo?.Data?.Lst_Mst_TicketStatus ?? [],
+            valueExpr: "TicketStatus",
+            displayExpr: "AgentTicketStatusName",
           },
-          {
-            caption: t("CustomerCodeSys"),
-            dataField: "CustomerCodeSys",
-            editorType: "dxSelectBox",
-            visible: true,
-            validationRules: [requiredType],
-            render: (param: any) => <CustomerSearchBox param={param} />,
+          editorType: "dxSelectBox",
+          visible: true,
+          validationRules: [requiredType],
+        },
+        {
+          caption: t("CustomerCodeSys"),
+          dataField: "CustomerCodeSys",
+          editorType: "dxSelectBox",
+          visible: true,
+          validationRules: [requiredType],
+          validationGroup: "formData",
+          render: (param: any) => <CustomerSearchBox param={param} />,
+        },
+        {
+          caption: t("TicketName"),
+          dataField: "TicketName",
+          editorOptions: {
+            placeholder: t("Input"),
           },
-          {
-            caption: t("TicketName"),
-            dataField: "TicketName",
-            editorOptions: {
-              placeholder: t("Input"),
-            },
-            editorType: "dxTextBox",
-            visible: true,
-            validationRules: [requiredType],
+          editorType: "dxTextBox",
+          visible: true,
+          validationRules: [requiredType],
+        },
+        {
+          dataField: "TicketDetail",
+          editorOptions: {
+            placeholder: t("Input"),
           },
-          {
-            dataField: "TicketDetail",
-            editorOptions: {
-              placeholder: t("Input"),
-            },
-            editorType: "dxHtmlEditor",
-            caption: t("Mô tả"),
-            visible: true,
+          editorType: "dxHtmlEditor",
+          caption: t("Mô tả"),
+          visible: true,
+        },
+      ],
+    },
+    {
+      colCount: 2,
+      labelLocation: "left",
+      typeForm: "textForm",
+      hidden: false,
+      items: [
+        {
+          caption: t("OrgID"),
+          dataField: "OrgID",
+          editorOptions: {
+            dataSource: nntList?.Data?.Lst_Mst_NNT ?? [],
+            valueExpr: "OrgID",
+            displayExpr: "NNTFullName",
           },
-        ],
-      },
-      {
-        colCount: 2,
-        labelLocation: "left",
-        typeForm: "textForm",
-        hidden: false,
-        items: [
-          {
-            caption: t("OrgID"),
-            dataField: "OrgID",
-            editorOptions: {
-              dataSource: nntList?.Data?.Lst_Mst_NNT ?? [],
-              valueExpr: "OrgID",
-              displayExpr: "NNTFullName",
-            },
-            editorType: "dxSelectBox",
-            visible: true,
-            validationRules: [requiredType],
+          editorType: "dxSelectBox",
+          visible: true,
+          validationRules: [requiredType],
+        },
+        {
+          caption: t("TicketType"),
+          dataField: "TicketType",
+          editorOptions: {
+            dataSource: MstTicketEstablishInfo?.Data?.Lst_Mst_TicketType ?? [],
+            displayExpr: "AgentTicketTypeName",
+            valueExpr: "TicketType",
           },
-          {
-            caption: t("TicketType"),
-            dataField: "TicketType",
-            editorOptions: {
-              dataSource:
-                MstTicketEstablishInfo?.Data?.Lst_Mst_TicketType ?? [],
-              displayExpr: "AgentTicketTypeName",
-              valueExpr: "TicketType",
-            },
-            editorType: "dxSelectBox",
-            visible: true,
-            validationRules: [requiredType],
+          editorType: "dxSelectBox",
+          visible: true,
+          validationRules: [requiredType],
+        },
+        {
+          caption: t("DepartmentCode"),
+          dataField: "DepartmentCode",
+          editorOptions: {
+            dataSource: departmentList?.DataList ?? [],
+            valueExpr: "DepartmentCode",
+            displayExpr: "DepartmentName",
           },
-          {
-            caption: t("DepartmentCode"),
-            dataField: "DepartmentCode",
-            editorOptions: {
-              dataSource: departmentList?.DataList ?? [],
-              valueExpr: "DepartmentCode",
-              displayExpr: "DepartmentName",
-            },
-            editorType: "dxSelectBox",
-            visible: true,
+          editorType: "dxSelectBox",
+          visible: true,
+        },
+        {
+          caption: t("Deadline"),
+          dataField: "TicketDeadline",
+          editorOptions: {
+            type: "datetime",
           },
-          {
-            caption: t("Deadline"),
-            dataField: "TicketDeadline",
-            editorOptions: {
-              type: "datetime",
-            },
-            visible: true,
-            editorType: "dxDateBox",
-            validationRules: [requiredType],
-            render: (param: any) => {
-              return <TicketDealine />;
-            },
+          visible: true,
+          editorType: "dxDateBox",
+          validationRules: [requiredType],
+          render: (param: any) => {
+            return <TicketDealine />;
           },
-          {
-            caption: t("Agent"),
-            dataField: "AgentCode",
-            editorOptions: {
-              dataSource: agentList?.DataList ?? [],
-              valueExpr: "UserCode",
-              displayExpr: "UserName",
-            },
-            editorType: "dxSelectBox",
-            visible: true,
-            validationRules: [requiredType],
+        },
+        {
+          caption: t("Agent"),
+          dataField: "AgentCode",
+          editorOptions: {
+            dataSource: agentList?.DataList ?? [],
+            valueExpr: "UserCode",
+            displayExpr: "UserName",
           },
-          {
-            caption: t("TicketPriority"),
-            dataField: "TicketPriority",
-            editorOptions: {
-              dataSource:
-                MstTicketEstablishInfo?.Data?.Lst_Mst_TicketPriority ?? [],
-              valueExpr: "TicketPriority",
-              displayExpr: "AgentTicketPriorityName",
-            },
-            editorType: "dxSelectBox",
-            visible: true,
-            validationRules: [requiredType],
+          editorType: "dxSelectBox",
+          visible: true,
+          validationRules: [requiredType],
+        },
+        {
+          caption: t("TicketPriority"),
+          dataField: "TicketPriority",
+          editorOptions: {
+            dataSource:
+              MstTicketEstablishInfo?.Data?.Lst_Mst_TicketPriority ?? [],
+            valueExpr: "TicketPriority",
+            displayExpr: "AgentTicketPriorityName",
           },
-          {
-            dataField: "TicketAttachFiles", // file đính kèm
-            caption: t("UploadFiles"),
-            colSpan: 2,
-            label: {
-              location: "left",
-              text: "Upload files",
-            },
-            editorOptions: {
-              readOnly: true,
-            },
-            render: (param: any) => {
-              const { component: formComponent, dataField } = param;
-              return (
-                <UploadFilesField
-                  formInstance={formComponent}
-                  onValueChanged={(files: any) => {
-                    formComponent.updateData("uploadFiles", files);
-                  }}
-                />
-              );
-            },
+          editorType: "dxSelectBox",
+          visible: true,
+          validationRules: [requiredType],
+        },
+        {
+          dataField: "TicketAttachFiles", // file đính kèm
+          caption: t("UploadFiles"),
+          colSpan: 2,
+          label: {
+            location: "left",
+            text: "Upload files",
           },
-        ],
-      },
-    ];
-  }, [
-    MstTicketEstablishInfo,
-    customerList,
-    departmentList,
-    nntList,
-    agentList,
-  ]);
+          editorOptions: {
+            readOnly: true,
+          },
+          render: (param: any) => {
+            const { component: formComponent, dataField } = param;
+            return (
+              <UploadFilesField
+                formInstance={formComponent}
+                onValueChanged={(files: any) => {
+                  formComponent.updateData("uploadFiles", files);
+                }}
+              />
+            );
+          },
+        },
+      ],
+    },
+  ];
 
   return formSettings;
 };
@@ -307,6 +303,7 @@ export const DefaultForm = forwardRef(({ formValue }: any, ref: any) => {
   const { auth } = useAuth();
 
   const setSLAID = useSetAtom(ticketAddSLAID);
+  const SLAID = useAtomValue(ticketAddSLAID);
 
   const ticketDeadlineValue = useAtomValue(ticketDeadline);
   const setTicketDeadline = useSetAtom(ticketDeadline);
@@ -329,17 +326,18 @@ export const DefaultForm = forwardRef(({ formValue }: any, ref: any) => {
       });
 
       if (resp?.isSuccess) {
-        // component.updateData("SLAID", resp?.Data?.Mst_SLA?.SLAID ?? "");
-        setSLAID({
-          SLAID: resp?.Data?.Mst_SLA?.SLAID,
-          SLALevel: resp?.Data?.Mst_SLA?.SLAID,
-        });
-        const min = resp?.Data?.Mst_SLA?.ResolutionTime;
-        const time = ticketDeadlineValue.setMinutes(
-          ticketDeadlineValue.getMinutes() + min
-        );
+        if (resp?.Data?.Mst_SLA?.SLAID != SLAID) {
+          setSLAID({
+            SLAID: resp?.Data?.Mst_SLA?.SLAID,
+            SLALevel: resp?.Data?.Mst_SLA?.SLALevel,
+          });
+          const min = resp?.Data?.Mst_SLA?.ResolutionTime;
+          const time = ticketDeadlineValue.setMinutes(
+            ticketDeadlineValue.getMinutes() + min
+          );
 
-        setTicketDeadline(new Date(time));
+          setTicketDeadline(new Date(time));
+        }
       }
     }
   };

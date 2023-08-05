@@ -1,12 +1,10 @@
 import { useI18n } from "@/i18n/useI18n";
 import { AdminContentLayout } from "@layouts/admin-content-layout";
 import { useClientgateApi } from "@packages/api";
-import { GridViewPopup } from "@packages/ui/base-gridview";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 import { PopupView } from "@/pages/User_Mananger/components";
 import {
-  AvatarData,
   avatar,
   dataFormAtom,
   dataGridAtom,
@@ -19,32 +17,23 @@ import {
 
 import { searchPanelVisibleAtom } from "@layouts/content-searchpanel-layout";
 import { useConfiguration, useVisibilityControl } from "@packages/hooks";
-import { logger } from "@packages/logger";
 import { authAtom, showErrorAtom } from "@packages/store";
-import {
-  FlagActiveEnum,
-  Mst_Dealer,
-  SearchDealerParam,
-  SearchUserControlParam,
-  SysUserData,
-} from "@packages/types";
+import { FlagActiveEnum, Mst_Dealer, SysUserData } from "@packages/types";
 import { useQuery } from "@tanstack/react-query";
 import { IPopupOptions } from "devextreme-react/popup";
 import { EditorPreparingEvent } from "devextreme/ui/data_grid";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import "./User_Mananger.scss";
 
+import { DataGrid } from "devextreme-react";
 import { useDealerGridColumns } from "../components/use-columns";
 import { useFormSettings } from "../components/use-form-settings";
-import { Button, DataGrid, LoadPanel } from "devextreme-react";
 
-import { showPopup } from "@/pages/User_Mananger/components/store";
 import { PageHeaderLayout } from "@/packages/layouts/page-header-layout";
-import { HeaderPart } from "../components/header-part";
-import { toast } from "react-toastify";
-import { CustomToolbar } from "@/pages/User_Mananger/components/custom-toolbar";
 import { GridViewCustomize } from "@/packages/ui/base-gridview/gridview-customize";
-import { hidenMoreAtom } from "@/packages/ui/base-gridview/store/normal-grid-store";
+import { showPopup } from "@/pages/User_Mananger/components/store";
+import { toast } from "react-toastify";
+import { HeaderPart } from "../components/header-part";
 
 export const UserManangerPage = () => {
   const { t } = useI18n("User_Mananger");

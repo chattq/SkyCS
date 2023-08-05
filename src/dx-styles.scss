@@ -159,7 +159,16 @@
 }
 
 .dx-button {
+  box-shadow: none !important;
   min-height: 30px;
+  border-radius: 3px !important;
+  -webkit-border-radius: 3px !important;
+  -moz-border-radius: 3px !important;
+  -ms-border-radius: 3px !important;
+  -o-border-radius: 3px !important;
+}
+
+.dx-widget.dx-button.dx-button-mode-contained.dx-button-normal {
 }
 
 .dx-grid {
@@ -413,6 +422,7 @@ body {
   display: flex;
   align-items: center;
   height: 100%;
+  font-size: 13px !important;
 }
 
 .dx-texteditor-input:focus {
@@ -481,7 +491,7 @@ body {
   color: #5f7d95 !important;
   // padding-left: 8px !important;
   font-family: Inter;
-  font-size: 14px !important;
+  font-size: 13px !important;
   font-style: normal;
   font-weight: 400;
   line-height: normal;
@@ -518,8 +528,10 @@ body {
 
 .dx-tag-content span {
   height: 30px;
+  line-height: 30px;
   display: block;
   overflow: hidden;
+  font-size: 13px;
 }
 
 .customer-item {
@@ -583,3 +595,15 @@ body {
     }
   }
 }
+
+.justify-space-flex-end {
+  justify-content: flex-end;
+}
+
+.label-pr-1 {
+  .dx-field-item-label-text {
+    padding-left: 8px;
+  }
+}
+
+

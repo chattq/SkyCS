@@ -74,6 +74,7 @@ export const PartReplyNote = ({
     <div className={"w-full message-reply mb-2"}>
       <div className="input-area">
         <textarea
+          className="input-area-content"
           value={addRemark.Description}
           placeholder="Nhập ghi chú..."
           maxLength={2000}
@@ -87,8 +88,8 @@ export const PartReplyNote = ({
         ></textarea>
       </div>
 
-      <div className={"w-full mb-4 p-1"}>
-        <div className="flex float-right">
+      <div className={"w-full box-button-eticket"}>
+        <div className="flex">
           <SelectBox
             value={addRemark.ActionType} // giá trị khởi tạo
             valueExpr={"ActionTypeCode"} // giá trị được chọn
@@ -115,7 +116,7 @@ export const PartReplyNote = ({
             type="default"
             icon="email"
             text={t("Send")}
-            className="eticket-button-send mr-1"
+            className="eticket-button-send"
             onClick={hanldleAddRemark}
           >
             {t("Send")}

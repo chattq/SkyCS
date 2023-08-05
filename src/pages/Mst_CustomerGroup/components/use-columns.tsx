@@ -40,10 +40,12 @@ const flagEditorOptions = {
 
 interface UseBankDealerGridColumnsProps {
   data?: any;
+  datalistOrgID?: any;
 }
 
 export const useBankDealerGridColumns = ({
   data,
+  datalistOrgID,
 }: // listBankCode,
 UseBankDealerGridColumnsProps) => {
   const setViewingItem = useSetAtom(viewingDataAtom);
@@ -78,7 +80,7 @@ UseBankDealerGridColumnsProps) => {
       groupKey: "BASIC_INFORMATION",
       dataField: "OrgID", // Mã ngân hàng
       caption: t("OrgID"),
-      editorType: "dxTextBox",
+      editorType: "dxSelectBox",
       validationRules: [requiredType],
       columnIndex: 1,
     },

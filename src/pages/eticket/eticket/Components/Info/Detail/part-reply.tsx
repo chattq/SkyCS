@@ -1,25 +1,11 @@
-import ResponsiveBox, {
-  Col,
-  Item,
-  Location,
-  Row,
-} from "devextreme-react/responsive-box";
-import {
-  Button,
-  ScrollView,
-  TabPanel,
-  Tabs,
-  DropDownBox,
-  List,
-} from "devextreme-react";
+import { Tabs } from "devextreme-react";
 import { Item as TabItem } from "devextreme-react/tabs";
-import { useState } from "react";
-import { PartReplyZalo } from "./part-reply-zalo";
-import { PartReplyEmail } from "./part-reply-email";
+import { useAtomValue, useSetAtom } from "jotai";
 import { PartReplyCall } from "./part-reply-call";
+import { PartReplyEmail } from "./part-reply-email";
 import { PartReplyNote } from "./part-reply-note";
 import { PartReplySms } from "./part-reply-sms";
-import { useAtomValue, useSetAtom } from "jotai";
+import { PartReplyZalo } from "./part-reply-zalo";
 import { currentTabAtom } from "./store";
 
 export const PartReply = ({
@@ -39,7 +25,7 @@ export const PartReply = ({
     setCurrentTabAtomValue(e.itemIndex);
   };
 
-  const unique = [...new Set(listMedia.map((item) => item.ChannelType))];
+  const unique = [...new Set(listMedia?.map((item) => item.ChannelType))];
   let list = unique.reduce((acc, item) => {
     return {
       ...acc,
@@ -47,7 +33,7 @@ export const PartReply = ({
     };
   }, {});
 
-  const media = listMedia.reduce((acc, item) => {
+  const media = listMedia?.reduce((acc, item) => {
     const check = unique.includes(item.ChannelType);
     if (check) {
       return {
@@ -67,7 +53,8 @@ export const PartReply = ({
   const getReplyContent = () => {
     if (currentTabAtomValue == 0)
       return (
-        <PartReplyZalo onReload={onReload}
+        <PartReplyZalo
+          onReload={onReload}
           dataValue={dataValue}
           listMedia={media}
           data={objEticket_AddRemark}
@@ -75,19 +62,27 @@ export const PartReply = ({
       );
     if (currentTabAtomValue == 1)
       return (
-        <PartReplyEmail onReload={onReload}
+        <PartReplyEmail
+          onReload={onReload}
           dataValue={dataValue}
           listMedia={media}
           data={objEticket_AddRemark}
         />
       );
-    if (currentTabAtomValue == 2) return <PartReplyCall onReload={onReload} />;
+    if (currentTabAtomValue == 2)
+      return <PartReplyCall data={objEticket_AddRemark} onReload={onReload} />;
     if (currentTabAtomValue == 3)
       return <PartReplyNote onReload={onReload} data={objEticket_AddRemark} />;
     if (currentTabAtomValue == 4)
       return <PartReplyNote onReload={onReload} data={objEticket_AddRemark} />;
     if (currentTabAtomValue == 5)
-      return <PartReplySms onReload={onReload} dataValue={dataValue} listMedia={media} />;
+      return (
+        <PartReplySms
+          onReload={onReload}
+          dataValue={dataValue}
+          listMedia={media}
+        />
+      );
   };
 
   return (

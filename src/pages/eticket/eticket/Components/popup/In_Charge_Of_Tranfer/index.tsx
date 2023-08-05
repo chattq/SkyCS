@@ -42,36 +42,38 @@ const index = ({ onCancel, onSave, dataRow }: Props) => {
     OrgId: auth.orgData?.Id,
   });
 
-  const [formPayload, setFormPayload] = useState<Partial<PayloadInterface>>({});
+  const [org, setOrg] = useState("");
 
-  console.log("dataRow", dataRow);
+  const [formPayload, setFormPayload] = useState<Partial<PayloadInterface>>({});
 
   const { data: getListDepartment, isLoading: isLoadingListDepartment } =
     useQuery({
-      queryKey: ["Mst_DepartmentControl_GetAllActive"],
+      queryKey: ["Mst_DepartmentControl_GetAllActive", org],
       queryFn: async () => {
-        const response = await api.Mst_DepartmentControl_GetAllActive();
-        if (response.isSuccess) {
-          return response.DataList;
+        if (org !== "") {
+          const response = await api.Mst_DepartmentControl_GetByOrgID(org);
+          if (response.isSuccess) {
+            return response?.Data?.Lst_Mst_Department ?? [];
+          } else {
+            showError({
+              message: t(response.errorCode),
+              debugInfo: response.debugInfo,
+              errorInfo: response.errorInfo,
+            });
+            return [];
+          }
         } else {
-          showError({
-            message: t(response.errorCode),
-            debugInfo: response.debugInfo,
-            errorInfo: response.errorInfo,
-          });
           return [];
         }
       },
     });
 
   const { data: getListOrg, isLoading: isLoadingListOrg } = useQuery({
-    queryKey: ["Mst_NNTController_GetAllActive"],
+    queryKey: ["Mst_NNTController_GetAllActive_Value"],
     queryFn: async () => {
       const response = await api.Mst_NNTController_GetAllActive();
       if (response.isSuccess) {
-        console.log("Org ", response);
-
-        return response.DataList;
+        return response.Data.Lst_Mst_NNT ?? [];
       } else {
         showError({
           message: t(response.errorCode),
@@ -82,8 +84,6 @@ const index = ({ onCancel, onSave, dataRow }: Props) => {
       }
     },
   });
-
-  console.log("getListOrg ", getListOrg);
 
   // const { data, isLoading, refetch } = useQuery({
   //   queryKey: [""],
@@ -123,10 +123,16 @@ const index = ({ onCancel, onSave, dataRow }: Props) => {
         dataField: "OrgIDNew",
         caption: t("OrgIDNew"),
         editorType: "dxSelectBox",
+        label: {
+          text: t("OrgIDNew"),
+        },
         editorOptions: {
           dataSource: getListOrg,
           displayExpr: "NNTFullName",
           valueExpr: "OrgID",
+          onValueChanged: (param: any) => {
+            setOrg(param.value);
+          },
         },
         validationRules: [requiredType],
       },
@@ -134,8 +140,11 @@ const index = ({ onCancel, onSave, dataRow }: Props) => {
         dataField: "DepartmentCode",
         caption: t("DepartmentCode"),
         editorType: "dxSelectBox",
+        label: {
+          text: t("DepartmentCode"),
+        },
         editorOptions: {
-          dataSource: getListDepartment,
+          dataSource: getListDepartment ?? [],
           valueExpr: "DepartmentCode",
           displayExpr: "DepartmentName",
         },
@@ -145,6 +154,9 @@ const index = ({ onCancel, onSave, dataRow }: Props) => {
         dataField: "AgentCode",
         caption: t("AgentCode"),
         editorType: "dxSelectBox",
+        label: {
+          text: t("AgentCode"),
+        },
         editorOptions: {
           dataSource: getListAgent,
           valueExpr: "UserCode",
@@ -152,7 +164,12 @@ const index = ({ onCancel, onSave, dataRow }: Props) => {
         },
       },
     ];
-  }, [isLoadingListOrg, isLoadingListAgent, isLoadingListDepartment]);
+  }, [
+    isLoadingListOrg,
+    isLoadingListAgent,
+    isLoadingListDepartment,
+    getListDepartment,
+  ]);
 
   const handleSave = async () => {
     const resp = formRef.current.instance.validate();
@@ -198,7 +215,7 @@ const index = ({ onCancel, onSave, dataRow }: Props) => {
         container={".dx-viewport"}
         shadingColor="rgba(0,0,0,0.4)"
       />
-      <div className="popup-content">
+      <div className="popup-content" style={{ height: 200 }}>
         <div className="tag flex items-center justify-between mb-4">
           <div className="left">
             <p className="strong">

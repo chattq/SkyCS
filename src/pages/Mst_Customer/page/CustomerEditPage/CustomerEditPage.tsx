@@ -8,14 +8,22 @@ import { Button, Form, LoadPanel } from "devextreme-react";
 import { GroupItem } from "devextreme-react/form";
 import { useAtomValue, useSetAtom } from "jotai";
 import { nanoid } from "nanoid";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
 import NavNetworkLink from "@/components/Navigate";
+import { checkEmail } from "@/components/fields/EmailField";
 import { GroupField } from "@/components/fields/GroupField";
+import { checkPhone } from "@/components/fields/PhoneField";
 import { useNetworkNavigate } from "@/packages/hooks";
 import { getListField } from "@/utils/customer-common";
+
+interface CheckErrorCustomer {
+  Email: boolean;
+  PhoneNo: boolean;
+  Zalo: boolean;
+}
 
 const CustomerEditPage = () => {
   const param = useParams();
@@ -31,12 +39,14 @@ const CustomerEditPage = () => {
   const [dynamicFields, setDynamicFields] = useState<any>([]);
   const [formValue, setFormValue] = useState<any>({});
 
+  const [loading, setLoading] = useState<boolean>(true);
+
   const {
     data: listCodeField,
     isLoading: isLoadingCodeField,
     refetch: refetchCodeField,
   } = useQuery({
-    queryKey: ["ListCodeField"],
+    queryKey: ["CustomerEditPage_ListCodeField"],
     queryFn: async () => {
       const response = await api.MdMetaColGroupSpec_Search(
         {},
@@ -71,7 +81,7 @@ const CustomerEditPage = () => {
     isLoading: isLoadingDynamic,
     refetch: refetchDynamic,
   } = useQuery({
-    queryKey: ["ListDynamic", dynamicFields],
+    queryKey: ["CustomerEditPage_ListDynamic", dynamicFields],
     queryFn: async () => {
       if (dynamicFields.length) {
         const response = await api.MDMetaColGroupSpec_GetListOption(
@@ -100,7 +110,7 @@ const CustomerEditPage = () => {
     isLoading: isLoadingGroupCode,
     refetch: refetchGroupCode,
   } = useQuery({
-    queryKey: ["listGroupCode"],
+    queryKey: ["CustomerEditPage_ListGroupCode"],
     queryFn: async () => {
       const response = await api.MdMetaColGroupApi_Search({});
       if (response.isSuccess) {
@@ -120,7 +130,7 @@ const CustomerEditPage = () => {
     isLoading: isLoadingValueItem,
     refetch: refetchValueItem,
   } = useQuery({
-    queryKey: ["getValueItem", param],
+    queryKey: ["CustomerEditPage_GetValueItem", param],
     queryFn: async () => {
       if (param.CustomerCodeSys) {
         const response: any = await api.Mst_Customer_GetByCustomerCode([
@@ -130,14 +140,15 @@ const CustomerEditPage = () => {
         if (response.isSuccess) {
           if (response?.Data?.Lst_Mst_Customer) {
             const firstChild = response?.Data?.Lst_Mst_Customer[0];
-            const valueForm = JSON.parse(firstChild.JsonCustomerInfo);
+            const valueForm = JSON.parse(firstChild.JsonCustomerInfo ?? "[]");
 
-            const obj = valueForm.reduce((acc: any, item: any) => {
-              return {
-                ...acc,
-                [`${item.ColCodeSys}`]: item.ColValue,
-              };
-            }, {});
+            const obj =
+              valueForm?.reduce((acc: any, item: any) => {
+                return {
+                  ...acc,
+                  [`${item.ColCodeSys}`]: item.ColValue,
+                };
+              }, {}) ?? {};
 
             setFormValue({
               ...response?.Data?.Lst_Mst_Customer[0],
@@ -195,6 +206,8 @@ const CustomerEditPage = () => {
     },
   });
 
+  // console.log(listCodeField, listDynamic, listGroupCode, getValueItem);
+
   const { data: getCustomerCodeSysSeq, refetch: refetchSeq } = useQuery(
     ["GetCustomerCodeSysSeq"],
     async () => {
@@ -209,14 +222,18 @@ const CustomerEditPage = () => {
   );
 
   useEffect(() => {
-    refetchCodeField();
-    refetchGroupCode();
-    refetchDynamic();
-    refetchValueItem();
-    refetchSeq();
+    Promise.all([
+      refetchCodeField(),
+      refetchDynamic(),
+      refetchGroupCode(),
+      refetchValueItem(),
+      refetchSeq(),
+    ]).then(() => {
+      setLoading(false);
+    });
   }, []);
 
-  const getFormField = useCallback(() => {
+  const getFormField = useMemo(() => {
     if (!isLoadingCodeField && !isLoadingGroupCode && !isLoadingValueItem) {
       const listField = getListField({
         listField: listCodeField,
@@ -254,9 +271,28 @@ const CustomerEditPage = () => {
     } else {
       return [];
     }
-  }, [isLoadingCodeField, isLoadingGroupCode, listDynamic]);
+  }, [
+    isLoadingCodeField,
+    isLoadingGroupCode,
+    listDynamic,
+    getValueItem,
+    listGroupCode,
+    listCodeField,
+  ]);
+
+  // console.log(getFormField);
 
   const handleUpdate = async () => {
+    if (!checkPhone(formValue["CtmPhoneNo"] ?? [])) {
+      toast.error("Vui lòng kiểm tra lại Số điện thoại!");
+      return;
+    }
+
+    if (!checkEmail(formValue["CtmEmail"] ?? [])) {
+      toast.error("Vui lòng kiểm tra lại Email!");
+      return;
+    }
+
     if (formRef.current.validate().isValid) {
       const dynamicField = listCodeField
         ?.filter((item: any) => item.FlagIsColDynamic === "1")
@@ -385,11 +421,21 @@ const CustomerEditPage = () => {
         });
       }
     } else {
-      toast.error("Vui lòng nhập đủ trường");
+      toast.error("Vui lòng nhập đủ trường!");
     }
   };
 
   const handleAdd = async () => {
+    if (!checkPhone(formValue["CtmPhoneNo"] ?? [])) {
+      toast.error("Vui lòng kiểm tra lại Số điện thoại!");
+      return;
+    }
+
+    if (!checkEmail(formValue["CtmEmail"] ?? [])) {
+      toast.error("Vui lòng kiểm tra lại Email!");
+      return;
+    }
+
     if (formRef.current.validate().isValid) {
       const dynamicField = listCodeField
         ?.filter((item: any) => item.FlagIsColDynamic === "1")
@@ -517,7 +563,7 @@ const CustomerEditPage = () => {
   return (
     <AdminContentLayout className={"province-management"}>
       <AdminContentLayout.Slot name={"Header"}>
-        <div className="header flex justify-between items-center w-full px-2">
+        <div className="header flex justify-between items-center w-full px-2 py-2">
           <div className="breakcrumb flex gap-1">
             {param?.nav ? (
               <NavNetworkLink
@@ -591,7 +637,12 @@ const CustomerEditPage = () => {
           container={".dx-viewport"}
           shadingColor="rgba(0,0,0,0.4)"
           position={"center"}
-          visible={isLoadingCodeField || isLoadingGroupCode || isLoadingDynamic}
+          visible={
+            isLoadingCodeField ||
+            isLoadingGroupCode ||
+            isLoadingDynamic ||
+            loading
+          }
           showIndicator={true}
           showPane={true}
         />
@@ -604,7 +655,7 @@ const CustomerEditPage = () => {
               onInitialized={handleInitialization}
               showValidationSummary={true}
             >
-              {getFormField()?.map((item: any) => {
+              {getFormField?.map((item: any) => {
                 return (
                   <GroupItem
                     key={nanoid()}

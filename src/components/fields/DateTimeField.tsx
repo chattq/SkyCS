@@ -1,7 +1,7 @@
 import { getFullTime } from "@/utils/time";
 import { DateBox } from "devextreme-react";
 
-const DateTimeField = ({ param, customOptions, field }: any) => {
+const DateTimeField = ({ param, customOptions, field, editType }: any) => {
   const { component, formData } = param;
 
   const date: any = new Date(formData[field?.ColCodeSys]);
@@ -16,6 +16,7 @@ const DateTimeField = ({ param, customOptions, field }: any) => {
       }}
       type="datetime"
       openOnFieldClick
+      readOnly={editType == "detail"}
     />
   );
 };

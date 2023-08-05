@@ -36,7 +36,15 @@ export const InnerContentSearchPanelLayout = ({
         position="left"
         revealMode={"slide"}
         height={"100%"}
-        render={() => <ScrollView id={"search-pane"}>{searchMemo}</ScrollView>}
+        render={() => (
+          <ScrollView
+            width={"20%"}
+            className={"min-w-[300px]"}
+            id={"search-pane"}
+          >
+            {searchMemo}
+          </ScrollView>
+        )}
       >
         {contentMemo}
       </Drawer>

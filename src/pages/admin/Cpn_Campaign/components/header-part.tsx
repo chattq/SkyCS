@@ -36,7 +36,7 @@ export const HeaderPart = () => {
     });
     setCampaignType("");
     setListCampaignAtom([]);
-    navigate("/admin/Cpn_CampaignPage/Cpn_Campaign_Info");
+    navigate("/campaign/Cpn_CampaignPage/Cpn_Campaign_Info");
   };
 
   return (

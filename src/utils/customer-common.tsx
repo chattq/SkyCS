@@ -1,4 +1,6 @@
 import { AvatarField } from "@/components/fields/AvatarField";
+import CreateByField from "@/components/fields/CreateByField";
+import CreateDTimeUTCField from "@/components/fields/CreateDTimeUTCField";
 import CustomerCodeSysERPField from "@/components/fields/CustomerCodeSysERPField";
 import CustomerGroupField from "@/components/fields/CustomerGroupField";
 import CustomerTypeField from "@/components/fields/CustomerTypeField";
@@ -12,7 +14,7 @@ import { PhoneField } from "@/components/fields/PhoneField";
 import { UploadField } from "@/components/fields/UploadField";
 import { ZaloField } from "@/components/fields/ZaloField";
 import { revertEncodeFileType } from "@/components/ulti";
-import { RequiredField } from "@/packages/common/Validation_Rules";
+import { requiredType } from "@/packages/common/Validation_Rules";
 import { MdMetaColGroupSpecDto } from "@/packages/types";
 import { Switch } from "devextreme-react";
 import { match } from "ts-pattern";
@@ -214,18 +216,21 @@ export const mapEditorOption = ({
 };
 
 export const mapValidationRules = (field: Partial<MdMetaColGroupSpecDto>) => {
-  const rules = [];
-  if (field.ColDataType !== "FLAG" && field.FlagIsNotNull === "1") {
-    rules.push(RequiredField(field.ColCaption!));
-  }
-  if (field.ColDataType === "EMAIL") {
-    rules.push({
-      type: "email",
-      message: "Email is not valid",
-    });
+  const regexMST = /^(?:\d{10}|\d{9}-\d{3})$/;
+
+  if (field?.ColCodeSys == "MST") {
+    return [
+      requiredType,
+      {
+        type: "pattern",
+        pattern: regexMST,
+      },
+    ];
   }
 
-  return rules;
+  if (field?.FlagIsNotNull == "1") {
+    return [requiredType];
+  }
 };
 
 const FlagField = ({
@@ -247,7 +252,9 @@ const FlagField = ({
     <Switch
       disabled={customOptions?.editType == "detail"}
       onValueChanged={valueChanged}
-      defaultValue={formData[field?.ColCodeSys] == "1" ?? true}
+      defaultValue={
+        formData[field?.ColCodeSys] ? formData[field?.ColCodeSys] == "1" : true
+      }
     ></Switch>
   );
 };
@@ -618,6 +625,7 @@ export const getListField = ({
                 param={param}
                 customOptions={customOptions}
                 field={field}
+                editType={customOptions?.editType}
               />
             );
           },
@@ -643,6 +651,7 @@ export const getListField = ({
                 param={param}
                 customOptions={customOptions}
                 field={field}
+                editType={customOptions?.editType}
               />
             );
           },
@@ -667,6 +676,44 @@ export const getListField = ({
                 field={field}
               />
             );
+          },
+        };
+      })
+      .with("CREATEBY", () => {
+        return {
+          FlagIsColDynamic: field.FlagIsColDynamic,
+          ColDataType: field.ColDataType,
+          groupKeys: field.ColGrpCodeSys,
+          ColCodeSys: field.ColCodeSys,
+
+          itemType: "group",
+          label: {
+            text: field.ColCaption,
+          },
+          validationRules: mapValidationRules(field),
+          validationMessagePosition: "bottom",
+          // dataField: field.ColCodeSys,
+          render: (param: any) => {
+            return <CreateByField param={param} />;
+          },
+        };
+      })
+      .with("CREATEDTIMEUTC", () => {
+        return {
+          FlagIsColDynamic: field.FlagIsColDynamic,
+          ColDataType: field.ColDataType,
+          groupKeys: field.ColGrpCodeSys,
+          ColCodeSys: field.ColCodeSys,
+
+          itemType: "group",
+          label: {
+            text: field.ColCaption,
+          },
+          validationRules: mapValidationRules(field),
+          validationMessagePosition: "bottom",
+          // dataField: field.ColCodeSys,
+          render: (param: any) => {
+            return <CreateDTimeUTCField param={param} />;
           },
         };
       })

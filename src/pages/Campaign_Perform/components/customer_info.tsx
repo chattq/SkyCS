@@ -41,7 +41,6 @@ export const Cpn_CustomerInfo = forwardRef(
     const navigate = useNetworkNavigate();
     const [data, setData] = useState<Mst_Customer | null>(cpnCustomerData);
     const [isExpand, setExpand] = useState(true);
-    const [listCompany, setListCompany] = useState<any[]>([]);
     // const refetchData = async () => {
     //   if (cpnCustomerData.CustomerCodeSys) {
     //     const response = await api.Mst_Customer_GetByCustomerCode([

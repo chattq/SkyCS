@@ -20,6 +20,7 @@ import { Header } from "./header";
 
 import { useAtomValue } from "jotai";
 import "./search-panel-v2.scss";
+import { toast } from "react-toastify";
 
 interface ItemProps extends IItemProps {
   order?: number;
@@ -84,11 +85,16 @@ export const SearchPanelV2 = ({
   const onClose = () => {
     setSearchPanelVisible(false);
   };
-  const formRef = useRef<Form | null>(null);
+  const formRef: any = useRef<Form | null>(null);
   const settingPopupVisible = useVisibilityControl({ defaultVisible: false });
   const handleSearch = (e: any) => {
-    const data = formRef.current?.instance?.option("formData");
-    onSearch?.(data);
+    const { isValid } = formRef.current?.instance.validate();
+    if (isValid) {
+      const data = formRef.current?.instance?.option("formData");
+      onSearch?.(data);
+    } else {
+      toast.error(t("Please Input Required Fields"));
+    }
     e.preventDefault();
   };
   const items = useMemo(() => {
@@ -112,7 +118,7 @@ export const SearchPanelV2 = ({
     <div
       className={`${
         searchPanelVisible ? "search-panel-visible" : "search-panel-hidden"
-      }`}
+      } w-full`}
       id={"search-panel"}
     >
       <Header
@@ -132,19 +138,21 @@ export const SearchPanelV2 = ({
               height={windowSize.height - 200}
               className={"p-2 h-full"}
               scrollingEnabled
+              validationGroup="Search-Panel-Ver2"
+              // showValidationSummary={true}
             >
               {items.map((item: any, idx: any) => {
                 return <Item key={idx} {...item} />;
               })}
-              <Item></Item>
-              <Item></Item>
+
+              <Item cssClass="h-[50px]"> </Item>
             </Form>
             <div
               className="absolute bottom-[0] w-full bg-red-400 flex items-end p-2 pb-5"
               style={{ background: "white" }}
             >
               <Button
-                text={"Search"}
+                text={t("Search")}
                 icon={"search"}
                 width={"100%"}
                 type={"default"}

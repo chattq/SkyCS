@@ -642,8 +642,8 @@ const Cpn_Campaign_List_Customer = forwardRef(
     const handleSearch = (value: string[]) => {
       if (ref?.current) {
         ref?.current?.instance.filter(function (itemData: any) {
-          if (value.length) {
-            return value.includes(returnValue(itemData.CampaignStatus));
+          if (value.length && !value.includes("")) {
+            return value.includes(returnValue(itemData.CampaignCustomerStatus));
           }
           return true;
         });

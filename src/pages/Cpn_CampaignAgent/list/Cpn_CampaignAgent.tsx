@@ -1,8 +1,8 @@
 import { AdminContentLayout } from "@layouts/admin-content-layout";
 import { ColumnOptions, GridViewPopup } from "@packages/ui/base-gridview";
-import { useEffect, useReducer, useRef, useState } from "react";
+import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { useI18n } from "@/i18n/useI18n";
-import { useSetAtom } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { useQuery } from "@tanstack/react-query";
 import {
   FlagActiveEnum,
@@ -16,7 +16,7 @@ import { IFormOptions, IItemProps } from "devextreme-react/form";
 import { flagEditorOptionsSearch, zip } from "@packages/common";
 import { logger } from "@packages/logger";
 import { toast } from "react-toastify";
-import { showErrorAtom } from "@packages/store";
+import { authAtom, showErrorAtom } from "@packages/store";
 import { EditorPreparingEvent } from "devextreme/ui/data_grid";
 import {
   ContentSearchPanelLayout,
@@ -25,7 +25,7 @@ import {
 import { HeaderPart } from "../components/header-part";
 import { selectedItemsAtom } from "../components/store";
 import { StatusButton } from "@/packages/ui/status-button";
-
+import "./Cpn_CampaignAgent.scss";
 import { useClientgateApi } from "@/packages/api";
 import { useBankDealerGridColumns } from "../components/use-columns";
 import { useFormSettings } from "../components/use-form-settings";
@@ -36,6 +36,8 @@ import {
   requiredType,
 } from "@/packages/common/Validation_Rules";
 import { nanoid } from "nanoid";
+import { GridViewCustomize } from "@/packages/ui/base-gridview/gridview-customize";
+import { LoadPanel, TagBox } from "devextreme-react";
 
 export const Cpn_CampaignAgentPage = () => {
   const { t } = useI18n("Cpn_CampaignAgent");
@@ -44,17 +46,29 @@ export const Cpn_CampaignAgentPage = () => {
   const showError = useSetAtom(showErrorAtom);
   const setSelectedItems = useSetAtom(selectedItemsAtom);
   const api = useClientgateApi();
+  const [userCodeLogin, setUserCodeLogin] = useState("");
 
-  const [searchCondition] = useState<any>({
+  const [searchCondition, setSearchCondition] = useState<any>({
     FlagActive: FlagActiveEnum.All,
     Ft_PageIndex: 0,
     Ft_PageSize: config.MAX_PAGE_ITEMS,
     KeyWord: "",
+    CampaignCode: "",
+    AgentCode: "",
   });
+  const auth = useAtomValue(authAtom);
   const { data: listUser } = useQuery(
     ["listUser"],
     () => api.Sys_User_GetAllActive() as any
   );
+  useEffect(() => {
+    if (listUser) {
+      const userCode = listUser?.DataList.filter(
+        (item: any) => item.UserName === auth.currentUser.Name
+      );
+      setUserCodeLogin(userCode[0].UserCode);
+    }
+  }, [listUser]);
 
   const { data: getCampaing, isLoading: isLoadingGetCampaign } = useQuery({
     queryKey: ["Cpn_CampaignAgent_GetActive"],
@@ -62,6 +76,47 @@ export const Cpn_CampaignAgentPage = () => {
       return api.Cpn_CampaignAgent_Search({});
     },
   });
+  // async () => {
+  //   if (idInforSearch) {
+  //     const response = await api.KB_PostData_GetByPostCode(
+  //       idInforSearch,
+  //       auth.networkId
+  //     );
+
+  //     if (response.isSuccess) {
+  //       const listUpload = response?.Data?.Lst_KB_PostAttachFile ?? [];
+  //       const newUpdateLoading = listUpload.map((item: any) => {
+  //         return {
+  //           ...item,
+  //           FileFullName: item.FileName,
+  //           FileType: encodeFileType(item.FileType),
+  //           FileUrlLocal: item.FilePath,
+  //         };
+  //       });
+  //       setCurrentItemData({
+  //         uploadFiles: newUpdateLoading,
+  //       });
+  //       setData(response.Data?.KB_Post);
+  //       if (response.Data?.KB_Post.ShareType === "PRIVATE") {
+  //         setIconShare("lock.png");
+  //       } else if (response.Data?.KB_Post.ShareType === "ORGANIZATION") {
+  //         setIconShare("ORGANIZATION.png");
+  //       } else if (response.Data?.KB_Post.ShareType === "PUBLIC") {
+  //         setIconShare("public.png");
+  //       }
+
+  //       return response.Data;
+  //     } else {
+  //       showError({
+  //         message: t(response.errorCode),
+  //         debugInfo: response.debugInfo,
+  //         errorInfo: response.errorInfo,
+  //       });
+  //     }
+  //   } else {
+  //     return [] as any;
+  //   }
+  // },
 
   const { data, isLoading, refetch } = useQuery(
     ["Cpn_CampaignAgent", JSON.stringify(searchCondition)],
@@ -73,7 +128,9 @@ export const Cpn_CampaignAgentPage = () => {
           : null,
         AgentCode: searchCondition.AgentCode
           ? searchCondition.AgentCode.join(",")
-          : null,
+          : listUser?.DataList?.filter(
+              (item: any) => item.UserName === auth.currentUser.Name
+            ),
       })
   );
 
@@ -102,11 +159,32 @@ export const Cpn_CampaignAgentPage = () => {
       },
       editorType: "dxTagBox",
       editorOptions: {
-        placeholder: t("Input"),
+        // placeholder: t("Input"),
         displayExpr: "UserName",
         valueExpr: "UserCode",
         searchEnabled: true,
         dataSource: listUser?.DataList ?? [],
+      },
+      render: (param: any) => {
+        const { dataField, component: formComponent } = param;
+        return (
+          <TagBox
+            className="mb-2"
+            defaultValue={
+              searchCondition.AgentCode
+                ? searchCondition.AgentCode
+                : [userCodeLogin]
+            }
+            height={30}
+            onValueChange={(data) => {
+              formComponent.updateData(dataField, data);
+            }}
+            dataSource={listUser?.DataList ?? []}
+            searchEnabled={true}
+            displayExpr="UserName"
+            valueExpr="UserCode"
+          />
+        );
       },
     },
   ];
@@ -192,58 +270,11 @@ export const Cpn_CampaignAgentPage = () => {
     columns,
   });
 
-  const onModify = async (id: any, data: Partial<Mst_Area>) => {
-    // const resp = await api.Mst_Area_Update({
-    //   ...id,
-    //   ...data,
-    // });
-    // if (resp.isSuccess) {
-    //   toast.success(t("Update Successfully"));
-    //   await refetch();
-    //   return true;
-    // }
-    // showError({
-    //   message: t(resp.errorCode),
-    //   debugInfo: resp.debugInfo,
-    //   errorInfo: resp.errorInfo,
-    // });
-    // throw new Error(resp.errorCode);
-  };
+  const onModify = async (id: any, data: Partial<Mst_Area>) => {};
   // Section: CRUD operations
-  const onCreate = async (data: Mst_Area & { __KEY__: string }) => {
-    // const { __KEY__, ...rest } = data;
-    // // console.log(230, data);
-    // const resp = await api.Mst_Area_Create({
-    //   ...rest,
-    //   FlagActive: rest.FlagActive ? "1" : "0",
-    // });
-    // if (resp.isSuccess) {
-    //   toast.success(t("Create Successfully"));
-    //   await refetch();
-    //   return true;
-    // }
-    // showError({
-    //   message: t(resp.errorCode),
-    //   debugInfo: resp.debugInfo,
-    //   errorInfo: resp.errorInfo,
-    // });
-    // throw new Error(resp.errorCode);
-  };
+  const onCreate = async (data: Mst_Area & { __KEY__: string }) => {};
 
-  const onDelete = async (id: any) => {
-    // const resp = await api.Mst_BankDealer_Delete(id);
-    // if (resp.isSuccess) {
-    //   toast.success(t("Delete Successfully"));
-    //   await refetch();
-    //   return true;
-    // }
-    // showError({
-    //   message: t(resp.errorCode),
-    //   debugInfo: resp.debugInfo,
-    //   errorInfo: resp.errorInfo,
-    // });
-    // throw new Error(resp.errorCode);
-  };
+  const onDelete = async (id: any) => {};
   const handleSavingRow = (e: any) => {
     // console.log(e);
     // stop grid behaviour
@@ -272,6 +303,7 @@ export const Cpn_CampaignAgentPage = () => {
     handleEdit(row.rowIndex);
   };
   const handleEditRowChanges = () => {};
+
   return (
     <AdminContentLayout className={"Cpn_CampaignAgent"}>
       <AdminContentLayout.Slot name={"Header"}>
@@ -282,32 +314,43 @@ export const Cpn_CampaignAgentPage = () => {
       <AdminContentLayout.Slot name={"Content"}>
         <ContentSearchPanelLayout>
           <ContentSearchPanelLayout.Slot name={"SearchPanel"}>
-            <div className={"w-[200px]"}>
-              <SearchPanelV2
-                storeKey="Cpn_CampaignAgent_Search"
-                conditionFields={formItems}
-                data={searchCondition}
-                onSearch={handleSearch}
-              />
-            </div>
+            <SearchPanelV2
+              storeKey="Cpn_CampaignAgent_Search"
+              conditionFields={formItems}
+              data={searchCondition}
+              onSearch={handleSearch}
+            />
           </ContentSearchPanelLayout.Slot>
           <ContentSearchPanelLayout.Slot name={"ContentPanel"}>
-            <GridViewPopup
+            <LoadPanel
+              container={".dx-viewport"}
+              shadingColor="rgba(0,0,0,0.4)"
+              position={"center"}
+              visible={isLoading || isLoadingGetCampaign}
+              showIndicator={true}
+              showPane={true}
+            />
+            <GridViewCustomize
+              cssClass="Cpn_CampaignAgent_Grid"
+              // isHidenHeaderFilter={false}
               isLoading={isLoading || isLoadingGetCampaign}
-              dataSource={data?.isSuccess ? data.Data ?? [] : []}
+              dataSource={data?.isSuccess ? data.Data : []}
               columns={columns}
               keyExpr={"CampaignCode"}
               popupSettings={popupSettings}
               formSettings={formSettings}
-              allowInlineEdit={false}
               onReady={(ref) => (gridRef = ref)}
               allowSelection={true}
               onSelectionChanged={handleSelectionChanged}
               onSaveRow={handleSavingRow}
               onEditorPreparing={handleEditorPreparing}
-              onEditRow={handleOnEditRow}
               onEditRowChanges={handleEditRowChanges}
               onDeleteRows={handleDeleteRows}
+              onEditRow={handleOnEditRow}
+              storeKey={"Cpn_CampaignAgent-columns"}
+              customToolbarItems={[]}
+              isHiddenCheckBox={true}
+              isSingleSelection={false}
               toolbarItems={[
                 {
                   location: "before",
@@ -318,7 +361,6 @@ export const Cpn_CampaignAgentPage = () => {
                   },
                 },
               ]}
-              storeKey={"Cpn_CampaignAgent-columns"}
             />
           </ContentSearchPanelLayout.Slot>
         </ContentSearchPanelLayout>

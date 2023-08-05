@@ -1,17 +1,23 @@
 import { useI18n } from "@/i18n/useI18n";
+import { useClientgateApi } from "@/packages/api";
+import { showErrorAtom } from "@/packages/store";
 import { GridViewCustomize } from "@/packages/ui/base-gridview/gridview-customize";
 import { ColumnOptions } from "@/types";
+import { useSetAtom } from "jotai";
 import { useRef } from "react";
+import { toast } from "react-toastify";
 
-export const Tab_Attachments = ({ data }: any) => {
+export const Tab_Attachments = ({ onReload, data }: any) => {
   const { Lst_ET_TicketAttachFile } = data;
   const { t } = useI18n("Eticket_Detail");
   let gridRef = useRef(null);
+  const showError = useSetAtom(showErrorAtom);
+  const api = useClientgateApi();
   const column: ColumnOptions[] = [
     {
       dataField: "Idx",
       visible: true,
-      caption: t("Idx"), // thời gian tải lên
+      caption: t("Idx"),
     },
     {
       dataField: "LogLUDTimeUTC",
@@ -19,9 +25,9 @@ export const Tab_Attachments = ({ data }: any) => {
       caption: t("LogLUDTimeUTC"), // thời gian tải lên
     },
     {
-      dataField: "LogLUDTimeUTC",
+      dataField: "LogLUBy",
       visible: true,
-      caption: t("LogLUDTimeUTC"), // Người tải lên
+      caption: t("LogLUBy"), // Người tải lên
     },
     {
       dataField: "FileName",
@@ -38,19 +44,51 @@ export const Tab_Attachments = ({ data }: any) => {
       visible: true,
       caption: t("LogLUDTimeUTC"), // Dung lượng
     },
-    {
-      dataField: "LogLUDTimeUTC",
-      visible: true,
-      caption: t("LogLUDTimeUTC"), // Ký số
-    },
   ];
 
-  const handleDelete = (row: any) => {
+  const handleDelete = async (row: any) => {
     console.log("row ", row);
+    const param = row.map((item: any) => {
+      return {
+        TicketID: item.TicketID,
+        Idx: item.Idx,
+      };
+    });
+
+    const response = await api.ETTicketAttachFile_DeleteMultiple(param);
+    if (response.isSuccess) {
+      toast.success(t("Delete Success"));
+      onReload();
+    } else {
+      showError({
+        message: t(response.errorCode),
+        debugInfo: response.debugInfo,
+        errorInfo: response.errorInfo,
+      });
+    }
   };
 
-  const handleDownload = (row: any) => {
-    console.log("download row ", row);
+  const handleDownload = async (row: any) => {
+    const param = row.map((item: any) => {
+      return {
+        TicketID: item.TicketID,
+        Idx: item.Idx,
+        FileName: item.FileName,
+        FilePath: item.FilePath,
+        FileType: item.FileType,
+      };
+    });
+
+    const response = await api.ETTicketAttachFile_Download(param);
+    if (response.isSuccess) {
+      toast.success(t("Download Success"));
+    } else {
+      showError({
+        message: t(response.errorCode),
+        debugInfo: response.debugInfo,
+        errorInfo: response.errorInfo,
+      });
+    }
   };
 
   const handleSign = (row: any) => {
@@ -80,18 +118,33 @@ export const Tab_Attachments = ({ data }: any) => {
               onClick: (e: any, ref: any) => {
                 handleDelete(ref.instance.getSelectedRowsData());
               },
-              shouldShow: () => {
-                return true;
+              shouldShow: (ref: any) => {
+                if (ref) {
+                  if (ref.instance.getSelectedRowKeys().length > 0) {
+                    return true;
+                  } else {
+                    return false;
+                  }
+                } else {
+                  return false;
+                }
               },
             },
             {
               text: t(`Download`),
-              // text: t(`Responsibility`),
               onClick: (e: any, ref: any) => {
                 handleDownload(ref.instance.getSelectedRowsData());
               },
-              shouldShow: () => {
-                return true;
+              shouldShow: (ref: any) => {
+                if (ref) {
+                  if (ref.instance.getSelectedRowKeys().length > 0) {
+                    return true;
+                  } else {
+                    return false;
+                  }
+                } else {
+                  return false;
+                }
               },
             },
             {
@@ -100,8 +153,17 @@ export const Tab_Attachments = ({ data }: any) => {
               onClick: (e: any, ref: any) => {
                 handleSign(ref.instance.getSelectedRowsData());
               },
-              shouldShow: () => {
-                return true;
+              shouldShow: (ref: any) => {
+                // if (ref) {
+                //   if (ref.instance.getSelectedRowKeys().length > 0) {
+                //     return true;
+                //   } else {
+                //     return false;
+                //   }
+                // } else {
+                //   return false;
+                // }
+                return false;
               },
             },
           ]}

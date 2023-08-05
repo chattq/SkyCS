@@ -60,6 +60,14 @@ export interface SearchParamEticket {
   Ft_PageSize: number;
 }
 
+export interface typeDownload {
+  TicketID: string;
+  Idx: string;
+  FileName: string;
+  FilePath: string;
+  FileType: string;
+}
+
 export const useETTicket = (apiBase: AxiosInstance) => {
   return {
     ET_Ticket_Search: async (
@@ -135,6 +143,17 @@ export const useETTicket = (apiBase: AxiosInstance) => {
           ...param,
         }
       );
+    },
+
+    ET_Ticket_Export: async (
+      param: Partial<SearchParamEticket>
+    ): Promise<ApiResponse<ETICKET_REPONSE[]>> => {
+      return await apiBase.post<
+        SearchParamEticket,
+        ApiResponse<ETICKET_REPONSE[]>
+      >("ETTicket/Export", {
+        ...param,
+      });
     },
 
     ET_Ticket_GetCallMessageByCallID: async (
@@ -254,10 +273,42 @@ export const useETTicket = (apiBase: AxiosInstance) => {
       );
     },
 
-    GetMessageByTicketID: async(TicketID: string) => {
-      return await apiBase.post<string, ApiResponse<any>>("ETTicket/GetMessageByTicketID", {
-        TicketID: TicketID
-      })
+    GetMessageByTicketID: async (TicketID: string) => {
+      return await apiBase.post<string, ApiResponse<any>>(
+        "ETTicket/GetMessageByTicketID",
+        {
+          TicketID: TicketID,
+        }
+      );
+    },
+
+    ETTicketAttachFile_DeleteMultiple: async (
+      param: {
+        TicketID: string;
+        Idx: string;
+      }[]
+    ) => {
+      return await apiBase.post<string, ApiResponse<any>>(
+        "ETTicketAttachFile/DeleteMulti",
+        {
+          strJson: JSON.stringify(param),
+        }
+      );
+    },
+
+    ETTicketAttachFile_Download: async (param: typeDownload[]) => {
+      return await apiBase.post<string, ApiResponse<any>>(
+        "ETTicketAttachFile/DownLoad",
+        {
+          strJson: JSON.stringify(param),
+        },
+        {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            AppAgent: "Web-SkyCS",
+          },
+        }
+      );
     },
 
     AddCall: async (param: any): Promise<ApiResponse<any>> => {

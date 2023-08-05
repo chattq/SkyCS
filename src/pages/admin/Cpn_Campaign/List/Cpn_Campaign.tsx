@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { FlagActiveEnum, Mst_PaymentTermData } from "@packages/types";
 import { useConfiguration, useNetworkNavigate } from "@packages/hooks";
 import { IPopupOptions } from "devextreme-react/popup";
-import { IItemProps } from "devextreme-react/form";
+import { IItemProps, RequiredRule } from "devextreme-react/form";
 import { toast } from "react-toastify";
 import { showErrorAtom } from "@packages/store";
 import { EditorPreparingEvent } from "devextreme/ui/data_grid";
@@ -26,6 +26,10 @@ import { useAuth } from "@/packages/contexts/auth";
 import { GridViewCustomize } from "@/packages/ui/base-gridview/gridview-customize";
 import { useSetAtom } from "jotai";
 import { useWindowSize } from "@/packages/hooks/useWindowSize";
+import { isAfter, isBefore } from "date-fns";
+import { DateRangeField } from "../../test-upload/date-range-field";
+import { requiredType } from "@/packages/common/Validation_Rules";
+import { getYearMonthDate } from "@/components/ulti";
 
 export const Cpn_CampaignPage = () => {
   const { t } = useI18n("Cpn_CampaignPage");
@@ -43,6 +47,9 @@ export const Cpn_CampaignPage = () => {
     Ft_PageSize: config.MAX_PAGE_ITEMS,
     CampaignTypeName: "",
     CampaignTypeDesc: "",
+    CreateDTimeUTC: [null , null],
+    FinishDTimeUTC: [null , null],
+    StartDTimeUTC: [null , null],
   });
 
   const setSelectedItems = useSetAtom(selectedItemsAtom);
@@ -52,7 +59,31 @@ export const Cpn_CampaignPage = () => {
   const { data, isLoading, refetch } = useQuery(
     ["Cpn_CampaignPage", JSON.stringify(searchCondition)],
     async () => {
-      const response = await api.Cpn_Campaign_Search(searchCondition);
+      const param = {
+        ...searchCondition,
+        CreateDTimeUTCFrom: searchCondition.CreateDTimeUTC[0]
+          ? getYearMonthDate(searchCondition.CreateDTimeUTC[0])
+          : "",
+        CreateDTimeUTCTo: searchCondition.CreateDTimeUTC[1]
+          ? getYearMonthDate(searchCondition.CreateDTimeUTC[1])
+          : "",
+        FinishDTimeUTCFrom: searchCondition.FinishDTimeUTC[0]
+          ? getYearMonthDate(searchCondition.FinishDTimeUTC[0])
+          : "",
+        FinishDTimeUTCTo: searchCondition.FinishDTimeUTC[1]
+          ? getYearMonthDate(searchCondition.FinishDTimeUTC[1])
+          : "",
+        StartDTimeUTCFrom: searchCondition.StartDTimeUTC[0]
+          ? getYearMonthDate(searchCondition.StartDTimeUTC[0])
+          : "",
+        StartDTimeUTCTo: searchCondition.StartDTimeUTC[1]
+          ? getYearMonthDate(searchCondition.StartDTimeUTC[1])
+          : "",
+      };
+      delete param.CreateDTimeUTC;
+      delete param.StartDTimeUTC;
+      delete param.FinishDTimeUTC;
+      const response = await api.Cpn_Campaign_Search(param);
       if (response.isSuccess) {
         return response;
       } else {
@@ -122,81 +153,150 @@ export const Cpn_CampaignPage = () => {
   const columns = useBankDealerGridColumns({ data: data?.DataList || [] });
   const formItems: IItemProps[] = useMemo(() => {
     return [
+      // {
+      //   dataField: "CreateDTimeUTCFrom",
+      //   caption: t("CreateDTimeUTCFrom"),
+      //   label: {
+      //     text: t("CreateDTimeUTC"),
+      //   },
+      //   editorType: "dxDateBox",
+      //   editorOptions: {
+      //     type: "date",
+      //     format: "yyyy-MM-dd",
+      //   },
+      //   validationRules: [
+      //     {
+      //       type: "custom",
+      //       ignoreEmptyValue: true,
+      //       validationCallback: (e: any) => {
+      //         if (searchCondition.CreateDTimeUTCTo) {
+      //           return !isAfter(e.value, searchCondition.CreateDTimeUTCTo);
+      //         }
+      //         return true;
+      //       },
+      //       message: t("DateFromMustBeBeforeDateTo"),
+      //     },
+      //   ],
+      // },
       {
-        dataField: "CreateDTimeUTCFrom",
-        caption: t("CreateDTimeUTCFrom"),
+        dataField: "CreateDTimeUTC",
+        caption: t("CreateDTimeUTC"),
         label: {
           text: t("CreateDTimeUTC"),
         },
-        editorType: "dxDateBox",
+        editorType: "dxDateRangeBox",
         editorOptions: {
           type: "date",
           format: "yyyy-MM-dd",
         },
+        // render: ({ component, dataField }: any) => {
+        //   const formData = component.option("formData");
+        //   return (
+        //     <DateRangeField
+        //       formInstance={component}
+        //       dataField={dataField}
+        //       defaultValue={formData?.[dataField]}
+        //       allowEmpty={true}
+        //       onValueChanged={(e: any) => {
+        //         component.updateData(dataField, e.value);
+        //       }}
+        //     />
+        //   );
+        // },
       },
+      // {
+      //   dataField: "CreateDTimeUTCTo",
+      //   caption: t("CreateDTimeUTCTo"),
+      //   label: {
+      //     text: t("CreateDTimeUTCTo"),
+      //     visible: false,
+      //   },
+      //   editorType: "dxDateBox",
+      //   editorOptions: {
+      //     type: "date",
+      //     format: "yyyy-MM-dd",
+      //   },
+      //   validationRules: [
+      //     {
+      //       type: "custom",
+      //       ignoreEmptyValue: true,
+      //       validationCallback: ({ value }: any) => {
+      //         return !isBefore(value, searchCondition.CreateDTimeUTCFrom);
+      //       },
+      //       message: t("CreateDTimeUTCFrom"),
+      //     },
+      //   ],
+      // },
       {
-        dataField: "CreateDTimeUTCTo",
-        caption: t("CreateDTimeUTCTo"),
-        label: {
-          text: t("CreateDTimeUTCTo"),
-          visible: false,
-        },
-        editorType: "dxDateBox",
-        editorOptions: {
-          type: "date",
-          format: "yyyy-MM-dd",
-        },
-      },
-      {
-        dataField: "StartDTimeUTCFrom",
-        caption: t("StartDTimeUTCFrom"),
+        dataField: "StartDTimeUTC",
+        caption: t("StartDTimeUTC"),
         label: {
           text: t("StartDTimeUTC"),
         },
-        editorType: "dxDateBox",
+        editorType: "dxDateRangeBox",
         editorOptions: {
           type: "date",
           format: "yyyy-MM-dd",
         },
       },
+      // {
+      //   dataField: "StartDTimeUTCTo",
+      //   caption: t("StartDTimeUTCTo"),
+      //   label: {
+      //     text: t("StartDTimeUTCTo"),
+      //     visible: false,
+      //   },
+      //   editorType: "dxDateBox",
+      //   editorOptions: {
+      //     type: "date",
+      //     format: "yyyy-MM-dd",
+      //   },
+      //   validationRules: [
+      //     {
+      //       type: "custom",
+      //       ignoreEmptyValue: true,
+      //       validationCallback: ({ value }: any) => {
+      //         return !isBefore(value, searchCondition.StartDTimeUTCFrom);
+      //       },
+      //       message: t("StartDTimeUTCFromMustBeforeStartDTimeUTCFrom"),
+      //     },
+      //   ],
+      // },
       {
-        dataField: "StartDTimeUTCTo",
-        caption: t("StartDTimeUTCTo"),
-        label: {
-          text: t("StartDTimeUTCTo"),
-          visible: false,
-        },
-        editorType: "dxDateBox",
-        editorOptions: {
-          type: "date",
-          format: "yyyy-MM-dd",
-        },
-      },
-      {
-        dataField: "FinishDTimeUTCFrom",
-        caption: t("FinishDTimeUTCFrom"),
+        dataField: "FinishDTimeUTC",
+        caption: t("FinishDTimeUTC"),
         label: {
           text: t("FinishDTimeUTC"),
         },
-        editorType: "dxDateBox",
+        editorType: "dxDateRangeBox",
         editorOptions: {
           type: "date",
           format: "yyyy-MM-dd",
         },
       },
-      {
-        dataField: "FinishDTimeUTCTo",
-        caption: t("FinishDTimeUTCTo"),
-        label: {
-          text: t("FinishDTimeUTCTo"),
-          visible: false,
-        },
-        editorType: "dxDateBox",
-        editorOptions: {
-          type: "date",
-          format: "yyyy-MM-dd",
-        },
-      },
+      // {
+      //   dataField: "FinishDTimeUTCTo",
+      //   caption: t("FinishDTimeUTCTo"),
+      //   label: {
+      //     text: t("FinishDTimeUTCTo"),
+      //     visible: false,
+      //   },
+      //   editorType: "dxDateBox",
+      //   editorOptions: {
+      //     type: "date",
+      //     format: "yyyy-MM-dd",
+      //   },
+      //   validationRules: [
+      //     {
+      //       type: "custom",
+      //       ignoreEmptyValue: true,
+      //       validationCallback: ({ value }: any) => {
+      //         return !isBefore(value, searchCondition.FinishDTimeUTCFrom);
+      //       },
+      //       message: t("FinishDTimeUTCFrom"),
+      //     },
+      //   ],
+      // },
       {
         dataField: "CampaignStatus",
         caption: t("CampaignStatus"),
@@ -229,17 +329,14 @@ export const Cpn_CampaignPage = () => {
   }, [listCampaignType]);
 
   const handleDeleteRows = async (rows: any) => {
-    const build: any = {
-      Cpn_Campaign: {
-        CampaignCode: rows?.CampaignCode,
-        NetworkID: auth.networkId,
-        OrgID: auth.orgData?.Id,
-      },
-      Lst_Cpn_CampaignAttachFile: [],
-      Lst_Cpn_CampaignCustomer: [],
-      Lst_Cpn_CampaignAgent: [],
-    };
-    const resp = await api.Cpn_Campaign_Delete(build);
+    console.log("row ", rows);
+    const param = rows.map((item: any) => {
+      return {
+        CampaignCode: item.CampaignCode,
+        OrgID: item.OrgID,
+      };
+    });
+    const resp = await api.Cpn_Campaign_DeleteMultiple(param);
     if (resp.isSuccess) {
       toast.success(t("Delete Successfully"));
       await refetch();
@@ -462,7 +559,7 @@ export const Cpn_CampaignPage = () => {
           if (ref) {
             if (
               ref.instance.getSelectedRowsData()[0] &&
-              ref.instance.getSelectedRowKeys().length === 1
+              ref.instance.getSelectedRowKeys().length >= 1
             ) {
               const status =
                 ref.instance.getSelectedRowsData()[0].CampaignStatus;
@@ -479,7 +576,7 @@ export const Cpn_CampaignPage = () => {
         }
       },
       onClick: (e: any, ref: any) => {
-        const code = ref.instance.getSelectedRowsData()[0];
+        const code = ref.instance.getSelectedRowsData();
         handleDeleteRows(code);
       },
     },
@@ -616,7 +713,7 @@ export const Cpn_CampaignPage = () => {
               className={`w-[${widthSearch + ""}px]`}
             >
               <SearchPanelV2
-                colCount={2}
+                colCount={1}
                 storeKey="Cpn_CampaignPage_Search"
                 conditionFields={formItems}
                 data={searchCondition}

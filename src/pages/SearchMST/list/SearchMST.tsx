@@ -21,6 +21,7 @@ import { useClientgateApi } from "@/packages/api";
 import { ScrollView } from "devextreme-react";
 import { useWindowSize } from "@/packages/hooks/useWindowSize";
 import { PageHeaderLayout } from "@/packages/layouts/page-header-layout";
+import PopupEdit from "../components/popupEdit";
 
 const isSpeechRecognitionSupported = () =>
   "webkitSpeechRecognition" in window || "SpeechRecognition" in window;
@@ -78,11 +79,11 @@ export const SearchMSTPage = () => {
 
   const handleScroll = (e: any) => {
     // console.log(84, e);
-    if (e.scrollOffset.top >= 100) {
-      setHidenInput(false);
-    } else if (e.scrollOffset.top === 0) {
-      setHidenInput(true);
-    }
+    // if (e.scrollOffset.top >= 100) {
+    //   setHidenInput(false);
+    // } else if (e.scrollOffset.top === 0) {
+    //   setHidenInput(true);
+    // }
   };
 
   return (

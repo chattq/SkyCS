@@ -128,14 +128,17 @@ const Tab_CustomerDetail = () => {
         if (response.isSuccess) {
           if (response?.Data?.Lst_Mst_Customer) {
             const firstChild = response?.Data?.Lst_Mst_Customer[0];
+
             const valueForm = JSON.parse(firstChild.JsonCustomerInfo);
 
-            const obj = valueForm.reduce((acc: any, item: any) => {
-              return {
-                ...acc,
-                [`${item.ColCodeSys}`]: item.ColValue,
-              };
-            }, {});
+            const obj = Array.isArray(valueForm)
+              ? valueForm?.reduce((acc: any, item: any) => {
+                  return {
+                    ...acc,
+                    [`${item.ColCodeSys}`]: item.ColValue,
+                  };
+                }, {})
+              : {};
 
             setFormValue({
               ...response?.Data?.Lst_Mst_Customer[0],
@@ -193,12 +196,18 @@ const Tab_CustomerDetail = () => {
     },
   });
 
+  const [loading, setLoading] = useState<boolean>(true);
+
   useEffect(() => {
-    refetchCodeField();
-    refetchGroupCode();
-    refetchDynamic();
-    refetchValueItem();
-  }, []);
+    Promise.all([
+      refetchCodeField(),
+      refetchDynamic(),
+      refetchGroupCode(),
+      refetchValueItem(),
+    ]).then(() => {
+      setLoading(false);
+    });
+  }, [param?.CustomerCodeSys]);
 
   const getFormField = useCallback(() => {
     if (!isLoadingCodeField && !isLoadingGroupCode && !isLoadingValueItem) {
@@ -238,7 +247,14 @@ const Tab_CustomerDetail = () => {
     } else {
       return [];
     }
-  }, [isLoadingCodeField, isLoadingGroupCode, listDynamic]);
+  }, [
+    isLoadingCodeField,
+    isLoadingGroupCode,
+    listDynamic,
+    getValueItem,
+    listGroupCode,
+    listCodeField,
+  ]);
 
   const handleInitialization = (e: any) => {
     formRef.current = e.component;
@@ -254,7 +270,12 @@ const Tab_CustomerDetail = () => {
           container={".dx-viewport"}
           shadingColor="rgba(0,0,0,0.4)"
           position={"center"}
-          visible={isLoadingCodeField || isLoadingGroupCode || isLoadingDynamic}
+          visible={
+            isLoadingCodeField ||
+            isLoadingGroupCode ||
+            isLoadingDynamic ||
+            loading
+          }
           showIndicator={true}
           showPane={true}
         />

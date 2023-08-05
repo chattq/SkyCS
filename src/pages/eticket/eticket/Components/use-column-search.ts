@@ -1,5 +1,6 @@
 import { defaultValue } from "./../../../admin/Mst_CampaignType/components/store";
 import { useI18n } from "@/i18n/useI18n";
+import { requiredType } from "@/packages/common/Validation_Rules";
 import { IItemProps } from "devextreme-react/form";
 
 interface Props {
@@ -23,8 +24,6 @@ export const useColumnSearch = ({
   listEnterprise,
   ticketSourceList,
 }: Props) => {
-  console.log("listCustomer ", listCustomer);
-
   const { t } = useI18n("Eticket_Search");
   const listStatus = [
     {
@@ -70,7 +69,7 @@ export const useColumnSearch = ({
       },
       colSpan: 2,
       cssClass:
-        "flex align-items-center flex-direction-row-reverse justify-space-between",
+        "flex align-items-center label-pr-1 flex-direction-row-reverse justify-space-flex-end",
       editorType: "dxCheckBox",
       editorOptions: {
         defaultValue: false,
@@ -84,7 +83,7 @@ export const useColumnSearch = ({
       },
       colSpan: 2,
       cssClass:
-        "flex align-items-center flex-direction-row-reverse justify-space-between",
+        "flex align-items-center label-pr-1 flex-direction-row-reverse justify-space-flex-end",
       editorType: "dxCheckBox",
       editorOptions: {
         defaultValue: false,
@@ -152,13 +151,27 @@ export const useColumnSearch = ({
       label: {
         text: t("TicketDeadline"),
       },
-      colSpan: 2,
+      colSpan: 1,
+      editorType: "dxDateRangeBox",
       editorOptions: {
         type: "date",
         format: "yyyy-MM-dd",
       },
-      editorType: "dxDateBox",
     },
+    // {
+    //   dataField: "TicketDeadlineTo", // dealine
+    //   caption: t("TicketDeadlineTo"),
+    //   label: {
+    //     text: t("TicketDeadlineTo"),
+    //     visible: false,
+    //   },
+    //   colSpan: 1,
+    //   editorOptions: {
+    //     type: "date",
+    //     format: "yyyy-MM-dd",
+    //   },
+    //   editorType: "dxDateBox",
+    // },
     {
       dataField: "TicketType", // phân loại
       caption: t("TicketType"),
@@ -218,62 +231,62 @@ export const useColumnSearch = ({
       editorType: "dxTextBox",
     },
     {
-      dataField: "CreateDTimeUTCFrom", //
-      caption: t("CreateDTimeUTCFrom"),
+      dataField: "CreateDTimeUTC", //
+      caption: t("CreateDTimeUTC"),
       label: {
         text: t("CreateDTimeUTC"),
       },
+      editorType: "dxDateRangeBox",
       editorOptions: {
         type: "date",
         format: "yyyy-MM-dd",
       },
-      editorType: "dxDateBox",
     },
+    // {
+    //   dataField: "CreateDTimeUTCTo",
+    //   caption: t("CreateDTimeUTCTo"),
+    //   label: {
+    //     text: t("CreateDTimeUTCTo"),
+    //     visible: false,
+    //   },
+    //   editorOptions: {
+    //     type: "date",
+    //     format: "yyyy-MM-dd",
+    //   },
+    //   editorType: "dxDateBox",
+    // },
     {
-      dataField: "CreateDTimeUTCTo",
-      caption: t("CreateDTimeUTCTo"),
-      label: {
-        text: t("CreateDTimeUTCTo"),
-        visible: false,
-      },
-      editorOptions: {
-        type: "date",
-        format: "yyyy-MM-dd",
-      },
-      editorType: "dxDateBox",
-    },
-    {
-      dataField: "LogLUDTimeUTCFrom",
-      caption: t("LogLUDTimeUTCFrom"),
+      dataField: "LogLUDTimeUTC",
+      caption: t("LogLUDTimeUTC"),
       label: {
         text: t("LogLUDTimeUTC"),
       },
+      editorType: "dxDateRangeBox",
       editorOptions: {
         type: "date",
         format: "yyyy-MM-dd",
       },
-      editorType: "dxDateBox",
     },
+    // {
+    //   dataField: "LogLUDTimeUTCTo",
+    //   caption: t("LogLUDTimeUTCTo"),
+    //   label: {
+    //     text: t("LogLUDTimeUTCTo"),
+    //     visible: false,
+    //   },
+    //   editorOptions: {
+    //     type: "date",
+    //     format: "yyyy-MM-dd",
+    //   },
+    //   editorType: "dxDateBox",
+    // },
     {
-      dataField: "LogLUDTimeUTCTo",
-      caption: t("LogLUDTimeUTCTo"),
-      label: {
-        text: t("LogLUDTimeUTCTo"),
-        visible: false,
-      },
-      editorOptions: {
-        type: "date",
-        format: "yyyy-MM-dd",
-      },
-      editorType: "dxDateBox",
-    },
-    {
-      dataField: "TicketSourceFrom",
-      caption: t("TicketSourceFrom"),
+      dataField: "TicketSource",
+      caption: t("TicketSource"),
       label: {
         text: t("TicketSource"),
       },
-      colSpan: 1,
+      colSpan: 2,
       editorOptions: {
         dataSource: ticketSourceList,
         displayExpr: "CustomerTicketSourceName",
@@ -281,21 +294,21 @@ export const useColumnSearch = ({
       },
       editorType: "dxTagBox",
     },
-    {
-      dataField: "TicketSourceTo",
-      caption: t("TicketSourceTo"),
-      label: {
-        visible: false,
-        text: t("TicketSourceTo"),
-      },
-      colSpan: 1,
-      editorOptions: {
-        dataSource: ticketSourceList,
-        displayExpr: "CustomerTicketSourceName",
-        valueExpr: "TicketSource",
-      },
-      editorType: "dxTagBox",
-    },
+    // {
+    //   dataField: "TicketSourceTo",
+    //   caption: t("TicketSourceTo"),
+    //   label: {
+    //     visible: false,
+    //     text: t("TicketSourceTo"),
+    //   },
+    //   colSpan: 1,
+    //   editorOptions: {
+    //     dataSource: ticketSourceList,
+    //     displayExpr: "CustomerTicketSourceName",
+    //     valueExpr: "TicketSource",
+    //   },
+    //   editorType: "dxTagBox",
+    // },
     {
       dataField: "CustomerCodeSys", // Doanh nghiệp
       caption: t("CustomerCodeSys"),
@@ -325,10 +338,10 @@ export const useColumnSearch = ({
       editorType: "dxTagBox",
     },
     {
-      dataField: "TickerFollower", // Người theo dõi
-      caption: t("TickerFollower"),
+      dataField: "Follower", // Người theo dõi
+      caption: t("Follower"),
       label: {
-        text: t("TickerFollower"),
+        text: t("Follower"),
       },
       colSpan: 2,
       editorOptions: {

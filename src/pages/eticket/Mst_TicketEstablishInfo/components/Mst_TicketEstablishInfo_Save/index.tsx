@@ -114,6 +114,7 @@ const Mst_TicketEstablishInfo_Save = () => {
   }, []);
 
   const CallSave = useCallback(async (param: any) => {
+    console.log("param ",param)
     const response = await api.Mst_TicketEstablishInfoApi_Save(param);
     if (response.isSuccess) {
       toast.success("Save successfully");
@@ -169,8 +170,6 @@ const Mst_TicketEstablishInfo_Save = () => {
       OrgID: auth.orgData?.Id,
       TicketSource: "", // hệ thống tự nhập
       NetworkID: auth.networkId,
-      // AgentTicketSourceName: "", // để người dùng nhập
-      // CustomerTicketSourceName: "", // để người dùng nhập
       FlagUseType: "TYPE3",
       FlagActive: "1",
       Remark: "",

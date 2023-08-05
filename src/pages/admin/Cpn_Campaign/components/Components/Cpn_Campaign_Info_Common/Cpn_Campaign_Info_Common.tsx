@@ -436,7 +436,7 @@ const FormInfoCommon = forwardRef(
         },
         editorType: "dxSelectBox",
         colSpan: 1,
-        visible: flagSelector !== "add",
+        visible: !!param?.flag,
         editorOptions: {
           readOnly: param?.flag === "detail",
           dataSource: arrayStatus,

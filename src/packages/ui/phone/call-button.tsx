@@ -49,21 +49,29 @@ export function CallButtton() {
 
   const phone = window.Phone || {};
   useEffect(() => {
-    hub.start(()=>{
+    hub.start(() => {
 
-      
-      hub.onReceiveMessage("NewClientLogin", (cid)=>{
 
-        if(cid!=myClientId)
-        {
-            
-              window.location.href ='/disconnected';
-            
+      hub.onReceiveMessage("NewClientLogin", (cid) => {
+
+        if (cid != myClientId) {
+
+          window.location.href = '/disconnected';
+
 
         }
       });
+
+      hub.onReceiveMessage("ReloadPageNow", (e) => {
+
+
+        window.location.href = window.location.href;
+
+
+
+      });
     });
-    
+
 
     callApi.getMyCallingInfo(auth.networkId, { clientId: myClientId }).then((resp) => {
       if (resp.Success && resp.Data) {

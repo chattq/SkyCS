@@ -39,7 +39,7 @@ export const useHeaderItems = () => {
       },
       {
         text: t("Search"),
-        path: `/search`,
+        path: `/search/SearchInformation`,
         permissionCode: "MNU_SEARCH",
       },
       {

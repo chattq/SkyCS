@@ -27,14 +27,14 @@ export const reportRoutes: RouteItem[] = [
     getPageElement: () => <Report_CallPage />,
   },
 
-  {
-    key: "baocaocuocgoi",
-    path: "report/baocaocuocgoi",
-    permissionCode: "",
-    subMenuTitle: "baocaocuocgoi",
-    mainMenuKey: "report",
-    getPageElement: () => <Rpt_CallPage />,
-  },
+  // {
+  //   key: "baocaocuocgoi",
+  //   path: "report/baocaocuocgoi",
+  //   permissionCode: "",
+  //   subMenuTitle: "baocaocuocgoi",
+  //   mainMenuKey: "report",
+  //   getPageElement: () => <Rpt_CallPage />,
+  // },
   {
     key: "Rpt_CpnCampaign",
     path: "",
@@ -44,7 +44,7 @@ export const reportRoutes: RouteItem[] = [
     children: [
       {
         key: "Rpt_CpnCampaignResultCall",
-        path: "report/RptCpnCampaignResultCall",
+        path: "eticket-button-send",
         permissionCode: "",
         subMenuTitle: "Rpt_CpnCampaignResultCall",
         mainMenuKey: "report",

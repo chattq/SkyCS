@@ -41,7 +41,6 @@ export const useDepartMentGridColumns = ({
       data.DepartmentCode
     );
     if (resp.isSuccess) {
-      console.log(44, resp?.Data);
       setDataUser(
         resp?.Data?.Lst_Sys_UserMapDepartment.map((item: any) => {
           return {

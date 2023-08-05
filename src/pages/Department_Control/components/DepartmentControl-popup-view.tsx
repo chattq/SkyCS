@@ -81,7 +81,11 @@ export const DepartMentControlPopupView = ({
 
   useEffect(() => {
     if (listUser && flagCheckCRUD === true) {
-      setDataUser(listUser?.DataList);
+      setDataUser(
+        listUser?.DataList?.filter(
+          (item) => item.OrgID === auth.orgId.toString()
+        )
+      );
     }
     if (listUser && flagCheckCRUD === false) {
       setDataUser(
@@ -90,7 +94,7 @@ export const DepartMentControlPopupView = ({
             !dataTable.some(
               (arrItem: any) => arrItem.UserCode === item.UserCode
             )
-        )
+        ).filter((item) => item.OrgID === auth.orgId.toString())
       );
     }
   }, [listUser, flagCheckCRUD]);
@@ -102,15 +106,23 @@ export const DepartMentControlPopupView = ({
   const handleSubmitPopup = useCallback(
     (e: any) => {
       validateRef.current.instance.validate();
-      const dataForm = new FormData(formRef.current);
-      const dataSaveForm: any = Object.fromEntries(dataForm.entries()); // chuyển thành form chính
+      const dataFormSubmit = new FormData(formRef.current);
+      const dataSaveForm: any = Object.fromEntries(dataFormSubmit.entries()); // chuyển thành form chính
       const dataSave = {
         Mst_Department: {
           ...dataSaveForm,
           DepartmentCode: dataSaveForm.DepartmentCode,
           FlagActive: dataSaveForm.FlagActive === "true" ? "1" : "0",
           OrgID: auth.orgData.Id.toString(),
-          FlagAutoDiv: valueRadio,
+          FlagAutoDiv:
+            dataTable.filter(
+              (value: any, index: any, self: any) =>
+                self.indexOf(value) === index
+            )?.length === 0
+              ? ""
+              : valueRadio
+              ? valueRadio
+              : dataForm.FlagAutoDiv,
         },
         Lst_Sys_UserMapDepartment: dataTable
           .filter(
@@ -120,31 +132,35 @@ export const DepartMentControlPopupView = ({
             return {
               DepartmentCode: dataSaveForm.DepartmentCode,
               UserCode: item.UserCode,
-              OrgID: item.OrgID,
+              OrgID: auth.orgData.Id.toString(),
               FullName: item.UserName,
               Email: item.EMail,
               PhoneNo: item.PhoneNo,
             };
           }),
         Lst_Sys_UserAutoAssignTicket:
-          valueRadio === "0"
-            ? [
+          dataTable.filter(
+            (value: any, index: any, self: any) => self.indexOf(value) === index
+          )?.length === 0
+            ? []
+            : valueRadio === "1" || dataForm.FlagAutoDiv === "1"
+            ? []
+            : [
                 {
                   DepartmentCode: dataSaveForm.DepartmentCode,
                   UserCode: radioRef.current,
                   OrgID: auth.orgId.toString(),
                 },
-              ]
-            : [],
+              ],
       };
-      console.log(142, dataSave);
+
       if (flagCheckCRUD) {
         onCreate(dataSave);
       } else {
         onEdit(dataSave);
       }
     },
-    [flagCheckCRUD, dataTable, valueRadio, radioRef]
+    [flagCheckCRUD, dataTable, valueRadio, radioRef, dataForm]
   );
 
   const customizeItem = useCallback(
@@ -191,7 +207,7 @@ export const DepartMentControlPopupView = ({
         return item.UserName.toLowerCase().includes(
           e.target.value.toLowerCase()
         );
-      })
+      }).filter((item) => item.OrgID === auth.orgId.toString())
     );
   };
 
@@ -208,7 +224,7 @@ export const DepartMentControlPopupView = ({
       listUser?.DataList?.filter(
         (item) =>
           !dataTable.some((arrItem: any) => arrItem.UserCode === item.UserCode)
-      )
+      ).filter((item) => item.OrgID === auth.orgId.toString())
     );
     setHidenPopupAddUser(true);
   };
@@ -243,14 +259,19 @@ export const DepartMentControlPopupView = ({
       FlagAutoDiv: "0",
       component: (
         <SelectBox
-          dataSource={dataTable.filter(
-            (value: any, index: any, self: any) => self.indexOf(value) === index
-          )}
+          dataSource={
+            valueRadio === "1"
+              ? []
+              : dataTable.filter(
+                  (value: any, index: any, self: any) =>
+                    self.indexOf(value) === index
+                )
+          }
           onValueChanged={(e) => handleUserTicket(e.value)}
           valueExpr={"UserCode"}
           displayExpr={"UserName"}
           searchEnabled={true}
-          defaultValue={dataUserAutoTicket}
+          defaultValue={dataUserAutoTicket[0]?.UserCode}
         />
       ),
     },
@@ -405,6 +426,7 @@ export const DepartMentControlPopupView = ({
             isSingleSelection={false}
             isHidenHeaderFilter={false}
             isHiddenCheckBox={true}
+            customToolbarItems={[]}
           />
         </form>
 
@@ -421,7 +443,7 @@ export const DepartMentControlPopupView = ({
                     readOnly={detailForm}
                     dataSource={dataSource}
                     itemRender={renderRadioGroupItem}
-                    defaultValue={dataForm?.FlagAutoDiv}
+                    defaultValue={dataForm.FlagAutoDiv}
                     onValueChanged={(e) => handleChangeRadio(e.value)}
                     valueExpr="FlagAutoDiv"
                   />

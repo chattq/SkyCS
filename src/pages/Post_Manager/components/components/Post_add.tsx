@@ -22,7 +22,7 @@ import { currentInfo, refechAtom } from "../store";
 import { useAtomValue, useSetAtom } from "jotai";
 import { authAtom, showErrorAtom } from "@/packages/store";
 import { format } from "date-fns";
-import { getYearMonthDate } from "@/components/ulti";
+import { getYearMonthDate, revertEncodeFileType } from "@/components/ulti";
 import { transformCategory } from "./FormatCategory";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
@@ -41,13 +41,13 @@ export default function Post_add() {
   const setRefech = useSetAtom(refechAtom);
 
   const PostStatus = [
-    { text: t("Published"), value: "PUBLISHED" },
-    { text: t("Draft"), value: "DRAFT" },
+    { text: t("Published"), valuePost: "PUBLISHED" },
+    { text: t("Draft"), valuePost: "DRAFT" },
   ];
   const shareType = [
-    { text: t("Organization"), value: "ORGANIZATION" },
-    { text: t("Network"), value: "NETWORK" },
-    { text: t("Private"), value: "PRIVATE" },
+    { text: t("Organization"), valueShare: "ORGANIZATION" },
+    { text: t("Network"), valueShare: "NETWORK" },
+    { text: t("Private"), valueShare: "PRIVATE" },
   ];
   const navigate = useNavigate();
 
@@ -58,6 +58,8 @@ export default function Post_add() {
     api.KB_Category_GetAllActive()
   );
   const handleAddNew = async () => {
+    validateRef.current.instance.validate();
+    formRef2.current.instance.validate();
     const formData = validateRef.current.instance.option("formData");
     const formData2 = formRef2.current.instance.option("formData");
     const resp = await api.Mst_Tag_GetAllActive();
@@ -71,9 +73,9 @@ export default function Post_add() {
         Detail: formData.Detail ?? "",
         Title: formData.Title ?? "",
         Synopsis: formData.Synopsis ?? "",
-        ShareType: formData2.ShareType ?? "",
+        ShareType: formData2.ShareType ? formData2.ShareType : "ORGANIZATION",
+        PostStatus: formData2.PostStatus ? formData2.PostStatus : "PUBLISHED",
         FlagShare: "1",
-        PostStatus: formData2.PostStatus ?? "",
       },
       Lst_KB_PostCategory: formData2?.Category
         ? formData2?.Category.map((item: any) => ({
@@ -87,27 +89,38 @@ export default function Post_add() {
         : [],
       Lst_KB_PostAttachFile: formData?.UploadFiles
         ? formData?.UploadFiles.map((item: any, index: any) => ({
-            Idx: (index + 1)?.toString(),
-            FileName: item?.FileFullName,
-            FilePath: item?.FileUrlFS,
-            FileType: item?.FileType,
+            Idx: index,
+            FileName: item.FileFullName ?? "",
+            FilePath: item.FileUrlFS ?? "",
+            FileType: revertEncodeFileType(item.FileType),
           }))
         : [],
     };
-    const respDataSave = await api.KB_PostData_Create(dataSave);
-    if (respDataSave.isSuccess) {
-      toast.success(t("Create Successfully"));
-      setRefech(true);
-      navigate(`/${auth.networkId}/admin/Post_Manager`);
-      // await refetch();
-      return true;
+
+    if (
+      dataSave.Lst_KB_PostCategory.length !== 0 &&
+      dataSave.KB_Post.Detail !== "" &&
+      dataSave.KB_Post.Title !== ""
+    ) {
+      const respDataSave = await api.KB_PostData_Create(dataSave);
+      if (respDataSave.isSuccess) {
+        toast.success(t("Create Successfully"));
+        setRefech(true);
+        navigate(`/${auth.networkId}/admin/Post_Manager`);
+        // await refetch();
+        return true;
+      }
+      showError({
+        message: t(resp.errorCode),
+        debugInfo: resp.debugInfo,
+        errorInfo: resp.errorInfo,
+      });
+      throw new Error(resp.errorCode);
+    } else if (dataSave.KB_Post.Detail === "") {
+      toast.error(t("Chi tiết bài viết không được để trống!"));
+    } else if (dataSave.Lst_KB_PostCategory?.length === 0) {
+      toast.error(t("Danh mục không được để trống!"));
     }
-    showError({
-      message: t(resp.errorCode),
-      debugInfo: resp.debugInfo,
-      errorInfo: resp.errorInfo,
-    });
-    throw new Error(resp.errorCode);
   };
   const sizeValues = ["8pt", "10pt", "12pt", "14pt", "18pt", "24pt", "36pt"];
   const fontValues = [
@@ -163,51 +176,63 @@ export default function Post_add() {
 
                     // multiline={this.state.isMultiline}
                     >
-                      <ItemEditor name="undo" />
-                      <ItemEditor name="redo" />
-                      <ItemEditor name="separator" />
-                      <ItemEditor name="size" acceptedValues={sizeValues} />
-                      <ItemEditor name="font" acceptedValues={fontValues} />
-                      <ItemEditor name="separator" />
-                      <ItemEditor name="bold" />
-                      <ItemEditor name="italic" />
-                      <ItemEditor name="strike" />
-                      <ItemEditor name="underline" />
-                      <ItemEditor name="separator" />
-                      <ItemEditor name="alignLeft" />
-                      <ItemEditor name="alignCenter" />
-                      <ItemEditor name="alignRight" />
-                      <ItemEditor name="alignJustify" />
-                      <ItemEditor name="separator" />
-                      <ItemEditor name="orderedList" />
-                      <ItemEditor name="bulletList" />
-                      <ItemEditor name="separator" />
+                      <ItemEditor cssClass="itemHTML" name="undo" />
+                      <ItemEditor cssClass="itemHTML" name="redo" />
+                      <ItemEditor cssClass="itemHTML" name="separator" />
+                      <ItemEditor
+                        cssClass="itemHTML"
+                        name="size"
+                        acceptedValues={sizeValues}
+                      />
+                      <ItemEditor
+                        cssClass="itemHTML"
+                        name="font"
+                        acceptedValues={fontValues}
+                      />
+                      <ItemEditor cssClass="itemHTML" name="separator" />
+                      <ItemEditor cssClass="itemHTML" name="bold" />
+                      <ItemEditor cssClass="itemHTML" name="italic" />
+                      <ItemEditor cssClass="itemHTML" name="strike" />
+                      <ItemEditor cssClass="itemHTML" name="underline" />
+                      <ItemEditor cssClass="itemHTML" name="separator" />
+                      <ItemEditor cssClass="itemHTML" name="alignLeft" />
+                      <ItemEditor cssClass="itemHTML" name="alignCenter" />
+                      <ItemEditor cssClass="itemHTML" name="alignRight" />
+                      <ItemEditor cssClass="itemHTML" name="alignJustify" />
+                      <ItemEditor cssClass="itemHTML" name="separator" />
+                      <ItemEditor cssClass="itemHTML" name="orderedList" />
+                      <ItemEditor cssClass="itemHTML" name="bulletList" />
+                      <ItemEditor cssClass="itemHTML" name="separator" />
                       {/* <Item name="header" acceptedValues={headerValues} /> */}
-                      <ItemEditor name="separator" />
-                      <ItemEditor name="color" />
-                      <ItemEditor name="background" />
-                      <ItemEditor name="separator" />
-                      <ItemEditor name="link" />
-                      <ItemEditor name="image" />
+                      <ItemEditor cssClass="itemHTML" name="separator" />
+                      <ItemEditor cssClass="itemHTML" name="color" />
+                      <ItemEditor cssClass="itemHTML" name="background" />
+                      <ItemEditor cssClass="itemHTML" name="separator" />
+                      <ItemEditor cssClass="itemHTML" name="link" />
+                      <ItemEditor cssClass="itemHTML" name="image" />
                       <Item name="separator" />
-                      <ItemEditor name="clear" />
-                      <ItemEditor name="codeBlock" />
-                      <ItemEditor name="blockquote" />
-                      <ItemEditor name="separator" />
-                      <ItemEditor name="insertTable" />
-                      <ItemEditor name="deleteTable" />
-                      <ItemEditor name="insertRowAbove" />
-                      <ItemEditor name="insertRowBelow" />
-                      <ItemEditor name="deleteRow" />
-                      <ItemEditor name="insertColumnLeft" />
-                      <ItemEditor name="insertColumnRight" />
-                      <ItemEditor name="deleteColumn" />
+                      <ItemEditor cssClass="itemHTML" name="clear" />
+                      <ItemEditor cssClass="itemHTML" name="codeBlock" />
+                      <ItemEditor cssClass="itemHTML" name="blockquote" />
+                      <ItemEditor cssClass="itemHTML" name="separator" />
+                      <ItemEditor cssClass="itemHTML" name="insertTable" />
+                      <ItemEditor cssClass="itemHTML" name="deleteTable" />
+                      <ItemEditor cssClass="itemHTML" name="insertRowAbove" />
+                      <ItemEditor cssClass="itemHTML" name="insertRowBelow" />
+                      <ItemEditor cssClass="itemHTML" name="deleteRow" />
+                      <ItemEditor cssClass="itemHTML" name="insertColumnLeft" />
+                      <ItemEditor
+                        cssClass="itemHTML"
+                        name="insertColumnRight"
+                      />
+                      <ItemEditor cssClass="itemHTML" name="deleteColumn" />
                     </Toolbar>
                   </HtmlEditor>
                 );
               },
               caption: t("Detail"),
               visible: true,
+              validationRules: [requiredType],
             },
             {
               dataField: "UploadFiles", // file đính kèm
@@ -220,13 +245,15 @@ export default function Post_add() {
               editorOptions: {
                 readOnly: true,
               },
-              render: (param: any) => {
-                const { component: formComponent, dataField } = param;
+              render: (paramValue: any) => {
+                const { component: formComponent, dataField } = paramValue;
                 return (
                   <UploadFilesField
                     formInstance={formComponent}
+                    readonly={false}
+                    controlFileInput={["DOCX", "PDF", "JPG", "PNG", "XLSX"]}
                     onValueChanged={(files: any) => {
-                      formComponent.updateData("UploadFiles", files);
+                      formComponent.updateData(dataField, files);
                     }}
                   />
                 );
@@ -264,25 +291,27 @@ export default function Post_add() {
               dataField: "PostStatus",
               editorOptions: {
                 dataSource: PostStatus,
-                valueExpr: "value",
+                valueExpr: "valuePost",
                 displayExpr: "text",
                 placeholder: t("Select"),
               },
               editorType: "dxSelectBox",
               caption: t("PostStatus"),
               visible: true,
+              validationRules: [requiredType],
             },
             {
               dataField: "ShareType",
               editorOptions: {
                 placeholder: t("Select"),
                 dataSource: shareType,
-                valueExpr: "value",
+                valueExpr: "valueShare",
                 displayExpr: "text",
               },
               editorType: "dxSelectBox",
               caption: t("ShareType"),
               visible: true,
+              validationRules: [requiredType],
             },
             {
               dataField: "Category",
@@ -290,10 +319,12 @@ export default function Post_add() {
               editorOptions: {
                 placeholder: t("Input Select"),
               },
+              validationRules: [requiredType],
               render: (param: any) => {
                 const { component: formComponent, dataField } = param;
                 return (
                   <TreeView
+                    noDataText={t("No data")}
                     id="treeview"
                     displayExpr="CategoryName"
                     ref={treeViewRef}
@@ -350,18 +381,33 @@ export default function Post_add() {
   }, []);
 
   const customizeItem = useCallback((item: any) => {
-    if (["OrgID", "CustomerGrpCode"].includes(item.dataField)) {
-    }
+    // if (["OrgID", "CustomerGrpCode"].includes(item.dataField)) {
+    // }
+    // if (item.dataField === "PostStatus") {
+    //   item.editorOptions.value = PostStatus[0].value;
+    // }
+    // if (item.dataField === "ShareType") {
+    //   item.editorOptions.value = shareType[0].value;
+    // }
   }, []);
+  const customizeItem1 = (item: any) => {
+    // if (["OrgID", "CustomerGrpCode"].includes(item.dataField)) {
+    // }
+    if (item.dataField === "PostStatus") {
+      item.editorOptions.value = PostStatus[0].valuePost;
+    }
+    if (item.dataField === "ShareType") {
+      item.editorOptions.value = shareType[0].valueShare;
+    }
+  };
 
   const handleFieldDataChanged = (changedData: any) => {
     // Handle the changed field data
-    if (changedData.dataField === "EMail") {
-    }
   };
-  const dataform = {
-    // Title: "abc",
+  const handleFieldDataChanged1 = (changedData: any) => {
+    // Handle the changed field data
   };
+
   return (
     <AdminContentLayout className={"Post_Manager"}>
       <AdminContentLayout.Slot name={"Header"}>
@@ -452,8 +498,8 @@ export default function Post_add() {
                 readOnly={false}
                 formData={{}}
                 labelLocation="left"
-                customizeItem={customizeItem}
-                onFieldDataChanged={handleFieldDataChanged}
+                customizeItem={customizeItem1}
+                onFieldDataChanged={handleFieldDataChanged1}
               >
                 {formSettings
                   .filter((item: any) => item.typeForm === "FormRight")

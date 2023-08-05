@@ -1,0 +1,34 @@
+.province-management {
+  .form-customer {
+    flex: 1;
+    padding-right: 50px;
+
+    .dx-layout-manager .dx-field-item:not(.dx-last-col) {
+      padding-right: 25px;
+    }
+
+    .dx-layout-manager .dx-field-item:not(.dx-first-col) {
+      padding-left: 25px;
+    }
+  }
+
+  .form-customer-content {
+    .dx-layout-manager {
+      .dx-state-disabled {
+        .dx-texteditor.dx-editor-filled {
+          background-color: white;
+        }
+        .dx-texteditor-container {
+          border: none !important;
+
+          input {
+            font-size: 14px;
+            font-weight: 600 !important;
+            font-family: "Inter";
+            color: #0e223d !important;
+          }
+        }
+      }
+    }
+  }
+}

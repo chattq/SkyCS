@@ -22,6 +22,9 @@ export interface CcAgent {
     DeviceState?: string,
     AgentStatus?: string,
     LastCallDTime?: string,
+
+    IsActive?: boolean,
+    AllowCallout?: boolean,
 }
 
 export interface CcOrgInfo {
@@ -87,6 +90,7 @@ export interface CcCall {
 export interface RptCallLog {
     ExtId?: number,
     Number?: string,
+    Name?: string, //ten agent
     RingDTime?: string,
     TalkDTime?: string,
     EndDTime?: string,
@@ -114,6 +118,8 @@ export interface RptCall {
     AgentUserId?: number, // User Id xử lý cuộc gọi ( ko có nghĩa khi gọi nội bộ)
 
     RemoteNumber?: string, // sđt khách  ( ko có nghĩa khi gọi nội bộ)
+
+    CCNumber?: string, //số tổng đài
 
     FromExtId?: number, //extension gọi 
 

@@ -24,7 +24,7 @@ export const useFormSettings = ({ data }: any) => {
               dataField: "CategoryName",
               editorOptions: {
                 placeholder: t("Input"),
-                maxLength: 120,
+                maxLength: 200,
               },
               label: {
                 text: t("CategoryName"),

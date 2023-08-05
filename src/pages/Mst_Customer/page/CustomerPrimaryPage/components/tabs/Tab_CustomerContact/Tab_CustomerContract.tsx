@@ -1,6 +1,7 @@
 import { useClientgateApi } from "@/packages/api";
 import { BaseGridView } from "@/packages/ui/base-gridview";
 import { useQuery } from "@tanstack/react-query";
+import { LoadPanel } from "devextreme-react";
 import { useRef } from "react";
 import { useParams } from "react-router-dom";
 import { PopupViewComponent } from "../Tab_CustomerHist/use-popup-view";
@@ -21,8 +22,6 @@ const Tab_CustomerContract = () => {
         const resp: any = await api.Mst_CustomerContact_Search({
           CustomerCodeSys: customerCodeSys,
         });
-
-        console.log(resp);
 
         if (resp?.isSuccess) {
           const col: any = await api.MdMetaColGroupSpec_Search(
@@ -63,12 +62,13 @@ const Tab_CustomerContract = () => {
     refetch: refetch,
   });
 
-  const popupView = usePopupCustomerContract();
+  const popupView = usePopupCustomerContract({
+    refetchList: refetch,
+    listContact: data ?? [],
+  });
 
   return (
-    <div className="w-full">
-      {popupView}
-
+    <div className="w-full relative">
       <BaseGridView
         isLoading={isLoading}
         dataSource={data ?? []}
@@ -85,7 +85,13 @@ const Tab_CustomerContract = () => {
         onDeleteRows={() => {}}
         storeKey={"Mst_CustomerHist-columns"}
         editable={false}
+        showCheck="none"
       />
+
+      {popupView}
+
+      <LoadPanel visible={isLoading} />
+
       <PopupViewComponent />
     </div>
   );

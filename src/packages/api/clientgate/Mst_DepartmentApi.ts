@@ -79,7 +79,6 @@ export const useMst_DepartmentControlApi = (apiBase: AxiosInstance) => {
     Mst_DepartmentControl_Update: async (
       data: any
     ): Promise<ApiResponse<Mst_DepartmentControl>> => {
-      console.log(data);
       return await apiBase.post("/MstDepartment/Update", {
         strJson: JSON.stringify(data),
         ColsUpd: `"DepartmentName","DepartmentCodeParent","FlagActive","DepartmentDesc"`,

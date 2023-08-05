@@ -3,7 +3,7 @@ export const getCategories = (categoryArray: any, level = 1) => {
     const newCategory = {
       ...category,
       level,
-      hasChildren: category?.Lst_KB_CategoryChildren.length > 0,
+      hasChildren: category?.Lst_KB_CategoryChildren?.length > 0,
     };
     delete newCategory.Lst_KB_CategoryChildren;
     if (newCategory.hasChildren) {

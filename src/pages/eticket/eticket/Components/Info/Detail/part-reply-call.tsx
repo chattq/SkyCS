@@ -1,25 +1,17 @@
-import ResponsiveBox, {
-  Col,
-  Item,
-  Location,
-  Row,
-} from "devextreme-react/responsive-box";
-import { Button, DropDownBox, List } from "devextreme-react";
-import { Item as TabItem } from "devextreme-react/tabs";
-import { ReactNode, useState } from "react";
-import PopupCall from "./Popup/call";
-import { PartMessageItem } from "./part-message-item";
-import { Icon, IconName } from "@/packages/ui/icons";
-import ReactPlayer from "react-player";
-import audioFile from "../../../../../../../public/audio/test.mp3";
 import { useI18n } from "@/i18n/useI18n";
-import { Avatar } from "@/pages/eticket/components/avatar";
 import { useClientgateApi } from "@/packages/api";
 import { callApi } from "@/packages/api/call-api";
 import { useAuth } from "@/packages/contexts/auth";
-import { toast } from "react-toastify";
-import { useSetAtom } from "jotai";
 import { showErrorAtom } from "@/packages/store";
+import { Icon, IconName } from "@/packages/ui/icons";
+import { Avatar } from "@/pages/eticket/components/avatar";
+import { Button, SelectBox } from "devextreme-react";
+import { useAtomValue, useSetAtom } from "jotai";
+import { ReactNode, useState } from "react";
+import ReactPlayer from "react-player";
+import { toast } from "react-toastify";
+import PopupCall from "./Popup/call";
+import { Lst_Eticket_ActionType_Atom } from "./store";
 interface CallItem {
   CallID: number;
   CallType: number;
@@ -31,18 +23,32 @@ interface CallItem {
   TalkLocalDTimeFrom: string;
   TalkLocalDTimeTo: string;
   Type: string;
+  RecFilePath?: string;
 }
 
-export const PartReplyCall = ({onReload} : {onReload: any}) => {
+export const PartReplyCall = ({
+  data,
+  onReload,
+}: {
+  data: any;
+  onReload: any;
+}) => {
   const [popup, setPopup] = useState<ReactNode>(<></>);
   const [file, setFile] = useState<CallItem[]>([]);
   const { t } = useI18n("Eticket_Detail");
   const { auth } = useAuth();
   const api = useClientgateApi();
+  const Lst_Eticket_ActionType = useAtomValue(Lst_Eticket_ActionType_Atom);
   const showError = useSetAtom(showErrorAtom);
+  const initValue = {
+    ActionType: data?.ActionType || "0",
+    TicketID: data?.TicketID || "",
+    OrgID: data?.OrgID || "",
+    Description: data?.Description || "",
+  };
+  const [addRemark, setAddRemark] = useState(initValue);
   const callLastest = async () => {
     callApi.getMyLatestCall(auth.networkId ?? "").then(async (resp) => {
-      console.log("resp.Data ", resp.Data);
       if (resp.Success) {
         if (resp.Data) {
           const response = await api.ET_Ticket_GetCallMessageByCallID(
@@ -50,7 +56,6 @@ export const PartReplyCall = ({onReload} : {onReload: any}) => {
           );
           if (response.isSuccess) {
             toast.success(t("ET_Ticket_GetCallMessageByCallID success!"));
-            console.log("response ", response.Data);
             const param = {
               // ConvMessageType: "4",
               // ChannelId: "2",
@@ -86,15 +91,42 @@ export const PartReplyCall = ({onReload} : {onReload: any}) => {
     setPopup(<></>);
   };
 
+  const hanldleAddCall = async () => {
+    const obj = {
+      ActionType: addRemark.ActionType,
+      TicketID: addRemark.TicketID,
+      List_ET_TicketMessageCall: file.map((item) => {
+        return {
+          CallID: item.CallID,
+        };
+      }),
+    };
+    const response = await api.AddCall(obj);
+    if (response.isSuccess) {
+      toast.success(t("AddCall success!"));
+      onReload();
+    } else {
+      showError({
+        message: t(response.errorCode),
+        debugInfo: response.debugInfo,
+        errorInfo: response.errorInfo,
+      });
+    }
+  };
+
   const handleRemoveFile = () => {
     setFile([]);
   };
   return (
     <div className={"w-full box-reply message-reply mb-2"}>
-      <center className="h-[200px] content-call flex align-items-center justify-center">
+      <center
+        className="h-[200px] content-call flex align-items-center justify-center"
+        style={{ marginTop: "10px", marginBottom: "10px" }}
+      >
         {file.length ? (
           <div className="w-[100%] p-3">
             {file.map((item: CallItem, idx: number) => {
+              console.log(item);
               let flag: IconName = "call";
               // let flagI
               // None=0,								Báo lỗi "Chưa kết thúc cuộc gọi"
@@ -148,19 +180,21 @@ export const PartReplyCall = ({onReload} : {onReload: any}) => {
                   </span>
 
                   <div className="w-full pl-5 pr-5">
-                    {/* <ReactPlayer
-                      url={audioFile}
-                      controls
-                      config={{
-                        file: {
-                          forceVideo: false,
-                          forceAudio: true,
-                        },
-                      }}
-                      width={300}
-                      height={35}
-                      volume={0.1}
-                    /> */}
+                    {item?.RecFilePath && (
+                      <ReactPlayer
+                        url={item.RecFilePath}
+                        controls
+                        config={{
+                          file: {
+                            forceVideo: false,
+                            forceAudio: true,
+                          },
+                        }}
+                        width={300}
+                        height={35}
+                        volume={0.1}
+                      />
+                    )}
                     <br />
                     <p>
                       <span>{t("CallID")}</span>: <strong>{item.CallID}</strong>
@@ -208,21 +242,39 @@ export const PartReplyCall = ({onReload} : {onReload: any}) => {
         )}
       </center>
 
-      <div className={"w-full "} style={{ textAlign: "center" }}>
-        <div className="flex float-right">
-          <DropDownBox
-            label="Lựa chọn xử lý"
+      <div
+        className={"w-full box-button-eticket"}
+        style={{ textAlign: "center" }}
+      >
+        <div className="flex">
+          <SelectBox
+            value={addRemark.ActionType} // giá trị khởi tạo
+            valueExpr={"ActionTypeCode"} // giá trị được chọn
+            displayExpr={"ActionTypeName"} // giá trị hiển thị
+            style={{ width: 160, marginRight: 8 }}
             height={30}
-            style={{ width: 160 }}
-          >
-            <List></List>
-          </DropDownBox>
+            searchEnabled={true} // hiển thị chức năng tìm kiếm trong selectbox
+            minSearchLength={3} // số lượng ký tự bắt đầu tìm kiếm
+            searchExpr={["ActionTypeCode", "ActionTypeName"]} // tìm kiếm theo trường dữ liệu nào
+            searchTimeout={10} // độ trễ thời điểm người dùng nhập xong và thời điểm tìm kiếm được thực hiện
+            showDataBeforeSearch={false} // true: luôn hiển thị tất cả danh sách dữ liệu kể cả chưa nhập tới minSearchLength; false: không hiển thị dữ liệu cho đến khi nhập số ký tự bằng minSearchLength
+            //showClearButton={true} // hiển thị item xóa dữ liệu
+            dataSource={Lst_Eticket_ActionType} // nguồn dữ liệu
+            onValueChanged={(event: any) => {
+              const dataCur = {
+                ...addRemark,
+                ActionType: event.value,
+              };
+              setAddRemark(dataCur);
+            }}
+          ></SelectBox>
           <Button
             stylingMode={"contained"}
             type="default"
             icon="email"
             text={t("Send")}
-            className="eticket-button-send mr-1"
+            className="eticket-button-send"
+            onClick={hanldleAddCall}
           >
             {t("Send")}
             <Icon style={{ marginLeft: "10px" }} name="send"></Icon>

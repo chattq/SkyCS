@@ -58,6 +58,8 @@ export const useSideFormSettings = () => {
     return data;
   });
 
+  console.log(MstTicketEstablishInfo);
+
   // SLA
   const { data: SLAList } = useQuery(["SLADefaultList"], () =>
     api.Mst_SLA_GetSLADefault({
@@ -189,6 +191,7 @@ export const SideForm = forwardRef(({ formValue }: any, ref: any) => {
   const { auth } = useAuth();
 
   const setSLAID = useSetAtom(ticketAddSLAID);
+  const SLAID = useAtomValue(ticketAddSLAID);
 
   const ticketDeadlineValue = useAtomValue(ticketDeadline);
   const setTicketDeadline = useSetAtom(ticketDeadline);
@@ -212,16 +215,19 @@ export const SideForm = forwardRef(({ formValue }: any, ref: any) => {
 
       if (resp?.isSuccess) {
         // component.updateData("SLAID", resp?.Data?.Mst_SLA?.SLAID ?? "");
-        setSLAID({
-          SLAID: resp?.Data?.Mst_SLA?.SLAID,
-          SLALevel: resp?.Data?.Mst_SLA?.SLAID,
-        });
-        const min = resp?.Data?.Mst_SLA?.ResolutionTime;
-        const time = ticketDeadlineValue.setMinutes(
-          ticketDeadlineValue.getMinutes() + min
-        );
 
-        setTicketDeadline(new Date(time));
+        if (resp?.Data?.Mst_SLA?.SLAID != SLAID) {
+          setSLAID({
+            SLAID: resp?.Data?.Mst_SLA?.SLAID,
+            SLALevel: resp?.Data?.Mst_SLA?.SLALevel,
+          });
+          const min = resp?.Data?.Mst_SLA?.ResolutionTime;
+          const time = ticketDeadlineValue.setMinutes(
+            ticketDeadlineValue.getMinutes() + min
+          );
+
+          setTicketDeadline(new Date(time));
+        }
       }
     }
   };

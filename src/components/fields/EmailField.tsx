@@ -1,20 +1,52 @@
 import { Icon } from "@/packages/ui/icons";
-import { Button, TextBox } from "devextreme-react";
+import { Button, TextBox, Validator } from "devextreme-react";
+import { CustomRule, RequiredRule } from "devextreme-react/form";
 import { nanoid } from "nanoid";
-import { useState } from "react";
+import React, { useState } from "react";
+
+export const checkEmail = (list: any[]) => {
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+  const allValid = list?.every((item) => {
+    return emailRegex.test(item?.CtmEmail);
+  });
+
+  return allValid;
+};
 
 export const EmailField = ({ component, formData, field, editType }: any) => {
-  // init data
-  // component.updateData("CtmEmail", formData["CtmEmail"] || []);
   const [emails, setEmails] = useState<any>(formData["CtmEmail"] || []);
+
+  const validatorRef: any = React.useRef(null);
+
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
   const handleRemoveItem = (id: string) => {
-    /// remove item at `index` from `emails` list
     const result = emails.filter((_: any, i: number) => _.id !== id);
-    component.updateData("CtmEmail", result);
-    setEmails(result);
+
+    const check = result?.some((_: any) => _?.FlagDefault == "1");
+
+    if (!check) {
+      const expectedResult = result?.map((_: any, i: number) => {
+        if (i == 0) {
+          return {
+            ..._,
+            FlagDefault: "1",
+          };
+        }
+        return _;
+      });
+
+      component.updateData("CtmEmail", expectedResult);
+      setEmails(expectedResult);
+    } else {
+      component.updateData("CtmEmail", result);
+
+      setEmails(result);
+    }
   };
+
   const handleEditItem = (id: string, val: any) => {
-    /// edit item at `index` from `emails` list
     const result = emails.map((item: any) => {
       if (item.id === id) {
         return {
@@ -27,7 +59,6 @@ export const EmailField = ({ component, formData, field, editType }: any) => {
     component.updateData("CtmEmail", result);
     setEmails(result);
   };
-  // setFormValue(formData);
 
   const handleCheck = (id: string) => {
     const result = emails.map((item: any) => {
@@ -43,40 +74,53 @@ export const EmailField = ({ component, formData, field, editType }: any) => {
   };
 
   return (
-    <>
-      {emails.map((item: any, index: any) => {
-        return (
-          <div key={item.id} className={"flex items-center my-2"}>
-            <input
-              type={"radio"}
-              className="mr-2"
-              onChange={async (e: any) => {
-                handleCheck(item.id);
-              }}
-              checked={item.FlagDefault == "1"}
-              disabled={!item.CtmEmail || editType == "detail"}
-              readOnly={editType == "detail"}
-            />
-            <TextBox
-              onValueChanged={async (e: any) =>
-                handleEditItem(item.id, e.value)
-              }
-              validationMessageMode={"always"}
-              value={item.CtmEmail}
-              readOnly={editType == "detail"}
-            />
-
-            {editType != "detail" && (
-              <Button
-                onClick={() => handleRemoveItem(item.id)}
-                stylingMode={"text"}
+    <div className="flex items-center">
+      <div>
+        {emails.map((item: any, index: any) => {
+          return (
+            <div key={item.id} className={"flex items-center my-2"}>
+              <input
+                type={"radio"}
+                className="mr-2"
+                onChange={async (e: any) => {
+                  handleCheck(item.id);
+                }}
+                checked={item.FlagDefault == "1"}
+                disabled={!item.CtmEmail || editType == "detail"}
+                readOnly={editType == "detail"}
+              />
+              <TextBox
+                onValueChanged={async (e: any) =>
+                  handleEditItem(item.id, e.value)
+                }
+                validationMessageMode={"always"}
+                value={item.CtmEmail}
+                readOnly={editType == "detail"}
               >
-                <Icon name={"trash"} size={14} color={"#ff5050"} />
-              </Button>
-            )}
-          </div>
-        );
-      })}
+                <Validator ref={validatorRef}>
+                  <RequiredRule message="Vui lòng nhập Email!" />
+                  <CustomRule
+                    message="Vui lòng nhập đúng định dạng Email!"
+                    validationCallback={(options) => {
+                      const value: any = options.value;
+                      return emailRegex.test(value);
+                    }}
+                  />
+                </Validator>
+              </TextBox>
+
+              {editType != "detail" && (
+                <Button
+                  onClick={() => handleRemoveItem(item.id)}
+                  stylingMode={"text"}
+                >
+                  <Icon name={"trash"} size={14} color={"#ff5050"} />
+                </Button>
+              )}
+            </div>
+          );
+        })}
+      </div>
 
       {editType != "detail" && (
         <Button
@@ -108,6 +152,6 @@ export const EmailField = ({ component, formData, field, editType }: any) => {
           className={"mx-2 w-[100px]"}
         />
       )}
-    </>
+    </div>
   );
 };

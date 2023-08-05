@@ -11,12 +11,13 @@ import { useQuery } from "@tanstack/react-query";
 import { Button, Form, LoadPanel } from "devextreme-react";
 import { GroupItem, Item } from "devextreme-react/form";
 import { useAtomValue, useSetAtom } from "jotai";
+import { nanoid } from "nanoid";
 import { useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { match } from "ts-pattern";
 import Customer_Tabs from "./components/Customer_Tabs";
-
+import "./style.scss";
 export const CustomerPrimaryPage = () => {
   const api = useClientgateApi();
 
@@ -68,14 +69,39 @@ export const CustomerPrimaryPage = () => {
     },
   });
 
+  const getListDynamic = useMemo(() => {
+    if (!isLoadingCodeField && customer && customer?.Lst_Mst_Customer[0]) {
+      const list = JSON.parse(customer?.Lst_Mst_Customer[0].JsonCustomerInfo);
+
+      const listDynamic = listCodeField?.reduce((prev: any, cur: any) => {
+        if (cur?.FlagIsColDynamic == "1") {
+          prev[cur.ColCodeSys] =
+            list?.find((item: any) => item.ColCodeSys == cur.ColCodeSys)
+              ?.ColValue || customer?.Lst_Mst_Customer[0][cur.ColCodeSys];
+
+          return prev;
+        }
+
+        return prev;
+      }, {} as { [key: string]: any[] });
+
+      return listDynamic;
+    }
+  }, [isLoadingCodeField, customer, listCodeField]);
+
   const getFormField = useMemo(() => {
     if (!isLoadingCodeField && customer && customer?.Lst_Mst_Customer[0]) {
       const list = JSON.parse(customer?.Lst_Mst_Customer[0].JsonCustomerInfo);
 
       const listDynamic = listCodeField?.reduce((prev: any, cur: any) => {
-        prev[cur.ColCodeSys] =
-          list?.find((item: any) => item.ColCodeSys == cur.ColCodeSys)
-            ?.ColValue || customer?.Lst_Mst_Customer[0][cur.ColCodeSys];
+        if (cur?.FlagIsColDynamic == "1") {
+          prev[cur.ColCodeSys] =
+            list?.find((item: any) => item.ColCodeSys == cur.ColCodeSys)
+              ?.ColValue || customer?.Lst_Mst_Customer[0][cur.ColCodeSys];
+
+          return prev;
+        }
+
         return prev;
       }, {} as { [key: string]: any[] });
 
@@ -84,35 +110,47 @@ export const CustomerPrimaryPage = () => {
           ...item,
           ColDataType: match(item?.ColDataType)
             .with("EMAIL", () => "SELECTONEDROPDOWN")
+            .with("PARTNERTYPE", () => "SELECTMULTIPLEDROPDOWN")
             .with("PHONE", () => "CUSTOMIZEPHONE")
             .otherwise(() => item?.ColDataType),
 
-          JsonListOption:
-            item?.ColDataType === "EMAIL"
-              ? JSON.stringify(
-                  customer?.Lst_Mst_CustomerEmail?.map((item: any) => {
-                    return {
-                      ...item,
-                      IsSelected: item.FlagDefault == "1",
-                      Value: item.CtmEmail,
-                    };
-                  })
-                )
-              : item?.ColDataType === "PHONE"
-              ? JSON.stringify(
-                  customer?.Lst_Mst_CustomerPhone?.map((item: any) => {
-                    return {
-                      ...item,
-                      IsSelected: item.FlagDefault == "1",
-                      Value: item.CtmPhoneNo,
-                    };
-                  })
-                )
-              : item?.JsonListOption,
+          JsonListOption: match(item?.ColDataType)
+            .with("EMAIL", () =>
+              JSON.stringify(
+                customer?.Lst_Mst_CustomerEmail?.map((item: any) => {
+                  return {
+                    ...item,
+                    IsSelected: item.FlagDefault == "1",
+                    Value: item.CtmEmail,
+                  };
+                })
+              )
+            )
+            .with("PHONE", () =>
+              JSON.stringify(
+                customer?.Lst_Mst_CustomerPhone?.map((item: any) => {
+                  return {
+                    ...item,
+                    IsSelected: item.FlagDefault == "1",
+                    Value: item.CtmPhoneNo,
+                  };
+                })
+              )
+            )
+            .with("PARTNERTYPE", () =>
+              JSON.stringify(
+                customer?.Lst_Mst_CustomerInPartnerType?.map((item: any) => {
+                  return {
+                    ...item,
+                    IsSelected: true,
+                    Value: item.PartnerType,
+                  };
+                })
+              )
+            )
+            .otherwise(() => item?.JsonListOption),
         };
       });
-
-      // console.log(listDynamic);
 
       const listField = getListField({
         listField: listFieldCustom,
@@ -121,8 +159,6 @@ export const CustomerPrimaryPage = () => {
           editType: "update",
         },
       });
-
-      // console.log(listField);
 
       const listGroup = listCodeField
         ?.sort((a: any, b: any) => a.OrderIdx - b.OrderIdx)
@@ -194,7 +230,7 @@ export const CustomerPrimaryPage = () => {
             <Button
               onClick={handleEdit}
               style={{
-                background: "green",
+                background: "#00703c",
                 color: "white",
                 padding: "10px 20px",
               }}
@@ -221,9 +257,9 @@ export const CustomerPrimaryPage = () => {
           showIndicator={true}
           showPane={true}
         />
-        <div className="flex gap-3 justify-center items-center">
+        <div className="flex gap-3 items-center py-2 pl-[50px]">
           <div
-            className="overflow-hidden h-[150px] w-[150px]"
+            className="overflow-hidden h-[120px] w-[120px]"
             style={{ borderRadius: "50%" }}
           >
             <div className="h-full w-full">
@@ -243,6 +279,7 @@ export const CustomerPrimaryPage = () => {
               customer={customer}
               listCodeField={listCodeField}
               formField={getFormField}
+              listDynamic={getListDynamic}
             />
           )}
         </div>
@@ -253,23 +290,31 @@ export const CustomerPrimaryPage = () => {
   );
 };
 
-const CustomerContent = ({ customer, listCodeField, formField }: any) => {
+const CustomerContent = ({
+  customer,
+  listCodeField,
+  formField,
+  listDynamic,
+}: any) => {
   const formRef = useRef(null);
   const handleInitialization = (e: any) => {
     formRef.current = e.component;
   };
+
   const formValue = {
+    ...listDynamic,
     ...customer?.Lst_Mst_Customer[0],
     CtmEmail: customer?.Lst_Mst_CustomerEmail ?? [],
     CtmPhoneNo: customer?.Lst_Mst_CustomerPhone ?? [],
+    PartnerType: customer?.Lst_Mst_CustomerInPartnerType ?? [],
   };
 
   const editType = useAtomValue(editTypeAtom);
 
   return (
-    <form ref={formRef} className="pt-[20px]">
+    <form ref={formRef} className="pt-[20px] form-customer">
       <Form
-        // className="form-test"
+        className="form-customer-content"
         formData={formValue}
         validationGroup="customerData"
         // onInitialized={handleInitialization}
@@ -280,9 +325,12 @@ const CustomerContent = ({ customer, listCodeField, formField }: any) => {
         <GroupItem colCount={2}>
           {formField.map((item: any) => {
             return (
-              <GroupItem>
+              <GroupItem key={nanoid()}>
                 {item.map((c: any) => {
-                  return <Item {...c} />;
+                  if (c?.ColCodeSys == "CtmPhoneNo") {
+                    return <Item {...c} key={nanoid()} />;
+                  }
+                  return <Item {...c} disabled key={nanoid()} />;
                 })}
               </GroupItem>
             );

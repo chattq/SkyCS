@@ -6,6 +6,12 @@
     border-bottom: solid 1px #aab3bb;
   }
 
+  .select-phone {
+    .dx-texteditor.dx-editor-filled::after {
+      border-bottom: 0px;
+    }
+  }
+
   .sep-bottom-3 {
     border-bottom: solid 3px #eee;
   }
@@ -16,6 +22,10 @@
 
   .sep-bottom-7 {
     border-bottom: solid 7px #eee;
+  }
+
+  .text-tile-eticket-detail {
+    min-width: 100px;
   }
 
   .avatar {
@@ -55,7 +65,7 @@
 
   .message-type {
     position: absolute;
-    left: -12px;
+    left: -16px;
     top: calc(50% - 12px);
     width: 32px;
     height: 26px;
@@ -80,7 +90,7 @@
     background: #ffeae1;
   }
   .message-type.callmissedin {
-    background-color: #d5f9e8;
+    background-color: #ffe8ee;
   }
 
   .message-type.call {
@@ -112,7 +122,7 @@
     }
   }
   .message-type.emailin {
-    background-color: #ffeae1;
+    background-color: #d5f9e8 !important;
     i {
       background-image: url(/images/icons/email_in.svg);
     }
@@ -156,9 +166,11 @@
   }
 
   .message-reply {
+    margin-top: 10px;
+    padding-left: 50px;
+    padding-right: 30px;
     .input-area {
-      background: #fff;
-      padding: 10px;
+      // background: #fff;
       padding-bottom: 0px !important;
       // border-top: solid 1px #ccc;
       // border-bottom: solid 1px #ccc;
@@ -179,6 +191,8 @@
       outline: none;
       width: 100%;
       resize: none;
+      margin-top: 10px;
+      margin-bottom: 10px;
     }
 
     textarea:focus,
@@ -213,7 +227,7 @@
 
     .detail-customer-name {
       font-size: 14px;
-      font-weight: 500;
+      font-weight: 600;
     }
 
     .detail-customer-phone {
@@ -332,9 +346,9 @@
 
     .detail-header-value {
       font-size: 14px;
-      font-weight: 500;
+      font-weight: 600 !important;
       font-family: "Inter";
-      color: #0e223d;
+      color: #0e223d !important;
     }
 
     .phone-button {
@@ -766,6 +780,11 @@
 }
 
 .eticket-detail {
+  & > .dx-box {
+    &:first-child {
+      position: fixed;
+    }
+  }
   .eticekt-form {
     margin-bottom: 4px;
   }
@@ -793,6 +812,7 @@
     display: flex;
     align-items: center;
     flex-wrap: wrap;
+    justify-content: flex-end;
 
     .box-follower {
       margin-right: 5px;
@@ -807,5 +827,84 @@
     font-style: normal;
     font-weight: 400;
     line-height: normal;
+  }
+
+  .input-area-content {
+    min-height: 100px;
+    border-radius: 3px !important;
+    border: 1px solid #5f7d95 !important;
+    -webkit-border-radius: 3px !important;
+    -moz-border-radius: 3px !important;
+    -ms-border-radius: 3px !important;
+    -o-border-radius: 3px !important;
+  }
+
+  .part-detail-info-value {
+    word-wrap: break-word;
+    text-align: right;
+  }
+
+  .show-1 {
+    .dx-tabs-wrapper {
+      .dx-item {
+        visibility: hidden;
+      }
+    }
+  }
+}
+
+.text-bold {
+  font-weight: 600 !important;
+  color: #0e223d;
+}
+
+.dx-field-item-content {
+  .dx-dropdowneditor-input-wrapper {
+    ::after {
+      display: none !important;
+    }
+  }
+}
+
+.dx-htmleditor-content.ql-blank::before {
+  font-size: 13px !important;
+  color: #5f7d95 !important;
+  font-style: normal !important;
+}
+
+.input-area-content {
+  font-size: 14px;
+  font-weight: 500;
+  // background: #fff;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  margin-top: 10px;
+  // border: 1px solid #9aa2ae;
+}
+
+.dx-daterangebox-separator {
+  padding-left: 5px !important;
+  padding-right: 5px !important;
+}
+
+.dx-daterangebox {
+  background-color: white !important;
+  .dx-texteditor.dx-editor-filled {
+    background-color: white;
+  }
+
+  overflow: hidden;
+  align-items: center;
+
+  border: 1px solid #5f7d95 !important;
+  padding: 9px 11px 8px !important;
+  height: 30px;
+  .dx-texteditor-container {
+    border: none !important;
+    height: auto;
+  }
+
+  .dx-texteditor-input {
+    padding: 0px !important;
   }
 }

@@ -250,7 +250,7 @@ export const Mst_CampaignColumnConfig_SettingPage = ({
               );
             }}
           >
-            <ItemDragging allowReordering={true}></ItemDragging>
+            {/* <ItemDragging allowReordering={true}></ItemDragging> */}
           </List>
         </div>
       </AdminContentLayout.Slot>

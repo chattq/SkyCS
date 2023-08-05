@@ -72,6 +72,16 @@
   width: 1rem;
 }
 
+.ic-status-default {
+  background-image: url(/images/icons/campaign-status/ic_pending.svg);
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: contain;
+  display: inline-block;
+  height: 1rem;
+  width: 1rem;
+}
+
 .status-done {
   color: #78d988 !important;
 }
@@ -228,7 +238,7 @@
 
 .dx-form {
   .dx-field-item-label-text {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 400;
     color: #5f7d95 !important;
   }
@@ -322,4 +332,15 @@
 
 .avatar {
   color: #00703c !important;
+}
+
+.campaign-perform-page-content {
+  .dx-widget .dx-radiogroup > .dx-collection {
+    flex-wrap: wrap;
+  }
+
+  .dx-layout-manager .dx-label-h-align.dx-flex-layout .dx-field-item-label {
+    align-items: center;
+    display: flex;
+  }
 }

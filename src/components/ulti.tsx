@@ -28,7 +28,7 @@ export const sortByKey = (array: any[], key: string) => {
 
 export const getYearMonthDate = (date: Date) => {
   var month = date.getUTCMonth() + 1;
-  var day = date.getUTCDate();
+  var day = date.getUTCDate() + 1;
   var year = date.getUTCFullYear();
 
   const result = `${year}-${checkNumberWith(month, 10)}-${checkNumberWith(

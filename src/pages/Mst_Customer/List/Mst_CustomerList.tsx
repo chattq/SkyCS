@@ -6,6 +6,7 @@ import {
   useNetworkNavigate,
   useVisibilityControl,
 } from "@/packages/hooks";
+import { useWindowSize } from "@/packages/hooks/useWindowSize";
 import { AdminContentLayout } from "@/packages/layouts/admin-content-layout";
 import {
   ContentSearchPanelLayout,
@@ -35,7 +36,6 @@ import "../components/custom.scss";
 import HeaderPart from "../components/header-part";
 import { useColumn } from "../components/use-columns";
 import { useColumnsSearch } from "../components/use-columns-search";
-import { useWindowSize } from "@/packages/hooks/useWindowSize";
 
 interface DataFilter {
   staticField: MdMetaColGroupSpec[];
@@ -51,6 +51,8 @@ interface Props {
 }
 
 interface searchForm {
+  CreateDTimeUTCFrom: string | undefined;
+  CreateDTimeUTCTo: string | undefined;
   CtmEmail: string;
   CtmPhoneNo: string;
   CustomerCode: string;
@@ -77,6 +79,7 @@ export const Mst_CustomerList = ({ bePopUp, isHideHeader = false }: Props) => {
 
   const windowSize = useWindowSize();
   const widthSearch = windowSize.width / 5;
+
   const { t } = useI18n("Mst_Customer"); // file biên dịch
 
   const config = useConfiguration();
@@ -90,6 +93,8 @@ export const Mst_CustomerList = ({ bePopUp, isHideHeader = false }: Props) => {
   });
 
   const [searchCondition, setSearchCondition] = useState<searchForm>({
+    CreateDTimeUTCFrom: undefined,
+    CreateDTimeUTCTo: undefined,
     CtmEmail: "",
     CtmPhoneNo: "",
     CustomerCode: "",
@@ -127,6 +132,8 @@ export const Mst_CustomerList = ({ bePopUp, isHideHeader = false }: Props) => {
   const loadingControl = useVisibilityControl({ defaultVisible: false });
 
   const [search, setSearch] = useState<any>({
+    CreateDTimeUTCFrom: undefined,
+    CreateDTimeUTCTo: undefined,
     CtmEmail: "",
     CtmPhoneNo: "",
     CustomerCode: "",
@@ -328,6 +335,7 @@ export const Mst_CustomerList = ({ bePopUp, isHideHeader = false }: Props) => {
             ),
           };
         }
+
         return {
           ColCodeSys: item?.key,
           ColValue1: item?.value,
@@ -382,40 +390,46 @@ export const Mst_CustomerList = ({ bePopUp, isHideHeader = false }: Props) => {
 
   // call api delete multiple
   const handleDeleteRow = async (a: any) => {
-    const response = await api.Mst_Customer_Delete({
-      OrgID: auth?.orgData?.Id,
-      CustomerCodeSys: a[0]?.CustomerCodeSys,
-      NetworkID: auth?.networkId,
-    });
-    if (response.isSuccess) {
-      toast.success(t("Delete Success"));
-      await refetch();
+    if (a.length > 1) {
+      const list =
+        a?.map((item: any) => {
+          return {
+            OrgID: auth?.orgData?.Id,
+            CustomerCodeSys: item?.CustomerCodeSys,
+            NetworkID: auth?.networkId,
+          };
+        }) ?? [];
+
+      const resp = await api.Mst_Customer_DeleteMultiple(list);
+
+      if (resp.isSuccess) {
+        toast.success(t("Delete Success"));
+        await refetch();
+      } else {
+        showError({
+          message: t(resp.errorCode),
+          debugInfo: resp.debugInfo,
+          errorInfo: resp.errorInfo,
+        });
+      }
     } else {
-      showError({
-        message: t(response.errorCode),
-        debugInfo: response.debugInfo,
-        errorInfo: response.errorInfo,
+      const response = await api.Mst_Customer_Delete({
+        OrgID: auth?.orgData?.Id,
+        CustomerCodeSys: a[0]?.CustomerCodeSys,
+        NetworkID: auth?.networkId,
       });
+
+      if (response.isSuccess) {
+        toast.success(t("Delete Success"));
+        await refetch();
+      } else {
+        showError({
+          message: t(response.errorCode),
+          debugInfo: response.debugInfo,
+          errorInfo: response.errorInfo,
+        });
+      }
     }
-    // if (a.length > 1) {
-    // } else {
-    //   const deleteValue = data?.DataList?.filter((item) => {
-    //     return item.CustomerCodeSys === a[0].CustomerCodeSys;
-    //   });
-    //   if (deleteValue?.length) {
-    //     const response = await api.Mst_Customer_Delete(deleteValue[0]);
-    //     if (response.isSuccess) {
-    //       toast.success(t("Delete Success"));
-    //       await refetch();
-    //     } else {
-    //       showError({
-    //         message: t(response.errorCode),
-    //         debugInfo: response.debugInfo,
-    //         errorInfo: response.errorInfo,
-    //       });
-    //     }
-    //   }
-    // }
   };
 
   // call api update
@@ -519,8 +533,10 @@ export const Mst_CustomerList = ({ bePopUp, isHideHeader = false }: Props) => {
           <ContentSearchPanelLayout>
             {/* Search */}
             <ContentSearchPanelLayout.Slot name={"SearchPanel"}>
-              <div className={`w-[${widthSearch + ""}px]`}>
-                {/* Search Component */}
+              <div
+                className={`w-[${widthSearch + ""}px]`}
+                style={{ minWidth: 300 }}
+              >
                 <SearchPanelV2
                   conditionFields={getColumn}
                   storeKey="Mst_Customer_Search"

@@ -16,14 +16,18 @@ import { useColumnsSearch } from "@/pages/Mst_Customer/components/use-columns-se
 import { useQuery } from "@tanstack/react-query";
 import { Button, DataGrid, Popup, ScrollView } from "devextreme-react";
 import { useSetAtom } from "jotai";
+import { nanoid } from "nanoid";
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
-const usePopupCustomerContract = () => {
+const usePopupCustomerContract = ({ refetchList, listContact }: any) => {
   const [open, setOpen] = useState<boolean>(false);
 
+  const [randomKey, setRandomKey] = useState<string>(nanoid());
+
   const handleClose = () => {
+    setRandomKey(nanoid());
     setOpen(false);
   };
 
@@ -37,12 +41,14 @@ const usePopupCustomerContract = () => {
 
   return (
     <>
-      <button
-        className="bg-green-400 p-2 text-center m-2 hover:bg-lime-500"
+      <Button
+        type={"default"}
+        style={{ padding: 10, position: "absolute", left: 10, top: 5 }}
+        className="absolute"
         onClick={handleAdd}
       >
         Thêm liên hệ
-      </button>
+      </Button>
 
       <Popup
         visible={open}
@@ -51,7 +57,12 @@ const usePopupCustomerContract = () => {
         showCloseButton
       >
         <ScrollView showScrollbar="always">
-          {contentRender({ handleClose: handleClose })}
+          {contentRender({
+            handleClose: handleClose,
+            refetchList: refetchList,
+            listContact: listContact,
+            key: randomKey,
+          })}
         </ScrollView>
       </Popup>
     </>
@@ -60,7 +71,12 @@ const usePopupCustomerContract = () => {
 
 export default usePopupCustomerContract;
 
-export const contentRender = ({ handleClose }: any) => {
+export const contentRender = ({
+  handleClose,
+  refetchList,
+  listContact,
+  key,
+}: any) => {
   const showError = useSetAtom(showErrorAtom);
 
   const { CustomerCodeSys }: any = useParams();
@@ -211,17 +227,34 @@ export const contentRender = ({ handleClose }: any) => {
       "Mst_Customer",
       JSON.stringify(searchCondition),
       JSON.stringify(formValue),
+      listContact,
     ],
-    () => {
-      return api.Mst_Customer_Search({
+    async () => {
+      const resp: any = await api.Mst_Customer_Search({
         ...searchCondition,
         ...formValue,
       });
+
+      if (resp?.isSuccess) {
+        if (resp?.DataList) {
+          const result = resp?.DataList?.filter((item: any) => {
+            return !listContact?.find(
+              (c: any) => c?.CustomerCodeSysContact == item?.CustomerCodeSys
+            );
+          });
+
+          return result;
+        } else {
+          return [];
+        }
+      }
+
+      return [];
     }
   );
 
   const columns = useColumn({
-    data: data?.DataList ?? [],
+    data: data ?? [],
     dataField: listColumn ?? [],
     dataGroup: listGroup ?? [],
   });
@@ -230,7 +263,7 @@ export const contentRender = ({ handleClose }: any) => {
     refetch();
     refetchColumn();
     refetchDynamic();
-  }, []);
+  }, [key]);
 
   const handleSearch = async (data: any) => {
     let list: any[] = [];
@@ -331,8 +364,8 @@ export const contentRender = ({ handleClose }: any) => {
         return {
           OrgID: item?.OrgID,
           NetworkID: item?.NetworkID,
-          CustomerCodeSys: item?.CustomerCodeSys,
-          CustomerCodeSysContact: CustomerCodeSys,
+          CustomerCodeSys: CustomerCodeSys,
+          CustomerCodeSysContact: item?.CustomerCodeSys,
         };
       });
 
@@ -341,6 +374,7 @@ export const contentRender = ({ handleClose }: any) => {
       if (resp.isSuccess) {
         toast.success("Thêm liên hệ thành công!");
         handleClose();
+        refetchList();
       } else {
         showError({
           message: resp?.errorCode,
@@ -362,7 +396,7 @@ export const contentRender = ({ handleClose }: any) => {
         </Button>
       </div>
       <div className="w-full">
-        <AdminContentLayout className={"Mst_Customer"}>
+        <AdminContentLayout className={"Mst_Customer w-full"}>
           <AdminContentLayout.Slot name={"Header"}></AdminContentLayout.Slot>
           <AdminContentLayout.Slot name={"Content"}>
             <ContentSearchPanelLayout>
@@ -379,7 +413,7 @@ export const contentRender = ({ handleClose }: any) => {
               <ContentSearchPanelLayout.Slot name={"ContentPanel"}>
                 <BaseGridView
                   isLoading={isLoading}
-                  dataSource={data?.isSuccess ? data?.DataList ?? [] : []}
+                  dataSource={data ?? []}
                   columns={columns}
                   keyExpr={["CustomerCodeSys"]}
                   popupSettings={{}}
@@ -404,7 +438,7 @@ export const contentRender = ({ handleClose }: any) => {
                     },
                   ]}
                   storeKey={"Mst_Customer_Column"}
-                  showCheck="always"
+                  editable={false}
                 />
               </ContentSearchPanelLayout.Slot>
             </ContentSearchPanelLayout>

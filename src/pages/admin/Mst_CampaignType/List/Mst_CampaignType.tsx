@@ -4,7 +4,11 @@ import { useEffect, useRef, useState } from "react";
 import { useI18n } from "@/i18n/useI18n";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useQuery } from "@tanstack/react-query";
-import { FlagActiveEnum, Mst_PaymentTermData } from "@packages/types";
+import {
+  FlagActiveEnum,
+  Mst_CampaignTypeSearchParam,
+  Mst_PaymentTermData,
+} from "@packages/types";
 import { useConfiguration, useNetworkNavigate } from "@packages/hooks";
 import { IPopupOptions } from "devextreme-react/popup";
 import { IFormOptions, IItemProps } from "devextreme-react/form";
@@ -128,31 +132,20 @@ export const Mst_CampaignTypePage = () => {
     },
   ];
 
-  const handleDeleteRows = async (rows: any[]) => {
-    console.log("row ", rows);
-    // cái này em xóa nhiều theo cách fix tay cơ mà vẫn cần có api
-    rows.forEach(async (item, index) => {
-      const build: any = {
-        Mst_CampaignType: {
-          CampaignTypeCode: rows[index],
-          NetworkID: auth.networkId,
-          OrgID: auth.orgData?.Id,
-        },
-        Lst_Mst_CustomColumnCampaignType: [],
-        Lst_Mst_CustomerFeedBack: [],
-      };
-      const resp = await api.Mst_CampaignType_Delete(build);
-      if (resp.isSuccess) {
-        toast.success(t("Delete Successfully"));
-        await refetch();
-      } else {
-        showError({
-          message: t(resp.errorCode),
-          debugInfo: resp.debugInfo,
-          errorInfo: resp.errorInfo,
-        });
-      }
-    });
+  const handleDeleteRows = async (rows: Mst_CampaignTypeSearchParam[]) => {
+    console.log("rows ", rows);
+
+    const response = await api.Mst_CampaignType_DeleteMultiple(rows);
+    if (response.isSuccess) {
+      toast.success(t("Delete Multiple Successfully"));
+      refetch();
+    } else {
+      showError({
+        message: t(response.errorCode),
+        debugInfo: response.debugInfo,
+        errorInfo: response.errorInfo,
+      });
+    }
   };
 
   const handleSelectionChanged = (rows: string[]) => {
@@ -162,7 +155,6 @@ export const Mst_CampaignTypePage = () => {
   // toggle search panel
   const setSearchPanelVisibility = useSetAtom(searchPanelVisibleAtom);
   const handleToggleSearchPanel = () => {
-    console.log("handleToggleSearchPanel", gridRef?.instance);
     setSearchPanelVisibility((visible) => !visible);
   };
 
@@ -315,7 +307,7 @@ export const Mst_CampaignTypePage = () => {
               isLoading={isLoading}
               dataSource={data ?? []}
               columns={columns}
-              keyExpr={"CampaignTypeCode"}
+              keyExpr={["CampaignTypeCode", "OrgID"]}
               popupSettings={popupSettings}
               formSettings={formSettings}
               onReady={(ref) => (gridRef = ref)}

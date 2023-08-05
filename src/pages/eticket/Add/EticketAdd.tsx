@@ -5,14 +5,14 @@ import { useAuth } from "@/packages/contexts/auth";
 import { useNetworkNavigate } from "@/packages/hooks";
 import { AdminContentLayout } from "@/packages/layouts/admin-content-layout";
 import { showErrorAtom } from "@/packages/store";
-import CustomerEditPage from "@/pages/Mst_Customer/page/CustomerEditPage/CustomerEditPage";
 import { getFullTime } from "@/utils/time";
 import { useQuery } from "@tanstack/react-query";
-import { Button, Popup, ScrollView } from "devextreme-react";
+import { Button, LoadPanel, Popup } from "devextreme-react";
 import { atom, useAtomValue, useSetAtom } from "jotai";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
+import AddCustomerPopup from "./components/add-customer-popup";
 import "./components/custom.scss";
 import { DynamicForm, dynamicFormValue } from "./components/dynamic-form";
 import { DefaultForm, customerPopup } from "./components/form-settings";
@@ -73,19 +73,6 @@ const EticketAdd = () => {
 
   const setTicketDealine = useSetAtom(ticketDeadline);
 
-  const { data: serverTime, refetch }: any = useQuery(
-    ["serverTime"],
-    async () => {
-      const resp: any = await api.Api_GetDTime();
-
-      if (resp?.isSuccess) {
-        setTicketDealine(new Date(resp?.Data?.DTimeServer));
-      }
-
-      return resp;
-    }
-  );
-
   const ticketAddSLAIDValue = useAtomValue(ticketAddSLAID);
 
   const [formValue, setFormValue] = useState<FormValue>({
@@ -110,14 +97,6 @@ const EticketAdd = () => {
     TicketFollowers: [],
     TicketCustomers: [],
   });
-
-  const result = useMemo(() => {
-    return <></>;
-  }, [
-    formValue?.CustomerCodeSys &&
-      formValue?.TicketCustomType &&
-      formValue?.TicketType,
-  ]);
 
   const setDynamicForm = useSetAtom(dynamicFormValue);
 
@@ -148,56 +127,58 @@ const EticketAdd = () => {
 
   const setTicketSLAID = useSetAtom(ticketAddSLAID);
 
-  const { data: getFormValue } = useQuery(
-    ["ticketUpdate", TicketID],
-    async () => {
-      if (TicketID && auth?.orgData?.Id) {
-        const resp: any = await api.ET_Ticket_GetByTicketID({
-          TicketID: TicketID,
-          OrgID: auth?.orgData?.Id,
+  const {
+    data: getFormValue,
+    isLoading,
+    refetch,
+  } = useQuery(["ticketUpdate", TicketID], async () => {
+    if (TicketID && auth?.orgData?.Id) {
+      const resp: any = await api.ET_Ticket_GetByTicketID({
+        TicketID: TicketID,
+        OrgID: auth?.orgData?.Id,
+      });
+
+      if (resp?.Data?.Lst_ET_Ticket && resp?.Data?.Lst_ET_Ticket[0]) {
+        setFormValue({
+          ...formValue,
+          ...resp?.Data?.Lst_ET_Ticket[0],
+          CustomerCodeSys: resp?.Data?.Lst_ET_Ticket[0]?.CustomerCodeSys,
+          Tags: resp?.Data?.Lst_ET_Ticket[0]?.Tags?.split(",") ?? [],
+          TicketFollowers:
+            resp?.Data?.Lst_ET_TicketFollower?.map((item: any) => {
+              return item?.AgentCode?.toUpperCase();
+            }) ?? [],
+          uploadFiles:
+            resp?.Data?.Lst_ET_TicketAttachFile?.map(
+              (item: any, index: number) => {
+                return {
+                  ...item,
+                  Idx: index + 1,
+                  FileFullName: item?.FileName,
+                  FileType: encodeFileType(item?.FileType),
+                };
+              }
+            ) ?? [],
+          TicketCustomers: resp?.Data?.Lst_ET_TicketCustomer,
         });
+        setTicketDealine(resp?.Data?.Lst_ET_Ticket[0]?.TicketDeadline);
+        setTicketSLAID({
+          SLALevel: resp?.Data?.Lst_ET_Ticket[0]?.SLALevel,
+          SLAID: resp?.Data?.Lst_ET_Ticket[0]?.SLAID,
+        });
+        const listDynamic =
+          JSON.parse(resp?.Data?.Lst_ET_Ticket[0]?.TicketJsonInfo) ?? [];
 
-        if (resp?.Data?.Lst_ET_Ticket && resp?.Data?.Lst_ET_Ticket[0]) {
-          setFormValue({
-            ...formValue,
-            ...resp?.Data?.Lst_ET_Ticket[0],
-            CustomerCodeSys: resp?.Data?.Lst_ET_Ticket[0]?.CustomerCodeSys,
-            Tags: resp?.Data?.Lst_ET_Ticket[0]?.Tags?.split(",") ?? [],
-            TicketFollowers:
-              resp?.Data?.Lst_ET_TicketFollower?.map((item: any) => {
-                return item?.AgentCode?.toUpperCase();
-              }) ?? [],
-            uploadFiles:
-              resp?.Data?.Lst_ET_TicketAttachFile?.map(
-                (item: any, index: number) => {
-                  return {
-                    ...item,
-                    Idx: index + 1,
-                    FileFullName: item?.FileName,
-                    FileType: encodeFileType(item?.FileType),
-                  };
-                }
-              ) ?? [],
-            TicketCustomers: resp?.Data?.Lst_ET_TicketCustomer,
-          });
-          setTicketDealine(resp?.Data?.Lst_ET_Ticket[0]?.TicketDeadline);
-          setTicketSLAID({
-            SLALevel: resp?.Data?.Lst_ET_Ticket[0]?.SLALevel,
-            SLAID: resp?.Data?.Lst_ET_Ticket[0]?.SLAID,
-          });
-          const listDynamic =
-            JSON.parse(resp?.Data?.Lst_ET_Ticket[0]?.TicketJsonInfo) ?? [];
-
-          // console.log(listDynamic);
-          setDynamicForm(convertDotsToUnderscores(listDynamic));
-        }
-
-        return resp;
+        setDynamicForm(convertDotsToUnderscores(listDynamic));
       }
-    }
-  );
 
-  console.log(getFormValue);
+      return resp;
+    }
+  });
+
+  useEffect(() => {
+    refetch();
+  }, []);
 
   const dynamicForm = useAtomValue(dynamicFormValue);
 
@@ -416,9 +397,14 @@ const EticketAdd = () => {
         </div>
       </AdminContentLayout.Slot>
       <AdminContentLayout.Slot name={"Content"}>
+        <LoadPanel visible={isLoading} />
         <div className="flex">
           <div className="p-2 w-[80%]">
-            <DefaultForm ref={form_1} formValue={formValue} />
+            <DefaultForm
+              ref={form_1}
+              formValue={formValue}
+              setFormValue={setFormValue}
+            />
             <DynamicForm ref={dynamic_ref} formValue={dynamicForm} />
           </div>
           <div className="w-[20%] pr-2 pb-2">
@@ -431,95 +417,11 @@ const EticketAdd = () => {
           showCloseButton
           title="Thêm khách hàng"
         >
-          <ScrollView>
-            <CustomerEditPage />
-          </ScrollView>
+          <AddCustomerPopup setValue={setFormValue} value={formValue} />
         </Popup>
-        {result}
       </AdminContentLayout.Slot>
     </AdminContentLayout>
-
-    // <div className="w-full">
-    //   <div className="flex justify-between">
-    //     <div>hello</div>
-    //     <div className="flex justify-end">
-    //       {TicketID ? (
-    //         <Button
-    //           style={{
-    //             padding: 10,
-    //             margin: 10,
-    //             background: "green",
-    //             color: "white",
-    //           }}
-    //           onClick={handleUpdate}
-    //         >
-    //           Cập nhật
-    //         </Button>
-    //       ) : (
-    //         <Button
-    //           style={{
-    //             padding: 10,
-    //             margin: 10,
-    //             background: "green",
-    //             color: "white",
-    //           }}
-    //           onClick={handleSave}
-    //         >
-    //           Lưu
-    //         </Button>
-    //       )}
-
-    //       <Button
-    //         style={{
-    //           padding: 10,
-    //           margin: 10,
-    //         }}
-    //         onClick={handleCancel}
-    //       >
-    //         Hủy
-    //       </Button>
-    //     </div>
-    //   </div>
-    //   <div className="flex">
-    //     <div className="p-2 w-[80%]">
-    //       <DefaultForm ref={form_1} formValue={formValue} />
-    //       <DynamicForm ref={dynamic_ref} formValue={dynamicForm} />
-    //     </div>
-
-    //     <SideForm ref={form_2} formValue={formValue} />
-    //   </div>
-    //   <Popup
-    //     onHiding={handleClose}
-    //     visible={customerPopupValue}
-    //     showCloseButton
-    //     title="Thêm khách hàng"
-    //   >
-    //     <ScrollView>
-    //       <CustomerEditPage />
-    //     </ScrollView>
-    //   </Popup>
-    //   {result}
-    // </div>
   );
 };
 
 export default EticketAdd;
-
-// {
-//   "TKCCFGCODESYS": {
-//       "D6O": {
-//           "00060": null,
-//           "00098": "",
-//           "00108": null,
-//           "00111": [],
-//           "00110": []
-//       }
-//   },
-//   "ZaloUserFollowerId": []
-// }
-
-// TKCCFGCODESYS.D6O.00060 : null,
-// TKCCFGCODESYS.D6O.00098 : "",
-// TKCCFGCODESYS.D6O.00108 : null,
-// TKCCFGCODESYS.D6O.00111 : [],
-// TKCCFGCODESYS.D6O.00110 : []

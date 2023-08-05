@@ -24,6 +24,7 @@ import "../styles.scss";
 import { GroupItem, SimpleItem } from "devextreme-react/form";
 import { Group } from "devextreme-react/diagram";
 import { ColumnOptions } from "@/types";
+import { match } from "ts-pattern";
 
 export const Cpn_CampaignPerformDetail = forwardRef(
   (
@@ -74,7 +75,10 @@ export const Cpn_CampaignPerformDetail = forwardRef(
           const getMasterData: string[] =
             Lst_Mst_CustomColumnCampaignType.filter(
               (item: DynamicField_Campaign) => {
-                return item.CampaignColCfgDataType === "MASTERDATA";
+                return (
+                  item.CampaignColCfgDataType === "MASTERDATASELECTMULTIPLE" ||
+                  item.CampaignColCfgDataType === "MASTERDATA"
+                );
               }
             ).map((item) => {
               return item.CampaignColCfgCodeSys ?? "";
@@ -181,12 +185,12 @@ export const Cpn_CampaignPerformDetail = forwardRef(
         }
 
         const obj = {
-          CampaignCode: cpnCustomerData.CampaignTypeCode,
+          CampaignCode: cpnCustomerData.CampaignCode,
           CustomerPhoneNo: phoneNo.trim().split(" ").join(","),
         };
 
         const response = await api.Cpn_CampaignCustomer_GetCallHist(obj);
-        console.log("response ", response);
+        console.log("response _________ ", response);
         // if (response.isSuccess && response.Data) {
         //   setListCallHist(response.Data);
         // }
@@ -202,10 +206,64 @@ export const Cpn_CampaignPerformDetail = forwardRef(
       }
     };
 
+    console.log("formNormal ", formNormal);
+
     useEffect(() => {
       refetchCallHist();
       refetchDynamicFields();
     }, []);
+
+    const CustomizeCampaign = ({ code }: { code: string }) => {
+      let icon = "";
+      let color = "#CFB929";
+      match(code)
+        .with("PENDING", () => {
+          icon = "";
+          color = "#CFB929";
+        })
+        .with("DONE", () => {
+          icon = "ic-status-done";
+          color = "#0FBC2B";
+        })
+        .with("FAILED", () => {
+          icon = "ic-status-failed";
+          color = "#D62D2D";
+        })
+        .with("NOANSWER", () => {
+          icon = "ic-status-noanswer";
+          color = "#00BEA7";
+        })
+        .with("CALLAGAIN", () => {
+          icon = "ic-status-callagain";
+          color = "#8C62D1";
+        })
+        .with("NOANSWERRETRY", () => {
+          icon = "ic-status-noanswerretry";
+          color = "#E48203";
+        })
+        .with("DONOTCALL", () => {
+          icon = "ic-status-donotcall";
+          color = "#777";
+        })
+        .with("FAILEDRETRY", () => {
+          icon = "ic-status-failedretry";
+          color = "#298EF2";
+        })
+        .otherwise(() => {});
+
+      console.log("code ", code);
+
+      return (
+        <span
+          style={{
+            color: color,
+          }}
+        >
+          <i className={`${icon}`} />{" "}
+          {code === "" || !code ? t("PENDING") : code}
+        </span>
+      );
+    };
 
     const arrayNormal: ColumnOptions[] = [
       {
@@ -218,6 +276,36 @@ export const Cpn_CampaignPerformDetail = forwardRef(
           displayExpr: "CusFBName",
           valueExpr: "CusFBCode",
         },
+        render: (param: any) => {
+          const { component: formComponent, dataField } = param;
+          return (
+            <div className="flex align-items-center">
+              <SelectBox
+                dataSource={listFeedBack}
+                defaultValue={formNormal?.CustomerFeedBack ?? ""}
+                displayExpr="CusFBName"
+                valueExpr="CusFBCode"
+                onValueChanged={(data: any) => {
+                  // console.log("data ", data.value);
+                  formComponent.updateData(dataField, data.value);
+                }}
+              ></SelectBox>
+              <span
+                style={{
+                  color: "#E48203",
+                  fontSize: "12px",
+                  fontWeight: 500,
+                }}
+                className="pl-5"
+              >
+                <CustomizeCampaign
+                  code={formNormal?.CampaignCustomerStatus ?? ""}
+                />
+                {/* {formNormal?.CampaignCustomerStatus ?? ""} */}
+              </span>
+            </div>
+          );
+        },
       },
       {
         dataField: "Remark",
@@ -226,6 +314,8 @@ export const Cpn_CampaignPerformDetail = forwardRef(
         colSpan: 2,
       },
     ];
+
+    console.log("listCallHist ", listCallHist);
 
     return (
       <ScrollView style={{ height: windowSize.height - 150 }}>
@@ -333,9 +423,9 @@ export const Cpn_CampaignPerformDetail = forwardRef(
                             {item.CallOutDTimeUTC}
                           </td>
                           <td className="table-content">{item.AgentCode}</td>
-                          <td className="table-content"></td>
+                          <td className="table-content">{item.RecordFilePath}</td>
                           <td className="table-content">{item.CallTime}</td>
-                          <td className="table-content">{item.Remark}</td>
+                          <td className="table-content">{item.CampaignCustomerCallStatus}</td>
                         </tr>
                       )}
                     </>

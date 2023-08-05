@@ -15,7 +15,7 @@ export const PartReplySms = ({
 }: {
   dataValue: any;
   listMedia: any;
-  onReload:any
+  onReload: any;
 }) => {
   const [condition, setCondition] = useState({
     EmailCode: "",
@@ -125,8 +125,8 @@ export const PartReplySms = ({
         </div>
       </div>
 
-      <div className={"w-full mb-4 p-1"}>
-        <div className="flex float-right">
+      <div className={"w-full box-button-eticket"}>
+        <div className="flex">
           <DropDownBox
             label="Lựa chọn xử lý"
             style={{ width: 160, marginRight: 8 }}
@@ -140,7 +140,7 @@ export const PartReplySms = ({
             icon="email"
             text={t("Send")}
             height={30}
-            className="eticket-button-send mr-1"
+            className="eticket-button-send"
           >
             {t("Send")}
             <Icon style={{ marginLeft: "10px" }} name="send"></Icon>

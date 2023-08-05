@@ -16,6 +16,7 @@ interface PropsToolBar {
   onSetStatus: (title: string, ref: any) => void;
   onShowPopUp: (title: string, data: ETICKET_REPONSE[]) => void;
   dataUser: any;
+  onExportExcel: any;
 }
 
 interface DropDownInferface {
@@ -28,6 +29,7 @@ export const useToolbar = ({
   onClose,
   onDelete,
   onSetStatus,
+  onExportExcel,
   onShowPopUp,
   dataUser,
 }: PropsToolBar): GridCustomerToolBarItem[] => {
@@ -108,6 +110,10 @@ export const useToolbar = ({
       title: t("Closed"),
       onclick: onClose,
     },
+    {
+      title: t("Export Excel"),
+      onclick: (data: ETICKET_REPONSE[]): any => onExportExcel(data),
+    },
   ];
 
   const listButtonMoreWhenCheck = (ref: any) => {
@@ -118,7 +124,7 @@ export const useToolbar = ({
       arr = [...listCheckOne, ...listCheckMulti];
     }
     if (count > 1) {
-      arr = [];
+      arr = [...listCheckMulti].filter((item) => item.title !== "Closed");
     }
 
     return (
@@ -411,7 +417,6 @@ export const useToolbar = ({
               return (
                 <Button onClick={() => onSetStatus("Process", ref)}>
                   {t(`Process (${getValue.PROCESSING}) `)}
-                  {/* {t(`Process`)} */}
                 </Button>
               );
             }}
@@ -425,7 +430,7 @@ export const useToolbar = ({
       shouldShow: (ref: any) => {
         let check = false;
         if (ref) {
-          if (ref.instance.getSelectedRowsData().length === 1) {
+          if (ref.instance.getSelectedRowsData().length > 0) {
             check = true;
           }
           return check;

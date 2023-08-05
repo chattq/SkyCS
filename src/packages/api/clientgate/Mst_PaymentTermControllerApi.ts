@@ -34,13 +34,18 @@ export const useMst_PaymentTermControllerApi = (apiBase: AxiosInstance) => {
     ): Promise<ApiResponse<Mst_PaymentTermData>> => {
       return await apiBase.post("/MstPaymentTerm/Delete", {
         strJson: JSON.stringify(data[0]),
-        ColsUpd: Object.keys(data).join(","),
+      });
+    },
+    Mst_PaymentTermController_DeleteMulti: async (
+      data: any
+    ): Promise<ApiResponse<Mst_PaymentTermData>> => {
+      return await apiBase.post("/MstPaymentTerm/DeleteMultiple", {
+        strJson: JSON.stringify(data),
       });
     },
     Mst_PaymentTermController_Update: async (
       data: any
     ): Promise<ApiResponse<any>> => {
-      console.log(43, data);
       return await apiBase.post("/MstPaymentTerm/Update", {
         strJson: JSON.stringify(data),
         ColsUpd: "CreditLimit,DepositPercent,Remark",

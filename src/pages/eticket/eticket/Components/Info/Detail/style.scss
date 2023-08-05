@@ -113,8 +113,7 @@
 }
 
 .format-text-html {
-  padding-left: 12px;
-  padding-top: 8px;
+  font-weight: 500;
   p {
     span {
       font-size: 13px !important;
@@ -234,8 +233,8 @@
 
   .dx-button-content {
     svg {
-      height: 16px;
-      width: 16px;
+      height: 14px;
+      width: 14px;
     }
   }
 
@@ -278,4 +277,50 @@
       font-size: 14px;
     }
   }
+
+  .message-list {
+    padding-left: 50px;
+    padding-right: 30px;
+    padding-top: 20px;
+  }
 }
+
+.dx-button-content {
+  border-radius: 3px !important;
+  -webkit-border-radius: 3px !important;
+  -moz-border-radius: 3px !important;
+  -ms-border-radius: 3px !important;
+  -o-border-radius: 3px !important;
+}
+.eticket .dx-button-has-icon {
+  border-radius: 3px !important;
+  -webkit-border-radius: 3px !important;
+  -moz-border-radius: 3px !important;
+  -ms-border-radius: 3px !important;
+  -o-border-radius: 3px !important;
+}
+
+.button-icon-detail-eticket {
+  min-width: 35px !important;
+  min-height: 28px !important;
+}
+
+.align-items-flex-start {
+  align-items: flex-start;
+}
+
+.box-button-eticket {
+  .flex {
+    justify-content: flex-end;
+  }
+}
+
+.justify-content-flex-end {
+  justify-content: flex-end;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+

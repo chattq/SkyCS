@@ -93,16 +93,36 @@ export const Mst_PaymentTermControllerPage = () => {
   ];
 
   const handleDeleteRows = async (rows: any[]) => {
-    const resp = await api.Mst_PaymentTermController_Delete(rows);
-    if (resp.isSuccess) {
-      toast.success(t("Delete Successfully"));
-      await refetch();
+    if (rows?.length === 1) {
+      const resp = await api.Mst_PaymentTermController_Delete(rows);
+      if (resp.isSuccess) {
+        toast.success(t("Delete Successfully"));
+        await refetch();
+      } else {
+        showError({
+          message: t(resp.errorCode),
+          debugInfo: resp.debugInfo,
+          errorInfo: resp.errorInfo,
+        });
+      }
     } else {
-      showError({
-        message: t(resp.errorCode),
-        debugInfo: resp.debugInfo,
-        errorInfo: resp.errorInfo,
-      });
+      const listDataDelete = rows.map((item: any) => ({
+        PaymentTermCode: item.PaymentTermCode,
+        OrgID: item.OrgID,
+      }));
+      const resp = await api.Mst_PaymentTermController_DeleteMulti(
+        listDataDelete
+      );
+      if (resp.isSuccess) {
+        toast.success(t("Delete Successfully"));
+        await refetch();
+      } else {
+        showError({
+          message: t(resp.errorCode),
+          debugInfo: resp.debugInfo,
+          errorInfo: resp.errorInfo,
+        });
+      }
     }
   };
 
@@ -273,14 +293,12 @@ export const Mst_PaymentTermControllerPage = () => {
       <AdminContentLayout.Slot name={"Content"}>
         <ContentSearchPanelLayout>
           <ContentSearchPanelLayout.Slot name={"SearchPanel"}>
-            <div className={"w-[200px]"}>
-              <SearchPanelV2
-                storeKey="Mst_PaymentTermController_Search"
-                conditionFields={formItems}
-                data={searchCondition}
-                onSearch={handleSearch}
-              />
-            </div>
+            <SearchPanelV2
+              storeKey="Mst_PaymentTermController_Search"
+              conditionFields={formItems}
+              data={searchCondition}
+              onSearch={handleSearch}
+            />
           </ContentSearchPanelLayout.Slot>
           <ContentSearchPanelLayout.Slot name={"ContentPanel"}>
             <GridViewPopup

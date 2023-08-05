@@ -29,6 +29,14 @@ export const campaignRoutes: RouteItem[] = [
     permissionCode: "",
     children: [
       {
+        key: "Cpn_CampaignAgent",
+        path: "campaign/Cpn_CampaignAgent",
+        subMenuTitle: "Cpn_CampaignAgent",
+        mainMenuKey: "campaign",
+        permissionCode: "",
+        getPageElement: () => <Cpn_CampaignAgentPage />,
+      },
+      {
         key: "Mst_CampaignTypePage/Customize",
         path: "campaign/Mst_CampaignTypePage/Customize",
         subMenuTitle: "",

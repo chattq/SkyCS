@@ -45,7 +45,7 @@ const Tab_CustomerHist = () => {
         onDeleteRows={() => {}}
         storeKey={"Mst_CustomerHist-columns"}
         editable={false}
-        hidePagination
+        showCheck={false}
       />
       <PopupViewComponent />
     </div>

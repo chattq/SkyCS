@@ -26,6 +26,8 @@ import Content_Email from "./Content_Email";
 import { toast } from "react-toastify";
 import { PageHeaderNoSearchLayout } from "@/packages/layouts/page-header-layout-2/page-header-nosearch-layout";
 import { checkCharSpecial } from "./CheckStringSpecial";
+import { useConfiguration } from "@/packages/hooks";
+import { FlagActiveEnum } from "@/packages/types";
 
 export default function Content_Edit() {
   const { t } = useI18n("Content_Managent");
@@ -43,6 +45,7 @@ export default function Content_Edit() {
   const setZaloTemplateAtom = useSetAtom(zaloTemplatetom);
   const setidZNS = useSetAtom(idZNSAtom);
   const zaloTemplate = useAtomValue(zaloTemplatetom);
+  const config = useConfiguration();
   const dataTabChanel = [
     {
       id: "ZALO",
@@ -72,8 +75,6 @@ export default function Content_Edit() {
   const { data: listGetByTemplate } = useQuery(["listGetByTemplate"], () =>
     api.ZaloTemplate_GetByTemplate()
   );
-
-  const [channelType, setChannelType] = useState<any>([]);
 
   useEffect(() => {
     if (listGetByTemplate?.Data) {
@@ -221,6 +222,19 @@ export default function Content_Edit() {
     const checkSpecial = checkCharSpecial(
       formData?.MessageSMS?.replace(/\$\{\{.*?\}\}/g, "").replace(/<.*?>/g, "")
     );
+    const listFormGetAllActive = await api.Mst_SubmissionForm_Search({
+      FlagActive: FlagActiveEnum.All,
+      Ft_PageIndex: 0,
+      Ft_PageSize: config.MAX_PAGE_ITEMS,
+      KeyWord: "",
+    });
+    const check =
+      listFormGetAllActive?.DataList?.filter(
+        (val: any) =>
+          val.SubFormCode.toUpperCase() ===
+          dataSaveForm.SubFormCode.toUpperCase()
+      ).length === 0; /// check trùng dữ liệu
+
     if (
       formData.BulletinType !== "" &&
       formData.ChannelType !== "" &&
@@ -228,26 +242,58 @@ export default function Content_Edit() {
       formData.SubFormName !== "" &&
       invalidate.isValid === true
     ) {
-      if (valueID === true && saveFormType === "ZALO") {
-        const newData = Object.entries(formData.strJsonZNS || {}).map(
-          ([key, value]: any) => {
-            return {
-              SubFormCode: dataSaveForm.SubFormCode ?? "",
-              ParamValue:
-                value.SourceDataType === "INPUT" ? value.ParamSFCode : null,
-              ParamSFCode:
-                value.SourceDataType === "SYS" ? value.ParamSFCode : null,
-              SourceDataType: value.SourceDataType,
-              ParamSFCodeZNS: value.ParamSFCodeZNS,
-            };
+      if (check === true) {
+        if (valueID === true && saveFormType === "ZALO") {
+          const newData = Object.entries(formData.strJsonZNS || {}).map(
+            ([key, value]: any) => {
+              return {
+                SubFormCode: dataSaveForm.SubFormCode ?? "",
+                ParamValue:
+                  value.SourceDataType === "INPUT" ? value.ParamSFCode : null,
+                ParamSFCode:
+                  value.SourceDataType === "SYS" ? value.ParamSFCode : null,
+                SourceDataType: value.SourceDataType,
+                ParamSFCodeZNS: value.ParamSFCodeZNS,
+              };
+            }
+          );
+          const dataSave = {
+            ...dataSaveForm,
+            FlagActive: dataSaveForm.FlagActive === "true" ? "1" : "0",
+            ...{ strJsonZNS: JSON.stringify(newData) },
+          };
+          if (zaloTemplate?.listParams?.length === newData?.length) {
+            const resp = await api.MstSubmissionForm_Save(dataSave);
+            if (resp.isSuccess) {
+              setRefetchAtom(true);
+              toast.success(t("Create Successfully"));
+              navigate(`/${auth.networkId}/admin/Content_Managent`);
+              // await refetch();
+              return true;
+            }
+            showError({
+              message: t(resp.errorCode),
+              debugInfo: resp.debugInfo,
+              errorInfo: resp.errorInfo,
+            });
+            throw new Error(resp.errorCode);
           }
-        );
-        const dataSave = {
-          ...dataSaveForm,
-          FlagActive: dataSaveForm.FlagActive === "true" ? "1" : "0",
-          ...{ strJsonZNS: JSON.stringify(newData) },
-        };
-        if (zaloTemplate?.listParams?.length === newData?.length) {
+        }
+        if (valueID === false && saveFormType === "ZALO") {
+          const dataSave = {
+            ...dataSaveForm,
+            FlagActive: dataSaveForm.FlagActive === "true" ? "1" : "0",
+            IDZNS: "",
+            ...{
+              strJsonMessage: JSON.stringify([
+                {
+                  SubFormCode: dataSaveForm.SubFormCode,
+                  Message: formData.MessageZalo ?? "",
+                },
+              ]),
+            },
+          };
+          // console.log(266, formData.MessageZalo);
           const resp = await api.MstSubmissionForm_Save(dataSave);
           if (resp.isSuccess) {
             setRefetchAtom(true);
@@ -263,39 +309,40 @@ export default function Content_Edit() {
           });
           throw new Error(resp.errorCode);
         }
-      }
-      if (valueID === false && saveFormType === "ZALO") {
-        const dataSave = {
-          ...dataSaveForm,
-          FlagActive: dataSaveForm.FlagActive === "true" ? "1" : "0",
-          IDZNS: "",
-          ...{
-            strJsonMessage: JSON.stringify([
-              {
-                SubFormCode: dataSaveForm.SubFormCode,
-                Message: formData.MessageZalo ?? "",
+        if (valueID === false && saveFormType === "SMS") {
+          if (!checkSpecial) {
+            const dataSave = {
+              ...dataSaveForm,
+              IDZNS: "",
+              FlagActive: dataSaveForm.FlagActive === "true" ? "1" : "0",
+              ...{
+                strJsonMessage: JSON.stringify([
+                  {
+                    SubFormCode: dataSaveForm.SubFormCode,
+                    Message: formData.MessageSMS ?? "",
+                  },
+                ]),
               },
-            ]),
-          },
-        };
-        // console.log(266, formData.MessageZalo);
-        const resp = await api.MstSubmissionForm_Save(dataSave);
-        if (resp.isSuccess) {
-          setRefetchAtom(true);
-          toast.success(t("Create Successfully"));
-          navigate(`/${auth.networkId}/admin/Content_Managent`);
-          // await refetch();
-          return true;
+            };
+            const resp = await api.MstSubmissionForm_Save(dataSave);
+            if (resp.isSuccess) {
+              setRefetchAtom(true);
+              toast.success(t("Create Successfully"));
+              navigate(`/${auth.networkId}/admin/Content_Managent`);
+              // await refetch();
+              return true;
+            }
+            showError({
+              message: t(resp.errorCode),
+              debugInfo: resp.debugInfo,
+              errorInfo: resp.errorInfo,
+            });
+            throw new Error(resp.errorCode);
+          } else {
+            toast.warning("Không được nhập các kí tự đặc biệt !@#$%^&*(),");
+          }
         }
-        showError({
-          message: t(resp.errorCode),
-          debugInfo: resp.debugInfo,
-          errorInfo: resp.errorInfo,
-        });
-        throw new Error(resp.errorCode);
-      }
-      if (valueID === false && saveFormType === "SMS") {
-        if (!checkSpecial) {
+        if (valueID === false && saveFormType === "EMAIL") {
           const dataSave = {
             ...dataSaveForm,
             IDZNS: "",
@@ -304,11 +351,13 @@ export default function Content_Edit() {
               strJsonMessage: JSON.stringify([
                 {
                   SubFormCode: dataSaveForm.SubFormCode,
-                  Message: formData.MessageSMS ?? "",
+                  SubTitle: formData.MessageTitleEmail ?? "",
+                  Message: formData.MessageEmail ?? "",
                 },
               ]),
             },
           };
+
           const resp = await api.MstSubmissionForm_Save(dataSave);
           if (resp.isSuccess) {
             setRefetchAtom(true);
@@ -323,40 +372,9 @@ export default function Content_Edit() {
             errorInfo: resp.errorInfo,
           });
           throw new Error(resp.errorCode);
-        } else {
-          toast.warning("Không được nhập các kí tự đặc biệt !@#$%^&*(),");
         }
-      }
-      if (valueID === false && saveFormType === "EMAIL") {
-        const dataSave = {
-          ...dataSaveForm,
-          IDZNS: "",
-          FlagActive: dataSaveForm.FlagActive === "true" ? "1" : "0",
-          ...{
-            strJsonMessage: JSON.stringify([
-              {
-                SubFormCode: dataSaveForm.SubFormCode,
-                SubTitle: formData.MessageTitleEmail ?? "",
-                Message: formData.MessageEmail ?? "",
-              },
-            ]),
-          },
-        };
-
-        const resp = await api.MstSubmissionForm_Save(dataSave);
-        if (resp.isSuccess) {
-          setRefetchAtom(true);
-          toast.success(t("Create Successfully"));
-          navigate(`/${auth.networkId}/admin/Content_Managent`);
-          // await refetch();
-          return true;
-        }
-        showError({
-          message: t(resp.errorCode),
-          debugInfo: resp.debugInfo,
-          errorInfo: resp.errorInfo,
-        });
-        throw new Error(resp.errorCode);
+      } else {
+        toast.warning("SubFormCode đã bị trùng");
       }
     }
   };

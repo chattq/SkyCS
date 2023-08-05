@@ -103,7 +103,7 @@ const GridViewRaw = ({
   stateStoring,
   onCustomerEditing,
   editable = true,
-  showCheck = "none",
+  showCheck = "always",
   hidePagination = false,
 }: GridViewProps) => {
   const datagridRef = useRef<DataGrid | null>(null);
@@ -300,7 +300,7 @@ const GridViewRaw = ({
       {
         location: "before",
         render: () => {
-          return <DeleteButton onClick={handleConfirmDelete} />;
+          return editable && <DeleteButton onClick={handleConfirmDelete} />;
         },
       },
     ];
@@ -469,7 +469,7 @@ const GridViewRaw = ({
           <Selection
             mode="multiple"
             selectAllMode="page"
-            // showCheckBoxesMode={showCheck}
+            showCheckBoxesMode={showCheck}
           />
           {realColumns.map((col: any) => (
             <Column key={col.dataField} {...col} />

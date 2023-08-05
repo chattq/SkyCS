@@ -85,7 +85,7 @@ export interface Mst_CarModel {
   LogLUBy: string;
 }
 export interface Mst_DepartmentControl {
-  Lst_Mst_Department?: any;
+  Lst_Mst_Department?: any[];
   Lst_Sys_UserAutoAssignTicket?: any;
   DepartmentCode?: string;
   NetworkID?: string;
@@ -562,6 +562,19 @@ export interface Rpt_ETTicketDetailControllerSearchParam {
   CreateDTimeUTCTo: string;
   LogLUDTimeUTCFrom: string;
   LogLUDTimeUTCTo: string;
+}
+export interface Rpt_MissCallSearchParam {
+  AgentCodeConditionList: string;
+  DepartmentCodeConditionList: string;
+  OrgIDConditionList: string;
+  TicketTypeConditionList: string;
+  CustomerName: string;
+  CustomerPhoneNo: string;
+  CustomerEmail: string;
+  CustomerCompany: string;
+  TicketStatusConditionList: string;
+  CreateDTimeUTCFrom: string;
+  CreateDTimeUTCTo: string;
 }
 export interface Rpt_SLASearchParam {
   AgentCodeConditionList: string;

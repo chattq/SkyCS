@@ -21,10 +21,17 @@
 .Upload_Detail_search .dx-fileuploader-input-wrapper {
   display: none !important;
 }
+.Upload_Detail_search .dx-button-mode-text {
+  display: none !important;
+}
 .file_Controller {
   margin-right: 15px;
 }
 mark {
   color: red !important;
   background: transparent;
+}
+.dx-popup-content.dx-dialog-content {
+  min-width: 300px !important;
+  height: 80px !important;
 }

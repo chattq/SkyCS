@@ -64,6 +64,10 @@ export const Mst_CustomerGroupPage = () => {
     Ft_PageSize: config.MAX_PAGE_ITEMS,
     KeyWord: "",
   });
+  const { data: listOrgID } = useQuery(
+    ["listOrgID", JSON.stringify(searchCondition)],
+    () => api.Mst_NNTController_GetAllActive()
+  );
 
   const setSelectedItems = useSetAtom(selectedItemsAtom);
 
@@ -77,7 +81,10 @@ export const Mst_CustomerGroupPage = () => {
       })
   );
 
-  const columns = useBankDealerGridColumns({ data: data?.DataList || [] });
+  const columns = useBankDealerGridColumns({
+    data: data?.DataList || [],
+    datalistOrgID: listOrgID?.Data?.Lst_Mst_NNT,
+  });
 
   const formItems: IItemProps[] = [
     {
@@ -97,16 +104,36 @@ export const Mst_CustomerGroupPage = () => {
   ];
 
   const handleDeleteRows = async (rows: any[]) => {
-    const resp = await api.Mst_CustomerGroup_Delete(rows);
-    if (resp.isSuccess) {
-      toast.success(t("Delete Successfully"));
-      await refetch();
+    if (rows?.length === 1) {
+      const resp = await api.Mst_CustomerGroup_Delete(rows);
+      if (resp.isSuccess) {
+        toast.success(t("Delete Successfully"));
+        await refetch();
+      } else {
+        showError({
+          message: t(resp.errorCode),
+          debugInfo: resp.debugInfo,
+          errorInfo: resp.errorInfo,
+        });
+      }
     } else {
-      showError({
-        message: t(resp.errorCode),
-        debugInfo: resp.debugInfo,
-        errorInfo: resp.errorInfo,
-      });
+      const listDataDelete = rows.map((item: any) => ({
+        CustomerGrpCode: item.CustomerGrpCode,
+        OrgID: item.OrgID,
+      }));
+      const resp = await api.Mst_CustomerGroupData_DeleteMultiple(
+        listDataDelete
+      );
+      if (resp.isSuccess) {
+        toast.success(t("Delete Successfully"));
+        await refetch();
+      } else {
+        showError({
+          message: t(resp.errorCode),
+          debugInfo: resp.debugInfo,
+          errorInfo: resp.errorInfo,
+        });
+      }
     }
   };
 
@@ -181,6 +208,7 @@ export const Mst_CustomerGroupPage = () => {
 
   const formSettings = useFormSettings({
     columns,
+    datalistOrgID: listOrgID?.Data?.Lst_Mst_NNT ?? [],
   });
 
   const onModify = async (
@@ -309,14 +337,12 @@ export const Mst_CustomerGroupPage = () => {
       <AdminContentLayout.Slot name={"Content"}>
         <ContentSearchPanelLayout>
           <ContentSearchPanelLayout.Slot name={"SearchPanel"}>
-            <div className={"w-[200px]"}>
-              <SearchPanelV2
-                storeKey="Mst_CustomerGroupr_Search"
-                conditionFields={formItems}
-                data={searchCondition}
-                onSearch={handleSearch}
-              />
-            </div>
+            <SearchPanelV2
+              storeKey="Mst_CustomerGroupr_Search"
+              conditionFields={formItems}
+              data={searchCondition}
+              onSearch={handleSearch}
+            />
           </ContentSearchPanelLayout.Slot>
           <ContentSearchPanelLayout.Slot name={"ContentPanel"}>
             <GridViewPopup

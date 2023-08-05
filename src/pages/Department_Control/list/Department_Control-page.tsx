@@ -6,6 +6,7 @@ import { useCallback, useRef, useState } from "react";
 
 import { DepartMentControlPopupView } from "@/pages/Department_Control/components";
 import {
+  UserAutoAssignTicketAtom,
   dataFormAtom,
   dataTableAtom,
   dataTableUserAtom,
@@ -48,6 +49,7 @@ export const Department_ControlPage = () => {
   const setDataTable = useSetAtom(dataTableUserAtom);
   const setDataForm = useSetAtom(dataFormAtom);
   const setFlag = useSetAtom(flagEdit);
+  const setUserAutoAssignTicket = useSetAtom(UserAutoAssignTicketAtom);
 
   const [searchCondition, setSearchCondition] = useState<SearchParam>({
     FlagActive: FlagActiveEnum.All,
@@ -57,6 +59,7 @@ export const Department_ControlPage = () => {
   });
 
   const setSelectedItems = useSetAtom(selectedItemsAtom);
+  const auth = useAtomValue(authAtom);
 
   const api = useClientgateApi();
 
@@ -70,15 +73,14 @@ export const Department_ControlPage = () => {
   const { data: listUser } = useQuery(["listUser"], () =>
     api.Sys_User_GetAllActive()
   );
-  const { data: listDepartmentControl } = useQuery(
-    ["listDepartmentControl"],
-    () => api.Mst_DepartmentControl_GetAllActive()
+  const { data: listDepartmentOrgID } = useQuery(["listDepartmentOrgID"], () =>
+    api.Mst_DepartmentControl_GetByOrgID(auth.orgId.toString())
   );
 
   const columns = useDepartMentGridColumns({ data: data?.DataList });
   const formSettings = useFormSettings({
     data: listUser?.DataList,
-    listDepartmentControl: listDepartmentControl?.DataList,
+    listDepartmentControl: listDepartmentOrgID?.Data?.Lst_Mst_Department as any,
   });
 
   const handleSelectionChanged = (rows: string[]) => {
@@ -143,6 +145,14 @@ export const Department_ControlPage = () => {
         ...resp.Data?.Mst_Department,
         FlagActive: resp.Data?.Mst_Department.FlagActive === "1" ? true : false,
       });
+      setUserAutoAssignTicket(
+        resp?.Data?.Lst_Sys_UserAutoAssignTicket?.map((item: any) => {
+          return {
+            ...item,
+            UserName: item?.su_UserName,
+          };
+        })
+      );
     }
     setPopupVisible(true);
   };
@@ -244,24 +254,29 @@ export const Department_ControlPage = () => {
   };
 
   const loadingControl = useVisibilityControl({ defaultVisible: false });
-  const handleDeleteRows = async (ids: any, orgId: any) => {
+  const handleDeleteRows = async (rows: any) => {
     // loadingControl.open();
-    const resp = await api.Mst_DepartmentControl_Delete({
-      OrgID: orgId,
-      DepartmentCode: ids,
-    });
-    // loadingControl.close();
-    if (resp.isSuccess) {
-      toast.success(t("Delete Successfully"));
-      await refetch();
-      return true;
+    const dataDelete = {
+      DepartmentCode: rows[0].DepartmentCode,
+      OrgID: rows[0].OrgID,
+    };
+    if (rows[0].su_QtyUser === 0) {
+      const resp = await api.Mst_DepartmentControl_Delete(dataDelete);
+      // loadingControl.close();
+      if (resp.isSuccess) {
+        toast.success(t("Delete Successfully"));
+        await refetch();
+        return true;
+      }
+      showError({
+        message: t(resp.errorCode),
+        debugInfo: resp.debugInfo,
+        errorInfo: resp.errorInfo,
+      });
+      throw new Error(resp.errorCode);
+    } else {
+      toast.warning("Phòng ban vẫn còn thành viên");
     }
-    showError({
-      message: t(resp.errorCode),
-      debugInfo: resp.debugInfo,
-      errorInfo: resp.errorInfo,
-    });
-    throw new Error(resp.errorCode);
   };
   const handleEditRowChanges = () => {};
   const handleDeleteRowsOld = () => {};
@@ -306,10 +321,7 @@ export const Department_ControlPage = () => {
               },
               onClick: (e: any, ref: any) => {
                 const selectedRow = ref.instance.getSelectedRowsData();
-                handleDeleteRows(
-                  selectedRow[0].DepartmentCode,
-                  selectedRow[0].OrgID
-                );
+                handleDeleteRows(selectedRow);
               },
             },
           ]}

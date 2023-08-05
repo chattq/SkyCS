@@ -35,42 +35,27 @@ import { useBankDealerGridColumns } from "../components/use-columns";
 import { SearchPanelV2 } from "@/packages/ui/search-panel";
 
 import { nanoid } from "nanoid";
-import { CheckBox, DateBox, SelectBox } from "devextreme-react";
+import { CheckBox, DateBox, DateRangeBox, SelectBox } from "devextreme-react";
 
 import FilterDropdown from "@/packages/ui/base-gridview/FilterDropdown";
 import { format, set } from "date-fns";
-
-function generateMonthData(): Date[] {
-  const startYear = 1990;
-  const startMonth = 0; // January (0-based index)
-  const currentYear = new Date().getFullYear();
-  const monthData: Date[] = [];
-
-  for (let year = currentYear; year >= startYear; year--) {
-    const start = year === startYear ? startMonth : 11;
-    for (let month = start; month >= 0; month--) {
-      const date = set(new Date(), {
-        year: year,
-        month: month,
-        date: 1,
-      });
-      if (date <= new Date()) {
-        monthData.push(date);
-      }
-    }
-  }
-  return monthData;
-}
-
-const monthYearDs = generateMonthData();
+import { GridViewCustomize } from "@/packages/ui/base-gridview/gridview-customize";
+import { getFirstDateOfMonth } from "@/components/ulti";
 
 export const Rpt_CpnCampaignResultCallPage = () => {
   const { t } = useI18n("Rpt_CpnCampaignResultCall");
   let gridRef: any = useRef(null);
   const config = useConfiguration();
   const showError = useSetAtom(showErrorAtom);
-
-  const [searchCondition] = useState<any>({} as any);
+  const msInDay = 1000 * 60 * 60 * 24;
+  const now = new Date();
+  const startDate = new Date(now.getTime() - msInDay * 3);
+  const endDate = new Date(now.getTime());
+  const [searchCondition] = useState<any>({
+    AgentCodeConditionList: "",
+    CampaignCodeConditionList: "",
+    MonthReport: [null, null],
+  } as any);
 
   const setSelectedItems = useSetAtom(selectedItemsAtom);
 
@@ -81,17 +66,17 @@ export const Rpt_CpnCampaignResultCallPage = () => {
     queryFn: async () => {
       const resp = await api.Rpt_CpnCampaignResultCall_Search({
         AgentCodeConditionList: searchCondition.AgentCodeConditionList
-          ? searchCondition.AgentCodeConditionList
+          ? searchCondition.AgentCodeConditionList.join(",")
           : "",
         CampaignCodeConditionList: searchCondition.CampaignCodeConditionList
-          ? searchCondition.CampaignCodeConditionList
+          ? searchCondition.CampaignCodeConditionList.join(",")
           : "",
-        ReportDTimeTo: searchCondition.ReportDTimeTo
-          ? format(searchCondition.ReportDTimeTo, "yyyy-MM-dd")
-          : "",
-        ReportDTimeFrom: searchCondition.ReportDTimeFrom
-          ? format(searchCondition.ReportDTimeFrom, "yyyy-MM-dd")
-          : "",
+        ReportDTimeFrom: searchCondition.MonthReport[0]
+          ? format(searchCondition.MonthReport[0], "yyyy-MM-dd")
+          : getFirstDateOfMonth(endDate),
+        ReportDTimeTo: searchCondition.MonthReport[1]
+          ? format(searchCondition.MonthReport[1], "yyyy-MM-dd")
+          : format(endDate, "yyyy-MM-dd"),
       });
       return resp;
     },
@@ -110,7 +95,7 @@ export const Rpt_CpnCampaignResultCallPage = () => {
     data: data?.Data?.Rpt_Cpn_CampaignResultCall || [],
   });
 
-  const formItems: IItemProps[] = useMemo(() => {
+  const formItems: any[] = useMemo(() => {
     return [
       {
         dataField: "MonthReport",
@@ -119,44 +104,28 @@ export const Rpt_CpnCampaignResultCallPage = () => {
         label: {
           text: t("Time create"),
         },
-        editorType: "dxDateBox",
-        render: ({ editorOptions, component: formRef }: any) => {
-          return (
-            <div className={"flex items-center"}>
-              <DateBox
-                className="pr-[3px]"
-                {...editorOptions}
-                type="date"
-                displayFormat="yyyy-MM-dd"
-                defaultValue={searchCondition.ReportDTimeFrom}
-                onValueChanged={(e: any) => {
-                  formRef.instance().updateData("ReportDTimeFrom", e.value);
-                }}
-              ></DateBox>
-              -
-              <DateBox
-                {...editorOptions}
-                type="date"
-                displayFormat="yyyy-MM-dd"
-                defaultValue={searchCondition.ReportDTimeTo}
-                onValueChanged={(e: any) => {
-                  formRef.instance().updateData("ReportDTimeTo", e.value);
-                }}
-              ></DateBox>
-            </div>
-          );
-        },
+        editorType: "dxDateRangeBox",
         editorOptions: {
-          placeholder: t("Input"),
           type: "date",
           displayFormat: "yyyy-MM-dd",
-          dataSource: monthYearDs,
-          displayExpr: (item: Date | null) => {
-            if (!!item) {
-              return format(item, "yyyy-MM-dd");
-            }
-            return "";
-          },
+        },
+        render: ({ editorOptions, component: formRef }: any) => {
+          return (
+            <DateRangeBox
+              displayFormat=" yyyy-MM-dd"
+              defaultStartDate={
+                searchCondition.MonthReport[0] || getFirstDateOfMonth(endDate)
+              }
+              defaultEndDate={searchCondition.MonthReport[1] || endDate}
+              showClearButton={true}
+              useMaskBehavior={true}
+              openOnFieldClick={true}
+              labelMode="hidden"
+              onValueChanged={(e: any) => {
+                formRef.instance().updateData("MonthReport", e.value);
+              }}
+            />
+          );
         },
       },
       {
@@ -190,7 +159,7 @@ export const Rpt_CpnCampaignResultCallPage = () => {
         },
       },
     ];
-  }, []);
+  }, [listUser, CampaignList]);
 
   const handleDeleteRows = async (rows: any) => {
     console.log(175, rows);
@@ -308,7 +277,20 @@ export const Rpt_CpnCampaignResultCallPage = () => {
   };
   const handleEditRowChanges = () => {};
   const handleExportExcel = async () => {
-    const resp = await api.Rpt_CpnCampaignResultCall_ExportExcel();
+    const resp = await api.Rpt_CpnCampaignResultCall_ExportExcel({
+      AgentCodeConditionList: searchCondition.AgentCodeConditionList
+        ? searchCondition.AgentCodeConditionList.join(",")
+        : "",
+      CampaignCodeConditionList: searchCondition.CampaignCodeConditionList
+        ? searchCondition.CampaignCodeConditionList.join(",")
+        : "",
+      ReportDTimeFrom: searchCondition.MonthReport[0]
+        ? format(searchCondition.MonthReport[0], "yyyy-MM-dd")
+        : getFirstDateOfMonth(endDate),
+      ReportDTimeTo: searchCondition.MonthReport[1]
+        ? format(searchCondition.MonthReport[1], "yyyy-MM-dd")
+        : format(endDate, "yyyy-MM-dd"),
+    });
     if (resp.isSuccess) {
       toast.success(t("Download Successfully"));
       window.location.href = resp.Data;
@@ -333,17 +315,17 @@ export const Rpt_CpnCampaignResultCallPage = () => {
       <AdminContentLayout.Slot name={"Content"}>
         <ContentSearchPanelLayout>
           <ContentSearchPanelLayout.Slot name={"SearchPanel"}>
-            <div className={"w-[230px]"}>
-              <SearchPanelV2
-                storeKey="Rpt_CpnCampaignResultCall_Search"
-                conditionFields={formItems}
-                data={searchCondition}
-                onSearch={handleSearch}
-              />
-            </div>
+            <SearchPanelV2
+              storeKey="Rpt_CpnCampaignResultCall_Search"
+              conditionFields={formItems}
+              data={searchCondition}
+              onSearch={handleSearch}
+            />
           </ContentSearchPanelLayout.Slot>
           <ContentSearchPanelLayout.Slot name={"ContentPanel"}>
-            <BaseGridView
+            <GridViewCustomize
+              cssClass="Rpt_CpnCampaignResultCall_Grid"
+              // isHidenHeaderFilter={false}
               isLoading={isLoading}
               dataSource={
                 data?.isSuccess
@@ -353,16 +335,19 @@ export const Rpt_CpnCampaignResultCallPage = () => {
               columns={columns}
               keyExpr={"CampaignCode"}
               popupSettings={popupSettings}
+              formSettings={{}}
               onReady={(ref) => (gridRef = ref)}
               allowSelection={true}
               onSelectionChanged={handleSelectionChanged}
               onSaveRow={handleSavingRow}
               onEditorPreparing={handleEditorPreparing}
-              // allowInlineEdit={false}
               onEditRowChanges={handleEditRowChanges}
               onDeleteRows={handleDeleteRows}
-              inlineEditMode="row"
-              showCheck="always"
+              onEditRow={handleOnEditRow}
+              storeKey={"Rpt_CpnCampaignResultCall-columns"}
+              customToolbarItems={[]}
+              isHiddenCheckBox={true}
+              isSingleSelection={false}
               toolbarItems={[
                 {
                   location: "before",
@@ -381,7 +366,6 @@ export const Rpt_CpnCampaignResultCallPage = () => {
                   },
                 },
               ]}
-              storeKey={"Rpt_CpnCampaignResultCall-columns"}
             />
           </ContentSearchPanelLayout.Slot>
         </ContentSearchPanelLayout>

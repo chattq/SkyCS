@@ -17,7 +17,7 @@ export const formatText = (Detail: any, maxText: any) => {
   const textWithoutTags = Detail?.replace(regex, "");
   const maxLength = maxText;
   const outText =
-    textWithoutTags.length <= maxLength
+    textWithoutTags?.length <= maxLength
       ? textWithoutTags
       : `${textWithoutTags.slice(0, maxLength)} ...`;
   return outText;
@@ -32,7 +32,7 @@ export const extractCategoryCode = (data: any) => {
           CategoryCode: data[i]?.CategoryCode,
         });
       }
-      if (data[i].Lst_KB_CategoryChildren.length > 0) {
+      if (data[i].Lst_KB_CategoryChildren?.length > 0) {
         getCategories(data[i]?.Lst_KB_CategoryChildren);
       }
     }

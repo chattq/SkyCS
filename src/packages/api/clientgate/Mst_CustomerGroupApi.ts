@@ -68,12 +68,12 @@ export const useMst_CustomerGroupApi = (apiBase: AxiosInstance) => {
       >("/MstCustomerGroup/Delete", { strJson: JSON.stringify(key[0]) });
     },
 
-    Mst_CustomerGroupData_DeleteMultiple: async (listAreaCode: string[]) => {
+    Mst_CustomerGroupData_DeleteMultiple: async (data: any) => {
       return await apiBase.post<
         SearchParam,
         ApiResponse<Mst_CustomerGroupData>
-      >("/MstArea/DeleteMultiple", {
-        strJson: JSON.stringify(listAreaCode),
+      >("/MstCustomerGroup/DeleteMultiple", {
+        strJson: JSON.stringify(data),
       });
     },
 

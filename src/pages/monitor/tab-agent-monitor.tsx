@@ -48,6 +48,18 @@ export const Tab_AgentMonitor = () => {
     }, [reload]);
 
 
+    const togglEgentCalloutStatus = (item: CcAgent) => {
+
+        if (item.AllowCallout)
+            item.AllowCallout = false;
+        else item.AllowCallout = true;
+
+        callApi.setExtAgentCalloutStatus(auth.networkId, { id: item.ExtId, status: item.AllowCallout }).then((resp) => {
+
+            console.log(resp);
+        });
+
+    }
     const togglEgentStatus = (item: CcAgent) => {
 
         if (item.AgentStatus == "On")
@@ -71,6 +83,21 @@ export const Tab_AgentMonitor = () => {
             <td>{item.Alias}</td>
             <td>{item.Email}</td>
             <td><span className={`monitor-status ${item.DeviceState?.toLocaleLowerCase()}`}> {item.DeviceState}</span></td>
+
+
+            <td>
+                <Switch
+                    value={item.AllowCallout}
+
+
+                    onValueChange={(e) => {
+                        togglEgentCalloutStatus(item);
+
+                    }}
+                />
+            </td>
+
+
             <td>
                 <Switch
                     value={item.AgentStatus == 'On'}
@@ -100,7 +127,8 @@ export const Tab_AgentMonitor = () => {
                             <th>Số máy lẻ</th>
                             <th>Email</th>
                             <th>Trạng thái người dùng</th>
-                            <th>Nhận cuộc gọi vào</th>
+                            <th>Cho phép gọi ra</th>
+                            <th>Hoạt động</th>
 
                         </tr>
                     </thead>

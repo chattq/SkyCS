@@ -8,6 +8,7 @@ import DropDownButton, {
   Item as DropDownButtonItem,
 } from "devextreme-react/drop-down-button";
 import { useMemo } from "react";
+import { CheckFilterHeader } from "./CheckFilterHeader";
 
 interface PropsToolBar {
   data: any[];
@@ -34,37 +35,8 @@ export const useToolbar = ({
       },
       widget: "customize",
       customize: (ref: any) => (
-        <div className="mt-[3px] gap-2 flex items-center">
-          <CheckBox
-            key="FlagTicketOutOfDate"
-            className="FlagTicketOutOfDate"
-            onValueChanged={(e) =>
-              onSetStatus("FlagTicketOutOfDate", ref, e.value)
-            }
-          />
-          <span className="font-semibold">{t("eTicket quá hạn")}</span>
-        </div>
-      ),
-    },
-    {
-      text: "",
-      onClick: () => {},
-      shouldShow: (ref: any) => {
-        return true;
-      },
-      widget: "customize",
-      customize: (ref: any) => (
-        <div className="mt-[3px] ml-6 gap-2 flex items-center">
-          <CheckBox
-            key="FlagSLANotResponding"
-            className="FlagSLANotResponding"
-            onValueChanged={(e) =>
-              onSetStatus("FlagSLANotResponding", ref, e.value)
-            }
-          />
-          <span className="font-semibold">
-            {t("eTicket không đáp ứng SLA")}
-          </span>
+        <div>
+          <CheckFilterHeader dataRef={ref} onSetStatus={onSetStatus} />
         </div>
       ),
     },

@@ -27,9 +27,7 @@ Props) => {
     return JSON.parse(data?.JsonCustomerInfoHist ?? "[]");
   }, [data]);
 
-  console.log(listColumnJson);
-
-  const { t } = useI18n("Mst_CampaignTypePage");
+  const { t } = useI18n("Tab_CustomerHist");
   const columns = useMemo(() => {
     return [
       {
@@ -42,6 +40,7 @@ Props) => {
           readOnly: true,
           placeholder: t("Input"),
         },
+        width: 200,
       },
       {
         groupKey: "BASIC_INFORMATION",
@@ -53,7 +52,9 @@ Props) => {
           readOnly: true,
           placeholder: t("Input"),
         },
+        width: 200,
       },
+
       {
         groupKey: "BASIC_INFORMATION",
         dataField: "JsonCustomerInfoHist", // Mã ngân hàng

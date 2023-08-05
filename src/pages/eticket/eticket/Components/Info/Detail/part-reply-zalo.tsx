@@ -140,23 +140,7 @@ export const PartReplyZalo = ({
       };
     }) ?? [];
 
-  const newZaloList = zaloList.length
-    ? zaloList
-    : [
-        {
-          ObjCode: "9047852093933124081",
-          ObjType: "ZaloUserId",
-        },
-      ];
-
-  const dataSource = [
-    ...phoneList,
-    ...newZaloList,
-    // {
-    //   ObjCode: "9047852093933124081",
-    //   ObjType: "ZaloUserId",
-    // },
-  ];
+  const dataSource = [...phoneList, ...zaloList];
 
   const dataZalo =
     addRemark.ObjCode === ""
@@ -249,8 +233,6 @@ export const PartReplyZalo = ({
     }
   }, [addRemark.SubFormCode]);
 
-  // console.log("media.ZALO ", media.ZALO);
-
   const handleSend = async () => {
     const formData = formRef.current.instance.option("formData");
     const { isValid } = formRef.current.instance.validate();
@@ -301,9 +283,6 @@ export const PartReplyZalo = ({
     }
   };
 
-  // console.log("addRemark ", addRemark);
-  // console.log("listMstBulletinType ", listMstBulletinType);
-
   return (
     <div className={"w-full message-reply mb-2"}>
       <div className="input-area">
@@ -348,6 +327,7 @@ export const PartReplyZalo = ({
               validationRules={[requiredType]}
               dataField="SubFormCode"
               editorType="dxSelectBox"
+              cssClass="justify-content-flex-end"
               label={{
                 text: t("SubFormCode"),
               }}
@@ -359,7 +339,7 @@ export const PartReplyZalo = ({
                 valueExpr: "SubFormCode",
                 onValueChanged: (param: any) => {
                   const newData = dataZalo.find(
-                    (item) => item.SubFormCode === param.value
+                    (item: any) => item.SubFormCode === param.value
                   );
 
                   setAddRemark((prev: any) => {
@@ -377,6 +357,7 @@ export const PartReplyZalo = ({
               dataField="MessageSend"
               label={{
                 text: t("MessageSend"),
+                visible: false,
               }}
               editorType="dxTextArea"
               validationRules={[requiredStringType]}
@@ -413,8 +394,8 @@ export const PartReplyZalo = ({
         </Form>
       </div>
 
-      <div className={"w-full mb-4 p-1"}>
-        <div className="flex float-right">
+      <div className={"w-full box-button-eticket"}>
+        <div className="flex">
           <SelectBox
             value={addRemark.ActionType} // giá trị khởi tạo
             valueExpr={"ActionTypeCode"} // giá trị được chọn
@@ -441,7 +422,7 @@ export const PartReplyZalo = ({
             type="default"
             icon="email"
             text={t("Send")}
-            className="eticket-button-send mr-1"
+            className="eticket-button-send"
             onClick={handleSend}
           >
             {t("Send")}

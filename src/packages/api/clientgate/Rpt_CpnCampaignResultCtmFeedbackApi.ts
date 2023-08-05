@@ -19,20 +19,14 @@ export const useRpt_CpnCampaignResultCtmFeedbackApi = (
         ...params,
       });
     },
-    Rpt_CpnCampaignResultCtmFeedback_ExportExcel: async ({
-      CampaignTypeCode,
-      CampaignCodeConditionList,
-    }: any): Promise<ApiResponse<any>> => {
+    Rpt_CpnCampaignResultCtmFeedback_ExportExcel: async (
+      data: any
+    ): Promise<ApiResponse<any>> => {
       return await apiBase.post<
         Partial<Rpt_CpnCampaignResultCtmFeedbackData>,
         ApiResponse<string>
       >("/RptCpnCampaignResultCtmFeedback/Export", {
-        CampaignTypeCode: CampaignTypeCode ? CampaignTypeCode : "",
-        CampaignCodeConditionList: CampaignCodeConditionList
-          ? CampaignCodeConditionList.join(",")
-          : "",
-        ReportDTimeTo: "",
-        ReportDTimeFrom: "",
+        ...data,
       });
     },
   };

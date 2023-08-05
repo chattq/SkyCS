@@ -149,7 +149,6 @@ export const Eticket_Custom_Field_Dynamic = () => {
   };
 
   const onDelete = async (data: MstTicketColumnConfig) => {
-    console.log("data ", data);
     const param = [
       {
         TicketColCfgCodeSys: data.TicketColCfgCodeSys,
@@ -226,7 +225,7 @@ export const CustomFieldListPageContent = ({
     console.log("item ", item);
     const obj = {
       ...item,
-      ListOption: JSON.parse(item.JsonListOption),
+      ListOption: item.JsonListOption ? JSON.parse(item.JsonListOption) : "{}",
       FlagCheckDuplicate: item.FlagCheckDuplicate === "1" ? true : false,
       FlagCheckRequire: item.FlagCheckRequire === "1" ? true : false,
       FlagIsDynamic: item.FlagIsDynamic === "1" ? true : false,
@@ -238,7 +237,6 @@ export const CustomFieldListPageContent = ({
     if (item.TicketColCfgDataType === "MASTERDATASELECTMULTIPLE") {
       obj.DataSource = JSON.parse(item.JsonListOption)[0].Value;
     }
-    console.log("obj ", obj);
     setFlag("update");
     setCurrentItem(obj);
     setPopupVisible(true);
@@ -328,14 +326,14 @@ export const CustomFieldListPageContent = ({
                   </div>
                   <div className={"w-[150px] flex items-center"}>
                     <Switch
-                      value={item.FlagIsDynamic === "1"}
+                      value={item.FlagActive === "1"}
                       readOnly={true}
                       stylingMode={"filled"}
-                      switchedOnText={"FlagIsDynamic"}
+                      switchedOnText={"FlagActive"}
                       switchedOffText={"Disabled"}
                     />
                     <span className={"ml-3"}>
-                      {item.FlagIsDynamic ? "FlagIsDynamic" : "Disabled"}
+                      {item.FlagIsDynamic ? "FlagActive" : "Disabled"}
                     </span>
                   </div>
                 </div>

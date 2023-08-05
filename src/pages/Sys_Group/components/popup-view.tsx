@@ -81,7 +81,11 @@ export const PopupViewDetail = ({
   useEffect(() => {
     if (dataFuntion && showInfoObj === false) {
       setSelectItems(dataFuntion);
+
       backUpColumns.current = dataFuntion;
+      // dataGrid.current?.instance.selectRows(
+      //   dataFuntion.map((item: any) => item.ObjectCode)
+      // );
     }
     if (showInfoObj === true) {
       setSelectItems([]);
@@ -199,12 +203,18 @@ export const PopupViewDetail = ({
   //     }
   //   }
   // };
-  function customizeItem(item: any) {
-    if (item.dataField === "GroupCode" && flagCheckCRUD === false) {
-      item.editorOptions.readOnly = true;
-    }
-    return item;
-  }
+  const customizeItem = useCallback(
+    (item: any) => {
+      if (item.dataField === "GroupCode") {
+        if (flagCheckCRUD === false) {
+          item.editorOptions.readOnly = true;
+        } else {
+          item.editorOptions.readOnly = false;
+        }
+      }
+    },
+    [flagCheckCRUD]
+  );
   function handleFieldDataChanged(changedData: any) {
     // Handle the changed field data
     // setValue(changedData.value);
@@ -225,6 +235,7 @@ export const PopupViewDetail = ({
     backUpColumns.current = filteredAbc;
     // // uuncheckRow
     dataGrid.current.instance.deselectRows(item?.ObjectCode);
+
     //  thực hiện xóa những thứ thêm
     // I need remove item from the selectedItems array
     const changesCheck = [...selectItem];
@@ -248,22 +259,6 @@ export const PopupViewDetail = ({
   // console.log(255, dataTable);
   const onEditorPreparing = (e: any) => {
     if (e.dataField === "Email") {
-      // console.log(255, e);
-      // e.editorOptions.dataSource = e.editorOptions.dataSource?.filter(
-      //   (item: any) => {
-      //     return !dataTable?.some(
-      //       (newItem: any) => newItem?.UserCode === item?.UserCode
-      //     );
-      //   }
-      // );
-      // console.log(
-      //   254,
-      //   e.editorOptions.dataSource.filter((item: any) => {
-      //     return !dataTable.some(
-      //       (newItem: any) => newItem.UserCode === item.UserCode
-      //     );
-      //   })
-      // );
     }
   };
 
@@ -442,7 +437,9 @@ export const PopupViewDetail = ({
                             />
                           </div>
                         )}
-                        <div className="truncate">{item?.ObjectCode}</div>
+                        <div className="truncate">
+                          {item?.so_ObjectName || item?.ObjectName}
+                        </div>
                       </div>
                     </>
                   );

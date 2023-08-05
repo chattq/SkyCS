@@ -73,6 +73,15 @@ export const useCpn_Campaign = (apiBase: AxiosInstance) => {
       });
     },
 
+    Cpn_Campaign_DeleteMultiple: async (param: any[]) => {
+      return await apiBase.post<any, ApiResponse<any>>(
+        "/CpnCampaign/DeleteMulti",
+        {
+          strJson: JSON.stringify(param),
+        }
+      );
+    },
+
     Cpn_Campaign_ExportTemplate: async (
       CampaignTypeCode: string
     ): Promise<ApiResponse<Partial<Props>>> => {

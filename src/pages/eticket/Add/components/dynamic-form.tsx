@@ -53,7 +53,6 @@ export const useDynamicForm = () => {
           list
             ?.filter((item: any) => item?.TicketColCfgDataType == "MASTERDATA")
             ?.map((item: any) => item?.TicketColCfgCodeSys) ?? [];
-        console.log("filterDynamic", filterDynamic);
         setDynamicFields(filterDynamic);
       }
 
@@ -144,8 +143,6 @@ export const useDynamicForm = () => {
     },
   ];
 
-  // return listCodeField?.Data?.Lst_Mst_TicketColumnConfig ?? [];
-
   return formSettings;
 };
 
@@ -153,6 +150,8 @@ export const dynamicFormValue = atom<any>({});
 
 export const DynamicForm = forwardRef(({}: any, ref: any) => {
   const formValue = useAtomValue(dynamicFormValue);
+
+  console.log(formValue);
 
   return (
     <form className="mt-[50px]">

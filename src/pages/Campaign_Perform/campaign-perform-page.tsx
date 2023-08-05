@@ -31,11 +31,9 @@ import ResponsiveBox, {
 } from "devextreme-react/responsive-box";
 import { useSetAtom } from "jotai";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { CpnCustomerList } from "./components/cpn_customerList";
 import "./styles.scss";
 import { Cpn_CampaignPerformDetail } from "./components/cpn_perform_detail";
 import { Avatar } from "../eticket/components/avatar";
-import { any } from "ts-pattern/dist/patterns";
 import { Cpn_CustomerInfo } from "./components/customer_info";
 import { nanoid } from "nanoid";
 import { Cpn_CampaignInfo } from "./components/campaign_info";
@@ -47,10 +45,7 @@ import { ColumnOptions } from "@/types";
 import { Icon } from "@/packages/ui/icons";
 
 export const Cpn_CampaignPerformPage = () => {
-  const objCpn_CampaignCustomerData: Cpn_CampaignCustomerData = {
-    Idx: 0,
-    QtyCall: 0,
-  };
+  let objRef: any = useRef(undefined);
   const windowSize = useWindowSize();
   const [currentCpnCustomer, setCurrentCpnCustomer] =
     useState<Cpn_CampaignCustomerData | null>(null);
@@ -68,7 +63,7 @@ export const Cpn_CampaignPerformPage = () => {
   >([]);
 
   const [formData, setFormData] = useState({
-    Status: ["NOANSWER", "CALLAGAIN", "FAILED"],
+    Status: ["NOANSWER", "CALLAGAIN", "FAILED", "PENDING"],
   });
 
   const [selectedCp, setSelectedCp] = useState<any>(null);
@@ -84,7 +79,7 @@ export const Cpn_CampaignPerformPage = () => {
     Ft_PageSize: config.MAX_PAGE_ITEMS,
     CampaignTypeName: "",
     CampaignTypeDesc: "",
-    CampaignStatus: "STARTED,CONTINUED",
+    CampaignStatus: "",
   });
 
   const refetchCampaignList = async () => {
@@ -180,8 +175,6 @@ export const Cpn_CampaignPerformPage = () => {
         CampaignCode: selectedCp,
       });
 
-      console.log("response customer", response);
-
       if (response.isSuccess && !!response.Data) {
         setCampaignCustomerData(response.Data);
         setrenderCustomer(response.Data);
@@ -200,52 +193,62 @@ export const Cpn_CampaignPerformPage = () => {
   }, [selectedCp]);
 
   const doCall = (phoneNo: any) => {
-    objCpn_CampaignCustomerData.CallID = undefined;
+    // objCpn_CampaignCustomerData.CallID = undefined;
     phone.call(phoneNo, (call: CcCall) => {
-      objCpn_CampaignCustomerData.CallID = returnValue(call.Id);
+      console.log("objRef ", objRef.current, call.Id);
+      objRef.current = call.Id;
     });
   };
 
   const handleSave = async (text: string) => {
-    let value: any = {
-      customer: {},
-      dynamic: {},
-      normal: {},
-    };
-    if (customerRef?.current && formDynamicRef?.current && normalRef?.current) {
-      value.customer = customerRef?.current.instance.option("formData");
-      value.dynamic = formDynamicRef?.current.instance.option("formData");
-      value.normal = normalRef?.current.instance.option("formData");
-      const obj = {
-        CpnCustomerSaveType: text,
-        CampaignCode: currentCpnCustomer?.CampaignCode,
-        OrgID: value.customer?.OrgID,
-        Idx: currentCpnCustomer?.Idx ?? "",
-        AgentCode: currentCpnCustomer?.AgentCode,
-        CustomerName: value.customer?.CustomerName,
-        CustomerEmail: value.customer?.CustomerEmail,
-        CustomerAddress: value.customer?.CustomerAddress,
-        CustomerCompany: currentCpnCustomer?.CustomerCompany ?? "",
-        JsonCustomerInfo: JSON.stringify(value.dynamic),
-        CustomerFeedBack: value.normal?.CustomerFeedBack,
-        Remark: value.normal?.Remark ?? "",
-        CallID: objCpn_CampaignCustomerData.CallID,
+    if (selectedCp) {
+      let value: any = {
+        customer: {},
+        dynamic: {},
+        normal: {},
       };
-
-      if (objCpn_CampaignCustomerData.CallID) {
-        const response = await api.Cpn_CampaignCustomer_Save(obj);
-        if (response.isSuccess) {
-          toast.success(t(`${text} Success`));
+      if (
+        customerRef?.current &&
+        formDynamicRef?.current &&
+        normalRef?.current
+      ) {
+        value.customer = customerRef?.current.instance.option("formData");
+        value.dynamic = formDynamicRef?.current.instance.option("formData");
+        value.normal = normalRef?.current.instance.option("formData");
+        const obj = {
+          CpnCustomerSaveType: text,
+          CampaignCode: currentCpnCustomer?.CampaignCode,
+          OrgID: value.customer?.OrgID,
+          Idx: currentCpnCustomer?.Idx ?? "",
+          AgentCode: currentCpnCustomer?.AgentCode,
+          CustomerName: value.customer?.CustomerName,
+          CustomerEmail: value.customer?.CustomerEmail,
+          CustomerAddress: value.customer?.CustomerAddress,
+          CustomerCompany: currentCpnCustomer?.CustomerCompany ?? "",
+          JsonCustomerInfo: JSON.stringify(value.dynamic),
+          CustomerFeedBack: value.normal?.CustomerFeedBack,
+          Remark: value.normal?.Remark ?? "",
+          CallID: objRef.current,
+        };
+        if (objRef.current !== "" && objRef.current) {
+          const response = await api.Cpn_CampaignCustomer_Save(obj);
+          if (response.isSuccess) {
+            toast.success(t(`${text} Success`));
+            objRef.current = undefined;
+            refetchCampaignList();
+          } else {
+            showError({
+              message: t(response.errorCode),
+              debugInfo: response.debugInfo,
+              errorInfo: response.errorInfo,
+            });
+          }
         } else {
-          showError({
-            message: t(response.errorCode),
-            debugInfo: response.debugInfo,
-            errorInfo: response.errorInfo,
-          });
+          toast.error("Không thể thêm dữ liệu");
         }
-      } else {
-        toast.error("Không thể thêm dữ liệu");
       }
+    } else {
+      toast.error(t("Please Input Campaign"));
     }
   };
 
@@ -279,6 +282,7 @@ export const Cpn_CampaignPerformPage = () => {
           <Button
             className="btn-call"
             onClick={() => {
+              onItemSelected(item);
               doCall(phoneNo);
             }}
           >
@@ -305,6 +309,8 @@ export const Cpn_CampaignPerformPage = () => {
     if (!isNullOrEmpty(_data)) {
       value = _data.toString().trim();
     }
+    console.log("value ", value);
+
     return value;
   };
 
@@ -336,7 +342,13 @@ export const Cpn_CampaignPerformPage = () => {
               returnValue(item.CustomerPhoneNo2).includes(formSearch.Keyword)
             );
           } else if (formSearch.Status.length) {
-            return formSearch.Status.includes(returnValue(item.CampaignStatus));
+            if (formSearch.Status.includes("")) {
+              return true;
+            } else {
+              return formSearch.Status.includes(
+                returnValue(item.CampaignCustomerStatus)
+              );
+            }
           } else {
             return true;
           }
@@ -436,7 +448,7 @@ export const Cpn_CampaignPerformPage = () => {
           className="w-full"
           style={{ background: "#f9f9f9", height: windowSize.height - 120 }}
         >
-          <ResponsiveBox className={"w-full"}>
+          <ResponsiveBox className={"w-full campaign-perform-page-content"}>
             <Row></Row>
             <Col ratio={2}></Col>
             <Col ratio={5}></Col>

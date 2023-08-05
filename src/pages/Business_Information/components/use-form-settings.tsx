@@ -35,7 +35,6 @@ export const useFormSettings = ({ dataNNT, dataProvince, dataOrgID }: any) => {
         throw error;
       });
   };
-  console.log(38, dataOrgID);
 
   const formSettings: any = [
     {

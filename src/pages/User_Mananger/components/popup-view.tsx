@@ -169,7 +169,6 @@ export const PopupView = ({
     [avt, flagCheckCRUD, groupTag, derpartmentTag, dataForm, dataPB]
   );
 
-  console.log(dataForm);
   const handleDatatable = (e: any) => {
     console.log(122, e.component.totalCount());
   };
@@ -273,7 +272,7 @@ export const PopupView = ({
         item.editorOptions.value = "vi";
       }
     },
-    [flagCheckCRUD, value, dataMST, dataPB]
+    [flagCheckCRUD, value, dataMST, dataPB, auth]
   );
 
   const handleFieldDataChanged = useCallback(
@@ -351,11 +350,11 @@ export const PopupView = ({
         },
       ]}
     >
+      <LoadPanel
+        visible={Boolean(dataForm)}
+        position={{ of: "#gridContainer" }}
+      />
       <ScrollView height={"100%"}>
-        <LoadPanel
-          visible={Boolean(dataForm)}
-          position={{ of: "#gridContainer" }}
-        />
         <div className="flex justify-between">
           <div>
             <UploadAvatar

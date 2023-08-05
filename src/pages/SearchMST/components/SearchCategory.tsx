@@ -1,25 +1,31 @@
 import NavNetworkLink from "@/components/Navigate";
 import { useI18n } from "@/i18n/useI18n";
-import { ScrollView, TreeView } from "devextreme-react";
+import { LoadPanel, ScrollView, TreeView } from "devextreme-react";
 import React, { useState } from "react";
 import InputSearch from "./InputSearch";
 import { AdminContentLayout } from "@/packages/layouts/admin-content-layout";
 import { useAtomValue } from "jotai";
 import { dataSearchAtom } from "./store";
 import { transformCategory } from "@/pages/Post_Manager/components/components/FormatCategory";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useClientgateApi } from "@/packages/api";
 import { authAtom } from "@/packages/store";
+import { useLocation } from "react-router-dom";
 
 export default function SearchCategory() {
   const { t } = useI18n("SearchMST");
   const api = useClientgateApi();
-  const { data, isLoading, refetch } = useQuery(["Post_Manager_History"], () =>
-    api.KB_PostData_SearchMore("")
-  );
+  const { pathname, search } = useLocation();
+  const tabResults = pathname.split("/").pop();
+  const {
+    data,
+    isLoading: isLoadingHistory,
+    refetch,
+  } = useQuery(["Post_Manager_History"], () => api.KB_PostData_SearchMore(""));
+  const queryClient = useQueryClient();
   const auth = useAtomValue(authAtom);
   const [keyCategory, setkeyCategory] = useState<any>([]);
-  const { data: dataCategory } = useQuery(
+  const { data: dataCategory, isLoading } = useQuery(
     ["Post_Manager_Category", keyCategory],
     () => api.KB_PostData_GetByCategoryCode(keyCategory, auth.orgId)
   );
@@ -35,10 +41,21 @@ export default function SearchCategory() {
         OrgID: auth.orgId,
       },
     });
+    queryClient.invalidateQueries({
+      queryKey: ["Post_Manager_History", tabResults],
+    });
   };
 
   return (
     <div className="w-full">
+      <LoadPanel
+        container={".dx-viewport"}
+        shadingColor="rgba(0,0,0,0.4)"
+        position={"center"}
+        visible={isLoading || isLoadingHistory}
+        showIndicator={true}
+        showPane={true}
+      />
       <div className="flex mt-[27px] justify-center">
         <ScrollView height={320} showScrollbar="always">
           <div className="mt-[2px]">

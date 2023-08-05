@@ -12,12 +12,6 @@ import { LoadPanel } from "devextreme-react";
 
 export const PartMessageList = memo(
   ({ data, value, onGim }: { data: EticketT; value: any[]; onGim: any }) => {
-    // const [valueGim, setValueGim] = useState<any[]>([]);
-    // const api = useClientgateApi();
-    // const showError = useSetAtom(showErrorAtom);
-    // const { t } = useI18n("");
-    // const [loading, setLoading] = useState(false);
-
     // Các định dạng file sẽ hỗ trợ:
     // - Nhóm Text:
     // TXT
@@ -109,7 +103,7 @@ export const PartMessageList = memo(
     //   return <LoadPanel visible={loading} />;
     // }
     return (
-      <div className={"w-full pt-3 pb-3 pl-5 pr-5"}>
+      <div className={"w-full pt-3 pb-3 pl-3 pr-3 message-list"}>
         {value?.map((item: any, idx: number) => {
           let flag: IconName | "eventlog" = "remark";
           let flagIncoming = "";
@@ -141,7 +135,6 @@ export const PartMessageList = memo(
             }
             case "11": {
               if (item?.ChannelId === "2") {
-                console.log("item ", item);
                 if (item.State === "6") {
                   flag = "call";
                 } else {
@@ -164,8 +157,6 @@ export const PartMessageList = memo(
               break;
             }
           }
-
-          // console.log("item ", item, "flag ", flag);
           return (
             <PartMessageItem
               onGim={onGim}

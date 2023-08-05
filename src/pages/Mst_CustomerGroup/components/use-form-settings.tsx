@@ -10,6 +10,7 @@ export const useFormSettings = ({
   data,
   dataListDepartment,
   dataListGroup,
+  datalistOrgID,
 }: any) => {
   const { t } = useI18n("User_Mananger");
 
@@ -28,13 +29,17 @@ export const useFormSettings = ({
           items: [
             {
               dataField: "OrgID",
-              editorOptions: {
-                placeholder: t("Input"),
-              },
-              editorType: "dxTextBox",
+              editorType: "dxSelectBox",
               caption: t("OrgID"),
               visible: true,
               validationRules: [requiredType],
+              editorOptions: {
+                dataSource: datalistOrgID,
+                valueExpr: "OrgID",
+                displayExpr: "NNTFullName",
+                readOnly: false,
+                placeholder: t("Input"),
+              },
             },
             {
               dataField: "CustomerGrpCode",

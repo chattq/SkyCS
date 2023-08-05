@@ -233,14 +233,6 @@ export const adminRoutes: RouteItem[] = [
     permissionCode: "",
     children: [
       {
-        key: "Cpn_CampaignAgent",
-        path: "admin/Cpn_CampaignAgent",
-        subMenuTitle: "Cpn_CampaignAgent",
-        mainMenuKey: "admin",
-        permissionCode: "",
-        getPageElement: () => <Cpn_CampaignAgentPage />,
-      },
-      {
         key: "Mst_CampaignColumnConfig_Setting",
         path: "admin/Mst_CampaignColumnConfig_Setting",
         subMenuTitle: "Mst_CampaignColumnConfig_Setting",

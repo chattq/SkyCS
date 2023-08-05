@@ -12,12 +12,12 @@ export const use_MstCampaignTypeApi = (apiBase: AxiosInstance) => {
     Mst_CampaignType_Search: async (
       params: Mst_CampaignTypeSearchParam
     ): Promise<ApiResponse<Mst_CampaignTypeData[]>> => {
-      return await apiBase.post<SearchParam, ApiResponse<Mst_CampaignTypeData[]>>(
-        "/MstCampaignType/Search",
-        {
-          ...params,
-        }
-      );
+      return await apiBase.post<
+        SearchParam,
+        ApiResponse<Mst_CampaignTypeData[]>
+      >("/MstCampaignType/Search", {
+        ...params,
+      });
     },
     Mst_CampaignType_Create: async (
       params: any
@@ -48,6 +48,16 @@ export const use_MstCampaignTypeApi = (apiBase: AxiosInstance) => {
           strJson: JSON.stringify(params),
         }
       );
+    },
+    Mst_CampaignType_DeleteMultiple: async (
+      params: Mst_CampaignTypeSearchParam[]
+    ): Promise<ApiResponse<Mst_CampaignTypeData>> => {
+      return await apiBase.post<
+        Mst_CampaignTypeSearchParam[],
+        ApiResponse<Mst_CampaignTypeData>
+      >("/MstCampaignType/DeleteMulti", {
+        strJson: JSON.stringify(params),
+      });
     },
     Mst_CampaignType_GetByCode: async (
       CampaignTypeCode: string,

@@ -7,11 +7,18 @@ declare global {
     setZaloCallbackData: any;
   }
 }
-export default function Zalo_channel({ data, setFlagZalo }: any) {
+export default function Zalo_channel({
+  data,
+  setFlagZalo,
+  setAccessCodeZalo,
+}: any) {
   const { t } = useI18n("Omi_Chanel");
   const handleFlagZalo = (e: any) => {
     setFlagZalo.current = e.value;
   };
+  // const handleFlagZalo = (e: any) => {
+  //   setAccessCodeZalo.current = e.value;
+  // };
 
   const [appId, setAppId] = useState("");
   const [appSecret, setAppSecret] = useState("");
@@ -51,11 +58,20 @@ export default function Zalo_channel({ data, setFlagZalo }: any) {
     return popupwindow(url, "", 500, windowSize.height - 200);
   };
 
+  const [connectZalo, setConnectZalo] = useState(true);
+
   useEffect(() => {
     //callApi.
 
     window.setZaloCallbackData = (code: any) => {
-      //alert(code);
+      if (code) {
+        const datasaveZalo = {
+          AccessCode: code,
+          FlagIsConnect: "1",
+        };
+        setAccessCodeZalo.current = datasaveZalo;
+        setConnectZalo(true);
+      }
       //call api để save thông tin
     };
     return () => {
@@ -63,6 +79,14 @@ export default function Zalo_channel({ data, setFlagZalo }: any) {
     };
   }, []);
 
+  const handleDisconnectZalo = () => {
+    const dataDisconnectZalo = {
+      AccessCode: "",
+      FlagIsConnect: "0",
+    };
+    setAccessCodeZalo.current = dataDisconnectZalo;
+    setConnectZalo(false);
+  };
   const OAInfo = () => {
     return (
       <>
@@ -78,12 +102,12 @@ export default function Zalo_channel({ data, setFlagZalo }: any) {
             <div>
               {t("ZaloOAID")}:{" "}
               <span className="font-bold">
-                {data?.ZaloOAID ? data?.ZaloOAID : t("Đang cập nhật")}
+                {data?.moa_OAID ? data?.moa_OAID : t("Đang cập nhật")}
               </span>{" "}
             </div>
           </div>
           <button
-            onClick={openPopup}
+            onClick={handleDisconnectZalo}
             className="bg-[#ffc107] px-2 py-1 mt-4 rounded hover:bg-[#098850] hover:text-[#fff]"
           >
             {t("Disconnect")}
@@ -150,15 +174,32 @@ export default function Zalo_channel({ data, setFlagZalo }: any) {
       </>
     );
   };
+  const [layout, setLayout] = useState<any>("");
+
+  useEffect(() => {
+    if (data?.moa_OAID) {
+      setLayout(<OAInfo />);
+    }
+    if (data?.FlagIsConnect === "0") {
+      setLayout(<ConnectZalo />);
+    }
+    if (connectZalo === false) {
+      setLayout(<ConnectZalo />);
+    }
+  }, [connectZalo, data]);
 
   return (
     <div className="ml-6">
-      {/* {!!data && data?.ZaloOAID ? <OAInfo /> :
+      {/* {!!data && data?.ZaloOAID ? (
+        <OAInfo />
+      ) : (
         <>
           <ConnectZalo></ConnectZalo>
-        </>} */}
-
-      <ConnectZalo></ConnectZalo>
+        </>
+      )} */}
+      {layout}
+      {/* {connectZalo === true ? <OAInfo /> : <ConnectZalo />} */}
+      {/* <ConnectZalo /> */}
 
       <div className="mt-5">
         <div className="font-bold">Cấu hình nội dung gửi</div>

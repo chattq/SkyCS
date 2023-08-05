@@ -4,7 +4,13 @@ import ResponsiveBox, {
   Location,
   Row,
 } from "devextreme-react/responsive-box";
-import { Button, LoadPanel, ScrollView, TabPanel, Tabs } from "devextreme-react";
+import {
+  Button,
+  LoadPanel,
+  ScrollView,
+  TabPanel,
+  Tabs,
+} from "devextreme-react";
 import { Item as TabItem } from "devextreme-react/tabs";
 import { useWindowSize } from "@/packages/hooks/useWindowSize";
 import { PartReply } from "./part-reply";
@@ -33,9 +39,6 @@ export const Tab_Detail = ({
   const ticketApi = useEticket_api();
   const api = useClientgateApi();
   const showError = useSetAtom(showErrorAtom);
-  const dataValue = useMemo(() => {
-    return ticketApi.getDemoEticket();
-  }, []);
 
   let dataRender = [];
   useEffect(() => {
@@ -56,6 +59,7 @@ export const Tab_Detail = ({
   const hub = useHub("global");
   useEffect(() => {
     hub.onReceiveMessage("ET_TicketMessage", (c) => {
+      toast.success("Eticket ____");
       handleGim();
     });
   }, []);
@@ -112,7 +116,11 @@ export const Tab_Detail = ({
         <Location row={0} col={0} />
         <ScrollView style={{ maxHeight: scrollHeight }}>
           <div className="w-full" style={{ background: "#F5F7F9" }}>
-            <PartReply dataValue={data} listMedia={listMedia} onReload={handleGim} />
+            <PartReply
+              dataValue={data}
+              listMedia={listMedia}
+              onReload={handleGim}
+            />
             <PartMessageList data={data} value={valueGim} onGim={handleGim} />
           </div>
         </ScrollView>

@@ -67,7 +67,7 @@ UseBankDealerGridColumnsProps) => {
       editorOptions: {
         dataSource: datalistOrgID,
         valueExpr: "OrgID",
-        displayExpr: "OrgID",
+        displayExpr: "NNTFullName",
         readOnly: false,
         placeholder: t("Input"),
       },
@@ -120,7 +120,7 @@ UseBankDealerGridColumnsProps) => {
         placeholder: t("Input"),
       },
       validationRules: [requiredType],
-      columnIndex: 2,
+      columnIndex: 1,
     },
     {
       groupKey: "BASIC_INFORMATION",
@@ -129,9 +129,10 @@ UseBankDealerGridColumnsProps) => {
       editorOptions: {
         readOnly: false,
         placeholder: t("Input"),
+        height: 70,
       },
-      editorType: "dxTextBox",
-      columnIndex: 2,
+      editorType: "dxTextArea",
+      columnIndex: 1,
       validationRules: [requiredType],
     },
     {

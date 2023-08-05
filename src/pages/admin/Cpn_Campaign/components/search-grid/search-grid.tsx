@@ -280,7 +280,7 @@ export const SearchDataGrid = forwardRef(
         <Paging enabled={true} defaultPageSize={config.PAGE_SIZE} />
         <Pager visible={false} />
         <ColumnChooser enabled={true} />
-        <HeaderFilter allowSearch={true} />
+        <HeaderFilter allowSearch={true} visible={true} />
         <Scrolling
           renderAsync={true}
           mode={"standard"}

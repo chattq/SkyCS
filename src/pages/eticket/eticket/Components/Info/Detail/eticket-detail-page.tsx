@@ -27,10 +27,9 @@ export const EticketDetailPage = () => {
   const { t } = useI18n("Eticket_Detail");
   const { auth } = useAuth();
   const param = useParams();
-  const api = useClientgateApi();
+  const api: any = useClientgateApi();
   const setCurrentTag = useSetAtom(currentTabAtom);
   const showError = useSetAtom(showErrorAtom);
-  const config = useConfiguration();
   const setCurrentValueTab = useSetAtom(currentValueTabAtom);
   const setReloadingtab = useSetAtom(reloadingtabAtom);
   const navigate = useNetworkNavigate();
@@ -38,12 +37,15 @@ export const EticketDetailPage = () => {
   // const hub = useHub("global");
   // useEffect(() => {
   //   hub.onReceiveMessage("dungvatest", (c) => {
-  //     // alert("dungvatest");
   //     console.log("dungvatest ", c);
   //   });
   // });
 
-  const { data: dataTicket, isLoading } = useQuery({
+  const {
+    data: dataTicket,
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ["ET_Ticket_GetByTicketID", param?.TicketID],
     queryFn: async () => {
       if (param?.TicketID) {
@@ -91,11 +93,8 @@ export const EticketDetailPage = () => {
   });
 
   const handleNavigate = () => {
-    // eticket/:TicketID
     navigate(`/eticket/edit/${dataTicket.Lst_ET_Ticket[0].TicketID}`);
   };
-
-  console.log("dataTicket", dataTicket);
 
   const { data: dataListMedia, isLoading: isLoadingListMedia } = useQuery({
     queryKey: ["MstSubmissionForm/Search"],
@@ -129,10 +128,6 @@ export const EticketDetailPage = () => {
           if (listData.length) {
             const filterMasterData = listData
               .filter((item: any) => {
-                // return (
-                //   item.TicketColCfgDataType === "MASTERDATA" ||
-                //   item.TicketColCfgDataType === "MASTERDATASELECTMULTIPLE"
-                // );
                 return (
                   item.TicketColCfgDataType === "MASTERDATASELECTMULTIPLE" ||
                   item.TicketColCfgDataType === "MASTERDATA"
@@ -141,36 +136,42 @@ export const EticketDetailPage = () => {
               .map((item: any) => {
                 return item.TicketColCfgCodeSys;
               });
-            const responseListOption =
-              await api.Mst_TicketColumnConfig_GetListOption(
-                filterMasterData,
-                auth.orgData?.Id ?? ""
-              );
-            if (responseListOption.isSuccess) {
-              const responseData =
-                responseListOption?.Data.Lst_Mst_TicketColumnConfig;
-              const customizeDataResponse = listData.map((item: any) => {
-                const itemCheck = responseData.find((itemOption: any) => {
-                  return (
-                    itemOption.TicketColCfgCodeSys === item.TicketColCfgCodeSys
-                  );
+            if (filterMasterData.length) {
+              const responseListOption =
+                await api.Mst_TicketColumnConfig_GetListOption(
+                  filterMasterData,
+                  auth.orgData?.Id ?? ""
+                );
+              if (responseListOption.isSuccess) {
+                const responseData =
+                  responseListOption?.Data.Lst_Mst_TicketColumnConfig;
+                const customizeDataResponse = listData.map((item: any) => {
+                  const itemCheck = responseData.find((itemOption: any) => {
+                    return (
+                      itemOption.TicketColCfgCodeSys ===
+                      item.TicketColCfgCodeSys
+                    );
+                  });
+                  if (itemCheck) {
+                    return {
+                      ...item,
+                      dataSource: itemCheck.Lst_MD_OptionValue,
+                    };
+                  } else {
+                    return item;
+                  }
                 });
-                if (itemCheck) {
-                  return {
-                    ...item,
-                    dataSource: itemCheck.Lst_MD_OptionValue,
-                  };
-                } else {
-                  return item;
-                }
-              });
-              return customizeDataResponse;
+
+                return customizeDataResponse;
+              } else {
+                showError({
+                  message: t(responseListOption.errorCode),
+                  debugInfo: responseListOption.debugInfo,
+                  errorInfo: responseListOption.errorInfo,
+                });
+              }
             } else {
-              showError({
-                message: t(responseListOption.errorCode),
-                debugInfo: responseListOption.debugInfo,
-                errorInfo: responseListOption.errorInfo,
-              });
+              return response.Data.Lst_Mst_TicketColumnConfig;
             }
           }
 
@@ -186,6 +187,10 @@ export const EticketDetailPage = () => {
       queryKey: ["Mst_TicketColumnConfig_GetAllActive", [param?.TicketID]],
     }
   );
+
+  useEffect(() => {
+    refetch();
+  }, []);
 
   const [currentTab, setCurrentTab] = useState(0);
 
@@ -247,7 +252,6 @@ export const EticketDetailPage = () => {
           }
           case "11": {
             if (itemFind?.ChannelId === "2") {
-              console.log("itemFind ", itemFind);
               if (itemFind.State === "6") {
                 flag = "call";
               } else {
@@ -392,20 +396,15 @@ export const EticketDetailPage = () => {
           <></>
         ) : (
           <div className={"w-full detail"}>
-            <PartHeaderInfo data={dataTicket} />
+            <PartHeaderInfo data={dataTicket} onReload={refetch} />
             <div className="separator"></div>
             <div
               className={
                 "w-full flex flex-col pl-4 pt-0 sep-bottom-1 tab-ctn-1"
               }
             >
-              <Tabs
-                // width={400}
-                onItemClick={onItemClick}
-                selectedIndex={currentTab}
-              >
+              <Tabs onItemClick={onItemClick} selectedIndex={currentTab}>
                 <TabItem text={t("eTicket Detail")}></TabItem>
-                {/* <TabItem text={t("WorkFlow")}></TabItem> */}
                 <TabItem text={t("Attachments")}></TabItem>
               </Tabs>
             </div>
@@ -417,7 +416,7 @@ export const EticketDetailPage = () => {
                   dataDynamicField={dataDynamicField}
                 />
               ) : (
-                <Tab_Attachments data={dataTicket} />
+                <Tab_Attachments onReload={refetch} data={dataTicket} />
               )}
             </div>
           </div>

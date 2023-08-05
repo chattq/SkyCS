@@ -10,8 +10,6 @@ import { convertDate } from "@/packages/common";
 import { useAuth } from "@/packages/contexts/auth";
 import { useNetworkNavigate } from "@/packages/hooks";
 import { showErrorAtom } from "@/packages/store";
-import Cpn_Campaign_Info_Common from "@/pages/admin/Cpn_Campaign/components/Components/Cpn_Campaign_Info_Common/Cpn_Campaign_Info_Common";
-import Cpn_Campaign_List_Customer from "@/pages/admin/Cpn_Campaign/components/Components/Cpn_Campaign_List_Customer/Cpn_Campaign_List_Customer";
 import {
   currentInfo,
   flagSelectorAtom,
@@ -26,6 +24,8 @@ import {
   TabbedItem,
 } from "devextreme-react/form";
 import { toast } from "react-toastify";
+import Cpn_Campaign_Info_Common from "./components/Cpn_Campaign_Info_Common";
+import Cpn_Campaign_List_Customer from "./components/Cpn_Campaign_List_Customer";
 
 interface tabInterface {
   title: string;

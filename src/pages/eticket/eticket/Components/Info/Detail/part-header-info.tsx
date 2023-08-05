@@ -15,7 +15,14 @@ import { usePhone } from "@/packages/hooks/usePhone";
 import { useClientgateApi } from "@/packages/api";
 import { useSetAtom } from "jotai";
 import { showErrorAtom } from "@/packages/store";
-const PartHeaderInfo = ({ data }: { data: EticketT }) => {
+import { toast } from "react-toastify";
+const PartHeaderInfo = ({
+  data,
+  onReload,
+}: {
+  data: EticketT;
+  onReload: () => void;
+}) => {
   const { t } = useI18n("Eticket_Detail");
   const api = useClientgateApi();
   const showError = useSetAtom(showErrorAtom);
@@ -50,8 +57,8 @@ const PartHeaderInfo = ({ data }: { data: EticketT }) => {
   const addCall = async (objRQ_ET_Ticket: any) => {
     const response = await api.AddCall(objRQ_ET_Ticket);
     if (response.isSuccess) {
-      //alert("isSuccess");
-      //
+      toast.success(t("Add Call Successfully"));
+      onReload();
     } else {
       showError({
         message: t(response.errorCode),
@@ -73,7 +80,7 @@ const PartHeaderInfo = ({ data }: { data: EticketT }) => {
         const objRQ_ET_Ticket = {
           TicketID: objET_Ticket.TicketID ?? "",
           OrgID: objET_Ticket.OrgID ?? "",
-          ActionType: "1",
+          ActionType: "0",
           List_ET_TicketMessageCall: [
             {
               CallID: call.Id,
@@ -100,7 +107,6 @@ const PartHeaderInfo = ({ data }: { data: EticketT }) => {
                     " - " +
                     objMst_Customer.TicketID
                   : ""}
-                {/* {objMst_Customer.CustomerName ?? ""} - #{item?.CustomerCodeSys} */}
               </strong>
               {item?.TicketWarning && (
                 <div
@@ -127,7 +133,7 @@ const PartHeaderInfo = ({ data }: { data: EticketT }) => {
                     <div className="flex">
                       <Avatar
                         name={Lst_ET_TicketCustomer[index].CustomerName}
-                        // img={Lst_ET_TicketCustomer[index].CustomerName}
+                        img={Lst_ET_TicketCustomer[index].CustomerAvatarPath}
                         size={"sm"}
                         className="detail-avatar mr-1"
                       />
@@ -140,7 +146,7 @@ const PartHeaderInfo = ({ data }: { data: EticketT }) => {
                         </NavNetworkLink>
 
                         <br></br>
-                        <div className="flex mt-1">
+                        <div className="flex mt-1 select-phone">
                           <SelectBox
                             value={
                               Lst_ET_TicketCustomer[index].CustomerPhoneNo ?? ""
@@ -220,7 +226,7 @@ const PartHeaderInfo = ({ data }: { data: EticketT }) => {
 
                   <div className="flex mt-2">
                     <span className="text-gray mr-1">
-                      {t("AgentTicketTypeName")}
+                      {t("AgentTicketTypeName")}:
                     </span>
                     <strong className="detail-header-value">
                       {item.AgentTicketTypeName ?? "--"}

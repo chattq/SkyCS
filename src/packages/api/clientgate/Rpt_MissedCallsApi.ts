@@ -1,6 +1,6 @@
 import {
   ApiResponse,
-  Rpt_ETTicketDetailControllerSearchParam,
+  Rpt_MissCallSearchParam,
   Rpt_MissedCallsData,
   Rpt_SLASearchParam,
 } from "@/packages/types";
@@ -9,7 +9,7 @@ import { AxiosInstance } from "axios";
 export const useRptMissedCallsApi = (apiBase: AxiosInstance) => {
   return {
     Rpt_MissedCalls_Search: async (
-      params: Rpt_ETTicketDetailControllerSearchParam
+      params: Rpt_MissCallSearchParam
     ): Promise<ApiResponse<any>> => {
       return await apiBase.post<
         Partial<Rpt_MissedCallsData>,

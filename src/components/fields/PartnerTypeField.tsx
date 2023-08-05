@@ -26,6 +26,8 @@ const PartnerTypeField = ({ param, customOptions }: any) => {
     }
   }, [data]);
 
+  console.log(value);
+
   return (
     <TagBox
       dataSource={data?.DataList ?? []}

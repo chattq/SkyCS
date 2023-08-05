@@ -9,7 +9,7 @@ export default function Email_Channel({ data, setFlagEmail }: any) {
   const validateRef = useRef<any>();
   const formSettings: any = [
     {
-      colCount: 3,
+      colCount: 1,
       labelLocation: "left",
       typeForm: "textForm",
       hidden: false,
@@ -58,7 +58,13 @@ export default function Email_Channel({ data, setFlagEmail }: any) {
               },
               editorType: "dxTextBox",
               visible: true,
+              render: () => {
+                return (
+                  <span className="font-bold">eticket@mg.qinvoice.vn</span>
+                );
+              },
             },
+
             {
               dataField: "MailTo",
               editorOptions: {
@@ -69,6 +75,11 @@ export default function Email_Channel({ data, setFlagEmail }: any) {
               },
               editorType: "dxTextBox",
               visible: true,
+              render: () => {
+                return (
+                  <span className="font-bold">eticket@mg.qinvoice.vn</span>
+                );
+              },
             },
             // {
             //   dataField: "APIsSendMail",
@@ -97,22 +108,23 @@ export default function Email_Channel({ data, setFlagEmail }: any) {
               editorOptions: {
                 placeholder: t("Input"),
               },
-              label: {
-                text: t("FlagIsCreateET:"),
-              },
+              cssClass: "FlagIsCreateET",
               editorType: "dxCheckBox",
               visible: true,
               render: (param: any, e: any) => {
                 const { component: formComponent, dataField } = param;
                 return (
-                  <CheckBox
-                    onValueChanged={(e: any) => {
-                      formComponent.updateData("FlagIsCreateET", e.value);
-                    }}
-                    defaultValue={
-                      param.editorOptions.value === "0" ? false : true
-                    }
-                  />
+                  <div className="flex items-center gap-3">
+                    <CheckBox
+                      onValueChanged={(e: any) => {
+                        formComponent.updateData("FlagIsCreateET", e.value);
+                      }}
+                      defaultValue={
+                        param.editorOptions.value === "0" ? false : true
+                      }
+                    />
+                    <div>{t("Tự động tạo eTicket khi nhận được email")}</div>
+                  </div>
                 );
               },
             },

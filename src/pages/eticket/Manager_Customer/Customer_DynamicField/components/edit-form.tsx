@@ -61,8 +61,6 @@ export const SelectOneField = ({
     control: control,
   });
 
-  console.log("singleChoiceValuesFields ", singleChoiceValuesFields);
-
   const onAddNewItem = () => {
     append({
       Value: "",
@@ -158,7 +156,6 @@ export const EditForm = ({ onCancel, onSave }: EditFormProps) => {
   const { auth } = useAuth();
   const api = useClientgateApi();
   const flag = useAtomValue(flagAtom);
-
   const showError = useSetAtom(showErrorAtom);
   const { data: listGroup, isLoading: isGettingGroups } = useQuery({
     queryFn: async () => {
@@ -241,7 +238,6 @@ export const EditForm = ({ onCancel, onSave }: EditFormProps) => {
   });
 
   const handleSave = async (data: MstTicketColumnConfigDto) => {
-    console.log("data ", data);
     if (Object.keys(errors).length === 0) {
       if (!data.TicketColCfgDataType) {
         setError("TicketColCfgDataType", {
@@ -311,12 +307,10 @@ export const EditForm = ({ onCancel, onSave }: EditFormProps) => {
 
   const formRef = useRef<HTMLFormElement>(null);
   const handleSaveClick = () => {
-    console.log("submit");
     triggerSubmit();
   };
   const refSubmitButton = useRef<HTMLButtonElement>(null);
   const triggerSubmit = () => {
-    console.log("submit ver 2");
     refSubmitButton?.current?.click();
   };
   const dataTypeValue = watch("TicketColCfgDataType");
@@ -357,10 +351,6 @@ export const EditForm = ({ onCancel, onSave }: EditFormProps) => {
   ) {
     return <LoadPanel visible={true} />;
   }
-
-  console.log("listOption ", choiceValues);
-  console.log("control ", control, "error ", errors);
-
   return (
     <Popup
       position={"center"}
@@ -380,7 +370,7 @@ export const EditForm = ({ onCancel, onSave }: EditFormProps) => {
                   field={field}
                   label={"Field Code"}
                   required={true}
-                  error={errors.TicketColCfgCodeSys}
+                  error={errors.TicketColCfgCode}
                   disabled={
                     flag !== "add" && currentItem.FlagIsDynamic ? true : false
                   }
@@ -388,7 +378,7 @@ export const EditForm = ({ onCancel, onSave }: EditFormProps) => {
               );
             }}
             rules={{
-              required: { value: true, message: "FieldCodeIsRequired" },
+              required: { value: true, message: "TicketColCfgCode" },
             }}
           />
           <Controller
@@ -607,9 +597,7 @@ export const EditForm = ({ onCancel, onSave }: EditFormProps) => {
                     error={errors.DataSource}
                     displayExpr={"Value"}
                     valueExpr={"Key"}
-                    readonly={
-                      flag !== "add" && currentItem.FlagIsDynamic ? true : false
-                    }
+                    readonly={currentItem.FlagIsDynamic ? true : false}
                   />
                 );
               }}
@@ -627,7 +615,8 @@ export const EditForm = ({ onCancel, onSave }: EditFormProps) => {
                   field={field}
                   label={t("IsActive")}
                   readonly={
-                    flag !== "add" && currentItem.FlagIsDynamic === true
+                    false
+                    // flag !== "detail" && currentItem.FlagIsDynamic === true
                   }
                 />
               );

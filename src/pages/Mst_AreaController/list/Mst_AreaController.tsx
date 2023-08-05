@@ -65,9 +65,9 @@ export const Mst_AreaControllerPage = () => {
   const { data: listArea } = useQuery(["listArea"], () =>
     api.Mst_Area_GetAllActive()
   );
-  const { data: listOrgID } = useQuery(
-    ["listOrgID", JSON.stringify(searchCondition)],
-    () => api.Mst_NNTController_GetAllActive()
+
+  const { data: listOrgID } = useQuery(["listOrgID"], () =>
+    api.Mst_NNTController_GetAllActive()
   );
 
   const columns = useBankDealerGridColumns({
@@ -94,16 +94,34 @@ export const Mst_AreaControllerPage = () => {
   ];
 
   const handleDeleteRows = async (rows: any) => {
-    const resp = await api.Mst_Area_Delete(rows);
-    if (resp.isSuccess) {
-      toast.success(t("Delete Successfully"));
-      await refetch();
+    if (rows?.length === 1) {
+      const resp = await api.Mst_Area_Delete(rows);
+      if (resp.isSuccess) {
+        toast.success(t("Delete Successfully"));
+        await refetch();
+      } else {
+        showError({
+          message: t(resp.errorCode),
+          debugInfo: resp.debugInfo,
+          errorInfo: resp.errorInfo,
+        });
+      }
     } else {
-      showError({
-        message: t(resp.errorCode),
-        debugInfo: resp.debugInfo,
-        errorInfo: resp.errorInfo,
-      });
+      const listDataDelete = rows.map((item: any) => ({
+        AreaCode: item.AreaCode,
+        OrgID: item.OrgID,
+      }));
+      const resp = await api.Mst_Area_DeleteMultiple(listDataDelete);
+      if (resp.isSuccess) {
+        toast.success(t("Delete Successfully"));
+        await refetch();
+      } else {
+        showError({
+          message: t(resp.errorCode),
+          debugInfo: resp.debugInfo,
+          errorInfo: resp.errorInfo,
+        });
+      }
     }
   };
 
@@ -274,14 +292,12 @@ export const Mst_AreaControllerPage = () => {
       <AdminContentLayout.Slot name={"Content"}>
         <ContentSearchPanelLayout>
           <ContentSearchPanelLayout.Slot name={"SearchPanel"}>
-            <div className={"w-[200px]"}>
-              <SearchPanelV2
-                storeKey="Mst_AreaController_Search"
-                conditionFields={formItems}
-                data={searchCondition}
-                onSearch={handleSearch}
-              />
-            </div>
+            <SearchPanelV2
+              storeKey="Mst_AreaController_Search"
+              conditionFields={formItems}
+              data={searchCondition}
+              onSearch={handleSearch}
+            />
           </ContentSearchPanelLayout.Slot>
           <ContentSearchPanelLayout.Slot name={"ContentPanel"}>
             <GridViewPopup

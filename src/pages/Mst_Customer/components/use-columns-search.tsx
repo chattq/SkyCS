@@ -6,7 +6,9 @@ import {
   mapEditorOption,
   mapEditorType,
 } from "@/utils/customer-common";
+import { getDMY } from "@/utils/time";
 import { useQuery } from "@tanstack/react-query";
+import { DateBox } from "devextreme-react";
 import { match } from "ts-pattern";
 
 interface Columns {
@@ -15,8 +17,7 @@ interface Columns {
 }
 
 export const useColumnsSearch = ({ listColumn, listMapField }: Columns) => {
-  let getListSearch: any[] = [];
-  const { t } = useI18n("Mst_Customer");
+  const { t } = useI18n("Mst_CustomerSearch");
 
   const sortedField = [
     {
@@ -60,7 +61,7 @@ export const useColumnsSearch = ({ listColumn, listMapField }: Columns) => {
       idx: 9,
     },
     {
-      name: "CREATEDDATE",
+      name: "CreateDTimeUTC",
       idx: 10,
     },
   ];
@@ -169,31 +170,42 @@ export const useColumnsSearch = ({ listColumn, listMapField }: Columns) => {
             },
           };
         })
+        .with("CREATEDTIMEUTC", () => {
+          return {
+            ...item,
+            render: (param: any) => <CreateDTimeUTCSearch param={param} />,
+          };
+        })
         .otherwise(() => {
           return item;
         });
     })
     ?.sort((a: any, b: any) => a?.idx - b?.idx);
 
-  getListColumnSearch.forEach((item) => {
-    if (item.ColOperatorType === "RANGE") {
-      const obj = [
-        item,
-        {
-          ...item,
-          dataField: item.dataField + "_To",
-          caption: item.caption + " " + t("To"),
-          label: {
-            text: item.label.text + " " + t("To"),
-          },
-        },
-      ];
-      getListSearch = [...getListSearch, ...obj];
-    } else {
-      getListSearch = [...getListSearch, item];
-    }
-  });
+  return getListColumnSearch;
+};
 
-  // console.log("getListSearch ", getListSearch);
-  return getListSearch;
+const CreateDTimeUTCSearch = ({ param }: any) => {
+  const { component } = param;
+
+  return (
+    <div className="flex items-center gap-2">
+      <DateBox
+        type="date"
+        pickerType="calendar"
+        defaultValue={undefined}
+        onValueChanged={(e: any) => {
+          component?.updateData("CreateDTimeUTCFrom", getDMY(e?.value));
+        }}
+      ></DateBox>
+      <DateBox
+        type="date"
+        pickerType="calendar"
+        defaultValue={undefined}
+        onValueChanged={(e: any) => {
+          component?.updateData("CreateDTimeUTCTo", getDMY(e?.value));
+        }}
+      ></DateBox>
+    </div>
+  );
 };

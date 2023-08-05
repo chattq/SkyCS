@@ -121,6 +121,20 @@ export const callApi = {
     return response.data;
   },
 
+  setExtAgentCalloutStatus: async (networkId: string, data: any) => {
+    const token = localStorage.getItem("token");
+    const response = await callApiBase.post<Response<CcAgent>>(
+      "/callapi/setExtAgentCalloutStatus",
+      data,
+      {
+        headers: { networkId: networkId },
+      }
+    );
+
+    logger.debug("response", response);
+    return response.data;
+  },
+
   getOrgCallListMonitor: async (networkId: string) => {
     const token = localStorage.getItem("token");
     const response = await callApiBase.post<Response<CcCall[]>>(

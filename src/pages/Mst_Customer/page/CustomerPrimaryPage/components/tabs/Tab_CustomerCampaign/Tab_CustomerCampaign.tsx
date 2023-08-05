@@ -10,6 +10,7 @@ import { Popup, ScrollView } from "devextreme-react";
 import { useSetAtom } from "jotai";
 import { nanoid } from "nanoid";
 import { useParams } from "react-router-dom";
+import { match } from "ts-pattern";
 import CustomerCampaign_Popup from "./CustomerCampagin_Popup";
 
 const Tab_CustomerCampaign = () => {
@@ -34,20 +35,23 @@ const Tab_CustomerCampaign = () => {
 
   const { CustomerCodeSys }: any = useParams();
 
-  const { data, isLoading } = useQuery(["listCustomerCampaign"], async () => {
-    const resp: any = await api.Mst_Customer_GetCampaignByCustomerCodeSys(
-      CustomerCodeSys
-    );
-    if (resp?.isSuccess) {
-      return resp;
-    } else {
-      showError({
-        message: resp?.errorCode,
-        debugInfo: resp?.debugInfo,
-        errorInfo: resp?.errorInfo,
-      });
+  const { data, isLoading } = useQuery(
+    ["listCustomerCampaign", CustomerCodeSys],
+    async () => {
+      const resp: any = await api.Mst_Customer_GetCampaignByCustomerCodeSys(
+        CustomerCodeSys
+      );
+      if (resp?.isSuccess) {
+        return resp;
+      } else {
+        showError({
+          message: resp?.errorCode,
+          debugInfo: resp?.debugInfo,
+          errorInfo: resp?.errorInfo,
+        });
+      }
     }
-  });
+  );
 
   const columns: any = [
     {
@@ -122,16 +126,29 @@ const Tab_CustomerCampaign = () => {
             </div>
           </div>
 
-          <div className="">
-            Trạng thái chiến dịch:{" "}
-            <span className="bg-sky-500 p-[5px] text-white rounded-[5px]">
-              {item?.CampaignStatus}
-            </span>
+          <div className="flex flex-col gap-2">
+            <div>
+              Trạng thái chiến dịch:{" "}
+              <span className="bg-sky-500 p-[5px] text-white rounded-[5px]">
+                {item?.CampaignStatus}
+              </span>
+            </div>
+            <div>
+              Thời gian tạo:
+              <strong className="ml-1">{item?.cc_CreateDTimeUTC}</strong>
+            </div>
           </div>
 
           <div className="flex flex-col gap-2 items-end">
-            <div>Thực hiện: {item?.CampaignCustomerCallStatus ?? "---"}</div>
-            <div>{item?.CallOutDTimeUTC}</div>
+            <div>
+              Agent phụ trách: <strong>{item?.AgentName}</strong>
+            </div>
+            <div>
+              Trạng thái thực hiện:{" "}
+              <span className="bg-green-500 p-[5px] text-white rounded-[5px]">
+                {item?.CampaignCustomerStatus}
+              </span>
+            </div>
           </div>
 
           <div className="absolute left-[-10px] top-[calc(50%-18px)] rounded-[5px] bg-[#D1E8FF] flex justify-center items-center w-[30px] h-[30px]">
@@ -151,6 +168,38 @@ const Tab_CustomerCampaign = () => {
         </div>
       </div>
     );
+  };
+
+  const sortData = [
+    {
+      display: "Mặc định",
+      key: "default",
+    },
+    {
+      display: "Thời gian tạo",
+      key: "campaign_create",
+    },
+    {
+      display: "Thời gian thực hiện",
+      key: "campaign_excute",
+    },
+  ];
+
+  const sortProcess = (a: any, b: any, condition: any, type: any) => {
+    return match(condition)
+      .with("campaign_create", () => {
+        const a_time: any = new Date(a.cc_CreateDTimeUTC);
+        const b_time: any = new Date(b.cc_CreateDTimeUTC);
+
+        return type == "asc" ? a_time - b_time : b_time - a_time;
+      })
+      .with("campaign_excute", () => {
+        const a_time: any = new Date(a.LogLUDTimeUTC);
+        const b_time: any = new Date(b.LogLUDTimeUTC);
+
+        return type == "asc" ? a_time - b_time : b_time - a_time;
+      })
+      .otherwise(() => (type == "asc" ? a.Idx - b.Idx : b.Idx - a.Idx));
   };
 
   return (
@@ -175,7 +224,8 @@ const Tab_CustomerCampaign = () => {
             storeKey={"card-view"}
             ref={null}
             customCard={customCard}
-            defaultOption="card"
+            sortData={sortData}
+            sortProcess={sortProcess}
           />
         </AdminContentLayout.Slot>
       </AdminContentLayout>

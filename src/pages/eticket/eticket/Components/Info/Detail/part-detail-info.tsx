@@ -30,6 +30,14 @@ export const PartDetailInfo = memo(
       Lst_ET_TicketMessage,
       Lst_ET_TicketHO,
     }: any = data;
+
+    console.log(
+      "Lst_ET_TicketCustomer ",
+      Lst_ET_TicketCustomer,
+      "Lst_ET_Ticket ",
+      Lst_ET_Ticket
+    );
+
     const dataRender = [
       ...Lst_ET_Ticket,
       ...Lst_ET_TicketCustomer,
@@ -53,6 +61,8 @@ export const PartDetailInfo = memo(
       };
     }, {});
 
+    console.log("flatArr ", flatArr);
+
     const flatArrHO = dataRenderHO.reduce((acc, item) => {
       return {
         ...acc,
@@ -61,27 +71,25 @@ export const PartDetailInfo = memo(
     }, {});
 
     const listField = [
-      //"AgentCode",
       "AgentName", // Agent phụ trách
-      //"DepartmentCode",
-      "DepartmentName", // Phòng ban
       "TicketDeadline", // Deadline
       "AgentTicketPriorityName", // Mức ưu tiên
-      //"TicketJsonInfo", // Thông tin động của eTicket
+      "TicketJsonInfo", // Thông tin động của eTicket
       "NNTFullName", // Chi nhánh/ đại lý phụ trách
+      "DepartmentName", // Phòng ban
       "AgentTicketCustomTypeName", // Phân loại tùy chọn
       "AgentTicketSourceName", // Nguồn
+      "ReceptionDTimeUTC", // thời điểm tiếp nhận
       "AgentReceptionChannelName", // Kênh tiếp nhận
+      "SLADesc", // SLA
       "Tags", // Tags
       "Follower", // Người theo dõi
-      "SLADesc", // SLA
       "CreateBy", // Người tạo
       "CreateDTimeUTC", //Thời gian tạo
       "LogLUBy", // Người cập nhật cuối cùng
       "LogLUDTimeUTC", // Thời gian cập nhật cuối cùng
       "RemindWork", // Nhắc việc
       "RemindDTimeUTC", // Vào lúc
-      "TicketJsonInfo",
     ];
 
     const newValue = listField.map((item) => {
@@ -226,16 +234,24 @@ export const PartDetailInfo = memo(
     //   return <LoadPanel />;
     // }
 
+    console.log("itemItems ", Items.length);
+
     return (
       <>
-        <div className={"w-full pt-0 sep-bottom-1 tab-ctn-1 bg-white eticket-nav-right"}>
+        <div
+          className={
+            "w-full pt-0 sep-bottom-1 tab-ctn-1 bg-white eticket-nav-right"
+          }
+        >
           <Tabs
+            className={`show-${Items.length}`}
             selectedIndex={currentIndex}
             dataSource={Items}
             onItemClick={(value: any) => {
               setCurrentIndex(value.itemIndex);
             }}
           />
+
           {currentComponent}
         </div>
       </>
@@ -279,17 +295,25 @@ export const Content_Component = memo(({ data, TagList }: Props) => {
           // các trường động
           if (textType.includes(item.type)) {
             return (
-              <div className="w-full p-1 pl-3 pr-3" key={index}>
+              <div
+                className="w-full p-1 pl-3 pr-3 flex justify-space-between flex-wrap"
+                key={index}
+              >
                 <span className="eticket-nav-right__text-left text-gray float-left">
                   {t(item.TicketColCfgName)}
                 </span>
-                <span className="float-right">{item.value ?? ""}</span>
+                <span className="float-right part-detail-info-value">
+                  {item.value ?? "--"}
+                </span>
               </div>
             );
           }
           if (item.type === "URL" || item.type === "IMAGE") {
             return (
-              <div className="w-full p-1 pl-3 pr-3" key={index}>
+              <div
+                className="w-full p-1 pl-3 pr-3 flex justify-space-between flex-wrap"
+                key={index}
+              >
                 <span className="eticket-nav-right__text-left text-gray float-left">
                   {t(item.TicketColCfgName)}
                 </span>
@@ -301,11 +325,14 @@ export const Content_Component = memo(({ data, TagList }: Props) => {
           }
           if (item.type === "FLAG") {
             return (
-              <div className="w-full p-1 pl-3 pr-3" key={index}>
+              <div
+                className="w-full p-1 pl-3 pr-3 flex justify-space-between flex-wrap"
+                key={index}
+              >
                 <span className="eticket-nav-right__text-left text-gray float-left">
                   {t(item.TicketColCfgName)}
                 </span>
-                <span className="float-right">
+                <span className="float-right part-detail-info-value">
                   {t(item.value === "1" ? "Active" : "Inactive")}
                 </span>
               </div>
@@ -313,22 +340,30 @@ export const Content_Component = memo(({ data, TagList }: Props) => {
           }
           if (item.type === "FILE") {
             return (
-              <div className="w-full p-1 pl-3 pr-3" key={index}>
+              <div
+                className="w-full p-1 pl-3 pr-3 flex justify-space-between flex-wrap"
+                key={index}
+              >
                 <span className="eticket-nav-right__text-left text-gray float-left">
                   {t(item.TicketColCfgName)}
                 </span>
-                <span className="float-right">
+                <span className="float-right part-detail-info-value">
                   <ContentFile item={item} />
                 </span>
               </div>
             );
           } else {
             return (
-              <div className="w-full p-1 pl-3 pr-3" key={index}>
+              <div
+                className="w-full p-1 pl-3 pr-3 flex justify-space-between flex-wrap"
+                key={index}
+              >
                 <span className="eticket-nav-right__text-left text-gray float-left">
                   {t(item.TicketColCfgName)}
                 </span>
-                <span className="float-right">{item.value.toString()}</span>
+                <span className="float-right part-detail-info-value">
+                  {item.value ? item.value.toString() : "--"}
+                </span>
               </div>
             );
           }
@@ -336,11 +371,16 @@ export const Content_Component = memo(({ data, TagList }: Props) => {
           if (typeof text === "string" || typeof text === "number") {
             if (field === "Tags") {
               return (
-                <div className="w-full p-1 pl-3 pr-3" key={index}>
+                <div
+                  className="w-full p-1 pl-3 pr-3 flex justify-space-between flex-wrap"
+                  key={index}
+                >
                   <span className="eticket-nav-right__text-left text-gray float-left">
                     {t(field)}
                   </span>
-                  <span className="float-right">{TagList(`${text}`)}</span>
+                  <span className="float-right part-detail-info-value">
+                    {text ? TagList(`${text}`) : "--"}
+                  </span>
                 </div>
               );
             }
@@ -348,40 +388,56 @@ export const Content_Component = memo(({ data, TagList }: Props) => {
             if (!item.caption) {
               // các trường tĩnh
               return (
-                <div className="w-full p-1 pl-3 pr-3" key={index}>
+                <div
+                  className="w-full p-1 pl-3 pr-3 flex justify-space-between flex-wrap"
+                  key={index}
+                >
                   <span className="eticket-nav-right__text-left text-gray float-left">
                     {t(field)}
                   </span>
-                  <span className="float-right">{`${splitString(
-                    text,
-                    100
-                  )}`}</span>
+                  <span className="float-right part-detail-info-value">
+                    {text ? `${splitString(text, 100)}` : "--"}
+                  </span>
                 </div>
               );
             }
-            console.log("item ", item);
             return (
-              <div className="w-full p-1 pl-3 pr-3" key={index}>
+              <div
+                className="w-full p-1 pl-3 pr-3 flex justify-space-between flex-wrap"
+                key={index}
+              >
                 <span className="eticket-nav-right__text-left text-gray float-left">
                   {t(item.caption)}
                 </span>
-                <span className="float-right">{item.value}</span>
+                <span className="float-right part-detail-info-value">
+                  {item.value ? item.value : "--"}
+                </span>
               </div>
             );
           } else {
             if (!text) {
               return (
-                <div className="w-full p-1 pl-3 pr-3" key={index}>
+                <div
+                  className="w-full p-1 pl-3 pr-3 flex justify-space-between flex-wrap"
+                  key={index}
+                >
                   <span className="eticket-nav-right__text-left text-gray float-left">
                     {t(field)}
                   </span>
-                  <span className="float-right">------------</span>
+                  <span className="float-right part-detail-info-value">--</span>
                 </div>
               );
             }
             if (field === "Follower") {
               return (
-                <div className="w-full p-1 pl-3 pr-3" key={index}>
+                <div
+                  className="w-full p-1 pl-3 pr-3 flex justify-space-between flex-wrap"
+                  key={index}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                  }}
+                >
                   <span className="eticket-nav-right__text-left text-gray float-left">
                     {t(field)}
                   </span>
@@ -406,11 +462,14 @@ export const Content_Component = memo(({ data, TagList }: Props) => {
               );
             }
             return (
-              <div className="w-full p-1 pl-3 pr-3" key={index}>
+              <div
+                className="w-full p-1 pl-3 pr-3 flex justify-space-between flex-wrap"
+                key={index}
+              >
                 <span className="eticket-nav-right__text-left text-gray float-left">
                   {t(field)}
                 </span>
-                <span className="float-right">------------</span>
+                <span className="float-right part-detail-info-value">--</span>
               </div>
             );
           }

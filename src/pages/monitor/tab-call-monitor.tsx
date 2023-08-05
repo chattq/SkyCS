@@ -116,7 +116,7 @@ export const Tab_CallMonitor = () => {
         const menuId = useMemo(() => {
             return `call_menu${idx}`;
         }, []);
-        const menuItems = useMemo(() => ([
+        const menuItems_in = useMemo(() => ([
             {
                 text: 'Pickup',
                 //icon: 'user',
@@ -150,6 +150,40 @@ export const Tab_CallMonitor = () => {
 
         ]), []);
 
+        const menuItems_out = useMemo(() => ([
+            // {
+            //     text: 'Pickup',
+            //     //icon: 'user',
+            //     onClick: () => {
+            //         pickup(item);
+            //     }
+            // },
+            {
+                text: 'Hangup',
+                //icon: 'user',
+                onClick: () => {
+                    hangup(item);
+                }
+            },
+            {
+                text: 'Spy',
+                //icon: 'user',
+                onClick: () => {
+                    spy(item);
+                }
+            },
+
+
+            // {
+            //     text: 'Redirect',
+            //     //icon: 'user',
+            //     onClick: () => {
+            //         redirect(item);
+            //     }
+            // },
+
+        ]), []);
+
         return <tr>
             <td>{idx + 1}</td>
             <td>
@@ -168,7 +202,7 @@ export const Tab_CallMonitor = () => {
             <td>
                 <i className="dx-icon-menu" id={`${menuId}`}></i>
                 <ContextMenu
-                    items={menuItems}
+                    items={item.Type=='Incoming'? menuItems_in: menuItems_out}
                     target={`#${menuId}`}
                     showEvent={'dxclick'}
                     cssClass={'bg-white'}

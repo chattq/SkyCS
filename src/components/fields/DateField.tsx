@@ -1,7 +1,7 @@
 import { getDMY } from "@/utils/time";
 import { DateBox } from "devextreme-react";
 
-const DateField = ({ param, customOptions, field }: any) => {
+const DateField = ({ param, customOptions, field, editType }: any) => {
   const { component, formData } = param;
 
   const date: any = new Date(formData[field?.ColCodeSys]);
@@ -16,6 +16,7 @@ const DateField = ({ param, customOptions, field }: any) => {
       }}
       openOnFieldClick
       type="date"
+      readOnly={editType == "detail"}
     />
   );
 };

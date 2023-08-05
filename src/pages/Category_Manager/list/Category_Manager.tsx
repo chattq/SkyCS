@@ -14,7 +14,7 @@ import { nanoid } from "nanoid";
 import NavNetworkLink from "@/components/Navigate";
 import { AdminContentLayout } from "@/packages/layouts/admin-content-layout";
 import { PageHeaderNoSearchLayout } from "@/packages/layouts/page-header-layout-2/page-header-nosearch-layout";
-import { Button } from "devextreme-react";
+import { Button, LoadPanel } from "devextreme-react";
 import { useI18n } from "@/i18n/useI18n";
 import { PageHeaderLayout } from "@/packages/layouts/page-header-layout";
 import { HeaderPart, PopupView } from "../components";
@@ -45,6 +45,7 @@ import {
 import { authAtom, showErrorAtom } from "@/packages/store";
 import { toast } from "react-toastify";
 import { normalGridDeleteMultipleConfirmationBoxAtom } from "@/packages/ui/base-gridview/store/normal-grid-store";
+import { useWindowSize } from "@/packages/hooks/useWindowSize";
 
 export const Category_ManagerPage = () => {
   const { t } = useI18n("Category_Manager");
@@ -57,6 +58,7 @@ export const Category_ManagerPage = () => {
   const setShowDetail = useSetAtom(showDetail);
   const setBottom = useSetAtom(bottomAtom);
   const showError = useSetAtom(showErrorAtom);
+  const windowSize = useWindowSize();
 
   const api = useClientgateApi();
 
@@ -73,12 +75,11 @@ export const Category_ManagerPage = () => {
     ["Category_Manager_GetALL", keyword],
     () => api.KB_Category_GetAllActive()
   );
-
   const columns = [
     {
       dataField: "CategoryName",
       cellRender: ({ row: { data }, value }: any) => {
-        // console.log(data, value);
+        console.log(data, value);
         return (
           <div
             className={"flex items-center"}
@@ -140,12 +141,15 @@ export const Category_ManagerPage = () => {
     },
   ];
   const handleCreate = async (data: any) => {
-    if (
+    const check =
       flattenCategories(
         getCategories(Category_Manager_GetALL?.Data?.Lst_KB_Category)
-      ).filter((val: any) => val.CategoryName === data.CategoryName)?.length ===
-      0
-    ) {
+      ).filter(
+        (val: any) =>
+          val.CategoryName.toUpperCase() === data.CategoryName.toUpperCase()
+      ).length === 0;
+
+    if (check === true) {
       const resp = await api.KB_Category_Create({
         ...data,
         FlagActive: data.FlagActive === "true" ? "1" : "0",
@@ -238,6 +242,10 @@ export const Category_ManagerPage = () => {
   );
 
   const onDeleteMultiple = async (keys: string[]) => {
+    // console.log({
+    //   OrgID: auth.orgId?.toString(),
+    //   CategoryCode: keys,
+    // });
     setConfirmBoxVisible(false);
     const resp = await api.KB_Category_Delete({
       OrgID: auth.orgId?.toString(),
@@ -267,7 +275,6 @@ export const Category_ManagerPage = () => {
     }
     e.cancel = true;
   }, []);
-
   return (
     <AdminContentLayout className={"Content_Managent"}>
       <AdminContentLayout.Slot name={"Header"}>
@@ -285,7 +292,18 @@ export const Category_ManagerPage = () => {
         </PageHeaderLayout>
       </AdminContentLayout.Slot>
       <AdminContentLayout.Slot name={"Content"}>
-        <div className="mt-5 categoryGrid">
+        <div
+          className="mt-5 categoryGrid"
+          style={{ height: `${windowSize.height - 150}px` }}
+        >
+          <LoadPanel
+            container={".dx-viewport"}
+            shadingColor="rgba(0,0,0,0.4)"
+            position={"center"}
+            visible={isLoading}
+            showIndicator={true}
+            showPane={true}
+          />
           <DataGrid
             className="dataGridCategory"
             dataSource={
@@ -294,11 +312,14 @@ export const Category_ManagerPage = () => {
             }
             id="gridContainer"
             showBorders
+            height={`${windowSize.height - 150}px`}
+            width={"100%"}
             showColumnLines
             showRowLines
             onSaving={innerSavingRowHandler}
             keyExpr={"CategoryCode"}
             allowColumnResizing
+            columnResizingMode={"widget"}
           >
             <Selection mode={"none"} selectAllMode={"page"} />
             <Pager visible={false} />

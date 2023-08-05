@@ -17,6 +17,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useClientgateApi } from "@/packages/api";
 import { HeaderPart } from "../components/header-part";
 import { toast } from "react-toastify";
+import "./Omni_Chanel.scss";
 import { useSetAtom } from "jotai";
 import { showErrorAtom } from "@/packages/store";
 interface tabInterface {
@@ -35,8 +36,9 @@ export default function OmiChanelPage() {
   );
   const zaloRef = useRef<any>(undefined);
   const EmailRef = useRef<any>(undefined);
+  const ZaloAccessCodeRef = useRef<any>(undefined);
   const showError = useSetAtom(showErrorAtom);
-  console.log(39, dataChanel?.Data.Lst_Mst_ChannelZalo[0]);
+
   const tab = [
     {
       title: t("Email"),
@@ -53,6 +55,7 @@ export default function OmiChanelPage() {
         <Zalo_channel
           data={dataChanel?.Data.Lst_Mst_ChannelZalo[0]}
           setFlagZalo={zaloRef}
+          setAccessCodeZalo={ZaloAccessCodeRef}
         />
       ),
     },
@@ -69,10 +72,15 @@ export default function OmiChanelPage() {
   const handleSave = async () => {
     const dataZalo = [
       {
-        AppID: "1266699208786638596",
-        ZaloOAID: "1358767a413636684272",
-        RefreshToken: "RefreshToken",
-        AccessToken: "AccessToken",
+        // AppID: "1266699208786638596",
+        // ZaloOAID: "1358767a413636684272",
+        AccessCode: ZaloAccessCodeRef.current?.AccessCode
+          ? ZaloAccessCodeRef.current?.AccessCode
+          : "",
+        FlagIsConnect: ZaloAccessCodeRef.current?.FlagIsConnect
+          ? ZaloAccessCodeRef.current?.FlagIsConnect
+          : dataChanel?.Data.Lst_Mst_ChannelZalo[0].moa_OAID ?? "0",
+        FlagIsCustomApp: "0",
         FlagIsCreateET:
           zaloRef.current !== undefined
             ? zaloRef.current === true
@@ -85,6 +93,8 @@ export default function OmiChanelPage() {
     const dataEmail = EmailRef.current.instance.option("formData");
     const dataSaveEmail = {
       ...dataEmail,
+      MailFrom: "eticket@mg.qinvoice.vn",
+      MailTo: "eticket@mg.qinvoice.vn",
       FlagIsCreateET:
         dataEmail.FlagIsCreateET !==
         dataChanel?.Data.Lst_Mst_ChannelEmail[0]?.FlagIsCreateET

@@ -172,9 +172,6 @@ export const UploadFilesField = ({
       });
     }
   };
-
-  console.log("readonly ", readonly);
-
   return (
     <div className={`files-uploader ${className}`}>
       <form>

@@ -10,6 +10,7 @@ export const useCpn_CampaignAgentApi = (apiBase: AxiosInstance) => {
     Cpn_CampaignAgent_Search: async (
       params: Partial<Cpn_CampaignAgentParam>
     ): Promise<ApiResponse<Cpn_CampaignAgentData | any>> => {
+      console.log(13, params);
       return await apiBase.post<
         Cpn_CampaignAgentParam,
         ApiResponse<Cpn_CampaignAgentData>

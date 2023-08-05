@@ -40,41 +40,24 @@ import {
   ValueAxis,
 } from "devextreme-react/chart";
 import { nanoid } from "nanoid";
-import { Button, CheckBox, DateBox, SelectBox } from "devextreme-react";
+import {
+  Button,
+  CheckBox,
+  DateBox,
+  DateRangeBox,
+  SelectBox,
+} from "devextreme-react";
 
 import FilterDropdown from "@/packages/ui/base-gridview/FilterDropdown";
 import { format, set } from "date-fns";
 import { GridViewCustomize } from "@/packages/ui/base-gridview/gridview-customize";
 import { match } from "ts-pattern";
-import { useToolbar } from "../components/toolbarItem";
+
 import {
   architectureSources,
   groupTicketsByDate,
 } from "../components/FormatDataTicket";
-
-function generateMonthData(): Date[] {
-  const startYear = 1990;
-  const startMonth = 0; // January (0-based index)
-  const currentYear = new Date().getFullYear();
-  const monthData: Date[] = [];
-
-  for (let year = currentYear; year >= startYear; year--) {
-    const start = year === startYear ? startMonth : 11;
-    for (let month = start; month >= 0; month--) {
-      const date = set(new Date(), {
-        year: year,
-        month: month,
-        date: 1,
-      });
-      if (date <= new Date()) {
-        monthData.push(date);
-      }
-    }
-  }
-  return monthData;
-}
-
-const monthYearDs = generateMonthData();
+import { getFirstDateOfMonth } from "@/components/ulti";
 
 export const Rpt_ETTicketSynthesisControllerPage = () => {
   const { t } = useI18n("Rpt_ETTicketSynthesisController");
@@ -92,11 +75,13 @@ export const Rpt_ETTicketSynthesisControllerPage = () => {
     CustomerEmail: "",
     CustomerCompany: "",
     TicketStatusConditionList: "",
-    CreateDTimeUTCFrom: "",
-    CreateDTimeUTCTo: "",
-    LogLUDTimeUTCFrom: "",
-    LogLUDTimeUTCTo: "",
+    MonthReport: [null, null],
+    MonthUpdate: [null, null],
   });
+  const msInDay = 1000 * 60 * 60 * 24;
+  const now = new Date();
+  const startDate = new Date(now.getTime());
+  const endDate = new Date(now.getTime());
 
   const setSelectedItems = useSetAtom(selectedItemsAtom);
 
@@ -136,17 +121,17 @@ export const Rpt_ETTicketSynthesisControllerPage = () => {
         TicketStatusConditionList: searchCondition.TicketStatusConditionList
           ? searchCondition.TicketStatusConditionList.join(",")
           : "",
-        CreateDTimeUTCFrom: searchCondition.CreateDTimeUTCFrom
-          ? format(searchCondition.CreateDTimeUTCFrom, "yyyy-MM-dd")
+        CreateDTimeUTCFrom: searchCondition.MonthReport[0]
+          ? format(searchCondition.MonthReport[0], "yyyy-MM-dd")
+          : getFirstDateOfMonth(endDate),
+        CreateDTimeUTCTo: searchCondition.MonthReport[1]
+          ? format(searchCondition.MonthReport[1], "yyyy-MM-dd")
+          : format(endDate, "yyyy-MM-dd"),
+        LogLUDTimeUTCFrom: searchCondition.MonthUpdate[0]
+          ? format(searchCondition.MonthUpdate[0], "yyyy-MM-dd")
           : "",
-        CreateDTimeUTCTo: searchCondition.CreateDTimeUTCTo
-          ? format(searchCondition.CreateDTimeUTCTo, "yyyy-MM-dd")
-          : "",
-        LogLUDTimeUTCFrom: searchCondition.ReportDTimeFrom
-          ? format(searchCondition.ReportDTimeFrom, "yyyy-MM-dd")
-          : "",
-        LogLUDTimeUTCTo: searchCondition.LogLUDTimeUTCTo
-          ? format(searchCondition.LogLUDTimeUTCTo, "yyyy-MM-dd")
+        LogLUDTimeUTCTo: searchCondition.MonthUpdate[1]
+          ? format(searchCondition.MonthUpdate[1], "yyyy-MM-dd")
           : "",
       });
       return resp;
@@ -154,6 +139,9 @@ export const Rpt_ETTicketSynthesisControllerPage = () => {
   });
   const { data: CampaignList } = useQuery(["listMST"], () =>
     api.Cpn_CampaignAgent_GetActive()
+  );
+  const { data: listOrgID } = useQuery(["listOrgID"], () =>
+    api.Mst_NNTController_GetAllActive()
   );
 
   const { data: listUser } = useQuery(
@@ -268,9 +256,9 @@ export const Rpt_ETTicketSynthesisControllerPage = () => {
       editorType: "dxTagBox",
       editorOptions: {
         searchEnabled: true,
-        dataSource: listUser?.DataList ?? [],
-        displayExpr: "UserName",
-        valueExpr: "UserCode",
+        dataSource: listOrgID?.Data?.Lst_Mst_NNT ?? [],
+        displayExpr: "NNTFullName",
+        valueExpr: "OrgID",
       },
     },
     {
@@ -334,44 +322,28 @@ export const Rpt_ETTicketSynthesisControllerPage = () => {
       label: {
         text: t("Thời gian tạo"),
       },
-      editorType: "dxDateBox",
-      render: ({ editorOptions, component: formRef }: any) => {
-        return (
-          <div className={"flex items-center"}>
-            <DateBox
-              className="pr-[3px]"
-              {...editorOptions}
-              type="date"
-              displayFormat="yyyy-MM-dd"
-              defaultValue={searchCondition.CreateDTimeUTCFrom}
-              onValueChanged={(e: any) => {
-                formRef.instance().updateData("CreateDTimeUTCFrom", e.value);
-              }}
-            ></DateBox>
-            -
-            <DateBox
-              {...editorOptions}
-              type="date"
-              displayFormat="yyyy-MM-dd"
-              defaultValue={searchCondition.CreateDTimeUTCTo}
-              onValueChanged={(e: any) => {
-                formRef.instance().updateData("CreateDTimeUTCTo", e.value);
-              }}
-            ></DateBox>
-          </div>
-        );
-      },
+      editorType: "dxDateRangeBox",
       editorOptions: {
-        placeholder: t("Input"),
         type: "date",
         displayFormat: "yyyy-MM-dd",
-        dataSource: monthYearDs,
-        displayExpr: (item: Date | null) => {
-          if (!!item) {
-            return format(item, "yyyy-MM-dd");
-          }
-          return "";
-        },
+      },
+      render: ({ editorOptions, component: formRef }: any) => {
+        return (
+          <DateRangeBox
+            displayFormat=" yyyy-MM-dd"
+            defaultStartDate={
+              searchCondition.MonthReport[0] || getFirstDateOfMonth(startDate)
+            }
+            defaultEndDate={searchCondition.MonthReport[1] || endDate}
+            showClearButton={true}
+            useMaskBehavior={true}
+            openOnFieldClick={true}
+            labelMode="hidden"
+            onValueChanged={(e: any) => {
+              formRef.instance().updateData("MonthReport", e.value);
+            }}
+          />
+        );
       },
     },
     {
@@ -381,44 +353,23 @@ export const Rpt_ETTicketSynthesisControllerPage = () => {
       label: {
         text: t("Thời gian cập nhật"),
       },
-      editorType: "dxDateBox",
+      // editorType: "dxDateRangeBox",
+      editorOptions: {},
       render: ({ editorOptions, component: formRef }: any) => {
         return (
-          <div className={"flex items-center"}>
-            <DateBox
-              className="pr-[3px]"
-              {...editorOptions}
-              type="date"
-              displayFormat="yyyy-MM-dd"
-              defaultValue={searchCondition.LogLUDTimeUTCFrom}
-              onValueChanged={(e: any) => {
-                formRef.instance().updateData("LogLUDTimeUTCFrom", e.value);
-              }}
-            ></DateBox>
-            -
-            <DateBox
-              {...editorOptions}
-              type="date"
-              displayFormat="yyyy-MM-dd"
-              defaultValue={searchCondition.LogLUDTimeUTCTo}
-              onValueChanged={(e: any) => {
-                formRef.instance().updateData("LogLUDTimeUTCTo", e.value);
-              }}
-            ></DateBox>
-          </div>
+          <DateRangeBox
+            displayFormat=" yyyy-MM-dd"
+            defaultStartDate={searchCondition?.MonthUpdate[0]}
+            defaultEndDate={searchCondition.MonthUpdate[1]}
+            showClearButton={true}
+            useMaskBehavior={true}
+            openOnFieldClick={true}
+            labelMode="hidden"
+            onValueChanged={(e: any) => {
+              formRef.instance().updateData("MonthUpdate", e.value);
+            }}
+          />
         );
-      },
-      editorOptions: {
-        placeholder: t("Input"),
-        type: "date",
-        displayFormat: "yyyy-MM-dd",
-        dataSource: monthYearDs,
-        displayExpr: (item: Date | null) => {
-          if (!!item) {
-            return format(item, "yyyy-MM-dd");
-          }
-          return "";
-        },
       },
     },
   ];
@@ -462,17 +413,17 @@ export const Rpt_ETTicketSynthesisControllerPage = () => {
       TicketStatusConditionList: searchCondition.TicketStatusConditionList
         ? searchCondition.TicketStatusConditionList.join(",")
         : "",
-      CreateDTimeUTCFrom: searchCondition.CreateDTimeUTCFrom
-        ? format(searchCondition.CreateDTimeUTCFrom, "yyyy-MM-dd")
+      CreateDTimeUTCFrom: searchCondition.MonthReport[0]
+        ? format(searchCondition.MonthReport[0], "yyyy-MM-dd")
+        : getFirstDateOfMonth(endDate),
+      CreateDTimeUTCTo: searchCondition.MonthReport[1]
+        ? format(searchCondition.MonthReport[1], "yyyy-MM-dd")
+        : format(endDate, "yyyy-MM-dd"),
+      LogLUDTimeUTCFrom: searchCondition.MonthUpdate[0]
+        ? format(searchCondition.MonthUpdate[0], "yyyy-MM-dd")
         : "",
-      CreateDTimeUTCTo: searchCondition.CreateDTimeUTCTo
-        ? format(searchCondition.CreateDTimeUTCTo, "yyyy-MM-dd")
-        : "",
-      LogLUDTimeUTCFrom: searchCondition.ReportDTimeFrom
-        ? format(searchCondition.ReportDTimeFrom, "yyyy-MM-dd")
-        : "",
-      LogLUDTimeUTCTo: searchCondition.LogLUDTimeUTCTo
-        ? format(searchCondition.LogLUDTimeUTCTo, "yyyy-MM-dd")
+      LogLUDTimeUTCTo: searchCondition.MonthUpdate[1]
+        ? format(searchCondition.MonthUpdate[1], "yyyy-MM-dd")
         : "",
     });
     if (resp.isSuccess) {
@@ -487,6 +438,7 @@ export const Rpt_ETTicketSynthesisControllerPage = () => {
     });
     throw new Error(resp.errorCode);
   };
+
   return (
     <AdminContentLayout className={"Rpt_ETTicketSynthesisController"}>
       <AdminContentLayout.Slot name={"Header"}>
@@ -501,14 +453,12 @@ export const Rpt_ETTicketSynthesisControllerPage = () => {
       <AdminContentLayout.Slot name={"Content"}>
         <ContentSearchPanelLayout>
           <ContentSearchPanelLayout.Slot name={"SearchPanel"}>
-            <div className={"w-[230px]"}>
-              <SearchPanelV2
-                storeKey="Rpt_ETTicketSynthesisController_Search"
-                conditionFields={formItems}
-                data={searchCondition}
-                onSearch={handleSearch}
-              />
-            </div>
+            <SearchPanelV2
+              storeKey="Rpt_ETTicketSynthesisController_Search"
+              conditionFields={formItems}
+              data={searchCondition}
+              onSearch={handleSearch}
+            />
           </ContentSearchPanelLayout.Slot>
           <ContentSearchPanelLayout.Slot name={"ContentPanel"}>
             <div>
@@ -607,6 +557,7 @@ export const Rpt_ETTicketSynthesisControllerPage = () => {
                     allowDecimals={false}
                     axisDivisionFactor={60}
                     discreteAxisDivisionMode="crossLabels"
+                    argumentType="string"
                   >
                     <Label>
                       <Format type="decimal" />

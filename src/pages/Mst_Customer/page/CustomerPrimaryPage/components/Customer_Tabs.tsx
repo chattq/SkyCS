@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { LoadPanel, Tabs } from "devextreme-react";
 import { Item } from "devextreme-react/tab-panel";
 import { atom, useAtomValue, useSetAtom } from "jotai";
+import { nanoid } from "nanoid";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import Tab_All from "./tabs/Tab_All/Tab_All";
@@ -169,13 +170,15 @@ const Customer_Tabs = () => {
       >
         {dataSource?.map((item: any) => {
           return (
-            <Item>
+            <Item key={nanoid()}>
               <div className="normal-case">{item?.text}</div>
             </Item>
           );
         })}
       </Tabs>
-      {currentComponent}
+      <div className="pr-2 pl-2">
+        {currentComponent}
+      </div>
 
       <LoadPanel
         container={".dx-viewport"}

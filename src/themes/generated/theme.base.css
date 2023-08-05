@@ -2649,6 +2649,11 @@
 }
 .dx-button-has-icon.dx-button-has-text .dx-button-content {
   padding: 5px 16px 5px 12px;
+  border-radius: 3px !important;
+  -webkit-border-radius: 3px !important;
+  -moz-border-radius: 3px !important;
+  -ms-border-radius: 3px !important;
+  -o-border-radius: 3px !important;
 }
 .dx-button-has-icon.dx-button-has-text .dx-icon {
   width: 16px;
@@ -4985,7 +4990,7 @@
   background-color: rgba(14,34,61,.04);
 }
 .dx-texteditor.dx-editor-filled::after {
-  border-bottom: 1px solid rgba(14,34,61,.42);
+  /* border-bottom: 1px solid rgba(14,34,61,.42); */
 }
 .dx-texteditor.dx-editor-filled.dx-state-hover {
   background-color: rgba(14,34,61,.07);
@@ -13507,6 +13512,7 @@
 .dx-tagbox.dx-editor-outlined .dx-tag-container {
   padding: 0 8px 3px 11px;
   min-height: 30px;
+  font-size: 13px !important;
 }
 .dx-tagbox.dx-state-disabled .dx-tag-content .dx-tag-remove-button::before {
   color: #a3a3a3;

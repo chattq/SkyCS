@@ -62,11 +62,11 @@ export const useMst_AreaApi = (apiBase: AxiosInstance) => {
       );
     },
 
-    Mst_Area_DeleteMultiple: async (listAreaCode: string[]) => {
+    Mst_Area_DeleteMultiple: async (data: any) => {
       return await apiBase.post<SearchParam, ApiResponse<Mst_Area>>(
         "/MstArea/DeleteMultiple",
         {
-          strJson: JSON.stringify(listAreaCode),
+          strJson: JSON.stringify(data),
         }
       );
     },

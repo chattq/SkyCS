@@ -1,3 +1,45 @@
+
+
+function callNotify() {
+
+
+  var doNotify = function (msg) {
+    var icon = '/images/icons/logo.png';
+    var title = 'Skycs';
+    var msg = 'Cuộc gọi đến';
+    // const song = "/ring.wav";
+
+    // var notif = new Notification("Skycs", { body: "Cuộc gọi đến", icon: '/images/icons/logo.png' });
+    // new Audio(song).play();
+    // notification.onclick = function () {
+    //   window.focus();
+    // }
+
+
+    var n = new Notification("Skycs", { body: "Cuộc gọi đến", icon: '/images/icons/logo.png' });
+    //var n = window.webkitNotifications.createNotification(icon, title, msg);
+    n.onclick = function (x) { window.focus(); this.close(); };
+    n.show();
+  }
+
+  if (!("Notification" in window)) {
+    return alert("This browser does not support Desktop notifications");
+  }
+  if (Notification.permission === "granted") {
+    return doNotify();
+  }
+  if (Notification.permission !== "denied") {
+    Notification.requestPermission((permission) => {
+      if (permission === "granted") {
+
+
+        return doNotify();
+      }
+    });
+    return;
+  }
+
+}
 function updateUI() { }
 
 const eventHandlers = {
@@ -201,6 +243,8 @@ const _SipPhone = {
 
         try {
           //_SipPhone.incomingCallAudio.play();
+
+          callNotify();
         }
         catch (exc) {
           console.log('sound error');
@@ -380,6 +424,22 @@ const _SipPhone = {
 }
 
 window.Phone = _SipPhone;
+
+
+// request permission on page load
+document.addEventListener('DOMContentLoaded', function () {
+  if (!Notification) {
+    alert('Desktop notifications not available in your browser. Try Chromium.');
+    return;
+  }
+
+  if (Notification.permission !== 'granted')
+    Notification.requestPermission();
+});
+
+
+
+
 window.addEventListener("beforeunload", function (e) {
 
 

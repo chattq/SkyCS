@@ -10,7 +10,6 @@ export const useRpt_ETTicketDetailControllerApi = (apiBase: AxiosInstance) => {
     Rpt_ETTicketDetailController_Search: async (
       params: Rpt_ETTicketDetailControllerSearchParam
     ): Promise<ApiResponse<any>> => {
-      console.log(13, params);
       return await apiBase.post<
         Rpt_ETTicketDetailControllerSearchParam,
         ApiResponse<Rpt_ETTicketDetailControllerData>

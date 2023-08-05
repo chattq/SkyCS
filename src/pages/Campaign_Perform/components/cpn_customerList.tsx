@@ -127,6 +127,8 @@ export const CpnCustomerList = memo(
       ];
     }, []);
 
+    console.log("campaignCustomerStatuses ", campaignCustomerStatuses);
+
     useEffect(() => {
       refetchCampaignList();
     }, []);
@@ -246,12 +248,15 @@ export const CpnCustomerList = memo(
           displayExpr="Title"
           validationError={selectedStatus}
           valueExpr={"Code"}
-          itemRender={(item) => (
-            <span style={{ color: item.color }} className="p-1">
-              <i className={`${item.icon} mr-2`} />
-              {item.Title}
-            </span>
-          )}
+          itemRender={(item) => {
+            console.log("item ", item.Title);
+            return (
+              <span style={{ color: item.color }} className="p-1">
+                <i className={`${item.icon} mr-2`} />
+                {item.Title}
+              </span>
+            );
+          }}
         />
         <span className="text-gray">Khách hàng</span>
         <TextBox placeholder="Nhập để tìm kiếm..."></TextBox>

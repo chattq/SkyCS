@@ -39,12 +39,12 @@ UseBankDealerGridColumnsProps) => {
       groupKey: "BASIC_INFORMATION",
       dataField: "OrgID", // Mã ngân hàng
       caption: t("OrgID"),
-      editorType: "dxTextBox",
+      editorType: "dxSelectBox",
 
       editorOptions: {
         dataSource: datalistOrgID,
         valueExpr: "OrgID",
-        displayExpr: "OrgID",
+        displayExpr: "NNTFullName",
         readOnly: false,
         placeholder: t("Input"),
       },
@@ -93,8 +93,8 @@ UseBankDealerGridColumnsProps) => {
       editorType: "dxSelectBox",
       editorOptions: {
         dataSource: listArea ?? [],
-        valueExpr: "AreaCodeParent",
-        displayExpr: "AreaCodeParent",
+        valueExpr: "AreaCode",
+        displayExpr: "AreaName",
         readOnly: false,
         placeholder: t("Select"),
       },

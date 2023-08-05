@@ -31,28 +31,26 @@ import { useToolbar } from "./Components/toolbarItem";
 import { useColumnSearch } from "./Components/use-column-search";
 import { useColumn } from "./Components/use-columns";
 import { useWindowSize } from "@/packages/hooks/useWindowSize";
+import { dynamicFields } from "@/pages/admin/Cpn_Campaign/components/store";
 
 interface SearchProps {
   FlagOutOfDate: boolean;
+  TicketDeadline?: Date[];
+  CreateDTimeUTC?: Date[];
+  LogLUDTimeUTC?: Date[];
   FlagNotRespondingSLA: boolean;
-  DepartmentCode: string;
-  AgentCode: string;
-  TicketStatus: string;
-  TicketPriority: string;
-  TicketDeadline: string;
-  TicketType: string;
-  CustomerCodeSys: string;
+  DepartmentCode: string[];
+  AgentCode: string[];
+  TicketStatus: string[];
+  TicketPriority: string[];
+  TicketType: string[];
+  CustomerCodeSys: string[];
   TicketDetail: string;
   TicketName: string;
   TicketID: string;
-  CreateDTimeUTCFrom: string;
-  CreateDTimeUTCTo: string;
-  LogLUDTimeUTCFrom: string;
-  LogLUDTimeUTCTo: string;
-  TicketSourceFrom: string;
-  TicketSourceTo: string;
-  TickerFollower: string;
-  OrgID: string;
+  TicketSource: string[];
+  Follower: string[];
+  OrgID: string[];
   NetworkID: string;
   Ft_PageIndex: number;
   Ft_PageSize: number;
@@ -66,9 +64,7 @@ const Eticket = () => {
   const showError = useSetAtom(showErrorAtom);
   const config = useConfiguration();
   const { auth } = useAuth();
-  const [filterApi, setFilterApi] = useState<any>({});
   const setPopupVisible = useSetAtom(popupVisibleAtom);
-  const loadingControl = useVisibilityControl({ defaultVisible: false });
   const navigate = useNetworkNavigate();
   const windowSize = useWindowSize();
   const widthSearch = windowSize.width / 5;
@@ -94,56 +90,138 @@ const Eticket = () => {
   );
 
   const defaultCondition = {
-    CreateDTimeUTCFrom: "",
-    CreateDTimeUTCTo: "",
-    LogLUDTimeUTCFrom: "",
-    LogLUDTimeUTCTo: "",
-    TicketSourceFrom: "",
-    TicketSourceTo: "",
-    TickerFollower: "",
-    // FlagOutOfDate: "",
-    // FlagNotRespondingSLA: "",
-    // DepartmentCode: "",
-    // AgentCode: "",
-    // TicketStatus: "",
-    // TicketPriority: "",
-    // TicketDeadline: "",
-    // TicketType: "",
-    // CustomerCodeSys: "",
-    // TicketDetail: "",
-    // TicketName: "",
-    // TicketID: "",
-
-    // OrgID: "" ?? "",
-    // NetworkID: "" ?? "",
     Ft_PageIndex: 0,
+    TicketDeadline: [null, null],
+    CreateDTimeUTC: [null, null],
+    LogLUDTimeUTC: [null, null],
     Ft_PageSize: config.MAX_PAGE_ITEMS,
   };
   const [searchCondition, setSearchCondition] = useState<Partial<SearchProps>>({
     ...defaultCondition,
   });
-  let gridRef: any = useRef<any>(null);
-  const { data, isLoading, refetch } = useQuery({
-    queryKey: ["ET_Ticket_Search", JSON.stringify(searchCondition)],
+
+  let gridRef: any = useRef();
+
+  const { data: dataDynamic, isLoading: isLoadingDynamic } = useQuery({
+    queryKey: ["Mst_TicketColumnConfig_GetAll"],
     queryFn: async () => {
+      const response = await api.Mst_TicketColumnConfig_GetAll();
+      if (response.isSuccess) {
+        return response.Data?.Lst_Mst_TicketColumnConfig;
+      } else {
+        showError({
+          message: t(response.errorCode),
+          debugInfo: response.debugInfo,
+          errorInfo: response.errorInfo,
+        });
+      }
+    },
+  });
+
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: [
+      "ET_Ticket_Search_Eticket_Manager",
+      JSON.stringify(searchCondition),
+    ],
+    queryFn: async () => {
+      console.log("searchCondition ", searchCondition);
+
       let conditionParam = {
         ...searchCondition,
-        FlagOutOfDate:
-          searchCondition?.FlagOutOfDate === undefined
-            ? ""
-            : searchCondition?.FlagOutOfDate === true
-            ? "1"
-            : "0",
-        FlagNotRespondingSLA:
-          searchCondition?.FlagNotRespondingSLA === undefined
-            ? ""
-            : searchCondition?.FlagNotRespondingSLA === true
-            ? "1"
-            : "0",
+        FlagOutOfDate: searchCondition?.FlagOutOfDate
+          ? ""
+          : searchCondition?.FlagOutOfDate === true
+          ? "1"
+          : "0",
+        FlagNotRespondingSLA: searchCondition?.FlagNotRespondingSLA
+          ? ""
+          : searchCondition?.FlagNotRespondingSLA === true
+          ? "1"
+          : "0",
+        TicketSource: searchCondition?.TicketSource
+          ? searchCondition.TicketSource.join(",")
+          : "",
+        TicketStatus: searchCondition?.TicketStatus
+          ? searchCondition.TicketStatus.join(",")
+          : "",
+        Follower: searchCondition?.Follower
+          ? searchCondition.Follower.join(",")
+          : "",
+        TicketDeadlineFrom: searchCondition?.TicketDeadline[0]
+          ? getYearMonthDate(searchCondition?.TicketDeadline[0])
+          : "",
+        TicketDeadlineTo: searchCondition?.TicketDeadline[1]
+          ? getYearMonthDate(searchCondition?.TicketDeadline[1])
+          : "",
+        CreateDTimeUTCFrom: searchCondition?.CreateDTimeUTC[0]
+          ? getYearMonthDate(searchCondition?.CreateDTimeUTC[0])
+          : "",
+        CreateDTimeUTCTo: searchCondition?.CreateDTimeUTC[1]
+          ? getYearMonthDate(searchCondition?.CreateDTimeUTC[1])
+          : "",
+        LogLUDTimeUTCFrom: searchCondition?.LogLUDTimeUTC[0]
+          ? getYearMonthDate(searchCondition?.LogLUDTimeUTC[0])
+          : "",
+        LogLUDTimeUTCTo: searchCondition?.LogLUDTimeUTC[1]
+          ? getYearMonthDate(searchCondition?.LogLUDTimeUTC[1])
+          : "",
+        CustomerCodeSys: searchCondition?.CustomerCodeSys
+          ? searchCondition.CustomerCodeSys.join(",")
+          : "",
+        TicketType: searchCondition?.TicketType
+          ? searchCondition.TicketType.join(",")
+          : "",
+        DepartmentCode: searchCondition?.DepartmentCode
+          ? searchCondition.DepartmentCode.join(",")
+          : "",
+        AgentCode: searchCondition?.AgentCode
+          ? searchCondition.AgentCode.join(",")
+          : "",
+        TicketPriority: searchCondition?.TicketPriority
+          ? searchCondition.TicketPriority.join(",")
+          : "",
+        OrgID: searchCondition?.OrgID ? searchCondition.OrgID.join(",") : "",
       };
+
+      delete conditionParam.TicketDeadline;
+      delete conditionParam.LogLUDTimeUTC;
+      delete conditionParam.CreateDTimeUTC;
+
       const response = await api.ET_Ticket_Search(conditionParam);
       if (response.isSuccess) {
-        return response;
+        const newResponse = {
+          ...response,
+        };
+        const dataList = response.DataList ?? [];
+        const newDataList = dataList.map((item) => {
+          if (item.TicketJsonInfo) {
+            const ticketJSON = JSON.parse(item.TicketJsonInfo);
+            const ticket = Object.keys(ticketJSON)
+              .map((item: string, index: number) => {
+                return {
+                  [`${item.split(".").join("")}`]:
+                    Object.values(ticketJSON)[index],
+                };
+              })
+              .reduce((acc: any, item: any) => {
+                return {
+                  ...acc,
+                  ...item,
+                };
+              }, {});
+
+            return {
+              ...item,
+              ...ticket,
+            };
+          }
+          return {
+            ...item,
+          };
+        });
+
+        newResponse.DataList = newDataList;
+        return newResponse;
       } else {
         showError({
           message: t(response.errorCode),
@@ -230,7 +308,7 @@ const Eticket = () => {
     queryFn: async () => {
       const response = await api.Mst_NNTController_GetAllActive();
       if (response.isSuccess) {
-        return response.DataList ?? [];
+        return response.Data.Lst_Mst_NNT ?? [];
       } else {
         showError({
           message: t(response.errorCode),
@@ -261,7 +339,7 @@ const Eticket = () => {
     });
 
   const { data: getEnterprise, isLoading: isLoadingEnterprise } = useQuery({
-    queryKey: [],
+    queryKey: ["Mst_Customer_Search_Eticket_Manager"],
     queryFn: async () => {
       const response = await api.Mst_Customer_Search({
         Ft_PageIndex: 0,
@@ -281,6 +359,8 @@ const Eticket = () => {
       }
     },
   });
+
+  console.log("getEnterprise", getEnterprise);
 
   const setDefaultPopUp = () => {
     setPopupVisible(false);
@@ -358,8 +438,6 @@ const Eticket = () => {
 
   const handleSetField = useCallback(
     (titleButton: string, ref: any) => {
-      console.log("ref ", ref.instance);
-
       match(titleButton)
         .with("All", () => {
           ref.instance?.clearFilter();
@@ -372,7 +450,6 @@ const Eticket = () => {
         })
         .with("ONHOLD", () => {
           ref.instance?.filter(function (itemData: any) {
-            console.log("itemData", itemData);
             return !itemData.AgentCode;
           });
         })
@@ -393,45 +470,13 @@ const Eticket = () => {
               itemData.TicketStatus !== "OPEN"
             );
           });
-          // ref.instance?.filter([
-          //   "TicketDeadline",
-          //   "<",
-          //   formatDate(new Date(getDateNow())),
-          // ]);
-          // console.log("getDateNow()", formatDate(new Date(getDateNow())));
         })
-        // .with("Process", () =>
-        //   setFilterApi(() => {
-        //     const newList = data?.DataList ?? [];
-        //     return newList.filter((item) => item.TicketStatus === "PROCESS");
-        //   })
-        // )
-        // .with("Process", () =>
-        //   setFilterApi(() => {
-        //     const newList = data?.DataList ?? [];
-        //     return newList.filter((item) => item.TicketStatus === "PROCESS");
-        //   })
-        // )
         .otherwise(() => {});
     },
     [isLoading]
   );
 
-  useEffect(() => {
-    if (!isLoading) {
-      setFilterApi(data?.DataList);
-    }
-  }, [isLoading]);
-
   const handleDelete = async (data: ETICKET_REPONSE[]) => {
-    // const value = data[0].TicketID;
-    // const obj = {
-    //   ET_Ticket: {
-    //     TicketID: value,
-    //   },
-    // };
-    console.log("data ", data);
-
     const param = data.map((item) => {
       return {
         OrgID: item.OrgID,
@@ -497,13 +542,49 @@ const Eticket = () => {
     }
   };
 
-  const columns = useColumn();
+  const handleExportExcel = async (data: any) => {
+    let conditionParam = {
+      ...searchCondition,
+      FlagOutOfDate:
+        searchCondition?.FlagOutOfDate === undefined
+          ? ""
+          : searchCondition?.FlagOutOfDate === true
+          ? "1"
+          : "0",
+      FlagNotRespondingSLA:
+        searchCondition?.FlagNotRespondingSLA === undefined
+          ? ""
+          : searchCondition?.FlagNotRespondingSLA === true
+          ? "1"
+          : "0",
+      TicketID: data.map((item: any) => item.TicketID).join(","),
+    };
+
+    const response = await api.ET_Ticket_Export(conditionParam);
+    if (response.isSuccess) {
+      toast.success(t("Export Excel success"));
+      if (response.Data) {
+        window.location = response.Data;
+      }
+    } else {
+      showError({
+        message: t(response.errorCode),
+        debugInfo: response.debugInfo,
+        errorInfo: response.errorInfo,
+      });
+    }
+  };
+
+  const columns = useColumn({
+    ticketDynamic: dataDynamic ?? [],
+  });
   const toolbar = useToolbar({
     data: data?.DataList ?? [],
     onClose: showPopUpClose,
     onDelete: showPopUpDelete,
     onSetStatus: handleSetField,
     onShowPopUp: handleShowPopUp,
+    onExportExcel: handleExportExcel,
     dataUser: dataUser,
   });
 
@@ -519,49 +600,17 @@ const Eticket = () => {
   });
 
   const handleSearch = async (data: any) => {
-    console.log("data ", data);
-
     setSearchCondition({
       ...searchCondition,
       ...data,
-      TicketSourceFrom: data?.TicketSourceFrom
-        ? data.TicketSourceFrom.join(",")
-        : "",
-      TicketSourceTo: data?.TicketSourceTo ? data.TicketSourceTo.join(",") : "",
-      TicketStatus: data?.TicketStatus ? data.TicketStatus.join(",") : "",
-      TickerFollower: data?.TickerFollower ? data.TickerFollower.join(",") : "",
-      CreateDTimeUTCFrom:
-        data?.CreateDTimeUTCFrom !== ""
-          ? getYearMonthDate(data?.CreateDTimeUTCFrom)
-          : "",
-      CreateDTimeUTCTo:
-        data?.CreateDTimeUTCTo !== ""
-          ? getYearMonthDate(data?.CreateDTimeUTCTo)
-          : "",
-      LogLUDTimeUTCFrom:
-        data?.LogLUDTimeUTCFrom !== ""
-          ? getYearMonthDate(data?.LogLUDTimeUTCFrom)
-          : "",
-      LogLUDTimeUTCTo:
-        data?.LogLUDTimeUTCTo !== ""
-          ? getYearMonthDate(data?.LogLUDTimeUTCTo)
-          : "",
-      TicketSourceFrom:
-        data?.TicketSourceFrom !== ""
-          ? getYearMonthDate(data?.TicketSourceFrom)
-          : "",
-      TicketSourceTo:
-        data?.TicketSourceTo !== ""
-          ? getYearMonthDate(data?.TicketSourceTo)
-          : "",
-      CustomerCodeSys: data?.CustomerCodeSys
-        ? data.CustomerCodeSys.join(",")
-        : "",
     });
   };
   const hanldeAdd = () => {
     navigate("eticket/Add");
   };
+
+  console.log("data  ++++++++++++++++++", data);
+
   return (
     <AdminContentLayout className={"Category_Manager"}>
       <AdminContentLayout.Slot name={"Header"}>
@@ -575,7 +624,7 @@ const Eticket = () => {
               className={`w-[${widthSearch + ""}px]`}
             >
               <SearchPanelV2
-                colCount={2}
+                colCount={1}
                 conditionFields={columnSearch}
                 storeKey="Mst_BankAccount_Search"
                 data={searchCondition}
@@ -598,7 +647,8 @@ const Eticket = () => {
                 isLoadingListOrg ||
                 isLoadingUser ||
                 isLoadingEnterprise ||
-                isLoadingTicketSource
+                isLoadingTicketSource ||
+                isLoadingDynamic
               }
               showIndicator={true}
               showPane={true}

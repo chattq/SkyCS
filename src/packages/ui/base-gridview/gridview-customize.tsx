@@ -412,6 +412,7 @@ const GridViewRaw = ({
   //   e.cancel = true;
   // }, []);
   const setGridAtom = useSetAtom(popupGridStateAtom);
+  // console.log("dataSource ", dataSource);
   return (
     <div className={"base-gridview bg-white"}>
       <ScrollView

@@ -5,6 +5,21 @@ import { CustomRule, RequiredRule } from "devextreme-react/form";
 import { nanoid } from "nanoid";
 import React, { useState } from "react";
 
+export const checkPhone = (list: any[]) => {
+  const numberRegex = /^[0-9]*$/;
+
+  const allValid = list?.every((item) => {
+    return (
+      numberRegex.test(item?.CtmPhoneNo) &&
+      item?.CtmPhoneNo &&
+      item?.CtmPhoneNo.length >= 10 &&
+      item?.CtmPhoneNo.length <= 11
+    );
+  });
+
+  return allValid;
+};
+
 export const PhoneField = ({ component, formData, field, editType }: any) => {
   const api = useClientgateApi();
 
@@ -42,18 +57,10 @@ export const PhoneField = ({ component, formData, field, editType }: any) => {
         return _;
       });
 
-      const validatedResult = expectedResult?.filter((item: any) =>
-        validateListInput(item?.CtmPhoneNo)
-      );
-
-      component.updateData("CtmPhoneNo", validatedResult);
+      component.updateData("CtmPhoneNo", expectedResult);
       setPhones(expectedResult);
     } else {
-      const validatedResult = result?.filter((item: any) =>
-        validateListInput(item?.CtmPhoneNo)
-      );
-
-      component.updateData("CtmPhoneNo", validatedResult);
+      component.updateData("CtmPhoneNo", result);
 
       setPhones(result);
     }
@@ -69,11 +76,7 @@ export const PhoneField = ({ component, formData, field, editType }: any) => {
       return item;
     });
 
-    const validatedResult = result?.filter((item: any) =>
-      validateListInput(item?.CtmPhoneNo)
-    );
-
-    component.updateData("CtmPhoneNo", validatedResult);
+    component.updateData("CtmPhoneNo", result);
     setPhones(result);
   };
   // setFormValue(formData);
@@ -145,17 +148,17 @@ export const PhoneField = ({ component, formData, field, editType }: any) => {
     handleClose();
   };
 
-  const validateListInput = (inputValue: any) => {
-    if (validatorRef?.current) {
-      // Get the validator instance and call validate method
-      const validationResult = validatorRef?.current?.instance?.validate({
-        name: "customRule",
-        value: inputValue,
-      });
-      return validationResult?.isValid;
-    }
-    return false;
-  };
+  // const validateListInput = (inputValue: any) => {
+  //   if (validatorRef?.current) {
+  //     // Get the validator instance and call validate method
+  //     const validationResult = validatorRef?.current?.instance?.validate({
+  //       name: "customRule",
+  //       value: inputValue,
+  //     });
+  //     return validationResult?.isValid;
+  //   }
+  //   return false;
+  // };
 
   return (
     <div className="flex items-center">
@@ -185,16 +188,16 @@ export const PhoneField = ({ component, formData, field, editType }: any) => {
               >
                 <Validator ref={validatorRef}>
                   {/* Add any other validation rules if needed */}
-                  <RequiredRule message="This field is required." />
+                  <RequiredRule message="Vui lòng nhập Số điện thoại!" />
                   <CustomRule
-                    message="Only numbers are allowed."
+                    message="Vui lòng nhập đúng định dạng Số điện thoại!"
                     validationCallback={(options) => {
                       const value: any = options.value;
                       return numberRegex.test(value);
                     }}
                   />
                   <CustomRule
-                    message="Input must have at least 10 numeric characters."
+                    message="Vui lòng nhập đúng định dạng Số điện thoại!"
                     validationCallback={(options: any) => {
                       const value = options.value;
                       return numberRegex.test(value) && value.length >= 10;

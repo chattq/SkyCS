@@ -15,11 +15,6 @@ interface PropsToolBar {
   onSetStatus: (title: string, ref: any) => void;
 }
 
-interface DropDownInferface {
-  title: string;
-  onclick: any;
-}
-
 export const useToolbar = ({
   data,
   onSetStatus,
@@ -46,7 +41,7 @@ export const useToolbar = ({
       },
       widget: "customize",
       customize: (ref: any) => (
-        <div className="mt-[10px] px-1">
+        <div className="px-1">
           <FilterDropdown
             buttonTemplate={<img src="/images/icons/filterHeader.png" />}
             genFilterFunction={

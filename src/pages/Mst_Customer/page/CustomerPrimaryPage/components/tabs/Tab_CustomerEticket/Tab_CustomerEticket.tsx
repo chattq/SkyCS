@@ -8,6 +8,7 @@ import { useRef, useState } from "react";
 
 import { useI18n } from "@/i18n/useI18n";
 import { useParams } from "react-router-dom";
+import { match } from "ts-pattern";
 import CustomerEticket_Popup from "./CustomerEticket_Popup";
 
 const Tab_CustomerEticket = () => {
@@ -19,15 +20,16 @@ const Tab_CustomerEticket = () => {
 
   const { t } = useI18n("Tab_CustomerEticket");
 
-  const { data, isLoading } = useQuery(["listCustomerEticket"], async () => {
-    const resp: any = await api.Mst_Customer_GetTicketByCustomerCodeSys(
-      CustomerCodeSys
-    );
+  const { data, isLoading } = useQuery(
+    ["listCustomerEticket", CustomerCodeSys],
+    async () => {
+      const resp: any = await api.Mst_Customer_GetTicketByCustomerCodeSys(
+        CustomerCodeSys
+      );
 
-    return resp;
-  });
-
-  console.log(data);
+      return resp;
+    }
+  );
 
   const [open, setOpen] = useState<boolean>(false);
   const [ticketID, setTicketID] = useState<string>("");
@@ -173,6 +175,38 @@ const Tab_CustomerEticket = () => {
     );
   };
 
+  const sortData = [
+    {
+      display: "Mặc định",
+      key: "default",
+    },
+    {
+      display: "Thời gian tạo",
+      key: "ticket_create",
+    },
+    {
+      display: "Thời gian thời gian cập nhật",
+      key: "ticket_update",
+    },
+  ];
+
+  const sortProcess = (a: any, b: any, condition: any, type: any) => {
+    return match(condition)
+      .with("ticket_create", () => {
+        const a_time: any = new Date(a.CreateDTimeUTC);
+        const b_time: any = new Date(b.CreateDTimeUTC);
+
+        return type == "asc" ? a_time - b_time : b_time - a_time;
+      })
+      .with("ticket_update", () => {
+        const a_time: any = new Date(a.LogLUDTimeUTC);
+        const b_time: any = new Date(b.LogLUDTimeUTC);
+
+        return type == "asc" ? a_time - b_time : b_time - a_time;
+      })
+      .otherwise(() => (type == "asc" ? a.Idx - b.Idx : b.Idx - a.Idx));
+  };
+
   return (
     <>
       <AdminContentLayout className={"Category_Manager"}>
@@ -195,7 +229,8 @@ const Tab_CustomerEticket = () => {
             storeKey={"card-view"}
             ref={null}
             customCard={customCard}
-            defaultOption="card"
+            sortData={sortData}
+            sortProcess={sortProcess}
           />
         </AdminContentLayout.Slot>
       </AdminContentLayout>

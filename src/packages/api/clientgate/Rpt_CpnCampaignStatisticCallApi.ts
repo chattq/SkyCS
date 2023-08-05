@@ -18,16 +18,13 @@ export const useRpt_CpnCampaignStatisticCallApi = (apiBase: AxiosInstance) => {
       });
     },
     Rpt_CpnCampaignStatisticCall_ExportExcel: async (
-      keyword?: string
+      data: any
     ): Promise<ApiResponse<any>> => {
       return await apiBase.post<
         Partial<Rpt_CpnCampaignStatisticCallData>,
         ApiResponse<string>
       >("/RptCpnCampaignStatisticCall/Export", {
-        AgentCodeConditionList: "",
-        CampaignCodeConditionList: "",
-        ReportDTimeTo: "",
-        ReportDTimeFrom: "",
+        ...data,
       });
     },
   };

@@ -266,6 +266,7 @@ export const PartReplyEmail = ({
               label={{
                 text: t("SubFormCode"),
               }}
+              cssClass="justify-content-flex-end"
               editorOptions={{
                 height: 30,
                 dataSource: listMedia.EMAIL,
@@ -288,9 +289,11 @@ export const PartReplyEmail = ({
             dataField="SubTitleSend"
             label={{
               text: t("SubTitleSend"),
+              visible: false,
             }}
             editorType="dxHtmlEditor"
             editorOptions={{
+              placeholder: t("SubTitleSend"),
               height: "40px",
             }}
             // render={(param:any) => {
@@ -302,6 +305,7 @@ export const PartReplyEmail = ({
             dataField="MessageSend"
             label={{
               text: t("MessageSend"),
+              visible: false,
             }}
             editorType="dxHtmlEditor"
             editorOptions={{
@@ -453,8 +457,8 @@ export const PartReplyEmail = ({
         </div> */}
       </div>
 
-      <div className={"w-full mb-4 p-1"}>
-        <div className="flex float-right">
+      <div className={"w-full box-button-eticket"}>
+        <div className="flex">
           <SelectBox
             value={addRemark.ActionType} // giá trị khởi tạo
             valueExpr={"ActionTypeCode"} // giá trị được chọn
@@ -481,7 +485,7 @@ export const PartReplyEmail = ({
             type="default"
             icon="email"
             text={t("Send")}
-            className="eticket-button-send mr-1"
+            className="eticket-button-send"
             onClick={handleSend}
           >
             {t("Send")}

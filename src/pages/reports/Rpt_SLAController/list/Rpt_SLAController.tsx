@@ -42,7 +42,13 @@ import { useBankDealerGridColumns } from "../components/use-columns";
 import { SearchPanelV2 } from "@/packages/ui/search-panel";
 
 import { nanoid } from "nanoid";
-import { Button, CheckBox, DateBox, SelectBox } from "devextreme-react";
+import {
+  Button,
+  CheckBox,
+  DateBox,
+  DateRangeBox,
+  SelectBox,
+} from "devextreme-react";
 import PieChart, {
   Series,
   Label,
@@ -61,30 +67,7 @@ import { useToolbar } from "../components/toolbarItem";
 import { ReportLayout } from "@/packages/layouts/report-layout/report-content-layout";
 import { ReportHeaderLayout } from "@/packages/layouts/report-layout/report-header-layout";
 import { calculateSLAStats } from "../components/FormatDataSLA";
-
-function generateMonthData(): Date[] {
-  const startYear = 1990;
-  const startMonth = 0; // January (0-based index)
-  const currentYear = new Date().getFullYear();
-  const monthData: Date[] = [];
-
-  for (let year = currentYear; year >= startYear; year--) {
-    const start = year === startYear ? startMonth : 11;
-    for (let month = start; month >= 0; month--) {
-      const date = set(new Date(), {
-        year: year,
-        month: month,
-        date: 1,
-      });
-      if (date <= new Date()) {
-        monthData.push(date);
-      }
-    }
-  }
-  return monthData;
-}
-
-const monthYearDs = generateMonthData();
+import { getFirstDateOfMonth } from "@/components/ulti";
 
 export const Rpt_SLAControllerPage = () => {
   const { t } = useI18n("Rpt_SLAController");
@@ -102,11 +85,12 @@ export const Rpt_SLAControllerPage = () => {
     CustomerEmail: "",
     CustomerCompany: "",
     TicketStatusConditionList: "",
-    CreateDTimeUTCFrom: "",
-    CreateDTimeUTCTo: "",
-    LogLUDTimeUTCFrom: "",
-    LogLUDTimeUTCTo: "",
+    MonthReport: [null, null],
   });
+  const msInDay = 1000 * 60 * 60 * 24;
+  const now = new Date();
+  const startDate = new Date(now.getTime() - msInDay * 3);
+  const endDate = new Date(now.getTime());
 
   const setSelectedItems = useSetAtom(selectedItemsAtom);
 
@@ -144,18 +128,21 @@ export const Rpt_SLAControllerPage = () => {
         CustomerCompany: searchCondition.CustomerCompany
           ? searchCondition.CustomerCompany
           : "",
-        CreateDTimeUTCFrom: searchCondition.CreateDTimeUTCFrom
-          ? format(searchCondition.CreateDTimeUTCFrom, "yyyy-MM-dd")
-          : "",
-        CreateDTimeUTCTo: searchCondition.CreateDTimeUTCTo
-          ? format(searchCondition.CreateDTimeUTCTo, "yyyy-MM-dd")
-          : "",
+        CreateDTimeUTCFrom: searchCondition.MonthReport[0]
+          ? format(searchCondition.MonthReport[0], "yyyy-MM-dd")
+          : getFirstDateOfMonth(endDate),
+        CreateDTimeUTCTo: searchCondition.MonthReport[1]
+          ? format(searchCondition.MonthReport[1], "yyyy-MM-dd")
+          : format(endDate, "yyyy-MM-dd"),
       });
       return resp;
     },
   });
   const { data: CampaignList } = useQuery(["listMST"], () =>
     api.Cpn_CampaignAgent_GetActive()
+  );
+  const { data: listOrgID } = useQuery(["listOrgID"], () =>
+    api.Mst_NNTController_GetAllActive()
   );
 
   const columns = useBankDealerGridColumns({
@@ -278,9 +265,9 @@ export const Rpt_SLAControllerPage = () => {
       editorType: "dxTagBox",
       editorOptions: {
         searchEnabled: true,
-        dataSource: listUser?.DataList ?? [],
-        displayExpr: "UserName",
-        valueExpr: "UserCode",
+        dataSource: listOrgID?.Data?.Lst_Mst_NNT ?? [],
+        displayExpr: "NNTFullName",
+        valueExpr: "OrgID",
       },
     },
     {
@@ -351,7 +338,6 @@ export const Rpt_SLAControllerPage = () => {
         placeholder: t("Input"),
       },
     },
-
     {
       dataField: "MonthReport",
       visible: true,
@@ -359,91 +345,28 @@ export const Rpt_SLAControllerPage = () => {
       label: {
         text: t("Thời gian tạo"),
       },
-      editorType: "dxDateBox",
-      render: ({ editorOptions, component: formRef }: any) => {
-        return (
-          <div className={"flex items-center"}>
-            <DateBox
-              className="pr-[3px]"
-              {...editorOptions}
-              type="date"
-              displayFormat="yyyy-MM-dd"
-              defaultValue={searchCondition.CreateDTimeUTCFrom}
-              onValueChanged={(e: any) => {
-                formRef.instance().updateData("CreateDTimeUTCFrom", e.value);
-              }}
-            ></DateBox>
-            -
-            <DateBox
-              {...editorOptions}
-              type="date"
-              displayFormat="yyyy-MM-dd"
-              defaultValue={searchCondition.CreateDTimeUTCTo}
-              onValueChanged={(e: any) => {
-                formRef.instance().updateData("CreateDTimeUTCTo", e.value);
-              }}
-            ></DateBox>
-          </div>
-        );
-      },
+      editorType: "dxDateRangeBox",
       editorOptions: {
-        placeholder: t("Input"),
         type: "date",
         displayFormat: "yyyy-MM-dd",
-        dataSource: monthYearDs,
-        displayExpr: (item: Date | null) => {
-          if (!!item) {
-            return format(item, "yyyy-MM-dd");
-          }
-          return "";
-        },
       },
-    },
-    {
-      dataField: "MonthUpdate",
-      visible: true,
-      caption: t("MonthUpdate"),
-      label: {
-        text: t("Thời gian cập nhật"),
-      },
-      editorType: "dxDateBox",
       render: ({ editorOptions, component: formRef }: any) => {
         return (
-          <div className={"flex items-center"}>
-            <DateBox
-              className="pr-[3px]"
-              {...editorOptions}
-              type="date"
-              displayFormat="yyyy-MM-dd"
-              defaultValue={searchCondition.LogLUDTimeUTCFrom}
-              onValueChanged={(e: any) => {
-                formRef.instance().updateData("LogLUDTimeUTCFrom", e.value);
-              }}
-            ></DateBox>
-            -
-            <DateBox
-              {...editorOptions}
-              type="date"
-              displayFormat="yyyy-MM-dd"
-              defaultValue={searchCondition.LogLUDTimeUTCTo}
-              onValueChanged={(e: any) => {
-                formRef.instance().updateData("LogLUDTimeUTCTo", e.value);
-              }}
-            ></DateBox>
-          </div>
+          <DateRangeBox
+            displayFormat=" yyyy-MM-dd"
+            defaultStartDate={
+              searchCondition.MonthReport[0] || getFirstDateOfMonth(endDate)
+            }
+            defaultEndDate={searchCondition.MonthReport[1] || endDate}
+            showClearButton={true}
+            useMaskBehavior={true}
+            openOnFieldClick={true}
+            labelMode="hidden"
+            onValueChanged={(e: any) => {
+              formRef.instance().updateData("MonthReport", e.value);
+            }}
+          />
         );
-      },
-      editorOptions: {
-        placeholder: t("Input"),
-        type: "date",
-        displayFormat: "yyyy-MM-dd",
-        dataSource: monthYearDs,
-        displayExpr: (item: Date | null) => {
-          if (!!item) {
-            return format(item, "yyyy-MM-dd");
-          }
-          return "";
-        },
       },
     },
   ];
@@ -610,12 +533,12 @@ export const Rpt_SLAControllerPage = () => {
       CustomerCompany: searchCondition.CustomerCompany
         ? searchCondition.CustomerCompany
         : "",
-      CreateDTimeUTCFrom: searchCondition.CreateDTimeUTCFrom
-        ? format(searchCondition.CreateDTimeUTCFrom, "yyyy-MM-dd")
-        : "",
-      CreateDTimeUTCTo: searchCondition.CreateDTimeUTCTo
-        ? format(searchCondition.CreateDTimeUTCTo, "yyyy-MM-dd")
-        : "",
+      CreateDTimeUTCFrom: searchCondition.MonthReport[0]
+        ? format(searchCondition.MonthReport[0], "yyyy-MM-dd")
+        : getFirstDateOfMonth(endDate),
+      CreateDTimeUTCTo: searchCondition.MonthReport[1]
+        ? format(searchCondition.MonthReport[1], "yyyy-MM-dd")
+        : format(endDate, "yyyy-MM-dd"),
     });
     if (resp.isSuccess) {
       toast.success(t("Download Successfully"));
@@ -646,14 +569,12 @@ export const Rpt_SLAControllerPage = () => {
           <div className="w-[calc(100%_-_288px)] h-full">
             <ContentSearchPanelLayout>
               <ContentSearchPanelLayout.Slot name={"SearchPanel"}>
-                <div className={"w-[230px]"}>
-                  <SearchPanelV2
-                    storeKey="ReportCall_Search"
-                    conditionFields={formItems}
-                    data={searchCondition}
-                    onSearch={handleSearch}
-                  />
-                </div>
+                <SearchPanelV2
+                  storeKey="ReportCall_Search"
+                  conditionFields={formItems}
+                  data={searchCondition}
+                  onSearch={handleSearch}
+                />
               </ContentSearchPanelLayout.Slot>
               <ContentSearchPanelLayout.Slot name={"ContentPanel"}>
                 <GridViewCustomize

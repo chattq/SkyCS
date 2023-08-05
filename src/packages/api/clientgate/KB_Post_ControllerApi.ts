@@ -39,6 +39,14 @@ export const useKB_PostApi = (apiBase: AxiosInstance) => {
         }
       );
     },
+    KB_Post_UpdateFlagEdit: async (data: any): Promise<ApiResponse<any>> => {
+      return await apiBase.post<SearchParam, ApiResponse<KB_PostData>>(
+        "/KBPost/UpdateFlagEdit",
+        {
+          strJson: JSON.stringify(data),
+        }
+      );
+    },
     KB_Post_UpdateLastView: async (data: any): Promise<ApiResponse<any>> => {
       return await apiBase.post<SearchParam, ApiResponse<KB_PostData>>(
         "/KBPost/UpdateLastView",

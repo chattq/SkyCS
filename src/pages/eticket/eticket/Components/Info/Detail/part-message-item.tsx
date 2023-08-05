@@ -69,8 +69,6 @@ export const PartMessageItem = ({
       AutoID: data.AutoId,
     };
 
-    // console.log("obj ", obj, "data", data);
-
     const response = await api.ET_Ticket_UpdatePin(obj);
     if (response.isSuccess) {
       toast.success(t("Update Pin successfully"));
@@ -85,11 +83,10 @@ export const PartMessageItem = ({
   };
 
   const RemarkDetail = ({ remark }: { remark: ET_TicketMessage }) => {
-    const custom = `<b>${remark.Description}</b>`;
     return (
       <div className="w-full pl-5 pr-5">
         <div
-          className="format-text-html pl-2"
+          className="format-text-html pl-2 text-bold"
           dangerouslySetInnerHTML={{
             __html: remark.Description ?? "--------------------",
           }}
@@ -99,11 +96,10 @@ export const PartMessageItem = ({
   };
 
   const NoteDetail = ({ data }: { data: ET_TicketMessage }) => {
-    const custom = `<b>${data.Description}</b>`;
     return (
       <div className="w-full pl-5 pr-5">
         <div
-          className="format-text-html"
+          className="format-text-html text-bold"
           dangerouslySetInnerHTML={{
             __html: data.Description ?? "--------------------",
           }}
@@ -118,26 +114,31 @@ export const PartMessageItem = ({
     return (
       <div className="w-full pl-5 pr-5">
         <div className="flex pl-2 pt-1">
-          <span className="text-gray mr-2">{t("Email send")}: </span>
-          <span>{email.ObjectSenderId}</span>
+          <span className="text-gray mr-2 text-tile-eticket-detail">
+            {t("Email send")}:{" "}
+          </span>
+          <span className="text-bold">{email.ObjectSenderId}</span>
         </div>
         <div className="flex pl-2 pt-1">
-          <span className="text-gray mr-2">{t("Title")}: </span>
-          <span>{objDescription?.SubTitleSend}</span>
+          <span className="text-gray mr-2 text-tile-eticket-detail">
+            {t("Title")}:{" "}
+          </span>
+          <span className="text-bold">{objDescription?.SubTitleSend}</span>
         </div>
-        <div className="flex pl-2 pt-1">
+        <div className="flex align-items-flex-start pl-2 pt-1">
           <span
-            className="text-gray mr-2 title"
+            className="text-gray mr-2 text-tile-eticket-detail"
             style={{ width: "w-full", display: "flex" }}
           >
-            {t("Description")}:{" "}
-            <div
-              className="format-text-html"
-              dangerouslySetInnerHTML={{
-                __html: objDescription?.MessageSend ?? "----------------------",
-              }}
-            />
-          </span>
+            {t("Description")}:
+          </span>{" "}
+          <br />
+          <div
+            className="format-text-html"
+            dangerouslySetInnerHTML={{
+              __html: objDescription?.MessageSend ?? "----------------------",
+            }}
+          />
         </div>
       </div>
     );
@@ -151,7 +152,7 @@ export const PartMessageItem = ({
         <div className="pl-2 pt-1">
           {convertJSON.RecFilePath && (
             <ReactPlayer
-              url={audioFile}
+              url={convertJSON.RecFilePath}
               controls
               config={{
                 file: {
@@ -165,16 +166,24 @@ export const PartMessageItem = ({
             />
           )}
           <div className="flex pl-2 pt-1">
-            <span className="text-gray mr-2">{t("CallID")}: </span>
-            <span>{convertJSON.CallID}</span>
+            <span className="text-gray mr-2 text-tile-eticket-detail">
+              {t("CallID")}:{" "}
+            </span>
+            <span className="text-bold">{convertJSON.CallID}</span>
           </div>{" "}
+          {/* Số điện thoại khách hàng */}
           <div className="flex pl-2 pt-1">
-            <span className="text-gray mr-2">{t("SĐT khách hàng:")}: </span>
-            <span>{convertJSON.FromNumber}</span>
+            <span className="text-gray mr-2 text-tile-eticket-detail">
+              {t("FromNumber")}:{" "}
+            </span>
+            <span className="text-bold">{convertJSON.FromNumber}</span>
           </div>
+          {/* số tổng đài */}
           <div className="flex pl-2 pt-1">
-            <span className="text-gray mr-2">{t("Số tổng đài:")}: </span>
-            <span>{convertJSON.ToNumber}</span>
+            <span className="text-gray mr-2 text-tile-eticket-detail">
+              {t("ToNumber")}:
+            </span>
+            <span className="text-bold">{convertJSON.ToNumber}</span>
           </div>
         </div>
       </div>
@@ -194,15 +203,16 @@ export const PartMessageItem = ({
               {/* <span>Tên tài khoản zalo: {data.ObjectReceiveId}</span> <br /> */}
               {/* <span>Thời gian gửi: {data.MsgDTime}</span> <br /> */}
               <p>
-                <span className="title">Zalo ZNS:</span> {data.ObjectReceiveId}
+                <span className="title">Zalo ZNS:</span>
+                <span className="text-bold">{data.ObjectReceiveId}</span>
               </p>
-              <p className="pt-1">
+              <p className="pt-1 flex">
                 <span className="title"> {`${t("Content")}`}</span>:
-                {dataJSON[0].SubFormCode}
+                <div className="text-bold">{dataJSON[0].SubFormCode}</div>
               </p>
               <p className="pt-1">
                 <span className="title">Mã Mẫu ZNS:</span>{" "}
-                {convertDetail.template_id}
+                <span className="text-bold">{convertDetail.template_id}</span>
               </p>
               <table className="eticket-it-table">
                 {dataJSON.map((item: any, index: number) => {
@@ -220,7 +230,7 @@ export const PartMessageItem = ({
               {/* <span>{call.FromNumber}</span> */}
             </div>
             {/* <div className="flex pl-2 pt-1">
-              <span className="text-gray mr-2">SĐT nhận: </span>
+              <span className="text-gray mr-2 text-tile-eticket-detail">SĐT nhận: </span>
               <span>{call.ToNumber}</span>
             </div> */}
           </div>
@@ -230,15 +240,16 @@ export const PartMessageItem = ({
       return (
         <div className="w-full pl-5 pr-5">
           <div className="pl-2 pt-1">
-            <span className="text-gray mr-2">
-              <span>{t("Mail's ZaloUserID")}: </span> {data.ObjectReceiveId}{" "}
-              <br />
+            <span className="text-gray mr-2 text-tile-eticket-detail">
+              <span>{t("Mail's ZaloUserID")}: </span>{" "}
+              <span className="text-bold">{data.ObjectReceiveId}</span> <br />
             </span>
-            <span className="text-gray mr-2">{data.Description}</span>
+            <div className="mt-1"></div>
+            <span className=" mr-2 text-bold ">{data.Description}</span>
             {/* <span>{call.FromNumber}</span> */}
           </div>
           {/* <div className="flex pl-2 pt-1">
-          <span className="text-gray mr-2">SĐT nhận: </span>
+          <span className="text-gray mr-2 text-tile-eticket-detail">SĐT nhận: </span>
           <span>{call.ToNumber}</span>
         </div> */}
         </div>
@@ -247,11 +258,13 @@ export const PartMessageItem = ({
       return (
         <div className="w-full pl-5 pr-5">
           <div className="pl-2 pt-1">
-            <span className="text-gray mr-2">
+            <span className="text-gray mr-2 text-tile-eticket-detail">
               <span className="title">{t("Mail's ZaloUserID")}: </span>{" "}
               {data.ObjectReceiveId} <br />
             </span>
-            <span className="text-gray mr-2">{data.Description}</span>
+            <span className="text-gray mr-2 text-tile-eticket-detail">
+              {data.Description}
+            </span>
           </div>
         </div>
       );
@@ -275,7 +288,8 @@ export const PartMessageItem = ({
     if (flag === "remark") return <RemarkDetail remark={data}></RemarkDetail>;
     if (flag === "emailin" || flag === "emailout")
       return <EmailDetail email={data}></EmailDetail>;
-    if (flag === "call") return <CallDetail call={data}></CallDetail>;
+    if (flag === "call" || flag === "callmissedin" || flag === "callmissedout")
+      return <CallDetail call={data}></CallDetail>;
     if (flag === "zaloin" || flag === "zaloout")
       return <ZaloDetail data={data}></ZaloDetail>;
     if (flag === "note") return <NoteDetail data={data}></NoteDetail>;
@@ -292,8 +306,6 @@ export const PartMessageItem = ({
       SubTitleSend: "",
       TicketID: data.TicketID,
     };
-
-    console.log("flag", flag);
 
     switch (flag) {
       case "zaloout":
@@ -373,7 +385,7 @@ export const PartMessageItem = ({
       />
     );
   };
-
+  // console.log("data.IsPin ", data.IsPin , data);
   return (
     <div
       className={`w-full position-relative bg-white mb-3 pb-3 message-item ${flag} ${
@@ -382,7 +394,7 @@ export const PartMessageItem = ({
     >
       {flag != "eventlog" ? (
         <>
-          <div className="flex p-3 pop-up-use">
+          <div className="flex p-3 pl-4 pop-up-use">
             <div className=" avatar-name mr-4">
               <Avatar
                 //img={data.AuthorImage}
@@ -405,7 +417,7 @@ export const PartMessageItem = ({
                 onClick={showPopUp}
                 stylingMode="outlined"
                 type="default"
-                className="pin-show"
+                className="pin-show button-icon-detail-eticket"
               >
                 {data?.dataPin.length - 1} <p>{t("Another pin")}</p>
               </Button>
@@ -415,7 +427,7 @@ export const PartMessageItem = ({
               <Button
                 stylingMode="outlined"
                 type="default"
-                className="btn-msg-action"
+                className="btn-msg-action button-icon-detail-eticket"
                 // icon="custom-reply"
                 onClick={handleReply}
               >
@@ -427,7 +439,7 @@ export const PartMessageItem = ({
               <Button
                 stylingMode="outlined"
                 type="default"
-                className="btn-msg-action"
+                className="btn-msg-action button-icon-detail-eticket"
                 icon={data.IsPin === "1" ? "unpin" : "pin"}
                 onClick={() => handleUpdatePin()}
               >
@@ -439,7 +451,7 @@ export const PartMessageItem = ({
               <Button
                 stylingMode="outlined"
                 type="danger"
-                className="btn-msg-action"
+                className="btn-msg-action button-icon-detail-eticket"
                 icon="trash"
               />
             )}
@@ -447,7 +459,7 @@ export const PartMessageItem = ({
               <Button
                 stylingMode="outlined"
                 type="danger"
-                className="btn-msg-action"
+                className="btn-msg-action button-icon-detail-eticket"
                 icon="trash"
                 onClick={handleCustomerDelete}
               />

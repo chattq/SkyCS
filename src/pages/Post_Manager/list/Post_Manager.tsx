@@ -36,34 +36,55 @@ import { PopupViewComponent } from "../components/use-popup-view";
 import { SearchPanelV2 } from "@/packages/ui/search-panel";
 
 import { nanoid } from "nanoid";
-import { Button, CheckBox, DateBox, SelectBox } from "devextreme-react";
-import Post_detail from "../components/components/Post_add";
-import FilterDropdown from "@/packages/ui/base-gridview/FilterDropdown";
-import { format, set } from "date-fns";
-import NavNetworkLink from "@/components/Navigate";
+import {
+  Button,
+  CheckBox,
+  DateBox,
+  DateRangeBox,
+  SelectBox,
+} from "devextreme-react";
+
 import { GridViewCustomize } from "@/packages/ui/base-gridview/gridview-customize";
 import { PageHeaderNoSearchLayout } from "@/packages/layouts/page-header-layout-2/page-header-nosearch-layout";
 import { useNavigate } from "react-router-dom";
 import { match } from "ts-pattern";
 import { useToolbar } from "../components/components/toolbarItem";
+import { RequiredField } from "@/packages/common/Validation_Rules";
+import { DateRangeField } from "@/pages/admin/test-upload/date-range-field";
+import { confirm } from "devextreme/ui/dialog";
+import {
+  flattenCategories,
+  getCategories,
+} from "@/pages/Category_Manager/components/FormatCategoryGrid";
+import { format, isAfter, isBefore } from "date-fns";
 
+export function removeDulicateData(input: any) {
+  const uniqueCreateByValues = Array.from(
+    new Set(input?.map((item: any) => item.CreateBy))
+  );
+
+  // Creating the output array of objects
+  const output = uniqueCreateByValues?.map((createBy) => ({
+    CreateBy: createBy,
+  }));
+  return output;
+}
 export const Post_ManagerPage = () => {
   const { t } = useI18n("Post_Manager");
   let gridRef: any = useRef(null);
   const config = useConfiguration();
   const showError = useSetAtom(showErrorAtom);
+
   const refechValue = useAtomValue(refechAtom);
 
   const [searchCondition, setSearchCondition] = useState<any>({
     FlagActive: FlagActiveEnum.All,
     Ft_PageIndex: 0,
     Ft_PageSize: config.MAX_PAGE_ITEMS,
+    MonthReport: [null, null],
+    MonthUpdate: [null, null],
     KeyWord: "",
-    CreateDTimeUTCFrom: "",
-    CreateDTimeUTCTo: "",
     CreateBy: "",
-    LogLUDTimeUTCFrom: "",
-    LogLUDTimeUTCTo: "",
     LogLUBy: "",
     PostStatus: "",
     CategoryCode: "",
@@ -84,12 +105,47 @@ export const Post_ManagerPage = () => {
     () =>
       api.KB_Post_Search({
         ...searchCondition,
+        PostStatus: searchCondition.PostStatus
+          ? searchCondition.PostStatus.join(",")
+          : "",
+        CreateBy: searchCondition.CreateBy
+          ? searchCondition.CreateBy.join(",")
+          : "",
+        LogLUBy: searchCondition.LogLUBy
+          ? searchCondition.LogLUBy.join(",")
+          : "",
+        Tag: searchCondition.Tag ? searchCondition.Tag.join(",") : "",
+        CategoryCode: searchCondition.CategoryCode
+          ? searchCondition.CategoryCode.join(",")
+          : "",
+        ShareType: searchCondition.ShareType
+          ? searchCondition.ShareType.join(",")
+          : "",
+        Detail: searchCondition.Detail ? searchCondition.Detail : "",
+        Title: searchCondition.Title ? searchCondition.Title : "",
+        CreateDTimeUTCFrom: searchCondition.MonthReport[0]
+          ? format(searchCondition.MonthReport[0], "yyyy-MM-dd")
+          : "",
+        CreateDTimeUTCTo: searchCondition.MonthReport[1]
+          ? format(searchCondition.MonthReport[1], "yyyy-MM-dd")
+          : "",
+        LogLUDTimeUTCFrom: searchCondition.MonthUpdate[0]
+          ? format(searchCondition.MonthUpdate[0], "yyyy-MM-dd")
+          : "",
+        LogLUDTimeUTCTo: searchCondition.MonthUpdate[1]
+          ? format(searchCondition.MonthUpdate[1], "yyyy-MM-dd")
+          : "",
       })
   );
 
   const { data: listPost } = useQuery(["listPost"], () =>
     api.KB_PostData_GetAllPostCode()
   );
+  const { data: Category_Manager_GetALL } = useQuery(
+    ["Category_Manager_GetALL"],
+    () => api.KB_Category_GetAllActive()
+  );
+
   const { data: listTag } = useQuery(["listTag"], () =>
     api.Mst_Tag_GetAllActive()
   );
@@ -113,13 +169,14 @@ export const Post_ManagerPage = () => {
     data: data?.Data?.pageInfo?.DataList || [],
   });
 
-  const formItems: IItemProps[] = [
+  const formItems: any[] = [
     {
       editorType: "dxTextBox",
       dataField: "FlagEdit",
       label: {
-        text: t("FlagEdit"),
+        text: t("a"),
       },
+      cssClass: "FlagEdit",
       editorOptions: {
         placeholder: t("Input"),
       },
@@ -127,7 +184,7 @@ export const Post_ManagerPage = () => {
         return (
           <div className="flex items-center gap-1 mt-1 ml-1">
             <CheckBox
-              defaultValue={searchCondition.FlagEdit === "0" ? false : true}
+              defaultValue={searchCondition?.FlagEdit === "0" ? false : true}
               onValueChanged={(e: any) => {
                 formRef.instance().updateData("FlagEdit", e.value);
               }}
@@ -160,100 +217,59 @@ export const Post_ManagerPage = () => {
       },
     },
     {
-      dataField: "Month",
-      visible: true,
-      caption: t("Month"),
-      label: {
-        text: t("Thời gian tạo"),
-      },
-      editorType: "dxDateBox",
-      render: ({ editorOptions, component: formRef }: any) => {
-        return (
-          <div className={"flex items-center"}>
-            <DateBox
-              className="pr-[3px]"
-              {...editorOptions}
-              type="date"
-              displayFormat="yyyy-MM-dd"
-              defaultValue={searchCondition.CreateDTimeUTCTo}
-              onValueChanged={(e: any) => {
-                formRef.instance().updateData("CreateDTimeUTCFrom", e.value);
-              }}
-            ></DateBox>
-            -
-            <DateBox
-              {...editorOptions}
-              type="date"
-              displayFormat="yyyy-MM-dd"
-              defaultValue={searchCondition.CreateDTimeUTCTo}
-              onValueChanged={(e: any) => {
-                formRef.instance().updateData("CreateDTimeUTCTo", e.value);
-              }}
-            ></DateBox>
-          </div>
-        );
-      },
-      editorOptions: {
-        placeholder: t("Input"),
-        format: "yyyy-MM-dd",
-        // dataSource: monthYearDs,
-        // displayExpr: (item: Date | null) => {
-        //   if (!!item) {
-        //     return format(item, "yyyy-MM");
-        //   }
-        //   return "";
-        // },
-        // validationMessageMode: "always",
-      },
-      // validationRules: [RequiredField(t("MonthReportIsRequired"))],
-    },
-    {
       dataField: "MonthReport",
       visible: true,
       caption: t("MonthReport"),
       label: {
-        text: t("Thời gian cập nhật"),
+        text: t("Thời gian tạo"),
       },
-      editorType: "dxDateBox",
+      editorType: "dxDateRangeBox",
+      editorOptions: {
+        type: "date",
+        displayFormat: "yyyy-MM-dd",
+      },
       render: ({ editorOptions, component: formRef }: any) => {
         return (
-          <div className={"flex items-center"}>
-            <DateBox
-              className="pr-[3px]"
-              {...editorOptions}
-              type="date"
-              displayFormat="yyyy-MM-dd"
-              defaultValue={searchCondition.LogLUDTimeUTCFrom}
-              onValueChanged={(e: any) => {
-                formRef.instance().updateData("LogLUDTimeUTCFrom", e.value);
-              }}
-            ></DateBox>
-            -
-            <DateBox
-              {...editorOptions}
-              type="date"
-              displayFormat="yyyy-MM-dd"
-              defaultValue={searchCondition.LogLUDTimeUTCTo}
-              onValueChanged={(e: any) => {
-                formRef.instance().updateData("LogLUDTimeUTCTo", e.value);
-              }}
-            ></DateBox>
-          </div>
+          <DateRangeBox
+            displayFormat=" yyyy-MM-dd"
+            defaultStartDate={searchCondition?.MonthReport[0]}
+            defaultEndDate={searchCondition?.MonthReport[1]}
+            showClearButton={true}
+            useMaskBehavior={true}
+            openOnFieldClick={true}
+            labelMode="hidden"
+            onValueChanged={(e: any) => {
+              formRef.instance().updateData("MonthReport", e.value);
+            }}
+          />
         );
       },
-      editorOptions: {
-        placeholder: t("Input"),
-        format: "yyyy-MM-dd",
-        // dataSource: monthYearDs,
-        // displayExpr: (item: Date | null) => {
-        //   if (!!item) {
-        //     return format(item, "yyyy-MM");
-        //   }
-        //   return "";
-        // },
-        // validationMessageMode: "always",
+    },
+    {
+      dataField: "MonthUpdate",
+      visible: true,
+      caption: t("MonthUpdate"),
+      label: {
+        text: t("Thời gian cập nhật"),
       },
-      // validationRules: [RequiredField(t("MonthReportIsRequired"))],
+      editorType: "dxDateRangeBox",
+      editorOptions: {},
+      render: ({ editorOptions, component: formRef }: any) => {
+        return (
+          <DateRangeBox
+            displayFormat=" yyyy-MM-dd"
+            defaultStartDate={searchCondition?.MonthUpdate[0]}
+            defaultEndDate={searchCondition.MonthUpdate[1]}
+            showClearButton={true}
+            useMaskBehavior={true}
+            openOnFieldClick={true}
+            labelMode="hidden"
+            onValueChanged={(e: any) => {
+              formRef.instance().updateData("MonthUpdate", e.value);
+            }}
+          />
+        );
+      },
     },
     {
       caption: t("PostStatus"),
@@ -274,7 +290,7 @@ export const Post_ManagerPage = () => {
       },
       editorType: "dxTagBox",
       editorOptions: {
-        dataSource: listPost?.Data ?? [],
+        dataSource: removeDulicateData(listPost?.Data) ?? [],
         valueExpr: "CreateBy",
         displayExpr: "CreateBy",
         placeholder: t("Select"),
@@ -311,11 +327,14 @@ export const Post_ManagerPage = () => {
       label: {
         text: t("Category"),
       },
-      editorType: "dxSelectBox",
+      editorType: "dxTagBox",
       editorOptions: {
-        dataSource: listPost?.Data ?? [],
+        dataSource:
+          flattenCategories(
+            getCategories(Category_Manager_GetALL?.Data?.Lst_KB_Category)
+          ) ?? [],
         valueExpr: "CategoryCode",
-        displayExpr: "kbc_CategoryName",
+        displayExpr: "CategoryName",
         placeholder: t("Select"),
       },
     },
@@ -334,25 +353,6 @@ export const Post_ManagerPage = () => {
       },
     },
   ];
-
-  const handleDeleteRows = async (rows: any) => {
-    const dataDelete = {
-      KB_Post: {
-        ...rows[0],
-      },
-    };
-    const resp = await api.KB_PostData_Delete(dataDelete);
-    if (resp.isSuccess) {
-      toast.success(t("Delete Successfully"));
-      await refetch();
-    } else {
-      showError({
-        message: t(resp.errorCode),
-        debugInfo: resp.debugInfo,
-        errorInfo: resp.errorInfo,
-      });
-    }
-  };
 
   const handleSetField = useCallback(
     (titleButton: string, ref: any) => {
@@ -375,6 +375,36 @@ export const Post_ManagerPage = () => {
     onSetStatus: handleSetField,
   });
 
+  const showPopUpDelete = (data: any) => {
+    let result = confirm(
+      `<i>${t("Bạn có muốn xóa bản ghi này ?")}</i>`,
+      `${t("Xóa bài viết")}`
+    );
+    result.then((dialogResult) => {
+      if (dialogResult) {
+        handleDeleteRows(data);
+      }
+    });
+  };
+  const handleDeleteRows = async (rows: any) => {
+    const dataDelete = {
+      KB_Post: {
+        PostCode: rows[0].PostCode,
+        OrgID: rows[0].OrgID,
+      },
+    };
+    const resp = await api.KB_PostData_Delete(dataDelete);
+    if (resp.isSuccess) {
+      toast.success(t("Delete Successfully"));
+      await refetch();
+    } else {
+      showError({
+        message: t(resp.errorCode),
+        debugInfo: resp.debugInfo,
+        errorInfo: resp.errorInfo,
+      });
+    }
+  };
   const handleSelectionChanged = (rows: string[]) => {
     setSelectedItems(rows);
   };
@@ -471,22 +501,41 @@ export const Post_ManagerPage = () => {
   // End Section: CRUD operations
 
   const handleSearch = async (data: any) => {
-    setSearchCondition({
+    const dataSearch = {
       ...data,
-      FlagEdit: data?.FlagEdit ? "1" : "0",
+      FlagEdit: data?.FlagEdit === true ? "1" : "0",
       Tag: data.Tag ?? data.Tag.join(","),
       ShareType: data.ShareType ?? data.ShareType.join(","),
       LogLUBy: data.LogLUBy ?? data.LogLUBy.join(","),
       PostStatus: data.PostStatus ?? data.PostStatus.join(","),
       CreateBy: data.CreateBy ?? data.CreateBy.join(","),
-    });
+      // CreateDTimeUTCTo: data?.TimeCreate.length
+      //   ? data?.TimeCreate[1] !== ""
+      //     ? format(data?.TimeCreate[1], "yyyy-MM-dd")
+      //     : ""
+      //   : "",
+      // CreateDTimeUTCFrom: data?.TimeCreate.length
+      //   ? data?.TimeCreate[0] !== ""
+      //     ? format(data?.TimeCreate[0], "yyyy-MM-dd")
+      //     : ""
+      //   : "",
+      // LogLUDTimeUTCTo: data?.TimeUpdate.length
+      //   ? data?.TimeUpdate[1] !== ""
+      //     ? format(data?.TimeUpdate[1], "yyyy-MM-dd")
+      //     : ""
+      //   : "",
+      // LogLUDTimeUTCFrom: data?.TimeUpdate.length
+      //   ? data?.TimeUpdate[0] !== ""
+      //     ? format(data?.TimeUpdate[0], "yyyy-MM-dd")
+      //     : ""
+      //   : "",
+    };
 
+    setSearchCondition(dataSearch);
+    console.log(dataSearch);
     await refetch();
   };
-  const handleOnEditRow = (e: any) => {
-    const { row, column } = e;
-    handleEdit(row.rowIndex);
-  };
+
   const handleEditRowChanges = () => {
     console.log("a");
   };
@@ -518,14 +567,12 @@ export const Post_ManagerPage = () => {
       <AdminContentLayout.Slot name={"Content"}>
         <ContentSearchPanelLayout>
           <ContentSearchPanelLayout.Slot name={"SearchPanel"}>
-            <div className={"w-[230px]"}>
-              <SearchPanelV2
-                storeKey="Post_Manager_Search"
-                conditionFields={formItems}
-                data={searchCondition}
-                onSearch={handleSearch}
-              />
-            </div>
+            <SearchPanelV2
+              storeKey="Post_Manager_Search"
+              conditionFields={formItems}
+              data={searchCondition}
+              onSearch={handleSearch}
+            />
           </ContentSearchPanelLayout.Slot>
           <ContentSearchPanelLayout.Slot name={"ContentPanel"}>
             <GridViewCustomize
@@ -548,7 +595,7 @@ export const Post_ManagerPage = () => {
               allowInlineEdit={true}
               onEditRowChanges={handleEditRowChanges}
               // onDeleteRows={handleDeleteRows}
-              isSingleSelection={false}
+              isSingleSelection={true}
               // inlineEditMode="row"
               // showCheck="always"
               toolbarItems={[
@@ -571,7 +618,7 @@ export const Post_ManagerPage = () => {
                   },
                   onClick: (e: any, ref: any) => {
                     const selectedRow = ref.instance.getSelectedRowsData();
-                    handleDeleteRows(selectedRow);
+                    showPopUpDelete(selectedRow);
                   },
                 },
               ]}

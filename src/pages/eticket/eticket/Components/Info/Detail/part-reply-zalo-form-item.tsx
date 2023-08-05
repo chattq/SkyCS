@@ -10,19 +10,6 @@ interface Props {
   listSubmissionForm: any;
 }
 
-// {
-//   "SubFormCode": "DANHGIA",
-//   "ParamSFCodeZNS": "CustomerName",
-//   "SourceDataType": "INPUT",
-//   "ParamSFCode": "CustomerName",
-//   "ParamValue": null,
-//   "ParamSFName": "Tên KH",
-//   "ParamSFType": "ET_TicketCustomer",
-//   "FlagActive": "1",
-//   "LogLUDTimeUTC": "2023-07-11 10:36:58",
-//   "LogLUBy": "0317844394@INOS.VN"
-// },
-
 const PartReplyFormItem = ({
   item: itemValue,
   listSubmissionForm,

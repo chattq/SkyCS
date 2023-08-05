@@ -245,10 +245,11 @@ export const Sys_GroupPage = () => {
 
   const columnsUser: ColumnOptions[] = [
     {
-      dataField: "ObjectCode",
-      caption: t("ObjectCode"),
+      dataField: "ObjectName",
+      caption: t("ObjectName"),
     },
   ];
+
   return (
     <AdminContentLayout className={"Sys_Group"}>
       <AdminContentLayout.Slot name={"Header"}>

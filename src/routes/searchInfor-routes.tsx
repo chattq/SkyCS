@@ -13,17 +13,8 @@ import { RouteItem } from "@/types";
 
 export const searchRoutes: RouteItem[] = [
   {
-    key: "search",
-    path: "search",
-    mainMenuTitle: "search",
-    mainMenuKey: "search",
-    permissionCode: "",
-    getPageElement: () => <AdminPage />,
-  },
-  {
     key: "SearchMSTPage",
     path: "search/SearchInformation",
-    subMenuTitle: "Search Information",
     mainMenuKey: "search",
     permissionCode: "",
     getPageElement: () => <SearchMSTPage />,

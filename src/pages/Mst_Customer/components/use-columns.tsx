@@ -62,7 +62,7 @@ export const useColumn = ({
       index: expectedIndexLookup[obj?.dataField],
     }));
     sortedInit.sort((a: any, b: any) => a.index - b.index);
-
+    console.log("sortedInit", sortedInit);
     return sortedInit;
   }
 

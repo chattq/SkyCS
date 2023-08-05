@@ -80,6 +80,10 @@
 .message-type.zaloin,
 .message-type.zaloout {
   background: rgba(218, 242, 255, 1);
+  svg {
+    width: 20px;
+    height: 20px;
+  }
   i {
     background-image: url(@packages/ui/icons/svg/zalo.svg);
   }
@@ -91,6 +95,10 @@
 
 .message-type.CallMissedIn {
   background: rgba(255, 232, 238, 1);
+}
+
+.part-detail-info-value {
+  color: #0e223d;
 }
 
 .message-type.CallMissingOut {

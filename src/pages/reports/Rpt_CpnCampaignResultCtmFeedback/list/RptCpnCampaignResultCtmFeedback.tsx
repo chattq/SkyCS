@@ -35,44 +35,24 @@ import { useBankDealerGridColumns } from "../components/use-columns";
 import { SearchPanelV2 } from "@/packages/ui/search-panel";
 
 import { nanoid } from "nanoid";
-import { CheckBox, DateBox, SelectBox } from "devextreme-react";
+import { CheckBox, DateBox, DateRangeBox, SelectBox } from "devextreme-react";
 
 import FilterDropdown from "@/packages/ui/base-gridview/FilterDropdown";
 import { format, set } from "date-fns";
 import { GridViewCustomize } from "@/packages/ui/base-gridview/gridview-customize";
-
-function generateMonthData(): Date[] {
-  const startYear = 1990;
-  const startMonth = 0; // January (0-based index)
-  const currentYear = new Date().getFullYear();
-  const monthData: Date[] = [];
-
-  for (let year = currentYear; year >= startYear; year--) {
-    const start = year === startYear ? startMonth : 11;
-    for (let month = start; month >= 0; month--) {
-      const date = set(new Date(), {
-        year: year,
-        month: month,
-        date: 1,
-      });
-      if (date <= new Date()) {
-        monthData.push(date);
-      }
-    }
-  }
-  return monthData;
-}
-
-const monthYearDs = generateMonthData();
+import { getFirstDateOfMonth } from "@/components/ulti";
 
 export const RptCpnCampaignResultCtmFeedbackPage = () => {
   const { t } = useI18n("RptCpnCampaignResultCtmFeedback");
   let gridRef: any = useRef(null);
   const config = useConfiguration();
   const showError = useSetAtom(showErrorAtom);
-  const [searchCondition] = useState<any>({} as any);
+  const [searchCondition] = useState<any>({
+    CampaignTypeCode: "",
+    CampaignCodeConditionList: "",
+    MonthReport: [null, null],
+  } as any);
   const setSelectedItems = useSetAtom(selectedItemsAtom);
-  const [CampaignTypeCode, setCampaignTypeCode] = useState<string>();
   const api = useClientgateApi();
 
   const [searchConditionListType, setSearchCondition] = useState<any>({
@@ -82,15 +62,18 @@ export const RptCpnCampaignResultCtmFeedbackPage = () => {
     CampaignTypeName: "",
     CampaignTypeDesc: "",
   });
+  const msInDay = 1000 * 60 * 60 * 24;
+  const now = new Date();
+  const startDate = new Date(now.getTime());
+  const endDate = new Date(now.getTime());
 
   const { data: listMst_CampaignType } = useQuery(
-    ["listMst_CampaignType", JSON.stringify(searchCondition)],
+    ["listMst_CampaignType"],
     () =>
       api.Mst_CampaignType_Search({
         ...searchConditionListType,
       })
   );
-
   const { data, isLoading, refetch } = useQuery({
     queryKey: [
       "RptCpnCampaignResultCtmFeedback",
@@ -98,18 +81,18 @@ export const RptCpnCampaignResultCtmFeedbackPage = () => {
     ],
     queryFn: async () => {
       const resp = await api.Rpt_CpnCampaignResultCtmFeedback_Search({
-        CampaignCodeConditionList: searchCondition.CampaignCodeConditionList
-          ? searchCondition.CampaignCodeConditionList
-          : "",
         CampaignTypeCode: searchCondition.CampaignTypeCode
           ? searchCondition.CampaignTypeCode
           : "",
-        ReportDTimeTo: searchCondition.ReportDTimeTo
-          ? format(searchCondition.ReportDTimeTo, "yyyy-MM-dd")
+        CampaignCodeConditionList: searchCondition.CampaignCodeConditionList
+          ? searchCondition.CampaignCodeConditionList.join(",")
           : "",
-        ReportDTimeFrom: searchCondition.ReportDTimeFrom
-          ? format(searchCondition.ReportDTimeFrom, "yyyy-MM-dd")
-          : "",
+        ReportDTimeFrom: searchCondition.MonthReport[0]
+          ? format(searchCondition.MonthReport[0], "yyyy-MM-dd")
+          : getFirstDateOfMonth(endDate),
+        ReportDTimeTo: searchCondition.MonthReport[1]
+          ? format(searchCondition.MonthReport[1], "yyyy-MM-dd")
+          : format(endDate, "yyyy-MM-dd"),
       });
       return resp;
     },
@@ -139,7 +122,7 @@ export const RptCpnCampaignResultCtmFeedbackPage = () => {
       ) || [],
   });
 
-  const formItems: IItemProps[] = useMemo(() => {
+  const formItems: any[] = useMemo(() => {
     return [
       {
         dataField: "MonthReport",
@@ -148,44 +131,28 @@ export const RptCpnCampaignResultCtmFeedbackPage = () => {
         label: {
           text: t("Time create"),
         },
-        editorType: "dxDateBox",
+        editorType: "dxDateRangeBox",
+        editorOptions: {
+          type: "date",
+          displayFormat: "yyyy-MM-dd",
+        },
         render: ({ editorOptions, component: formRef }: any) => {
           return (
-            <div className={"flex items-center"}>
-              <DateBox
-                className="pr-[3px]"
-                {...editorOptions}
-                type="date"
-                displayFormat="yyyy-MM-dd"
-                defaultValue={searchCondition.ReportDTimeFrom}
-                onValueChanged={(e: any) => {
-                  formRef.instance().updateData("ReportDTimeFrom", e.value);
-                }}
-              ></DateBox>
-              -
-              <DateBox
-                {...editorOptions}
-                type="date"
-                displayFormat="yyyy-MM-dd"
-                defaultValue={searchCondition.ReportDTimeTo}
-                onValueChanged={(e: any) => {
-                  formRef.instance().updateData("ReportDTimeTo", e.value);
-                }}
-              ></DateBox>
-            </div>
+            <DateRangeBox
+              displayFormat=" yyyy-MM-dd"
+              defaultStartDate={
+                searchCondition.MonthReport[0] || getFirstDateOfMonth(startDate)
+              }
+              defaultEndDate={searchCondition.MonthReport[1] || endDate}
+              showClearButton={true}
+              useMaskBehavior={true}
+              openOnFieldClick={true}
+              labelMode="hidden"
+              onValueChanged={(e: any) => {
+                formRef.instance().updateData("MonthReport", e.value);
+              }}
+            />
           );
-        },
-        editorOptions: {
-          placeholder: t("Input"),
-          type: "date",
-          format: "yyyy-MM-dd",
-          dataSource: monthYearDs,
-          displayExpr: (item: Date | null) => {
-            if (!!item) {
-              return format(item, "yyyy-MM");
-            }
-            return "";
-          },
         },
       },
       {
@@ -219,7 +186,7 @@ export const RptCpnCampaignResultCtmFeedbackPage = () => {
         },
       },
     ];
-  }, [listMst_CampaignType]);
+  }, [listMst_CampaignType, CampaignList]);
 
   const handleDeleteRows = async (rows: any) => {
     console.log(175, rows);
@@ -324,15 +291,19 @@ export const RptCpnCampaignResultCtmFeedbackPage = () => {
   };
   const handleEditRowChanges = () => {};
   const handleExportExcel = async () => {
-    // instance.getSelectedRowsData()
-    const dataSelects = gridRef.current.instance.getSelectedRowsData();
-    const CampaignCodeConditionList = dataSelects.map(
-      (item: any) => item.CAMPAIGNCODE
-    );
     const resp = await api.Rpt_CpnCampaignResultCtmFeedback_ExportExcel({
-      CampaignTypeCode:
-        searchCondition.CampaignTypeCode ?? searchCondition.CampaignTypeCode,
-      CampaignCodeConditionList,
+      CampaignTypeCode: searchCondition.CampaignTypeCode
+        ? searchCondition.CampaignTypeCode
+        : "",
+      CampaignCodeConditionList: searchCondition.CampaignCodeConditionList
+        ? searchCondition.CampaignCodeConditionList.join(",")
+        : "",
+      ReportDTimeFrom: searchCondition.MonthReport[0]
+        ? format(searchCondition.MonthReport[0], "yyyy-MM-dd")
+        : getFirstDateOfMonth(endDate),
+      ReportDTimeTo: searchCondition.MonthReport[1]
+        ? format(searchCondition.MonthReport[1], "yyyy-MM-dd")
+        : format(endDate, "yyyy-MM-dd"),
     });
     if (resp.isSuccess) {
       toast.success(t("Download Successfully"));
@@ -358,14 +329,12 @@ export const RptCpnCampaignResultCtmFeedbackPage = () => {
       <AdminContentLayout.Slot name={"Content"}>
         <ContentSearchPanelLayout>
           <ContentSearchPanelLayout.Slot name={"SearchPanel"}>
-            <div className={"w-[230px]"}>
-              <SearchPanelV2
-                storeKey="RptCpnCampaignResultCtmFeedback_Search"
-                conditionFields={formItems}
-                data={searchCondition}
-                onSearch={handleSearch}
-              />
-            </div>
+            <SearchPanelV2
+              storeKey="RptCpnCampaignResultCtmFeedback_Search"
+              conditionFields={formItems}
+              data={searchCondition}
+              onSearch={handleSearch}
+            />
           </ContentSearchPanelLayout.Slot>
           <ContentSearchPanelLayout.Slot name={"ContentPanel"}>
             <GridViewCustomize
@@ -387,7 +356,8 @@ export const RptCpnCampaignResultCtmFeedbackPage = () => {
               onEditRowChanges={handleEditRowChanges}
               onDeleteRows={handleDeleteRows}
               // inlineEditMode="row"
-
+              isHiddenCheckBox={true}
+              isSingleSelection={false}
               toolbarItems={[
                 {
                   location: "before",

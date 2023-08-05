@@ -7,7 +7,7 @@ export enum ViewMode {
   Readonly = "readonly",
   Edit = "edit",
 }
-
+export const showPopup = atom<boolean>(false);
 export const viewingRowAtom = atom<number | undefined>(undefined);
 export const viewingItemAtom = atom<Rpt_CpnCampaignResultCallData | undefined>(
   undefined

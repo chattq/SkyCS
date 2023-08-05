@@ -28,6 +28,9 @@ export default function InputSearch(hidenInput: any) {
   const [searchQuery, setKeySearch] = useAtom(keySearchAtom);
   const navigate = useNetworkNavigate();
   const api = useClientgateApi();
+  const [select, setSelect] = useState(
+    t(`Say 'Lookup igoss' to start a voice search`)
+  );
 
   const handleSpeechRecognition = async () => {
     setSearchVoice("Active");
@@ -56,6 +59,7 @@ export default function InputSearch(hidenInput: any) {
 
     recognition.onerror = (event: any) => {
       console.error("Speech recognition error:", event.error);
+      setSelect(t(`Không nhận dạng được giọng nói! Vui lòng thử lại...!`));
     };
   };
 
@@ -109,8 +113,18 @@ export default function InputSearch(hidenInput: any) {
     setSearchTerm(event.target.value);
   };
 
+  useEffect(() => {
+    if (searchVoice === "Active") {
+      // console.log(searchVoice);
+      setSelect(t(`Please say`));
+    }
+    if (searchQuery !== "" && tabResults === "Results") {
+      setSelect(t(`Looking for: "${searchQuery}"`));
+    }
+  }, [searchVoice, tabResults]);
+
   return (
-    <div className="flex justify-center">
+    <div className="flex justify-center ">
       <div>
         <div
           className={`${
@@ -162,13 +176,7 @@ export default function InputSearch(hidenInput: any) {
             </div>
           </div>
         </div>
-        <div className="text-center py-3">
-          {searchQuery !== "" && tabResults !== "Results"
-            ? searchVoice === "inActive"
-              ? t(`Say 'Lookup igoss' to start a voice search`)
-              : t(`Please say`)
-            : t(`Looking for: "${searchQuery}"`)}
-        </div>
+        <div className="text-center py-3">{select}</div>
         <div className="flex items-center justify-center gap-3 mb-[30px]">
           {tabResults === "Results" ? (
             <NavNetworkLink to={"/search/SearchInformation/Results"}>

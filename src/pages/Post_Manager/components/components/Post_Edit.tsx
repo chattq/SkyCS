@@ -22,7 +22,11 @@ import { currentInfo, refechAtom } from "../store";
 import { useAtomValue, useSetAtom } from "jotai";
 import { authAtom, showErrorAtom } from "@/packages/store";
 import { format } from "date-fns";
-import { encodeFileType, getYearMonthDate } from "@/components/ulti";
+import {
+  encodeFileType,
+  getYearMonthDate,
+  revertEncodeFileType,
+} from "@/components/ulti";
 import { extractCategoryCode, transformCategory } from "./FormatCategory";
 import { toast } from "react-toastify";
 import { useNavigate, useParams } from "react-router-dom";
@@ -154,6 +158,7 @@ export default function Post_Edit() {
             {
               dataField: "Detail",
               editorOptions: {},
+              validationRules: [requiredType],
               render: (param: any) => {
                 const { component: formComponent, dataField } = param;
                 return (
@@ -168,45 +173,56 @@ export default function Post_Edit() {
                     <MediaResizing enabled={true} />
                     <ImageUpload fileUploadMode="base64" tabs={["file"]} />
                     <Toolbar>
-                      <ItemEditor name="undo" />
-                      <ItemEditor name="redo" />
-                      <ItemEditor name="separator" />
-                      <ItemEditor name="size" acceptedValues={sizeValues} />
-                      <ItemEditor name="font" acceptedValues={fontValues} />
-                      <ItemEditor name="separator" />
-                      <ItemEditor name="bold" />
-                      <ItemEditor name="italic" />
-                      <ItemEditor name="strike" />
-                      <ItemEditor name="underline" />
-                      <ItemEditor name="separator" />
-                      <ItemEditor name="alignLeft" />
-                      <ItemEditor name="alignCenter" />
-                      <ItemEditor name="alignRight" />
-                      <ItemEditor name="alignJustify" />
-                      <ItemEditor name="separator" />
-                      <ItemEditor name="orderedList" />
-                      <ItemEditor name="bulletList" />
-                      <ItemEditor name="separator" />
+                      <ItemEditor name="undo" cssClass="itemHTML" />
+                      <ItemEditor name="redo" cssClass="itemHTML" />
+                      <ItemEditor name="separator" cssClass="itemHTML" />
+                      <ItemEditor
+                        name="size"
+                        cssClass="itemHTML"
+                        acceptedValues={sizeValues}
+                      />
+                      <ItemEditor
+                        name="font"
+                        cssClass="itemHTML"
+                        acceptedValues={fontValues}
+                      />
+                      <ItemEditor name="separator" cssClass="itemHTML" />
+                      <ItemEditor name="bold" cssClass="itemHTML" />
+                      <ItemEditor name="italic" cssClass="itemHTML" />
+                      <ItemEditor name="strike" cssClass="itemHTML" />
+                      <ItemEditor name="underline" cssClass="itemHTML" />
+                      <ItemEditor name="separator" cssClass="itemHTML" />
+                      <ItemEditor cssClass="itemHTML" name="alignLeft" />
+                      <ItemEditor cssClass="itemHTML" name="alignCenter" />
+                      <ItemEditor cssClass="itemHTML" name="alignRight" />
+                      <ItemEditor cssClass="itemHTML" name="alignJustify" />
+                      <ItemEditor cssClass="itemHTML" name="separator" />
+                      <ItemEditor cssClass="itemHTML" name="orderedList" />
+                      <ItemEditor cssClass="itemHTML" name="bulletList" />
+                      <ItemEditor cssClass="itemHTML" name="separator" />
                       {/* <Item name="header" acceptedValues={headerValues} /> */}
-                      <ItemEditor name="separator" />
-                      <ItemEditor name="color" />
-                      <ItemEditor name="background" />
-                      <ItemEditor name="separator" />
-                      <ItemEditor name="link" />
-                      <ItemEditor name="image" />
+                      <ItemEditor cssClass="itemHTML" name="separator" />
+                      <ItemEditor cssClass="itemHTML" name="color" />
+                      <ItemEditor cssClass="itemHTML" name="background" />
+                      <ItemEditor cssClass="itemHTML" name="separator" />
+                      <ItemEditor cssClass="itemHTML" name="link" />
+                      <ItemEditor cssClass="itemHTML" name="image" />
                       <Item name="separator" />
-                      <ItemEditor name="clear" />
-                      <ItemEditor name="codeBlock" />
-                      <ItemEditor name="blockquote" />
-                      <ItemEditor name="separator" />
-                      <ItemEditor name="insertTable" />
-                      <ItemEditor name="deleteTable" />
-                      <ItemEditor name="insertRowAbove" />
-                      <ItemEditor name="insertRowBelow" />
-                      <ItemEditor name="deleteRow" />
-                      <ItemEditor name="insertColumnLeft" />
-                      <ItemEditor name="insertColumnRight" />
-                      <ItemEditor name="deleteColumn" />
+                      <ItemEditor cssClass="itemHTML" name="clear" />
+                      <ItemEditor cssClass="itemHTML" name="codeBlock" />
+                      <ItemEditor cssClass="itemHTML" name="blockquote" />
+                      <ItemEditor cssClass="itemHTML" name="separator" />
+                      <ItemEditor cssClass="itemHTML" name="insertTable" />
+                      <ItemEditor cssClass="itemHTML" name="deleteTable" />
+                      <ItemEditor cssClass="itemHTML" name="insertRowAbove" />
+                      <ItemEditor cssClass="itemHTML" name="insertRowBelow" />
+                      <ItemEditor cssClass="itemHTML" name="deleteRow" />
+                      <ItemEditor cssClass="itemHTML" name="insertColumnLeft" />
+                      <ItemEditor
+                        cssClass="itemHTML"
+                        name="insertColumnRight"
+                      />
+                      <ItemEditor cssClass="itemHTML" name="deleteColumn" />
                     </Toolbar>
                   </HtmlEditor>
                 );
@@ -225,15 +241,15 @@ export default function Post_Edit() {
               editorOptions: {
                 readOnly: true,
               },
-              render: (param: any) => {
-                const { component: formComponent, dataField } = param;
+              render: (paramValue: any) => {
+                const { component: formComponent, dataField } = paramValue;
                 return (
                   <UploadFilesField
-                    // readonly={true}
-
                     formInstance={formComponent}
+                    readonly={false}
+                    controlFileInput={["DOCX", "PDF", "JPG", "PNG", "XLSX"]}
                     onValueChanged={(files: any) => {
-                      formComponent.updateData("UploadFiles", files);
+                      formComponent.updateData(dataField, files);
                     }}
                   />
                 );
@@ -277,6 +293,7 @@ export default function Post_Edit() {
               editorType: "dxSelectBox",
               caption: t("PostStatus"),
               visible: true,
+              validationRules: [requiredType],
             },
             {
               dataField: "ShareType",
@@ -289,6 +306,7 @@ export default function Post_Edit() {
               editorType: "dxSelectBox",
               caption: t("ShareType"),
               visible: true,
+              validationRules: [requiredType],
             },
             {
               dataField: "Category",
@@ -296,6 +314,7 @@ export default function Post_Edit() {
               editorOptions: {
                 placeholder: t("Input Select"),
               },
+              validationRules: [requiredType],
               render: (param: any) => {
                 const { component: formComponent, dataField } = param;
                 return (
@@ -380,7 +399,7 @@ export default function Post_Edit() {
     const newTag = resp?.Data?.Lst_Mst_Tag?.filter((item: any) =>
       formData2?.Tags?.includes(item?.TagName)
     );
-    console.log(formData2?.Tags);
+
     const dataSave = {
       KB_Post: {
         PostCode: idPostEdit,
@@ -393,7 +412,7 @@ export default function Post_Edit() {
         PostStatus: formData2.PostStatus ?? "",
       },
       Lst_KB_PostCategory: formData2
-        ? extractCategoryCode(formData2?.Category).map((item: any) => ({
+        ? formData2?.Category.map((item: any) => ({
             CategoryCode: item?.CategoryCode,
           }))
         : [],
@@ -402,29 +421,48 @@ export default function Post_Edit() {
           ? newTag?.map((item: any) => ({
               TagID: item.TagID,
             }))
-          : [],
+          : listTag.map((item: any) => ({
+              TagID: item.TagID,
+            })),
       Lst_KB_PostAttachFile: formData?.UploadFiles
         ? formData?.UploadFiles.map((item: any, index: any) => ({
             Idx: (index + 1)?.toString(),
             FileName: item?.FileFullName,
-            FilePath: item?.FileUrlFS,
-            FileType: item?.FileType,
+            FilePath: item?.FileUrlFS || item.FilePath,
+            FileType: revertEncodeFileType(item?.FileType),
           }))
-        : dataCurrent?.uploadFiles ?? [],
+        : dataCurrent?.uploadFiles.map((item: any, index: any) => ({
+            Idx: (index + 1)?.toString(),
+            FileName: item?.FileName,
+            FilePath: item?.FilePath,
+            FileType: revertEncodeFileType(item?.FileType),
+          })) ?? [],
     };
-    const respDataSave = await api.KB_PostData_Update(dataSave);
-    if (respDataSave.isSuccess) {
-      toast.success(t("Edit Successfully"));
-      setRefech(true);
-      navigate(`/${auth.networkId}/admin/Post_Manager`);
-      return true;
+
+    if (
+      dataSave.Lst_KB_PostCategory?.length !== 0 &&
+      dataSave.KB_Post.Detail !== "" &&
+      dataSave.KB_Post.Title !== ""
+    ) {
+      const respDataSave = await api.KB_PostData_Update(dataSave);
+
+      if (respDataSave.isSuccess) {
+        toast.success(t("Edit Successfully"));
+        setRefech(true);
+        navigate(`/${auth.networkId}/admin/Post_Manager`);
+        return true;
+      }
+      showError({
+        message: t(respDataSave.errorCode),
+        debugInfo: respDataSave.debugInfo,
+        errorInfo: respDataSave.errorInfo,
+      });
+      throw new Error(respDataSave.errorCode);
+    } else if (dataSave.KB_Post.Detail === "") {
+      toast.error(t("Chi tiết bài viết không được để trống!"));
+    } else if (dataSave.Lst_KB_PostCategory?.length === 0) {
+      toast.error(t("Danh mục không được để trống!"));
     }
-    showError({
-      message: t(respDataSave.errorCode),
-      debugInfo: respDataSave.debugInfo,
-      errorInfo: respDataSave.errorInfo,
-    });
-    throw new Error(respDataSave.errorCode);
   };
   return (
     <AdminContentLayout className={"Post_Manager"}>

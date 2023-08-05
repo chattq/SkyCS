@@ -19,7 +19,7 @@ import { useQuery } from "@tanstack/react-query";
 import { showErrorAtom } from "@/packages/store";
 import { ColumnOptions } from "@/types";
 import { GridViewCustomize } from "@/packages/ui/base-gridview/gridview-customize";
-
+import "./style.scss";
 interface Props {
   param: any;
   onCancel: () => void;
@@ -70,8 +70,6 @@ const History_Call = ({ onCancel, param }: Props) => {
     },
   });
 
-  console.log("param ", param);
-
   const columns = useMemo(() => {
     return [
       {
@@ -115,30 +113,33 @@ const History_Call = ({ onCancel, param }: Props) => {
       position={"center"}
       showCloseButton={true}
       onHiding={onCancel}
-      title={`Add Field`}
+      title={`${param.data.CustomerName} - ${param.data.AgentName}`}
       width={900}
-      height={700}
+      height={500}
       visible={popupVisible}
     >
+      <p className="popup-history-title">{t("History Call")}</p>
       {/* <ScrollView className="popup-customer-content" width={"100%"}> */}
-      <GridViewCustomize
-        isLoading={isLoading}
-        dataSource={data?.isSuccess ? data.Data : []}
-        columns={columns}
-        keyExpr={["CampaignCode", "AgentCode"]}
-        onReady={(ref: any) => (gridRef = ref)}
-        allowSelection={true}
-        onSelectionChanged={() => {}}
-        onSaveRow={() => {}}
-        onEditorPreparing={() => {}}
-        onEditRowChanges={() => {}}
-        onDeleteRows={() => {}}
-        onEditRow={() => {}}
-        storeKey={"popup-history"}
-        isSingleSelection
-        toolbarItems={[]}
-        isHiddenCheckBox={true}
-      />
+      <div className="grid-history">
+        <GridViewCustomize
+          isLoading={isLoading}
+          dataSource={data?.isSuccess ? data.Data : []}
+          columns={columns}
+          keyExpr={["CampaignCode", "AgentCode"]}
+          onReady={(ref: any) => (gridRef = ref)}
+          allowSelection={true}
+          onSelectionChanged={() => {}}
+          onSaveRow={() => {}}
+          onEditorPreparing={() => {}}
+          onEditRowChanges={() => {}}
+          onDeleteRows={() => {}}
+          onEditRow={() => {}}
+          storeKey={"popup-history"}
+          isSingleSelection
+          toolbarItems={[]}
+          isHiddenCheckBox={true}
+        />
+      </div>
       {/* </ScrollView> */}
 
       <ToolbarItem toolbar={"bottom"} location={"after"}>
