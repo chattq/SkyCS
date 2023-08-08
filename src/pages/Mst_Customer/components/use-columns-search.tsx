@@ -1,22 +1,16 @@
 import { useI18n } from "@/i18n/useI18n";
 import { useClientgateApi } from "@/packages/api";
 import { MdMetaColGroupSpec } from "@/packages/types";
-import {
-  mapCustomOptions,
-  mapEditorOption,
-  mapEditorType,
-} from "@/utils/customer-common";
 import { getDMY } from "@/utils/time";
 import { useQuery } from "@tanstack/react-query";
 import { DateBox } from "devextreme-react";
-import { match } from "ts-pattern";
 
 interface Columns {
   listColumn: MdMetaColGroupSpec[];
   listMapField: any;
 }
 
-export const useColumnsSearch = ({ listColumn, listMapField }: Columns) => {
+export const useColumnsSearch = () => {
   const { t } = useI18n("Mst_CustomerSearch");
 
   const sortedField = [
@@ -88,101 +82,159 @@ export const useColumnsSearch = ({ listColumn, listMapField }: Columns) => {
     api.Mst_Customer_GetAllActive
   );
 
-  const baseStaticField = listColumn
-    ?.filter((item: any) => item?.FlagIsColDynamic !== "1")
-    ?.filter((item: any) => item?.FlagActive)
-    ?.filter((item: any) =>
-      sortedField?.find((c: any) => c?.name == item?.ColCodeSys)
-    );
+  const { data: listNNT }: any = useQuery(
+    ["listNNT"],
+    api.Mst_NNTController_GetAllActive
+  );
 
-  const baseDynamicField = listColumn
-    ?.filter((item: any) => item?.FlagIsColDynamic === "1")
-    ?.filter((item: any) => item?.FlagActive)
-    ?.filter((item: any) =>
-      sortedField?.find((c: any) => c?.name == item?.ColCode)
-    );
+  const { data: listCustomerSource }: any = useQuery(
+    ["listCustomerSource"],
+    async () => {
+      const resp: any = await api.MdMetaColGroupSpec_Search(
+        {},
+        "SCRTPLCODESYS.2023"
+      );
 
-  const getListColumnSearch = [...baseStaticField, ...baseDynamicField]
-    .map((field: any) => {
-      return {
-        ...field,
-        ColOperatorType: field.ColOperatorType,
-        dataField: field.ColCodeSys,
-        caption: t(`${field.ColCaption}`),
-        editorType: mapEditorType(field.ColDataType!),
-        label: {
-          text: field.ColCaption,
-        },
-        validationMessagePosition: "bottom",
-        editorOptions: mapEditorOption({
-          field: field,
-          listDynamic: listMapField ?? {},
-        }),
-        idx: sortedField?.find((c: any) => c?.name == field?.ColCodeSys)?.idx,
-        visible: true,
-        // validationRules: mapValidationRules(field),
-        ...mapCustomOptions(field),
-      };
-    })
-    ?.map((item: any) => {
-      return match(item?.ColDataType)
-        .with("CUSTOMERTYPE", () => {
-          return {
-            ...item,
-            editorType: "dxSelectBox",
-            editorOptions: {
-              dataSource: listCustomerType?.Data?.Lst_Mst_CustomerType ?? [],
-              valueExpr: "CustomerType",
-              displayExpr: "CustomerTypeName",
-            },
-          };
-        })
-        .with("CUSTOMERGROUP", () => {
-          return {
-            ...item,
-            editorType: "dxTagBox",
-            editorOptions: {
-              dataSource: listCustomerGrp?.DataList ?? [],
-              valueExpr: "CustomerGrpCode",
-              displayExpr: "CustomerGrpName",
-            },
-          };
-        })
-        .with("PARTNERTYPE", () => {
-          return {
-            ...item,
-            editorType: "dxTagBox",
-            editorOptions: {
-              dataSource: listPartnerType?.DataList ?? [],
-              valueExpr: "PartnerType",
-              displayExpr: "PartnerTypeName",
-            },
-          };
-        })
-        .with("CUSTOMERCODESYSERP", () => {
-          return {
-            ...item,
-            editorType: "dxSelectBox",
-            editorOptions: {
-              dataSource: listCustomer?.DataList ?? [],
-              valueExpr: "CustomerCodeSys",
-              displayExpr: "CustomerName",
-            },
-          };
-        })
-        .with("CREATEDTIMEUTC", () => {
-          return {
-            ...item,
-            render: (param: any) => <CreateDTimeUTCSearch param={param} />,
-          };
-        })
-        .otherwise(() => {
-          return item;
-        });
-    })
-    ?.sort((a: any, b: any) => a?.idx - b?.idx);
+      if (resp?.DataList && resp?.DataList?.length > 0) {
+        const find = resp?.DataList?.find(
+          (item: any) => item?.ColCodeSys == "C0K5"
+        );
 
-  return getListColumnSearch;
+        if (find) {
+          const data = JSON.parse(find?.JsonListOption ?? "[]");
+
+          return data;
+        }
+
+        return [];
+      }
+
+      return [];
+    }
+  );
+
+  const listColumn: any = [
+    {
+      dataField: "CustomerCode", // trạng thái
+      caption: t("CustomerCode"),
+      label: {
+        text: "Mã khách hàng",
+      },
+      editorOptions: {},
+    },
+    {
+      dataField: "CustomerName", // trạng thái
+      caption: t("CustomerName"),
+      label: {
+        text: "Tên khách hàng",
+      },
+      editorOptions: {},
+    },
+    {
+      dataField: "MST", // trạng thái
+      caption: t("MST"),
+      label: {
+        text: "MST",
+      },
+      editorOptions: {},
+    },
+    {
+      dataField: "CtmEmail", // trạng thái
+      caption: t("CtmEmail"),
+      label: {
+        text: "Email",
+      },
+      editorOptions: {},
+    },
+    {
+      dataField: "CtmPhoneNo", // trạng thái
+      caption: t("CtmPhoneNo"),
+      label: {
+        text: "Số điện thoại",
+      },
+      editorOptions: {},
+    },
+    {
+      dataField: "CustomerGrpCode", // trạng thái
+      caption: t("CustomerGrpCode"),
+      label: {
+        text: "Nhóm khách hàng",
+      },
+      editorOptions: {
+        dataSource: listCustomerGrp?.DataList ?? [],
+        valueExpr: "CustomerGrpCode",
+        displayExpr: "CustomerGrpName",
+      },
+      editorType: "dxTagBox",
+    },
+    {
+      dataField: "PartnerType", // trạng thái
+      caption: t("PartnerType"),
+      label: {
+        text: "Đối tượng",
+      },
+      editorOptions: {
+        dataSource: listPartnerType?.DataList ?? [],
+        valueExpr: "PartnerType",
+        displayExpr: "PartnerTypeName",
+      },
+      editorType: "dxTagBox",
+    },
+    {
+      dataField: "CustomerSource", // trạng thái
+      caption: t("CustomerSource"),
+      label: {
+        text: "Nguồn khách",
+      },
+      editorOptions: {
+        dataSource: listCustomerSource ?? [],
+        valueExpr: "Value",
+        displayExpr: "Value",
+      },
+      editorType: "dxTagBox",
+    },
+    {
+      dataField: "CustomerType", // trạng thái
+      caption: t("CustomerType"),
+      label: {
+        text: "Loại khách hàng",
+      },
+      editorOptions: {
+        dataSource: listCustomerType?.Data?.Lst_Mst_CustomerType ?? [],
+        valueExpr: "CustomerType",
+        displayExpr: "CustomerTypeName",
+      },
+      editorType: "dxSelectBox",
+    },
+    {
+      dataField: "OrgId", // trạng thái
+      caption: t("OrgId"),
+      label: {
+        text: "Công ty",
+      },
+      editorOptions: {
+        dataSource: listNNT?.Data?.Lst_Mst_NNT ?? [],
+        valueExpr: "OrgID",
+        displayExpr: "NNTFullName",
+      },
+      editorType: "dxSelectBox",
+    },
+    {
+      dataField: "CreateDTimeUTC", // dealine
+      caption: t("CreateDTimeUTC"),
+      label: {
+        text: "Ngày tạo mới",
+      },
+      colSpan: 1,
+      editorType: "dxDateRangeBox",
+      editorOptions: {
+        type: "date",
+        format: "yyyy-MM-dd",
+      },
+    },
+  ];
+
+  return listColumn;
 };
 
 const CreateDTimeUTCSearch = ({ param }: any) => {

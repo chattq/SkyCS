@@ -104,6 +104,7 @@ UseBankDealerGridColumnsProps) => {
       },
       editorType: "dxTextBox",
       columnIndex: 2,
+      alignment: "right",
     },
     {
       groupKey: "BASIC_INFORMATION",

@@ -40,7 +40,7 @@ interface formValue {
   SLADesc: string;
   FirstResTime: number;
   ResolutionTime: number;
-  SLAStatus: "0" | "1";
+  SLAStatus: boolean;
 }
 
 export const defaultSLAHeaderForm: formValue = {
@@ -48,7 +48,7 @@ export const defaultSLAHeaderForm: formValue = {
   SLADesc: "",
   FirstResTime: -25200000,
   ResolutionTime: -25200000,
-  SLAStatus: "0",
+  SLAStatus: false,
 };
 
 export const headerForm = atom<formValue>(defaultSLAHeaderForm);

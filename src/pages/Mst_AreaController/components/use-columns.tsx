@@ -84,7 +84,7 @@ UseBankDealerGridColumnsProps) => {
         placeholder: t("Input"),
         maxLength: 100,
       },
-      columnIndex: 1,
+      columnIndex: 2,
     },
     {
       groupKey: "BASIC_INFORMATION",
@@ -111,7 +111,7 @@ UseBankDealerGridColumnsProps) => {
         maxLength: 500,
       },
       editorType: "dxTextArea",
-      columnIndex: 2,
+      columnIndex: 1,
     },
     {
       groupKey: "BASIC_INFORMATION",

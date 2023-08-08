@@ -33,7 +33,7 @@ export const PopupViewComponent = ({
   return (
     <PopupView
       visible={!!viewingItem.item}
-      title={t("View Mst_PaymentTermController")}
+      title={t("View Area_Controller")}
       handleEdit={handleEdit}
       handleCancel={handleCancel}
       formSettings={formSettings}

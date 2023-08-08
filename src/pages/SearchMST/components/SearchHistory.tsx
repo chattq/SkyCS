@@ -20,8 +20,8 @@ export default function SearchHistory() {
   const { pathname, search } = useLocation();
   const tabResults = pathname.split("/").pop();
   const { data, isLoading, refetch } = useQuery(
-    ["Post_Manager_History", tabResults],
-    () => api.KB_PostData_SearchMore("")
+    ["Search_Manager_History", tabResults],
+    () => api.KB_PostData_SearchMore()
   );
   const queryClient = useQueryClient();
   const handleLastView = async (item: any) => {
@@ -32,7 +32,7 @@ export default function SearchHistory() {
       },
     });
     queryClient.invalidateQueries({
-      queryKey: ["Post_Manager_History", tabResults],
+      queryKey: ["Search_Manager_History", tabResults],
     });
   };
 

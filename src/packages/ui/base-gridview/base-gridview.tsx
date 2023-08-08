@@ -365,7 +365,7 @@ const GridViewRaw = ({
           errorRowEnabled={false}
           cacheEnabled={false}
           id="gridContainer"
-          height={`${windowSize.height - 115}px`}
+          height={`${windowSize.height - 150}px`}
           width={"100%"}
           ref={(r) => setRef(r)}
           dataSource={dataSource}

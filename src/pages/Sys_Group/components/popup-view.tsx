@@ -5,13 +5,23 @@ import {
   dataFormAtom,
   dataFuntionAtom,
   dataTableAtom,
+  dataTableUserAtom,
+  dataUserAtom,
   flagEdit,
   showDetail,
   showInfoObjAtom,
   viewingDataAtom,
 } from "@/pages/Sys_Group/components/store";
 import { showPopup } from "@/pages/Sys_Group/components/store";
-import { Button, Form, List, Popup, ScrollView } from "devextreme-react";
+import {
+  Button,
+  CheckBox,
+  Form,
+  List,
+  LoadPanel,
+  Popup,
+  ScrollView,
+} from "devextreme-react";
 import { GroupItem, SimpleItem } from "devextreme-react/form";
 import DataGrid, {
   Column,
@@ -25,11 +35,12 @@ import DataGrid, {
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ToolbarItemProps } from "@/packages/ui/base-gridview";
 import { useClientgateApi } from "@/packages/api";
-import { showErrorAtom } from "@/packages/store";
+import { authAtom, showErrorAtom } from "@/packages/store";
 import { Icon } from "@/packages/ui/icons";
 import { showPopupUser } from "@/pages/User_Mananger/components/store";
 import { toast } from "react-toastify";
 import { useQuery } from "@tanstack/react-query";
+import { GridViewCustomize } from "@/packages/ui/base-gridview/gridview-customize";
 
 export interface DealerPopupViewProps {
   onEdit: any;
@@ -50,6 +61,7 @@ export const PopupViewDetail = ({
   dataUnassigned,
   actualColumns,
 }: DealerPopupViewProps) => {
+  let gridRef: any = useRef<any>(null);
   const flagCheckCRUD = useAtomValue(flagEdit);
   const popupVisible = useAtomValue(showPopup);
   const popupVisibleUser = useAtomValue(showPopupUser);
@@ -61,10 +73,15 @@ export const PopupViewDetail = ({
   const { t } = useI18n("Common");
   const dataRef = useRef<any>(null);
   const [viewingItem, setViewingItem] = useAtom(viewingDataAtom);
-  const [dataTable, setDataTable] = useAtom(dataTableAtom);
+  const [dataTable, setDataTable] = useAtom(dataTableUserAtom);
   const [dataForm, setDataForm] = useAtom(dataFormAtom);
   const setPopupVisible = useSetAtom(showPopup);
-  const [total, setTotal] = useState(0);
+  const [dataUser, setDataUser] = useAtom(dataUserAtom);
+  const [userSelect, setUserSelect] = useAtom(dataTableAtom);
+
+  const [hidenPopupAddUser, setHidenPopupAddUser] = useState(false);
+  const [hidenTableInfor, setHidenTableInfor] = useState(false);
+  const auth = useAtomValue(authAtom);
 
   const setPopupVisibleUser = useSetAtom(showPopupUser);
   const dataGrid = useRef<any>(null);
@@ -78,14 +95,40 @@ export const PopupViewDetail = ({
   const [selectItem, setSelectItems] = useState<any>([]);
 
   const backUpColumns = useRef<any>();
+
+  const {
+    data: listUser,
+    isLoading,
+    refetch,
+  } = useQuery(["listDataUser"], () => api.Sys_User_GetAllActive());
+
+  useEffect(() => {
+    if (listUser && flagCheckCRUD === true) {
+      setDataUser(
+        listUser?.DataList?.filter(
+          (item) => item.OrgID === auth.orgId.toString()
+        )
+      );
+    }
+    if (listUser && flagCheckCRUD === false) {
+      setDataUser(
+        listUser?.DataList?.filter(
+          (item) =>
+            !dataTable.some(
+              (arrItem: any) => arrItem.UserCode === item.UserCode
+            )
+        ).filter((item) => item.OrgID === auth.orgId.toString())
+      );
+    }
+  }, [listUser, flagCheckCRUD]);
+
   useEffect(() => {
     if (dataFuntion && showInfoObj === false) {
       setSelectItems(dataFuntion);
-
-      backUpColumns.current = dataFuntion;
-      // dataGrid.current?.instance.selectRows(
-      //   dataFuntion.map((item: any) => item.ObjectCode)
-      // );
+      // backUpColumns.current = dataFuntion;
+      dataGrid.current?.instance.selectRows(
+        dataFuntion.map((item: any) => item.ObjectCode)
+      );
     }
     if (showInfoObj === true) {
       setSelectItems([]);
@@ -95,7 +138,16 @@ export const PopupViewDetail = ({
 
     if (listGroup?.Data && detailForm === true) {
       setSelectItems(listGroup?.Data?.Lst_Sys_Access);
-      setDataTable(listGroup?.Data?.Lst_Sys_UserInGroup);
+      setDataTable(
+        listGroup?.Data?.Lst_Sys_UserInGroup?.map((item: any) => {
+          return {
+            EMail: item.UserCode,
+            UserName: item.su_UserName,
+            PhoneNo: item.PhoneNo,
+            UserCode: item.UserCode,
+          };
+        })
+      );
       setDataForm({
         ...listGroup?.Data?.Sys_Group,
         FlagActive:
@@ -111,48 +163,24 @@ export const PopupViewDetail = ({
     setPopupVisible(false);
   };
   const handleCancelUser = () => {
-    setPopupVisibleUser(false);
+    setHidenPopupAddUser(false);
   };
 
-  const toolbarItems: ToolbarItemProps[] = [
-    {
-      location: "before",
-      render: (e) => {
-        return <div>{t("Danh sách các thành viên")}</div>;
-      },
-    },
-    {
-      widget: "dxButton",
-      location: "after",
-      options: {
-        text: t("Thêm thành viên"),
-        stylingMode: "contained",
-        onClick: (e: any) => {
-          dataRef.current.instance.addRow();
-        },
-        visible: !detailForm,
-      },
-    },
-  ];
-
   const handleSubmitUser = (e: any) => {
-    const dataTableUser = dataRef.current.props.dataSource;
-    toast.success(t("Save Successfully"));
+    toast.success(t("Save User Successfully"));
+    setDataTable(userSelect.concat(dataTable));
     setTimeout(() => {
-      setPopupVisibleUser(false);
-    }, 1500);
+      setHidenPopupAddUser(false);
+    }, 1000);
   };
 
   const handleSubmitPopup = (e: any) => {
     validateRef.current.instance.validate();
     const dataFormS = new FormData(formRef.current);
     const dataSaveForm: any = Object.fromEntries(dataFormS.entries()); // chuyển thành form chính
-    const dataTableUser = dataRef.current.props.dataSource;
     const dataSave = {
       ...dataSaveForm,
-      Lst_Sys_UserInGroup: Array.from(
-        new Set(dataRef.current.props.dataSource)
-      ).map((item: any) => {
+      Lst_Sys_UserInGroup: dataTable.map((item: any) => {
         return {
           GroupCode: dataSaveForm.GroupCode,
           UserCode: item.UserCode,
@@ -165,6 +193,7 @@ export const PopupViewDetail = ({
         };
       }),
     };
+
     if (flagCheckCRUD) {
       onCreate(dataSave);
     } else {
@@ -172,37 +201,6 @@ export const PopupViewDetail = ({
     }
   };
 
-  const handleDatatable = (e: any) => {
-    setTotal(e.component.totalCount());
-  };
-  const innerSavingRowHandler = (e: any) => {
-    if (e.changes && e.changes.length > 0) {
-      // we don't enable batch mode, so only 1 change at a time.
-      const { type } = e.changes[0];
-      if (type === "insert" || type === "update") {
-        // pass handle to parent page
-        handleDatatable?.(e);
-      } else {
-        // set selected keys, then open the confirmation
-        // setDeletingId(e.changes[0].key);
-        // // show the confirmation box of Delete single case
-        // controlDeleteSingleConfirmBox.open();
-        // // this one to clear `changes` set from grid.
-        // dataGridRef.current?.instance.cancelEditData();
-      }
-    }
-    e.cancel = true;
-  };
-
-  // const customizeItem = (e: any) => {
-  //   if (e.dataField === "DepartmentCode") {
-  //     e.editorOptions.value === value;
-
-  //     if (e.editorOptions.value === value) {
-  //       e.editorType = "dxTextBox";
-  //     }
-  //   }
-  // };
   const customizeItem = useCallback(
     (item: any) => {
       if (item.dataField === "GroupCode") {
@@ -212,9 +210,13 @@ export const PopupViewDetail = ({
           item.editorOptions.readOnly = false;
         }
       }
+      if (item.dataField === "FlagActive" && flagCheckCRUD === true) {
+        item.editorOptions.value = true;
+      }
     },
     [flagCheckCRUD]
   );
+
   function handleFieldDataChanged(changedData: any) {
     // Handle the changed field data
     // setValue(changedData.value);
@@ -226,13 +228,13 @@ export const PopupViewDetail = ({
   };
 
   const removeSelectedItem = (item: any) => {
-    const filteredAbc = backUpColumns.current.filter((value: any) => {
-      return ![item].some((elementBcd) => {
-        return JSON.stringify(value) === JSON.stringify(elementBcd);
-      });
-    });
+    // const filteredAbc = backUpColumns.current.filter((value: any) => {
+    //   return ![item].some((elementBcd) => {
+    //     return JSON.stringify(value) === JSON.stringify(elementBcd);
+    //   });
+    // });
 
-    backUpColumns.current = filteredAbc;
+    // backUpColumns.current = filteredAbc;
     // // uuncheckRow
     dataGrid.current.instance.deselectRows(item?.ObjectCode);
 
@@ -252,14 +254,51 @@ export const PopupViewDetail = ({
   const handleSelectionChanged = (e: any) => {
     // thêm
     setSelectItems(
-      Array.from(new Set([...e.selectedRowsData, ...backUpColumns.current])) // lọc trùng dữ liệu
+      Array.from(new Set([...e.selectedRowsData])) // lọc trùng dữ liệu
     );
   };
 
-  // console.log(255, dataTable);
-  const onEditorPreparing = (e: any) => {
-    if (e.dataField === "Email") {
+  const handleSearchUser = (e: any) => {
+    setDataUser(
+      listUser?.DataList?.filter((item: any) => {
+        return item.UserName.toLowerCase().includes(
+          e.target.value.toLowerCase()
+        );
+      }).filter((item) => item.OrgID === auth.orgId.toString())
+    );
+  };
+  const handleChooseUser = (user: any, userCode: any, check: any) => {
+    if (check) {
+      setUserSelect([...userSelect, user]);
+    } else {
+      setUserSelect(userSelect?.filter((e: any) => e.UserCode !== userCode));
     }
+  };
+  const handleAddUser = () => {
+    setHidenPopupAddUser(true);
+    setDataUser(
+      listUser?.DataList?.filter(
+        (item) =>
+          !dataTable.some((arrItem: any) => arrItem.UserCode === item.UserCode)
+      ).filter((item) => item.OrgID === auth.orgId.toString())
+    );
+  };
+
+  const handleHiddenTableInfor = () => {
+    setHidenTableInfor(false);
+  };
+  const handleCheckNumberUser = () => {
+    setHidenTableInfor(true);
+  };
+  const handleDeleteRow = (e: any) => {
+    const dataRow = e.row.data;
+    setDataUser(dataUser.concat(dataRow));
+    setDataTable(
+      dataTable?.filter((item: any) => item?.UserCode !== e.row.key.UserCode)
+    );
+    setUserSelect(
+      userSelect?.filter((item: any) => item?.UserCode !== e.row.key.UserCode)
+    );
   };
 
   return (
@@ -338,8 +377,30 @@ export const PopupViewDetail = ({
                 );
               })}
           </Form>
-          <div className="absolute top-[173px] left-[125px]">
-            {flagCheckCRUD ? t(`Đã thêm ${total} thành viên`) : ""}
+          <div className="flex items-center mt-4 px-2 mb-2 gap-4">
+            {detailForm ? (
+              ""
+            ) : (
+              <div
+                onClick={handleAddUser}
+                className="bg-[#008016] cursor-pointer px-2 text-[white] py-1 rounded-sm"
+              >
+                {t("Thêm thành viên")}
+              </div>
+            )}
+            <div
+              onClick={handleCheckNumberUser}
+              className="text-[#008016] cursor-pointer"
+            >
+              {t("Số lượng nhân viên:") +
+                "  " +
+                `${
+                  dataTable?.filter(
+                    (value: any, index: any, self: any) =>
+                      self.indexOf(value) === index
+                  )?.length
+                }`}
+            </div>
           </div>
           <div className={"flex w-full mt-4 gap-2 max-h-[800px]"}>
             {detailForm ? (
@@ -348,18 +409,21 @@ export const PopupViewDetail = ({
               <div className="w-[50%]">
                 <div className="px-4 pb-2 ">
                   {`${t("Chức năng chưa gán nhóm")} (${
-                    !!dataUnassigned ? dataUnassigned.length : 0
+                    !!dataUnassigned ? dataUnassigned?.length : 0
                   })`}
                 </div>
                 <DataGrid
                   id="grid-container"
                   ref={dataGrid}
                   // loadPanel={isLoading}
-                  dataSource={dataUnassigned}
+                  dataSource={dataUnassigned ?? []}
                   noDataText={t("Loading")}
                   showBorders={false}
                   keyExpr={"ObjectCode"}
                   onSelectionChanged={handleSelectionChanged}
+                  // defaultSelectedRowKeys={[
+                  //   "BTN_ADMIN_BUSINESS_INFORMATION_CREATE",
+                  // ]}
                 >
                   <Paging enabled={true} />
                   <FilterRow visible={true} />
@@ -428,7 +492,10 @@ export const PopupViewDetail = ({
                         {detailForm ? (
                           ""
                         ) : (
-                          <div onClick={() => removeSelectedItem(item)}>
+                          <div
+                            onClick={() => removeSelectedItem(item)}
+                            className="pr-2"
+                          >
                             <Icon
                               style={{ paddingTop: "-10px" }}
                               name={"remove"}
@@ -450,16 +517,16 @@ export const PopupViewDetail = ({
           </div>
         </form>
         <Popup
-          visible={popupVisibleUser}
+          visible={hidenPopupAddUser}
           onHiding={handleCancelUser}
           showCloseButton={true}
           hideOnOutsideClick={true}
-          dragEnabled={true}
+          // dragEnabled={true}
           showTitle={true}
-          title="Information"
+          title={t("Thông tin các nhân viên")}
           container=".dx-viewport"
           width={850}
-          height={400}
+          height={600}
           toolbarItems={[
             {
               toolbar: "bottom",
@@ -478,7 +545,7 @@ export const PopupViewDetail = ({
               toolbar: "bottom",
               location: "after",
               widget: "dxButton",
-              visible: detailForm,
+              visible: !detailForm,
               options: {
                 text: t("Cancel"),
                 stylingMode: "contained",
@@ -489,51 +556,111 @@ export const PopupViewDetail = ({
             },
           ]}
         >
-          <DataGrid
-            ref={dataRef}
-            id="gridContainer"
-            dataSource={dataTable}
-            keyExpr="UserCode"
-            // key={viewingItem?.rowIndex}
-            onEditorPreparing={onEditorPreparing}
-            onSaved={innerSavingRowHandler}
-            noDataText={t("There is no data")}
-            remoteOperations={false}
-            columnAutoWidth={true}
-            repaintChangesOnly
-            allowColumnReordering={true}
-            showColumnLines
-            showRowLines
-            showBorders
-            width={"100%"}
-          >
-            <Toolbar>
-              {!!toolbarItems &&
-                toolbarItems.map((item, index) => {
-                  return (
-                    <Item key={index} location={item.location}>
-                      {item.widget === "dxButton" && (
-                        <Button {...item.options} />
-                      )}
-                      {!!item.render && item.render()}
-                    </Item>
-                  );
-                })}
-            </Toolbar>
-            <Editing
-              mode="row"
-              allowUpdating={!detailForm}
-              allowDeleting={!detailForm}
-              allowAdding={!detailForm}
-            />
-            {formSettings
-              .filter((item: any) => item.typeForm === "TableForm")
-              .map((value: any) =>
-                value.items.map((item: any) => {
-                  return <Column key={item.caption} {...item} />;
-                })
+          <LoadPanel visible={dataUser} position={{ of: "#gridContainer" }} />
+          <div>
+            <div className="mb-3">
+              <input
+                className="h-[30px] w-full text-[14px]"
+                type="text"
+                placeholder={t("Nhập khóa để tìm kiếm ...")}
+                onChange={(e) => handleSearchUser(e)}
+              />
+            </div>
+
+            {dataUser?.map((item: any) => {
+              return (
+                <div>
+                  <div
+                    key={item.UserCode}
+                    className="flex items-center border-b border-t py-2 px-2"
+                  >
+                    {detailForm ? (
+                      ""
+                    ) : (
+                      <div className="mr-4">
+                        <CheckBox
+                          data-key={item.UserCode}
+                          onValueChanged={(e) =>
+                            handleChooseUser(item, item.UserCode, e.value)
+                          }
+                        />
+                      </div>
+                    )}
+                    <div className="flex w-[95%] items-center justify-between">
+                      <div className="flex items-center">
+                        <div className="h-[50px] w-[50px] overflow-hidden rounded-full">
+                          <img
+                            src={
+                              item?.Avatar !== null
+                                ? item?.Avatar
+                                : "https://tse2.mm.bing.net/th?id=OIP.udoq18uxDpu6UHi2H__97gAAAA&pid=Api&P=0&h=180"
+                            }
+                            alt=""
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                        <div className="ml-2">
+                          <div className="mb-1 h-[17px] truncate">
+                            {item.UserName ?? "---"}
+                          </div>
+                          <div className="h-[20px] truncate">
+                            {item.ACEmail ?? "---"}
+                          </div>
+                        </div>
+                      </div>
+                      <div>{item.PhoneNo}</div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </Popup>
+        <Popup
+          visible={hidenTableInfor}
+          onHiding={handleHiddenTableInfor}
+          showCloseButton={true}
+          hideOnOutsideClick={true}
+          // dragEnabled={true}
+          showTitle={true}
+          title={t("Các nhân viên đã thêm")}
+          container=".dx-viewport"
+          width={750}
+          height={400}
+          toolbarItems={[]}
+        >
+          <form ref={gridRef} className="listUser_Department">
+            <GridViewCustomize
+              isShowIconEdit={false}
+              cssClass={"listUser_Department h-full"}
+              isLoading={isLoading}
+              dataSource={dataTable.filter(
+                (value: any, index: any, self: any) =>
+                  self.indexOf(value) === index
               )}
-          </DataGrid>
+              columns={
+                formSettings.filter(
+                  (item: any) => item.typeForm === "TableForm"
+                )[0].items
+              }
+              keyExpr={["UserCode", "OrgID"]}
+              formSettings={formSettings}
+              onReady={(ref) => (gridRef = ref)}
+              allowSelection={false}
+              onSelectionChanged={() => {}}
+              onSaveRow={() => {}}
+              onEditorPreparing={() => {}}
+              onEditRowChanges={() => {}}
+              onDeleteRows={handleDeleteRow}
+              onEditRow={() => {}}
+              storeKey={"List-usertable-columns"}
+              isShowEditting={detailForm === true ? false : true}
+              isSingleSelection={false}
+              isHidenHeaderFilter={false}
+              isHiddenCheckBox={true}
+              customToolbarItems={[]}
+            />
+          </form>
         </Popup>
       </ScrollView>
     </Popup>

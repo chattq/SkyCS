@@ -7,6 +7,7 @@ import { PartReplyNote } from "./part-reply-note";
 import { PartReplySms } from "./part-reply-sms";
 import { PartReplyZalo } from "./part-reply-zalo";
 import { currentTabAtom } from "./store";
+import { useI18n } from "@/i18n/useI18n";
 
 export const PartReply = ({
   dataValue,
@@ -20,6 +21,7 @@ export const PartReply = ({
   const currentTabAtomValue = useAtomValue(currentTabAtom);
   const setCurrentTabAtomValue = useSetAtom(currentTabAtom);
   // const [currentTab, setCurrentTab] = useState(0);
+  const { t } = useI18n("Eticket_Detail");
 
   const onItemClick = (e: any) => {
     setCurrentTabAtomValue(e.itemIndex);
@@ -93,9 +95,9 @@ export const PartReply = ({
           onItemClick={onItemClick}
           selectedIndex={currentTabAtomValue}
         >
-          <TabItem text="Zalo" />
-          <TabItem text="Email" />
-          <TabItem text="Call" />
+          <TabItem text={t("Zalo")} />
+          <TabItem text={t("Email")} />
+          <TabItem text={t("Call")} />
           <TabItem text="Ghi chú" />
           {/* <TabItem text="Livechat" /> */}
           {/* <TabItem text="SMS" /> */}

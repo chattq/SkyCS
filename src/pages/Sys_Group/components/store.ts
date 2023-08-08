@@ -16,6 +16,8 @@ export const dataFormAtom = atom<any>([]);
 export const dataFuntionAtom = atom<any>([]);
 export const checkDataPopPup = atom<boolean>(true);
 export const flagEdit = atom<boolean>(false);
+export const dataUserAtom = atom<any>([]);
+export const dataTableUserAtom = atom<any>([]);
 
 export const viewingDataAtom = atom(
   (get) => {

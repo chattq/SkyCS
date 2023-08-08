@@ -62,13 +62,11 @@ export const SearchCustomerResult = forwardRef(
     return (
       <ContentSearchPanelLayout>
         <ContentSearchPanelLayout.Slot name={"SearchPanel"}>
-          <div className={"w-[200px]"}>
-            <SearchPanelV2
-              conditionFields={searchColumns}
-              storeKey="Mst_Customer_Search_2"
-              onSearch={handleSearch}
-            />
-          </div>
+          <SearchPanelV2
+            conditionFields={searchColumns}
+            storeKey="Mst_Customer_Search_2"
+            onSearch={handleSearch}
+          />
         </ContentSearchPanelLayout.Slot>
         <ContentSearchPanelLayout.Slot name={"ContentPanel"}>
           <SearchDataGrid

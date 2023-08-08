@@ -260,14 +260,14 @@ export const adminRoutes: RouteItem[] = [
         mainMenuKey: "admin",
         getPageElement: () => <Customize />,
       },
-      {
-        key: "Cpn_CampaignPage",
-        path: "admin/Cpn_CampaignPage",
-        subMenuTitle: "Cpn_CampaignPage",
-        mainMenuKey: "admin",
-        permissionCode: "",
-        getPageElement: () => <Cpn_CampaignPage />,
-      },
+      // {
+      //   key: "Cpn_CampaignPage",
+      //   path: "admin/Cpn_CampaignPage",
+      //   subMenuTitle: "Cpn_CampaignPage",
+      //   mainMenuKey: "admin",
+      //   permissionCode: "",
+      //   getPageElement: () => <Cpn_CampaignPage />,
+      // },
 
       {
         key: "Cpn_Campaign_Info",

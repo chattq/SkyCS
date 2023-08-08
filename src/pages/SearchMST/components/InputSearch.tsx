@@ -44,7 +44,7 @@ export default function InputSearch(hidenInput: any) {
 
       setKeySearch(transcript);
       if (transcript) {
-        const response = await api.KB_PostData_SearchMore(transcript);
+        const response = await api.KB_PostData_SearchKeyWord(transcript);
         if (response.isSuccess) {
           setDataSearch(response?.Data);
           navigate("search/SearchInformation/Results");
@@ -101,7 +101,7 @@ export default function InputSearch(hidenInput: any) {
 
   const handleKeyPress = async (event: any) => {
     if (event.key === "Enter") {
-      const resp = await api.KB_PostData_SearchMore(searchTerm);
+      const resp = await api.KB_PostData_SearchKeyWord(searchTerm);
       if (resp.isSuccess) {
         setDataSearch(resp?.Data);
         navigate("search/SearchInformation/Results");

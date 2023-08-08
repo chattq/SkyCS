@@ -157,10 +157,16 @@ export const useFormSettings = (formValue: any) => {
           editorType: "dxSelectBox",
           visible: true,
           validationRules: [requiredType],
+          label: {
+            text: t("TicketStatus"),
+          },
         },
         {
           caption: t("CustomerCodeSys"),
           dataField: "CustomerCodeSys",
+          label: {
+            text: t("CustomerCodeSys"),
+          },
           editorType: "dxSelectBox",
           visible: true,
           validationRules: [requiredType],
@@ -176,6 +182,9 @@ export const useFormSettings = (formValue: any) => {
           editorType: "dxTextBox",
           visible: true,
           validationRules: [requiredType],
+          label: {
+            text: t("TicketName"),
+          },
         },
         {
           dataField: "TicketDetail",
@@ -183,8 +192,11 @@ export const useFormSettings = (formValue: any) => {
             placeholder: t("Input"),
           },
           editorType: "dxHtmlEditor",
-          caption: t("Mô tả"),
+          caption: t("TicketDetail"),
           visible: true,
+          label: {
+            text: t("TicketDetail"),
+          },
         },
       ],
     },
@@ -196,6 +208,9 @@ export const useFormSettings = (formValue: any) => {
       items: [
         {
           caption: t("OrgID"),
+          label: {
+            text: t("OrgID"),
+          },
           dataField: "OrgID",
           editorOptions: {
             dataSource: nntList?.Data?.Lst_Mst_NNT ?? [],
@@ -217,6 +232,9 @@ export const useFormSettings = (formValue: any) => {
           editorType: "dxSelectBox",
           visible: true,
           validationRules: [requiredType],
+          label: {
+            text: t("TicketType"),
+          },
         },
         {
           caption: t("DepartmentCode"),
@@ -228,12 +246,18 @@ export const useFormSettings = (formValue: any) => {
           },
           editorType: "dxSelectBox",
           visible: true,
+          label: {
+            text: t("DepartmentCode"),
+          },
         },
         {
           caption: t("Deadline"),
           dataField: "TicketDeadline",
           editorOptions: {
             type: "datetime",
+          },
+          label: {
+            text: t("Deadline"),
           },
           visible: true,
           editorType: "dxDateBox",
@@ -253,6 +277,9 @@ export const useFormSettings = (formValue: any) => {
           editorType: "dxSelectBox",
           visible: true,
           validationRules: [requiredType],
+          label: {
+            text: t("Agent"),
+          },
         },
         {
           caption: t("TicketPriority"),
@@ -266,6 +293,9 @@ export const useFormSettings = (formValue: any) => {
           editorType: "dxSelectBox",
           visible: true,
           validationRules: [requiredType],
+          label: {
+            text: t("TicketPriority"),
+          },
         },
         {
           dataField: "TicketAttachFiles", // file đính kèm
@@ -273,7 +303,7 @@ export const useFormSettings = (formValue: any) => {
           colSpan: 2,
           label: {
             location: "left",
-            text: "Upload files",
+            text: t("Upload files"),
           },
           editorOptions: {
             readOnly: true,

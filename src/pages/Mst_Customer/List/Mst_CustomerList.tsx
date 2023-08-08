@@ -51,8 +51,7 @@ interface Props {
 }
 
 interface searchForm {
-  CreateDTimeUTCFrom: string | undefined;
-  CreateDTimeUTCTo: string | undefined;
+  CreateDTimeUTC?: any[];
   CtmEmail: string;
   CtmPhoneNo: string;
   CustomerCode: string;
@@ -68,6 +67,7 @@ interface searchForm {
   Ft_PageSize: number;
   KeyWord: string;
   ScrTplCodeSys: string;
+  CustomerSource: any;
 }
 
 export const Mst_CustomerList = ({ bePopUp, isHideHeader = false }: Props) => {
@@ -92,9 +92,8 @@ export const Mst_CustomerList = ({ bePopUp, isHideHeader = false }: Props) => {
     listQuery: [],
   });
 
-  const [searchCondition, setSearchCondition] = useState<searchForm>({
-    CreateDTimeUTCFrom: undefined,
-    CreateDTimeUTCTo: undefined,
+  const [searchCondition, setSearchCondition] = useState<Partial<searchForm>>({
+    CreateDTimeUTC: [null, null],
     CtmEmail: "",
     CtmPhoneNo: "",
     CustomerCode: "",
@@ -110,6 +109,7 @@ export const Mst_CustomerList = ({ bePopUp, isHideHeader = false }: Props) => {
     Ft_PageSize: config.MAX_PAGE_ITEMS, // config.MAX_PAGE_ITEMS = 999999
     KeyWord: "",
     ScrTplCodeSys: "SCRTPLCODESYS.2023",
+    CustomerSource: [],
   });
 
   const setFlagCustomer = useSetAtom(flagCustomer);
@@ -130,26 +130,6 @@ export const Mst_CustomerList = ({ bePopUp, isHideHeader = false }: Props) => {
   });
   const showError = useSetAtom(showErrorAtom); // state lưu trữ lỗi khi call api
   const loadingControl = useVisibilityControl({ defaultVisible: false });
-
-  const [search, setSearch] = useState<any>({
-    CreateDTimeUTCFrom: undefined,
-    CreateDTimeUTCTo: undefined,
-    CtmEmail: "",
-    CtmPhoneNo: "",
-    CustomerCode: "",
-    CustomerCodeSysERP: "",
-    CustomerGrpCode: [],
-    CustomerName: "",
-    CustomerType: "",
-    MST: "",
-    PartnerType: [],
-    JsonColDynamicSearch: "[]",
-    FlagActive: FlagActiveEnum.All, // FlagActiveEnum.All = ""
-    Ft_PageIndex: 0,
-    Ft_PageSize: config.MAX_PAGE_ITEMS, // config.MAX_PAGE_ITEMS = 999999
-    KeyWord: "",
-    ScrTplCodeSys: "SCRTPLCODESYS.2023",
-  });
 
   const {
     data: listColumn,
@@ -241,10 +221,29 @@ export const Mst_CustomerList = ({ bePopUp, isHideHeader = false }: Props) => {
 
   const api = useClientgateApi(); // api
   const { data, isLoading, refetch } = useQuery({
-    queryKey: ["Mst_Customer", JSON.stringify(search)],
+    queryKey: ["Mst_Customer", JSON.stringify(searchCondition)],
     queryFn: async () => {
       const response = await api.Mst_Customer_Search({
-        ...search,
+        ...searchCondition,
+        CustomerGrpCode: searchCondition?.CustomerGrpCode?.join(",") ?? "",
+        PartnerType: searchCondition?.PartnerType?.join(",") ?? "",
+        KeyWord: searchCondition?.CustomerName ?? "",
+        CreateDTimeUTCFrom: searchCondition?.CreateDTimeUTC[0]
+          ? getFullTime(searchCondition?.CreateDTimeUTC[0])
+          : "",
+        CreateDTimeUTCTo: searchCondition?.CreateDTimeUTC[1]
+          ? getFullTime(searchCondition?.CreateDTimeUTC[1])
+          : "",
+        JsonColDynamicSearch: JSON.stringify(
+          [
+            searchCondition?.CustomerSource?.length > 0
+              ? {
+                  ColCodeSys: "C0K5",
+                  ColValue1: searchCondition?.CustomerSource?.join(",") ?? "",
+                }
+              : undefined,
+          ].filter((item: any) => item)
+        ),
       });
 
       if (response.isSuccess) {
@@ -343,22 +342,25 @@ export const Mst_CustomerList = ({ bePopUp, isHideHeader = false }: Props) => {
       })
       ?.filter((item: any) => item?.ColCodeSys != "COLD66187_To");
 
-    setSearch({
-      CtmEmail: data?.CtmEmail,
-      CtmPhoneNo: data?.CtmPhoneNo,
-      CustomerCode: data?.CustomerCode,
-      CustomerCodeSysERP: data?.CustomerCodeSysERP,
-      CustomerName: data?.CustomerName,
-      CustomerType: data?.CustomerType,
-      MST: data?.MST,
-      Ft_PageIndex: searchCondition?.Ft_PageIndex,
-      Ft_PageSize: searchCondition?.Ft_PageSize,
-      CustomerGrpCode: data?.CustomerGrpCode?.join(","),
-      PartnerType: data?.PartnerType?.join(","),
-      JsonColDynamicSearch: JSON.stringify(result),
-    });
+    // setSearch({
+    //   CtmEmail: data?.CtmEmail,
+    //   CtmPhoneNo: data?.CtmPhoneNo,
+    //   CustomerCode: data?.CustomerCode,
+    //   CustomerCodeSysERP: data?.CustomerCodeSysERP,
+    //   CustomerName: data?.CustomerName,
+    //   CustomerType: data?.CustomerType,
+    //   MST: data?.MST,
+    //   Ft_PageIndex: searchCondition?.Ft_PageIndex,
+    //   Ft_PageSize: searchCondition?.Ft_PageSize,
+    //   CustomerGrpCode: data?.CustomerGrpCode?.join(","),
+    //   PartnerType: data?.PartnerType?.join(","),
+    //   JsonColDynamicSearch: JSON.stringify("[]"),
+    // });
 
-    refetch();
+    setSearchCondition({
+      ...searchCondition,
+      ...data,
+    });
   };
 
   // các cột của gridview
@@ -505,10 +507,7 @@ export const Mst_CustomerList = ({ bePopUp, isHideHeader = false }: Props) => {
 
   const handleEditRowChanges = () => {};
 
-  const getColumn = useColumnsSearch({
-    listColumn: listColumn ?? [],
-    listMapField: listDynamic ?? {},
-  });
+  const getColumn = useColumnsSearch();
 
   const handleCustomerEdit = (e: any) => {
     const { data } = e;

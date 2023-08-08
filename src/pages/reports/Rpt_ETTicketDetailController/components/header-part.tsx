@@ -27,56 +27,10 @@ export const HeaderPart = ({ onAddNew, searchCondition }: HeaderPartProps) => {
   const showError = useSetAtom(showErrorAtom);
   const selectedItems = useAtomValue(selectedItemsAtom);
 
-  const onDownloadTemplate = async () => {
-    // const resp = await api.Mst_BankDealer_ExportTemplate();
-    // if (resp.isSuccess) {
-    //   toast.success(t("Download Successfully"));
-    //   window.location.href = resp.Data;
-    //   return true;
-    // }
-    // showError({
-    //   message: t(resp.errorCode),
-    //   debugInfo: resp.debugInfo,
-    //   errorInfo: resp.errorInfo,
-    // });
-    // throw new Error(resp.errorCode);
-  };
-  const handleUploadFiles = async (files: File[]) => {
-    // const resp = await api.Mst_BankDealer_Import(files[0]);
-    // console.log("result:", resp);
-    // if (resp.isSuccess) {
-    //   notify(t("Upload Successfully"), "success");
-    // } else {
-    //   notify(t(resp.Data._strErrCode), {
-    //     position: {
-    //       top: 0,
-    //     },
-    //     direction: "down-push",
-    //   });
-    // }
-  };
+  const onDownloadTemplate = async () => {};
+  const handleUploadFiles = async (files: File[]) => {};
 
-  const handleExportExcel = async (selectedOnly: boolean) => {
-    // let resp = await match(selectedOnly)
-    //   .with(true, async () => {
-    //     return await api.Mst_BankDealer_ExportByListBankCodeAndDealerCode(
-    //       selectedItems
-    //     );
-    //   })
-    //   .otherwise(async () => {
-    //     return await api.Mst_BankDealer_Export(searchCondition);
-    //   });
-    // if (resp.isSuccess) {
-    //   toast.success(t("Download Successfully"));
-    //   window.location.href = resp.Data;
-    // } else {
-    //   showError({
-    //     message: t(resp.errorCode),
-    //     debugInfo: resp.debugInfo,
-    //     errorInfo: resp.errorInfo,
-    //   });
-    // }
-  };
+  const handleExportExcel = async (selectedOnly: boolean) => {};
 
   const { uploadButton, uploadDialog } = useUploadFile({
     handleUploadFiles,

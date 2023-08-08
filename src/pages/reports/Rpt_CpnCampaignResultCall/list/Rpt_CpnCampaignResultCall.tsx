@@ -57,6 +57,15 @@ export const Rpt_CpnCampaignResultCallPage = () => {
     MonthReport: [null, null],
   } as any);
 
+  //tạo thời gian
+  var currentDate = new Date();
+
+  // Lấy năm hiện tại
+  var currentYear = currentDate.getFullYear();
+
+  // Tạo một đối tượng Date mới với ngày đầu tiên của năm
+  var firstDayOfYear = new Date(currentYear, 0, 1);
+
   const setSelectedItems = useSetAtom(selectedItemsAtom);
 
   const api = useClientgateApi();
@@ -73,7 +82,7 @@ export const Rpt_CpnCampaignResultCallPage = () => {
           : "",
         ReportDTimeFrom: searchCondition.MonthReport[0]
           ? format(searchCondition.MonthReport[0], "yyyy-MM-dd")
-          : getFirstDateOfMonth(endDate),
+          : format(firstDayOfYear, "yyyy-MM-dd"),
         ReportDTimeTo: searchCondition.MonthReport[1]
           ? format(searchCondition.MonthReport[1], "yyyy-MM-dd")
           : format(endDate, "yyyy-MM-dd"),
@@ -114,7 +123,8 @@ export const Rpt_CpnCampaignResultCallPage = () => {
             <DateRangeBox
               displayFormat=" yyyy-MM-dd"
               defaultStartDate={
-                searchCondition.MonthReport[0] || getFirstDateOfMonth(endDate)
+                searchCondition.MonthReport[0] ||
+                format(firstDayOfYear, "yyyy-MM-dd")
               }
               defaultEndDate={searchCondition.MonthReport[1] || endDate}
               showClearButton={true}
@@ -286,7 +296,7 @@ export const Rpt_CpnCampaignResultCallPage = () => {
         : "",
       ReportDTimeFrom: searchCondition.MonthReport[0]
         ? format(searchCondition.MonthReport[0], "yyyy-MM-dd")
-        : getFirstDateOfMonth(endDate),
+        : format(firstDayOfYear, "yyyy-MM-dd"),
       ReportDTimeTo: searchCondition.MonthReport[1]
         ? format(searchCondition.MonthReport[1], "yyyy-MM-dd")
         : format(endDate, "yyyy-MM-dd"),

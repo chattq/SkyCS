@@ -67,6 +67,15 @@ export const RptCpnCampaignResultCtmFeedbackPage = () => {
   const startDate = new Date(now.getTime());
   const endDate = new Date(now.getTime());
 
+  //tạo thời gian
+  var currentDate = new Date();
+
+  // Lấy năm hiện tại
+  var currentYear = currentDate.getFullYear();
+
+  // Tạo một đối tượng Date mới với ngày đầu tiên của năm
+  var firstDayOfYear = new Date(currentYear, 0, 1);
+
   const { data: listMst_CampaignType } = useQuery(
     ["listMst_CampaignType"],
     () =>
@@ -89,7 +98,7 @@ export const RptCpnCampaignResultCtmFeedbackPage = () => {
           : "",
         ReportDTimeFrom: searchCondition.MonthReport[0]
           ? format(searchCondition.MonthReport[0], "yyyy-MM-dd")
-          : getFirstDateOfMonth(endDate),
+          : format(firstDayOfYear, "yyyy-MM-dd"),
         ReportDTimeTo: searchCondition.MonthReport[1]
           ? format(searchCondition.MonthReport[1], "yyyy-MM-dd")
           : format(endDate, "yyyy-MM-dd"),
@@ -141,7 +150,8 @@ export const RptCpnCampaignResultCtmFeedbackPage = () => {
             <DateRangeBox
               displayFormat=" yyyy-MM-dd"
               defaultStartDate={
-                searchCondition.MonthReport[0] || getFirstDateOfMonth(startDate)
+                searchCondition.MonthReport[0] ||
+                format(firstDayOfYear, "yyyy-MM-dd")
               }
               defaultEndDate={searchCondition.MonthReport[1] || endDate}
               showClearButton={true}
@@ -300,7 +310,7 @@ export const RptCpnCampaignResultCtmFeedbackPage = () => {
         : "",
       ReportDTimeFrom: searchCondition.MonthReport[0]
         ? format(searchCondition.MonthReport[0], "yyyy-MM-dd")
-        : getFirstDateOfMonth(endDate),
+        : format(firstDayOfYear, "yyyy-MM-dd"),
       ReportDTimeTo: searchCondition.MonthReport[1]
         ? format(searchCondition.MonthReport[1], "yyyy-MM-dd")
         : format(endDate, "yyyy-MM-dd"),

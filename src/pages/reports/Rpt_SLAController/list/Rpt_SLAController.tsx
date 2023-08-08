@@ -56,6 +56,7 @@ import PieChart, {
   Size,
   Export,
   Legend,
+  Tooltip,
 } from "devextreme-react/pie-chart";
 
 import FilterDropdown from "@/packages/ui/base-gridview/FilterDropdown";
@@ -68,6 +69,7 @@ import { ReportLayout } from "@/packages/layouts/report-layout/report-content-la
 import { ReportHeaderLayout } from "@/packages/layouts/report-layout/report-header-layout";
 import { calculateSLAStats } from "../components/FormatDataSLA";
 import { getFirstDateOfMonth } from "@/components/ulti";
+import TooltipTemplate from "../components/TooltipTemplate";
 
 export const Rpt_SLAControllerPage = () => {
   const { t } = useI18n("Rpt_SLAController");
@@ -114,7 +116,7 @@ export const Rpt_SLAControllerPage = () => {
           : "",
         TicketCustomTypeConditionList:
           searchCondition.TicketCustomTypeConditionList
-            ? searchCondition.TicketCustomTypeConditionList.join(",")
+            ? searchCondition.TicketCustomTypeConditionList
             : "",
         CustomerName: searchCondition.CustomerName
           ? searchCondition.CustomerName
@@ -226,6 +228,32 @@ export const Rpt_SLAControllerPage = () => {
     ["MstTicketEstablishInfoType"],
     api.Mst_TicketEstablishInfoApi_GetAllInfo
   );
+  const { data: listCustomer } = useQuery(
+    ["listCustomer"],
+    () => api.Mst_Customer_GetAllActive() as any
+  );
+
+  const { data: getEnterprise, isLoading: isLoadingEnterprise } = useQuery({
+    queryKey: ["Mst_Customer_Search_Eticket_Manager"],
+    queryFn: async () => {
+      const response = await api.Mst_Customer_Search({
+        Ft_PageIndex: 0,
+        Ft_PageSize: 1000,
+        FlagActive: FlagActiveEnum.Active,
+        CustomerType: "TOCHUC",
+      });
+
+      if (response.isSuccess) {
+        return response.DataList;
+      } else {
+        showError({
+          message: t(response.errorCode),
+          debugInfo: response.debugInfo,
+          errorInfo: response.errorInfo,
+        });
+      }
+    },
+  });
   const formItems: any[] = [
     {
       dataField: "AgentCodeConditionList",
@@ -320,22 +348,28 @@ export const Rpt_SLAControllerPage = () => {
       label: {
         text: t("Khách hàng"),
       },
-      editorType: "dxTextBox",
+      editorType: "dxSelectBox",
       editorOptions: {
         readOnly: false,
-        placeholder: t("Input"),
+        placeholder: t("Select"),
+        dataSource: listCustomer?.DataList ?? [],
+        valueExpr: "CustomerName",
+        displayExpr: "CustomerName",
+        searchEnabled: true,
       },
     },
     {
       caption: t("CustomerCompany"),
       dataField: "CustomerCompany",
       label: {
-        text: t("Công ty"),
+        text: t("Doanh nghiệp"),
       },
-      editorType: "dxTextBox",
+      editorType: "dxSelectBox",
       editorOptions: {
-        readOnly: false,
-        placeholder: t("Input"),
+        dataSource: getEnterprise,
+        displayExpr: "CustomerName",
+        valueExpr: "CustomerCodeSys",
+        searchEnabled: true,
       },
     },
     {
@@ -433,7 +467,7 @@ export const Rpt_SLAControllerPage = () => {
   });
   const popupSettings: IPopupOptions = {
     showTitle: true,
-    title: t("Rpt_CpnCampaignStatisticCall Information"),
+    title: t("Rpt_CpnCampaignStatisticCall_Information"),
     className: "bank-dealer-information-popup",
     toolbarItems: [
       {
@@ -651,6 +685,7 @@ export const Rpt_SLAControllerPage = () => {
                   verticalAlignment="bottom"
                   columnCount={1}
                 />
+                <Tooltip enabled={true} contentRender={TooltipTemplate} />
                 {/* <Export enabled={true} /> */}
               </PieChart>
             </div>

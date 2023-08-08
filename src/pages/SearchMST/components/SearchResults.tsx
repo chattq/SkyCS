@@ -6,7 +6,7 @@ import { dataSearchAtom, keySearchAtom } from "./store";
 import { useClientgateApi } from "@/packages/api";
 import { authAtom } from "@/packages/store";
 import { formatText } from "@/pages/Post_Manager/components/components/FormatCategory";
-import { ScrollView } from "devextreme-react";
+import { LoadPanel, ScrollView } from "devextreme-react";
 import { useWindowSize } from "@/packages/hooks/useWindowSize";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useNetworkNavigate } from "@/packages/hooks";
@@ -41,6 +41,14 @@ export default function SearchResults() {
 
   return (
     <div>
+      <LoadPanel
+        container={".dx-viewport"}
+        shadingColor="rgba(0,0,0,0.4)"
+        position={"center"}
+        visible={dataSearch === undefined ? true : false}
+        showIndicator={true}
+        showPane={true}
+      />
       {keySearch !== "" ? (
         <>
           <div className="font-bold border-b pb-3 px-4 text-[15px]">

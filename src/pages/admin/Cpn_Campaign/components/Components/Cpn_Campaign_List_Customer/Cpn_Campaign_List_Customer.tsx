@@ -276,7 +276,6 @@ const Cpn_Campaign_List_Customer = forwardRef(
                 const getCodeSys = arr.map((item: any) => {
                   return item.CampaignColCfgCodeSys;
                 });
-                console.log("arr ", arr);
                 const getDynamicField = arr
                   .filter((item) => {
                     return (

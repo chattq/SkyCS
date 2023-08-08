@@ -48,6 +48,8 @@ import {
   DateBox,
   DateRangeBox,
   SelectBox,
+  TagBox,
+  TextBox,
 } from "devextreme-react";
 import PieChart, {
   Series,
@@ -108,9 +110,7 @@ export const Rpt_MissedCallsPage = () => {
         OrgIDConditionList: searchCondition.OrgIDConditionList
           ? searchCondition.OrgIDConditionList.join(",")
           : "",
-        TicketTypeConditionList: searchCondition.TicketTypeConditionList
-          ? searchCondition.TicketTypeConditionList.join(",")
-          : "",
+        TicketTypeConditionList: "MISSEDCALL",
         CustomerName: searchCondition.CustomerName
           ? searchCondition.CustomerName
           : "",
@@ -141,6 +141,10 @@ export const Rpt_MissedCallsPage = () => {
   );
   const { data: listOrgID } = useQuery(["listOrgID"], () =>
     api.Mst_NNTController_GetAllActive()
+  );
+  const { data: listCustomer } = useQuery(
+    ["listCustomer"],
+    () => api.Mst_Customer_GetAllActive() as any
   );
 
   const columns = useBankDealerGridColumns({
@@ -185,6 +189,27 @@ export const Rpt_MissedCallsPage = () => {
         }
       },
     });
+  const { data: getEnterprise, isLoading: isLoadingEnterprise } = useQuery({
+    queryKey: ["Mst_Customer_Search_Eticket_Manager"],
+    queryFn: async () => {
+      const response = await api.Mst_Customer_Search({
+        Ft_PageIndex: 0,
+        Ft_PageSize: 1000,
+        FlagActive: FlagActiveEnum.Active,
+        CustomerType: "TOCHUC",
+      });
+
+      if (response.isSuccess) {
+        return response.DataList;
+      } else {
+        showError({
+          message: t(response.errorCode),
+          debugInfo: response.debugInfo,
+          errorInfo: response.errorInfo,
+        });
+      }
+    },
+  });
 
   const listStatus = [
     {
@@ -220,6 +245,7 @@ export const Rpt_MissedCallsPage = () => {
       value: "CLOSED",
     },
   ];
+
   const formItems: any[] = [
     {
       dataField: "AgentCodeConditionList",
@@ -270,12 +296,10 @@ export const Rpt_MissedCallsPage = () => {
       label: {
         text: t("Loại eTicket"),
       },
-      editorType: "dxTagBox",
-      editorOptions: {
-        searchEnabled: true,
-        dataSource: getListEticketType ?? [],
-        displayExpr: "CustomerTicketTypeName",
-        valueExpr: "TicketType",
+      editorType: "dxTextBox",
+      editorOptions: {},
+      render: ({ editorOptions, component: formRef }: any) => {
+        return <TextBox value={t("Cuộc gọi nhỡ")} readOnly={true} />;
       },
     },
     {
@@ -286,7 +310,7 @@ export const Rpt_MissedCallsPage = () => {
       },
       editorType: "dxTagBox",
       editorOptions: {
-        dataSource: listStatus,
+        dataSource: listStatus ?? [],
         valueExpr: "value",
         displayExpr: "label",
         readOnly: false,
@@ -299,22 +323,28 @@ export const Rpt_MissedCallsPage = () => {
       label: {
         text: t("Khách hàng"),
       },
-      editorType: "dxTextBox",
+      editorType: "dxSelectBox",
       editorOptions: {
         readOnly: false,
-        placeholder: t("Input"),
+        placeholder: t("Select"),
+        dataSource: listCustomer?.DataList ?? [],
+        valueExpr: "CustomerName",
+        displayExpr: "CustomerName",
+        searchEnabled: true,
       },
     },
     {
       caption: t("CustomerCompany"),
       dataField: "CustomerCompany",
       label: {
-        text: t("Công ty"),
+        text: t("Doanh nghiệp"),
       },
-      editorType: "dxTextBox",
+      editorType: "dxSelectBox",
       editorOptions: {
-        readOnly: false,
-        placeholder: t("Input"),
+        dataSource: getEnterprise,
+        displayExpr: "CustomerName",
+        valueExpr: "CustomerCodeSys",
+        searchEnabled: true,
       },
     },
 
@@ -414,7 +444,7 @@ export const Rpt_MissedCallsPage = () => {
   });
   const popupSettings: IPopupOptions = {
     showTitle: true,
-    title: t("Rpt_CpnCampaignStatisticCall Information"),
+    title: t("Rpt_CpnCampaignStatisticCall_Information"),
     className: "bank-dealer-information-popup",
     toolbarItems: [
       {
@@ -498,9 +528,7 @@ export const Rpt_MissedCallsPage = () => {
       OrgIDConditionList: searchCondition.OrgIDConditionList
         ? searchCondition.OrgIDConditionList.join(",")
         : "",
-      TicketTypeConditionList: searchCondition.TicketTypeConditionList
-        ? searchCondition.TicketTypeConditionList.join(",")
-        : "",
+      TicketTypeConditionList: "MISSEDCALL",
       CustomerName: searchCondition.CustomerName
         ? searchCondition.CustomerName
         : "",

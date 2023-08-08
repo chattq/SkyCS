@@ -15,11 +15,6 @@ export const Tab_Attachments = ({ onReload, data }: any) => {
   const api = useClientgateApi();
   const column: ColumnOptions[] = [
     {
-      dataField: "Idx",
-      visible: true,
-      caption: t("Idx"),
-    },
-    {
       dataField: "LogLUDTimeUTC",
       visible: true,
       caption: t("LogLUDTimeUTC"), // thời gian tải lên
@@ -40,9 +35,9 @@ export const Tab_Attachments = ({ onReload, data }: any) => {
       caption: t("FileType"), // Định dạng
     },
     {
-      dataField: "LogLUDTimeUTC",
+      dataField: "FileSize",
       visible: true,
-      caption: t("LogLUDTimeUTC"), // Dung lượng
+      caption: t("FileSize"), // Dung lượng
     },
   ];
 
@@ -82,6 +77,10 @@ export const Tab_Attachments = ({ onReload, data }: any) => {
     const response = await api.ETTicketAttachFile_Download(param);
     if (response.isSuccess) {
       toast.success(t("Download Success"));
+      console.log("response ", response);
+      if (response.Data) {
+        window.location.href = response.Data.ZipFileUrl;
+      }
     } else {
       showError({
         message: t(response.errorCode),

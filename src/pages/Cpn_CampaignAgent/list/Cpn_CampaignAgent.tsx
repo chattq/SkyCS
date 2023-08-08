@@ -134,6 +134,8 @@ export const Cpn_CampaignAgentPage = () => {
       })
   );
 
+  console.log(137, data);
+
   const columns = useBankDealerGridColumns({ data: data?.Data || [] });
 
   const formItems: IItemProps[] = [

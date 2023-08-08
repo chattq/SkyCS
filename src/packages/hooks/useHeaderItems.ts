@@ -38,19 +38,19 @@ export const useHeaderItems = () => {
         permissionCode: "MNU_MONITOR",
       },
       {
-        text: t("Search"),
+        text: t("KnowledgeBase"),
         path: `/search/SearchInformation`,
         permissionCode: "MNU_SEARCH",
-      },
-      {
-        text: t("Admin"),
-        path: `/admin`,
-        permissionCode: "MENU_ADMIN",
       },
       {
         text: t("Report"),
         path: "/report",
         permissionCode: "MNU_REPORT",
+      },
+      {
+        text: t("Admin"),
+        path: `/admin`,
+        permissionCode: "MENU_ADMIN",
       },
     ].filter(
       (item) => item.permissionCode && hasMenuPermission(item.permissionCode)

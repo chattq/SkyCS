@@ -44,7 +44,7 @@ export const reportRoutes: RouteItem[] = [
     children: [
       {
         key: "Rpt_CpnCampaignResultCall",
-        path: "eticket-button-send",
+        path: "report/Rpt_CpnCampaignResultCall",
         permissionCode: "",
         subMenuTitle: "Rpt_CpnCampaignResultCall",
         mainMenuKey: "report",

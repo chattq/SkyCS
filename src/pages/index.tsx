@@ -15,3 +15,4 @@ export * from "./admin/test-tree-like-grid/tree-like-grid";
 export * from "./admin/test-tree-like-grid/tree-like-grid";
 
 export * from "@/pages/eticket/Detail/eticket-detail-page";
+export * from "./test/test-page"

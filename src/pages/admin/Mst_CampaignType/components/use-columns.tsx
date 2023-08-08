@@ -46,7 +46,7 @@ UseBankDealerGridColumnsProps) => {
     },
     {
       groupKey: "BASIC_INFORMATION",
-      dataField: "CampaignTypeName", // Mã ngân hàng
+      dataField: "CampaignTypeName", // Tên loại chiến dịch
       caption: t("CampaignTypeName"),
       editorType: "dxTextBox",
       validationRules: [requiredType],
@@ -67,10 +67,21 @@ UseBankDealerGridColumnsProps) => {
     },
     {
       groupKey: "BASIC_INFORMATION",
-      dataField: "CampaignTypeDesc", // Mã ngân hàng
+      dataField: "CampaignTypeDesc", // Mô tả
       caption: t("CampaignTypeDesc"),
       editorType: "dxTextBox",
       validationRules: [requiredType],
+      editorOptions: {
+        readOnly: false,
+        placeholder: t("Input"),
+      },
+      columnIndex: 1,
+    },
+    {
+      groupKey: "BASIC_INFORMATION",
+      dataField: "QtyCampaign", // Mô tả
+      caption: t("QtyCampaign"),
+      editorType: "dxTextBox",
       editorOptions: {
         readOnly: false,
         placeholder: t("Input"),

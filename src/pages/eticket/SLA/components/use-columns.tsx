@@ -1,6 +1,7 @@
 import { useI18n } from "@/i18n/useI18n";
 
 import { LinkCell } from "@packages/ui/link-cell";
+import { Switch } from "devextreme-react";
 import { useSetAtom } from "jotai";
 import { nanoid } from "nanoid";
 import { useNavigate } from "react-router-dom";
@@ -55,6 +56,7 @@ export const useMst_SLAColumns = () => {
       visible: true,
       width: 300,
     },
+
     {
       dataField: "LogLUDTimeUTC",
       editorOptions: {
@@ -63,6 +65,19 @@ export const useMst_SLAColumns = () => {
       caption: t("LogLUDTimeUTC"),
       columnIndex: 1,
       visible: true,
+    },
+    {
+      dataField: "SLAStatus",
+      editorOptions: {
+        readOnly: true,
+      },
+      caption: t("SLAStatus"),
+      columnIndex: 1,
+      visible: true,
+      width: 300,
+      cellRender: ({ data }: any) => {
+        return <Switch value={data?.SLAStatus == "1"} />;
+      },
     },
   ];
   // return array of the first item only

@@ -54,6 +54,7 @@ interface SearchProps {
   NetworkID: string;
   Ft_PageIndex: number;
   Ft_PageSize: number;
+  CustomerCodeSysERP: string[];
 }
 
 const Eticket = () => {
@@ -124,22 +125,23 @@ const Eticket = () => {
       JSON.stringify(searchCondition),
     ],
     queryFn: async () => {
-      console.log("searchCondition ", searchCondition);
-
       let conditionParam = {
         ...searchCondition,
         FlagOutOfDate: searchCondition?.FlagOutOfDate
           ? ""
           : searchCondition?.FlagOutOfDate === true
           ? "1"
-          : "0",
+          : "",
         FlagNotRespondingSLA: searchCondition?.FlagNotRespondingSLA
           ? ""
           : searchCondition?.FlagNotRespondingSLA === true
           ? "1"
-          : "0",
+          : "",
         TicketSource: searchCondition?.TicketSource
           ? searchCondition.TicketSource.join(",")
+          : "",
+        CustomerCodeSysERP: searchCondition?.CustomerCodeSysERP
+          ? searchCondition.CustomerCodeSysERP.join(",")
           : "",
         TicketStatus: searchCondition?.TicketStatus
           ? searchCondition.TicketStatus.join(",")
@@ -360,8 +362,6 @@ const Eticket = () => {
     },
   });
 
-  console.log("getEnterprise", getEnterprise);
-
   const setDefaultPopUp = () => {
     setPopupVisible(false);
     setPopUp(<></>);
@@ -464,7 +464,6 @@ const Eticket = () => {
         })
         .with("OutOfDate", () => {
           ref.instance?.filter(function (itemData: any) {
-            console.log("itemData", itemData.TicketDeadline);
             return (
               compareDates(getDateNow(), itemData.TicketDeadline) &&
               itemData.TicketStatus !== "OPEN"
@@ -550,13 +549,13 @@ const Eticket = () => {
           ? ""
           : searchCondition?.FlagOutOfDate === true
           ? "1"
-          : "0",
+          : "",
       FlagNotRespondingSLA:
         searchCondition?.FlagNotRespondingSLA === undefined
           ? ""
           : searchCondition?.FlagNotRespondingSLA === true
           ? "1"
-          : "0",
+          : "",
       TicketID: data.map((item: any) => item.TicketID).join(","),
     };
 
@@ -608,8 +607,6 @@ const Eticket = () => {
   const hanldeAdd = () => {
     navigate("eticket/Add");
   };
-
-  console.log("data  ++++++++++++++++++", data);
 
   return (
     <AdminContentLayout className={"Category_Manager"}>

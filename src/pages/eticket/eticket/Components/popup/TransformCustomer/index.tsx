@@ -121,13 +121,13 @@ const index = ({ onCancel, onSave, dataRow }: Props) => {
 
   return (
     <Popup
-      className="popup"
+      className="popup-tranfer-customer"
       position={"center"}
       showCloseButton={true}
       onHiding={onCancel}
       title={`Transform-Customer`}
       width={700}
-      height={450}
+      height={400}
       visible={popupVisible}
     >
       <LoadPanel
@@ -137,7 +137,7 @@ const index = ({ onCancel, onSave, dataRow }: Props) => {
         container={".dx-viewport"}
         shadingColor="rgba(0,0,0,0.4)"
       />
-      <div className="popup-content">
+      <div className="popup-tranfer-customer-content popup-content">
         <div className="tag flex items-center justify-between mb-4">
           <div className="left">
             <p className="strong">

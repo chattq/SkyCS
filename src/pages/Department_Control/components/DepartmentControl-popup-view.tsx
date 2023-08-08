@@ -75,9 +75,11 @@ export const DepartMentControlPopupView = ({
 
   const api = useClientgateApi();
 
-  const { data: listUser, isLoading } = useQuery(["listDataUser"], () =>
-    api.Sys_User_GetAllActive()
-  );
+  const {
+    data: listUser,
+    isLoading,
+    refetch,
+  } = useQuery(["listDataUser"], () => api.Sys_User_GetAllActive());
 
   useEffect(() => {
     if (listUser && flagCheckCRUD === true) {
@@ -98,6 +100,11 @@ export const DepartMentControlPopupView = ({
       );
     }
   }, [listUser, flagCheckCRUD]);
+  useEffect(() => {
+    if (dataForm) {
+      radioRef.current?.instance.option("value", dataForm?.FlagAutoDiv);
+    }
+  }, [dataForm, radioRef]);
 
   const handleCancel = () => {
     setPopupVisible(false);
@@ -148,7 +155,10 @@ export const DepartMentControlPopupView = ({
             : [
                 {
                   DepartmentCode: dataSaveForm.DepartmentCode,
-                  UserCode: radioRef.current,
+                  UserCode:
+                    typeof radioRef.current === "string"
+                      ? radioRef.current
+                      : dataUserAutoTicket[0].UserCode,
                   OrgID: auth.orgId.toString(),
                 },
               ],
@@ -160,7 +170,14 @@ export const DepartMentControlPopupView = ({
         onEdit(dataSave);
       }
     },
-    [flagCheckCRUD, dataTable, valueRadio, radioRef, dataForm]
+    [
+      flagCheckCRUD,
+      dataTable,
+      valueRadio,
+      radioRef,
+      dataForm,
+      dataUserAutoTicket,
+    ]
   );
 
   const customizeItem = useCallback(
@@ -247,6 +264,7 @@ export const DepartMentControlPopupView = ({
     );
   };
 
+  // console.log(60, dataForm);
   const dataSource = [
     {
       id: 0,
@@ -297,263 +315,265 @@ export const DepartMentControlPopupView = ({
   };
 
   return (
-    <Popup
-      visible={popupVisible}
-      showTitle={true}
-      title={title}
-      width={870}
-      height={650}
-      wrapperAttr={{
-        class: "popup-form-department",
-      }}
-      toolbarItems={[
-        {
-          toolbar: "bottom",
-          location: "after",
-          widget: "dxButton",
-          visible: !detailForm,
-          options: {
-            text: t("Save"),
-            stylingMode: "contained",
-            type: "default",
-            useSubmitBehavior: true,
-            onClick: handleSubmitPopup,
+    <div>
+      <Popup
+        visible={popupVisible}
+        showTitle={true}
+        title={title}
+        width={870}
+        height={650}
+        wrapperAttr={{
+          class: "popup-form-department",
+        }}
+        toolbarItems={[
+          {
+            toolbar: "bottom",
+            location: "after",
+            widget: "dxButton",
+            visible: !detailForm,
+            options: {
+              text: t("Save"),
+              stylingMode: "contained",
+              type: "default",
+              useSubmitBehavior: true,
+              onClick: handleSubmitPopup,
+            },
           },
-        },
-        {
-          toolbar: "bottom",
-          location: "after",
-          widget: "dxButton",
-          options: {
-            text: t("Cancel"),
-            type: "default",
-            onClick: handleCancel,
+          {
+            toolbar: "bottom",
+            location: "after",
+            widget: "dxButton",
+            options: {
+              text: t("Cancel"),
+              type: "default",
+              onClick: handleCancel,
+            },
           },
-        },
-      ]}
-    >
-      <ScrollView height={"100%"}>
-        <form ref={formRef} onSubmit={handleSubmitPopup}>
-          <Form
-            // onEditorEnterKey={}
-            ref={validateRef}
-            formData={dataForm}
-            labelLocation="top"
-            validationGroup="DepartmentControlData"
-            onInitialized={(e) => {
-              validateRef.current = e.component;
-            }}
-            readOnly={detailForm}
-            customizeItem={customizeItem}
-            onFieldDataChanged={handleFieldDataChanged}
-          >
-            {formSettings
-              .filter((item: any) => item.typeForm === "textForm")
-              .map((value: any) => {
-                return (
-                  <GroupItem colCount={value.colCount}>
-                    {value.items.map((items: any) => {
-                      return (
-                        <GroupItem colSpan={items.colSpan}>
-                          {items.items.map((valueFrom: any) => {
-                            return (
-                              <SimpleItem
-                                key={valueFrom.caption}
-                                {...valueFrom}
-                              />
-                            );
-                          })}
-                        </GroupItem>
-                      );
-                    })}
-                  </GroupItem>
-                );
-              })}
-          </Form>
-
-          <div className="flex items-center mt-1 px-2 mb-2 justify-between">
-            {detailForm ? (
-              ""
-            ) : (
-              <div
-                onClick={handleAddUser}
-                className="bg-[#008016] cursor-pointer px-2 text-[white] py-1 rounded-sm"
-              >
-                {t("Thêm thành viên")}
-              </div>
-            )}
-            <div
-              // onClick={handleCheckNumberUser}
-              className="text-[#008016]"
+        ]}
+      >
+        <ScrollView height={"100%"}>
+          <form ref={formRef} onSubmit={handleSubmitPopup}>
+            <Form
+              // onEditorEnterKey={}
+              ref={validateRef}
+              formData={dataForm}
+              labelLocation="top"
+              validationGroup="DepartmentControlData"
+              onInitialized={(e) => {
+                validateRef.current = e.component;
+              }}
+              readOnly={detailForm}
+              customizeItem={customizeItem}
+              onFieldDataChanged={handleFieldDataChanged}
             >
-              {t("Số lượng nhân viên:") +
-                "  " +
-                `${
-                  dataTable?.filter(
-                    (value: any, index: any, self: any) =>
-                      self.indexOf(value) === index
-                  ).length
-                }`}
-            </div>
-          </div>
-        </form>
-        <form ref={gridRef} className="listUser_Department">
-          <GridViewCustomize
-            isShowIconEdit={false}
-            cssClass={"listUser_Department"}
-            isLoading={isLoading}
-            dataSource={dataTable.filter(
-              (value: any, index: any, self: any) =>
-                self.indexOf(value) === index
-            )}
-            columns={
-              formSettings.filter(
-                (item: any) => item.typeForm === "TableForm"
-              )[0].items
-            }
-            keyExpr={["UserCode", "OrgID"]}
-            formSettings={formSettings}
-            onReady={(ref) => (gridRef = ref)}
-            allowSelection={false}
-            onSelectionChanged={() => {}}
-            onSaveRow={() => {}}
-            onEditorPreparing={() => {}}
-            onEditRowChanges={() => {}}
-            onDeleteRows={handleDeleteRow}
-            onEditRow={() => {}}
-            storeKey={"List-user-columns"}
-            isShowEditting={detailForm === true ? false : true}
-            isSingleSelection={false}
-            isHidenHeaderFilter={false}
-            isHiddenCheckBox={true}
-            customToolbarItems={[]}
-          />
-        </form>
+              {formSettings
+                .filter((item: any) => item.typeForm === "textForm")
+                .map((value: any) => {
+                  return (
+                    <GroupItem colCount={value.colCount}>
+                      {value.items.map((items: any) => {
+                        return (
+                          <GroupItem colSpan={items.colSpan}>
+                            {items.items.map((valueFrom: any) => {
+                              return (
+                                <SimpleItem
+                                  key={valueFrom.caption}
+                                  {...valueFrom}
+                                />
+                              );
+                            })}
+                          </GroupItem>
+                        );
+                      })}
+                    </GroupItem>
+                  );
+                })}
+            </Form>
 
-        <div className="mt-3">
-          {dataTable?.length !== 0 ? (
-            <div>
-              <span className="font-bold">
-                {t("Tự động giao việc eTicket trong Team")}
-              </span>
-              <div className="ml-3 mt-3">
-                <div>
-                  <RadioGroup
-                    ref={radioRef}
-                    readOnly={detailForm}
-                    dataSource={dataSource}
-                    itemRender={renderRadioGroupItem}
-                    defaultValue={dataForm.FlagAutoDiv}
-                    onValueChanged={(e) => handleChangeRadio(e.value)}
-                    valueExpr="FlagAutoDiv"
-                  />
+            <div className="flex items-center mt-1 px-2 mb-2 justify-between">
+              {detailForm ? (
+                ""
+              ) : (
+                <div
+                  onClick={handleAddUser}
+                  className="bg-[#008016] cursor-pointer px-2 text-[white] py-1 rounded-sm"
+                >
+                  {t("Thêm thành viên")}
                 </div>
+              )}
+              <div
+                // onClick={handleCheckNumberUser}
+                className="text-[#008016]"
+              >
+                {t("Số lượng nhân viên:") +
+                  "  " +
+                  `${
+                    dataTable?.filter(
+                      (value: any, index: any, self: any) =>
+                        self.indexOf(value) === index
+                    ).length
+                  }`}
               </div>
             </div>
-          ) : null}
-        </div>
+          </form>
+          <form ref={gridRef} className="listUser_Department">
+            <GridViewCustomize
+              isShowIconEdit={false}
+              cssClass={"listUser_Department"}
+              isLoading={isLoading}
+              dataSource={dataTable.filter(
+                (value: any, index: any, self: any) =>
+                  self.indexOf(value) === index
+              )}
+              columns={
+                formSettings.filter(
+                  (item: any) => item.typeForm === "TableForm"
+                )[0].items
+              }
+              keyExpr={["UserCode", "OrgID"]}
+              formSettings={formSettings}
+              onReady={(ref) => (gridRef = ref)}
+              allowSelection={false}
+              onSelectionChanged={() => {}}
+              onSaveRow={() => {}}
+              onEditorPreparing={() => {}}
+              onEditRowChanges={() => {}}
+              onDeleteRows={handleDeleteRow}
+              onEditRow={() => {}}
+              storeKey={"List-user-columns"}
+              isShowEditting={detailForm === true ? false : true}
+              isSingleSelection={false}
+              isHidenHeaderFilter={false}
+              isHiddenCheckBox={true}
+              customToolbarItems={[]}
+            />
+          </form>
 
-        <Popup
-          visible={hidenPopupAddUser}
-          onHiding={handleCancelUser}
-          showCloseButton={true}
-          hideOnOutsideClick={true}
-          // dragEnabled={true}
-          showTitle={true}
-          title={t("Thông tin các nhân viên")}
-          container=".dx-viewport"
-          width={850}
-          height={600}
-          toolbarItems={[
-            {
-              toolbar: "bottom",
-              location: "after",
-              widget: "dxButton",
-              visible: !detailForm,
-              options: {
-                text: t("Save"),
-                stylingMode: "contained",
-                type: "default",
-                useSubmitBehavior: true,
-                onClick: handleSubmitUser,
-              },
-            },
-            {
-              toolbar: "bottom",
-              location: "after",
-              widget: "dxButton",
-              visible: !detailForm,
-              options: {
-                text: t("Cancel"),
-                stylingMode: "contained",
-                type: "default",
-                useSubmitBehavior: true,
-                onClick: handleCancelUser,
-              },
-            },
-          ]}
-        >
-          <LoadPanel visible={dataUser} position={{ of: "#gridContainer" }} />
-          <div>
-            <div className="mb-3">
-              <input
-                className="h-[30px] w-full text-[14px]"
-                type="text"
-                placeholder={t("Nhập khóa để tìm kiếm ...")}
-                onChange={(e) => handleSearchUser(e)}
-              />
-            </div>
-
-            {dataUser?.map((item: any) => {
-              return (
-                <div>
-                  <div
-                    key={item.UserCode}
-                    className="flex items-center border-b border-t py-2 px-2"
-                  >
-                    {detailForm ? (
-                      ""
-                    ) : (
-                      <div className="mr-4">
-                        <CheckBox
-                          data-key={item.UserCode}
-                          onValueChanged={(e) =>
-                            handleChooseUser(item, item.UserCode, e.value)
-                          }
-                        />
-                      </div>
-                    )}
-                    <div className="flex w-[95%] items-center justify-between">
-                      <div className="flex items-center">
-                        <div className="h-[50px] w-[50px] overflow-hidden rounded-full">
-                          <img
-                            src={
-                              item?.Avatar !== null
-                                ? item?.Avatar
-                                : "https://tse2.mm.bing.net/th?id=OIP.udoq18uxDpu6UHi2H__97gAAAA&pid=Api&P=0&h=180"
-                            }
-                            alt=""
-                            className="h-full w-full object-cover"
-                          />
-                        </div>
-                        <div className="ml-2">
-                          <div className="mb-1 h-[17px] truncate">
-                            {item.UserName ?? "---"}
-                          </div>
-                          <div className="h-[20px] truncate">
-                            {item.ACEmail ?? "---"}
-                          </div>
-                        </div>
-                      </div>
-                      <div>{item.PhoneNo}</div>
-                    </div>
+          <div className="mt-3">
+            {dataTable?.length !== 0 ? (
+              <div>
+                <span className="font-bold">
+                  {t("Tự động giao việc eTicket trong Team")}
+                </span>
+                <div className="ml-3 mt-3">
+                  <div>
+                    <RadioGroup
+                      ref={radioRef}
+                      readOnly={detailForm}
+                      dataSource={dataSource}
+                      itemRender={renderRadioGroupItem}
+                      // defaultValue={dataForm?.FlagAutoDiv}
+                      onValueChanged={(e) => handleChangeRadio(e.value)}
+                      valueExpr="FlagAutoDiv"
+                    />
                   </div>
                 </div>
-              );
-            })}
+              </div>
+            ) : null}
           </div>
-        </Popup>
-      </ScrollView>
-    </Popup>
+
+          <Popup
+            visible={hidenPopupAddUser}
+            onHiding={handleCancelUser}
+            showCloseButton={true}
+            hideOnOutsideClick={true}
+            // dragEnabled={true}
+            showTitle={true}
+            title={t("Thông tin các nhân viên")}
+            container=".dx-viewport"
+            width={850}
+            height={600}
+            toolbarItems={[
+              {
+                toolbar: "bottom",
+                location: "after",
+                widget: "dxButton",
+                visible: !detailForm,
+                options: {
+                  text: t("Save"),
+                  stylingMode: "contained",
+                  type: "default",
+                  useSubmitBehavior: true,
+                  onClick: handleSubmitUser,
+                },
+              },
+              {
+                toolbar: "bottom",
+                location: "after",
+                widget: "dxButton",
+                visible: !detailForm,
+                options: {
+                  text: t("Cancel"),
+                  stylingMode: "contained",
+                  type: "default",
+                  useSubmitBehavior: true,
+                  onClick: handleCancelUser,
+                },
+              },
+            ]}
+          >
+            <LoadPanel visible={dataUser} position={{ of: "#gridContainer" }} />
+            <div>
+              <div className="mb-3">
+                <input
+                  className="h-[30px] w-full text-[14px]"
+                  type="text"
+                  placeholder={t("Nhập khóa để tìm kiếm ...")}
+                  onChange={(e) => handleSearchUser(e)}
+                />
+              </div>
+
+              {dataUser?.map((item: any) => {
+                return (
+                  <div>
+                    <div
+                      key={item.UserCode}
+                      className="flex items-center border-b border-t py-2 px-2"
+                    >
+                      {detailForm ? (
+                        ""
+                      ) : (
+                        <div className="mr-4">
+                          <CheckBox
+                            data-key={item.UserCode}
+                            onValueChanged={(e) =>
+                              handleChooseUser(item, item.UserCode, e.value)
+                            }
+                          />
+                        </div>
+                      )}
+                      <div className="flex w-[95%] items-center justify-between">
+                        <div className="flex items-center">
+                          <div className="h-[50px] w-[50px] overflow-hidden rounded-full">
+                            <img
+                              src={
+                                item?.Avatar !== null
+                                  ? item?.Avatar
+                                  : "https://tse2.mm.bing.net/th?id=OIP.udoq18uxDpu6UHi2H__97gAAAA&pid=Api&P=0&h=180"
+                              }
+                              alt=""
+                              className="h-full w-full object-cover"
+                            />
+                          </div>
+                          <div className="ml-2">
+                            <div className="mb-1 h-[17px] truncate">
+                              {item.UserName ?? "---"}
+                            </div>
+                            <div className="h-[20px] truncate">
+                              {item.ACEmail ?? "---"}
+                            </div>
+                          </div>
+                        </div>
+                        <div>{item.PhoneNo}</div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </Popup>
+        </ScrollView>
+      </Popup>
+    </div>
   );
 };

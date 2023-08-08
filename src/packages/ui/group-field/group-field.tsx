@@ -28,9 +28,10 @@ export const GroupField = ({
         className={control.visible ? "normal-content" : "collapsible-content"}
         readOnly={true}
         formData={formData}
+        colCount={2}
       >
         {item.items?.map((subItem: any, subIndex: number) => {
-          return <SimpleItem {...subItem} key={subIndex} />;
+          return <SimpleItem {...subItem} key={subIndex} colSpan={1} />;
         })}
       </Form>
     </div>

@@ -101,7 +101,7 @@ export const HeaderPart = ({ onAddNew, searchCondition }: HeaderPartProps) => {
           text={t("Add New")}
           onClick={onAddNew}
         />
-        <DropDownButton
+        {/* <DropDownButton
           showArrowIcon={false}
           keyExpr={"id"}
           className="menu-items"
@@ -125,7 +125,7 @@ export const HeaderPart = ({ onAddNew, searchCondition }: HeaderPartProps) => {
               return <div>{exportButton}</div>;
             }}
           />
-        </DropDownButton>
+        </DropDownButton> */}
 
         {uploadDialog}
         {exportDialog}

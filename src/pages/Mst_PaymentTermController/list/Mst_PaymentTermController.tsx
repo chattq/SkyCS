@@ -130,7 +130,7 @@ export const Mst_PaymentTermControllerPage = () => {
     setSelectedItems(rows);
   };
   const handleAddNew = () => {
-    gridRef.current._instance.addRow();
+    gridRef.current.instance.addRow();
   };
 
   // toggle search panel

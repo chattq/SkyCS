@@ -58,6 +58,7 @@ import {
   groupTicketsByDate,
 } from "../components/FormatDataTicket";
 import { getFirstDateOfMonth } from "@/components/ulti";
+import { FlagActiveEnum } from "@/packages/types";
 
 export const Rpt_ETTicketSynthesisControllerPage = () => {
   const { t } = useI18n("Rpt_ETTicketSynthesisController");
@@ -182,6 +183,31 @@ export const Rpt_ETTicketSynthesisControllerPage = () => {
         }
       },
     });
+  const { data: listCustomer } = useQuery(
+    ["listCustomer"],
+    () => api.Mst_Customer_GetAllActive() as any
+  );
+  const { data: getEnterprise, isLoading: isLoadingEnterprise } = useQuery({
+    queryKey: ["Mst_Customer_Search_Eticket_Manager"],
+    queryFn: async () => {
+      const response = await api.Mst_Customer_Search({
+        Ft_PageIndex: 0,
+        Ft_PageSize: 1000,
+        FlagActive: FlagActiveEnum.Active,
+        CustomerType: "TOCHUC",
+      });
+
+      if (response.isSuccess) {
+        return response.DataList;
+      } else {
+        showError({
+          message: t(response.errorCode),
+          debugInfo: response.debugInfo,
+          errorInfo: response.errorInfo,
+        });
+      }
+    },
+  });
 
   const listStatus = [
     {
@@ -296,22 +322,28 @@ export const Rpt_ETTicketSynthesisControllerPage = () => {
       label: {
         text: t("Khách hàng"),
       },
-      editorType: "dxTextBox",
+      editorType: "dxSelectBox",
       editorOptions: {
         readOnly: false,
-        placeholder: t("Input"),
+        placeholder: t("Select"),
+        dataSource: listCustomer?.DataList ?? [],
+        valueExpr: "CustomerName",
+        displayExpr: "CustomerName",
+        searchEnabled: true,
       },
     },
     {
       caption: t("CustomerCompany"),
       dataField: "CustomerCompany",
       label: {
-        text: t("Công ty"),
+        text: t("Doanh nghiệp"),
       },
-      editorType: "dxTextBox",
+      editorType: "dxSelectBox",
       editorOptions: {
-        readOnly: false,
-        placeholder: t("Input"),
+        dataSource: getEnterprise,
+        displayExpr: "CustomerName",
+        valueExpr: "CustomerCodeSys",
+        searchEnabled: true,
       },
     },
 

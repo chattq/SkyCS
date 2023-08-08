@@ -87,79 +87,60 @@ const SLA_Page = () => {
 
         setFormValue({
           ...resp?.Data?.Mst_SLA,
+          SLAStatus: resp?.Data?.Mst_SLA?.SLAStatus == "1",
           FirstResTime: firstTime,
           ResolutionTime: resolutionTime,
         });
 
         setTicketInfo({
           TicketType:
-            resp?.Data?.Lst_Mst_SLATicketType?.map((item: any) => {
+            resp?.Data?.Lst_Mst_SLATicketType?.filter(
+              (item: any) => item?.TicketType
+            )?.map((item: any) => {
               return item?.TicketType;
             }) || [],
           TicketCustomType:
-            resp?.Data?.Lst_Mst_SLATicketCustomType?.map(
+            resp?.Data?.Lst_Mst_SLATicketCustomType?.filter(
               (item: any) => item?.TicketCustomType
-            ) || [],
+            )?.map((item: any) => item?.TicketCustomType) || [],
           Customer:
-            resp?.Data?.Lst_Mst_SLACustomerCN.filter((item: any) => {
-              if (
-                item?.CustomerCodeSys &&
-                item?.CustomerCodeSys != "null" &&
-                item?.CustomerCodeSys != undefined
-              ) {
-                return item;
-              }
-            })?.map((item: any) => {
+            resp?.Data?.Lst_Mst_SLACustomerCN.filter(
+              (item: any) => item?.CustomerCodeSys
+            )?.map((item: any) => {
               return item?.CustomerCodeSys;
             }) || [],
           CustomerGroup:
-            resp?.Data?.Lst_Mst_SLACustomerGroupCN?.filter((item: any) => {
-              if (
-                item?.CustomerGrpCode &&
-                item?.CustomerGrpCode != "null" &&
-                item?.CustomerGrpCode != undefined
-              ) {
-                return item;
-              }
-            })?.map((item: any) => {
+            resp?.Data?.Lst_Mst_SLACustomerGroupCN?.filter(
+              (item: any) => item?.CustomerGrpCode
+            )?.map((item: any) => {
               return item?.CustomerGrpCode;
             }) || [],
           CustomerEnterprise:
-            resp?.Data?.Lst_Mst_SLACustomerDN?.filter((item: any) => {
-              if (
-                item?.CustomerCodeSys &&
-                item?.CustomerCodeSys != "null" &&
-                item?.CustomerCodeSys != undefined
-              ) {
-                return item;
-              }
-            })?.map((item: any) => {
+            resp?.Data?.Lst_Mst_SLACustomerDN?.filter(
+              (item: any) => item?.CustomerCodeSys
+            )?.map((item: any) => {
               return item?.CustomerCodeSys;
             }) || [],
           CustomerEnterpriseGroup:
-            resp?.Data?.Lst_Mst_SLACustomerGroupDN?.filter((item: any) => {
-              if (
-                item?.CustomerGrpCode &&
-                item?.CustomerGrpCode != "null" &&
-                item?.CustomerGrpCode != undefined
-              ) {
-                return item;
-              }
-            })?.map((item: any) => {
+            resp?.Data?.Lst_Mst_SLACustomerGroupDN?.filter(
+              (item: any) => item?.CustomerGrpCode
+            )?.map((item: any) => {
               return item?.CustomerGrpCode;
             }) || [],
         });
 
         if (resp?.Data?.Lst_Mst_SLAHoliday) {
           setHolidayList(
-            resp?.Data?.Lst_Mst_SLAHoliday?.map((item: any) => {
+            resp?.Data?.Lst_Mst_SLAHoliday?.filter(
+              (item: any) => item?.SLAHoliday
+            )?.map((item: any) => {
               return {
                 Day: getDay(item?.SLAHoliday),
                 Month: getMonth(item?.SLAHoliday),
                 Event: item?.SLAHolidayName,
                 id: nanoid(),
               };
-            })
+            }) ?? []
           );
         }
 
@@ -269,7 +250,6 @@ const SLA_Page = () => {
     const Lst_Mst_SLACustomerCN = ticketInfoValue.Customer?.map((item: any) => {
       return {
         CustomerCodeSys: item,
-        CustomerType: "CANHAN",
       };
     });
 
@@ -277,7 +257,6 @@ const SLA_Page = () => {
       (item: any) => {
         return {
           CustomerCodeSys: item,
-          CustomerType: "DOANHNGHIEP",
         };
       }
     );
@@ -286,7 +265,6 @@ const SLA_Page = () => {
       (item: any) => {
         return {
           CustomerGrpCode: item,
-          CustomerGrpType: "CANHAN",
         };
       }
     );
@@ -295,7 +273,6 @@ const SLA_Page = () => {
       ticketInfoValue.CustomerEnterpriseGroup?.map((item: any) => {
         return {
           CustomerGrpCode: item,
-          CustomerGrpType: "DOANHNGHIEP",
         };
       });
 
@@ -340,6 +317,7 @@ const SLA_Page = () => {
       ORConditionDetails: null,
       EveryResTime: "",
       ...headerFormValue,
+      SLAStatus: headerFormValue.SLAStatus ? "1" : "0",
       FirstResTime: Math.floor(headerFormValue.FirstResTime / 60000) + 420,
       ResolutionTime: Math.floor(headerFormValue.ResolutionTime / 60000) + 420,
       FlagAllTicketCustomType:
@@ -401,12 +379,14 @@ const SLA_Page = () => {
 
     const Lst_Mst_SLAHoliday =
       holidayListValue?.map((item: any) => {
-        return {
-          SLAHoliday: `${`0${item.Day}`.slice(-2)}-${`0${item.Month}`.slice(
-            -2
-          )}`,
-          SLAHolidayName: item.Event,
-        };
+        if (item?.Day && item?.Month && item?.Event) {
+          return {
+            SLAHoliday: `${`0${item.Day}`.slice(-2)}-${`0${item.Month}`.slice(
+              -2
+            )}`,
+            SLAHolidayName: item.Event,
+          };
+        }
       }) ?? [];
 
     const Lst_Mst_SLAWorkingDay =
@@ -436,7 +416,6 @@ const SLA_Page = () => {
     const Lst_Mst_SLACustomerCN = ticketInfoValue.Customer?.map((item: any) => {
       return {
         CustomerCodeSys: item,
-        CustomerType: "CANHAN",
       };
     });
 
@@ -444,7 +423,6 @@ const SLA_Page = () => {
       (item: any) => {
         return {
           CustomerCodeSys: item,
-          CustomerType: "DOANHNGHIEP",
         };
       }
     );
@@ -453,7 +431,6 @@ const SLA_Page = () => {
       (item: any) => {
         return {
           CustomerGrpCode: item,
-          CustomerGrpType: "CANHAN",
         };
       }
     );
@@ -462,7 +439,6 @@ const SLA_Page = () => {
       ticketInfoValue.CustomerEnterpriseGroup?.map((item: any) => {
         return {
           CustomerGrpCode: item,
-          CustomerGrpType: "DOANHNGHIEP",
         };
       });
 
@@ -474,6 +450,8 @@ const SLA_Page = () => {
       EveryResTime: "",
 
       ...headerFormValue,
+      SLAStatus: headerFormValue.SLAStatus ? "1" : "0",
+
       FirstResTime: Math.floor(headerFormValue.FirstResTime / 60000) + 420,
       ResolutionTime: Math.floor(headerFormValue.ResolutionTime / 60000) + 420,
       FlagAllTicketCustomType:

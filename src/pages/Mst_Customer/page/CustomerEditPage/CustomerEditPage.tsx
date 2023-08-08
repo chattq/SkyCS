@@ -60,6 +60,7 @@ const CustomerEditPage = () => {
                 item?.ColDataType === "MASTERDATASELECTMULTIPLE") &&
               item?.FlagActive
           ).map((item: MdMetaColGroupSpec) => item?.ColCodeSys);
+
           if (listDynamicFields.length) {
             setDynamicFields(listDynamicFields);
           }
@@ -206,8 +207,6 @@ const CustomerEditPage = () => {
     },
   });
 
-  // console.log(listCodeField, listDynamic, listGroupCode, getValueItem);
-
   const { data: getCustomerCodeSysSeq, refetch: refetchSeq } = useQuery(
     ["GetCustomerCodeSysSeq"],
     async () => {
@@ -233,6 +232,18 @@ const CustomerEditPage = () => {
     });
   }, []);
 
+  // console.log(
+  //   listCodeField?.map((item: any) => {
+  //     return {
+  //       ColCaption: item?.ColCaption,
+  //       Idx: item?.OrderIdx,
+  //       GroupCode: item?.ColGrpCodeSys?.substring(
+  //         item?.ColGrpCodeSys?.length - 2
+  //       ),
+  //     };
+  //   })
+  // );
+
   const getFormField = useMemo(() => {
     if (!isLoadingCodeField && !isLoadingGroupCode && !isLoadingValueItem) {
       const listField = getListField({
@@ -243,6 +254,8 @@ const CustomerEditPage = () => {
           editType: "update",
         },
       });
+
+      console.log(listField);
 
       const buildDynamicForm = listGroupCode?.map((groupItem: any) => {
         return {
@@ -280,7 +293,7 @@ const CustomerEditPage = () => {
     listCodeField,
   ]);
 
-  // console.log(getFormField);
+  console.log(getFormField);
 
   const handleUpdate = async () => {
     if (!checkPhone(formValue["CtmPhoneNo"] ?? [])) {

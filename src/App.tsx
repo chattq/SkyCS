@@ -1,6 +1,6 @@
 import { noSidebarRoutes, protectedRoutes } from "@/app-routes";
 import { AdminPageLayout } from "@/layouts";
-import { LoginSsoPage, Page404, SelectNetworkPage } from "@/pages";
+import {LoginSsoPage, Page404, SelectNetworkPage, TestPage} from "@/pages";
 import { HomePage } from "@/pages/home-page";
 import { localeAtom } from "@packages/store/localization-store";
 import { PrivateRoutes } from "@packages/ui/private-routes";
@@ -28,6 +28,7 @@ export default function Root() {
             <Route path={"/zalo-login-callback"} element={<ZaloLoginCallback />} />
             <Route path={":networkId"} element={<AdminPageLayout />}>
               <Route path={"/:networkId/"} element={<AdminDashboardPage />} />
+              <Route path={"testPage"} element={<TestPage />}></Route>
               {protectedRoutes
                 .filter((route) => route.key === route.mainMenuKey)
                 .map((route) => {

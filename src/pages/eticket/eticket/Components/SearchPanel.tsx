@@ -26,7 +26,7 @@ export const SearchPanel = ({
   data,
 }: SearchPanelProps) => {
   // màn hình search
-  const { t } = useI18n("Common");
+  const { t } = useI18n("Eticket");
   const api = useClientgateApi();
   const setSearchPanelVisible = useSetAtom(searchPanelVisibleAtom); // hàm này dùng để thay đổi trạng thái của state
   const onToggleSettings = () => {};

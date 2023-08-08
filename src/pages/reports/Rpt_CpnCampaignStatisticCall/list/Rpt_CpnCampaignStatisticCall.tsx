@@ -52,6 +52,15 @@ export const Rpt_CpnCampaignStatisticCallPage = () => {
   const startDate = new Date(now.getTime() - msInDay * 3);
   const endDate = new Date(now.getTime());
 
+  //tạo thời gian
+  var currentDate = new Date();
+
+  // Lấy năm hiện tại
+  var currentYear = currentDate.getFullYear();
+
+  // Tạo một đối tượng Date mới với ngày đầu tiên của năm
+  var firstDayOfYear = new Date(currentYear, 0, 1);
+
   const [searchCondition] = useState<any>({
     AgentCodeConditionList: "",
     CampaignCodeConditionList: "",
@@ -74,7 +83,7 @@ export const Rpt_CpnCampaignStatisticCallPage = () => {
           : "",
         ReportDTimeFrom: searchCondition.MonthReport[0]
           ? format(searchCondition.MonthReport[0], "yyyy-MM-dd")
-          : getFirstDateOfMonth(endDate),
+          : format(firstDayOfYear, "yyyy-MM-dd"),
         ReportDTimeTo: searchCondition.MonthReport[1]
           ? format(searchCondition.MonthReport[1], "yyyy-MM-dd")
           : format(endDate, "yyyy-MM-dd"),
@@ -114,7 +123,8 @@ export const Rpt_CpnCampaignStatisticCallPage = () => {
             <DateRangeBox
               displayFormat=" yyyy-MM-dd"
               defaultStartDate={
-                searchCondition.MonthReport[0] || getFirstDateOfMonth(endDate)
+                searchCondition.MonthReport[0] ||
+                format(firstDayOfYear, "yyyy-MM-dd")
               }
               defaultEndDate={searchCondition.MonthReport[1] || endDate}
               showClearButton={true}
@@ -203,7 +213,7 @@ export const Rpt_CpnCampaignStatisticCallPage = () => {
 
   const popupSettings: IPopupOptions = {
     showTitle: true,
-    title: t("Rpt_CpnCampaignStatisticCall Information"),
+    title: t("Rpt_CpnCampaignStatisticCall_Information"),
     className: "bank-dealer-information-popup",
     toolbarItems: [
       {
@@ -286,7 +296,7 @@ export const Rpt_CpnCampaignStatisticCallPage = () => {
         : "",
       ReportDTimeFrom: searchCondition.MonthReport[0]
         ? format(searchCondition.MonthReport[0], "yyyy-MM-dd")
-        : getFirstDateOfMonth(endDate),
+        : format(firstDayOfYear, "yyyy-MM-dd"),
       ReportDTimeTo: searchCondition.MonthReport[1]
         ? format(searchCondition.MonthReport[1], "yyyy-MM-dd")
         : format(endDate, "yyyy-MM-dd"),

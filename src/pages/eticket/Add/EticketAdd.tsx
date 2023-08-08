@@ -1,5 +1,6 @@
 import NavNetworkLink from "@/components/Navigate";
 import { encodeFileType, revertEncodeFileType } from "@/components/ulti";
+import { useI18n } from "@/i18n/useI18n";
 import { useClientgateApi } from "@/packages/api";
 import { useAuth } from "@/packages/contexts/auth";
 import { useNetworkNavigate } from "@/packages/hooks";
@@ -62,6 +63,8 @@ const EticketAdd = () => {
   const api = useClientgateApi();
 
   const { auth } = useAuth();
+
+  const { t } = useI18n("EticketAdd");
 
   const { TicketID, type } = useParams();
 
@@ -178,7 +181,9 @@ const EticketAdd = () => {
 
   useEffect(() => {
     refetch();
-  }, []);
+  }, [TicketID]);
+
+  console.log(formValue);
 
   const dynamicForm = useAtomValue(dynamicFormValue);
 
@@ -222,6 +227,7 @@ const EticketAdd = () => {
           FileName: item?.FileFullName,
           FileType: revertEncodeFileType(item?.FileType),
           FilePath: item?.FilePath ?? item?.FileUrlFS,
+          FileSize: item?.FileSize ?? "",
         };
       }) ?? [];
 
@@ -295,7 +301,7 @@ const EticketAdd = () => {
           Idx: index + 1,
           FileName: item?.FileFullName,
           FileType: revertEncodeFileType(item?.FileType),
-          FilePath: item?.FilePath ?? item?.FileUrlFS,
+          FileSize: item?.FileSize ?? "",
         };
       }) ?? [];
 

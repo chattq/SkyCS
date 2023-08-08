@@ -316,14 +316,12 @@ export const Tab_CallHistoryToAgent = ({ getListOrg }: { getListOrg: any }) => {
       <ReportLayout.Slot name={"Content"}>
         <ContentSearchPanelLayout>
           <ContentSearchPanelLayout.Slot name={"SearchPanel"}>
-            <div className={"w-[230px]"}>
-              <SearchPanelV2
-                storeKey="tab_callAgent_Search"
-                conditionFields={formItems}
-                data={searchCondition}
-                onSearch={handleSearch}
-              />
-            </div>
+            <SearchPanelV2
+              storeKey="tab_callAgent_Search"
+              conditionFields={formItems}
+              data={searchCondition}
+              onSearch={handleSearch}
+            />
           </ContentSearchPanelLayout.Slot>
           <ContentSearchPanelLayout.Slot name={"ContentPanel"}>
             {key !== "0" && (

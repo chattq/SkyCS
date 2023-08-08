@@ -124,12 +124,14 @@ export const Department_ControlPage = () => {
   };
 
   const handleOnEditRow = async (DepartmentCode: any) => {
-    setFlag(false);
-    setShowDetail(false);
     const resp = await api.Mst_DepartmentControl_GetByDepartmentCode(
       DepartmentCode
     );
     if (resp.isSuccess) {
+      setDataForm({
+        ...resp.Data?.Mst_Department,
+        FlagActive: resp.Data?.Mst_Department.FlagActive === "1" ? true : false,
+      });
       setDataTable(
         resp?.Data?.Lst_Sys_UserMapDepartment.map((item: any) => {
           return {
@@ -141,10 +143,7 @@ export const Department_ControlPage = () => {
           };
         })
       );
-      setDataForm({
-        ...resp.Data?.Mst_Department,
-        FlagActive: resp.Data?.Mst_Department.FlagActive === "1" ? true : false,
-      });
+
       setUserAutoAssignTicket(
         resp?.Data?.Lst_Sys_UserAutoAssignTicket?.map((item: any) => {
           return {
@@ -154,6 +153,8 @@ export const Department_ControlPage = () => {
         })
       );
     }
+    setFlag(false);
+    setShowDetail(false);
     setPopupVisible(true);
   };
 

@@ -153,6 +153,13 @@
     background: rgba(213, 249, 232, 1);
   }
 
+  .part-reply-call {
+    .message-type {
+      left: -12px;
+    }
+  }
+
+
   .message-type.callMissedIn {
     background: rgba(255, 232, 238, 1);
   }
@@ -851,6 +858,7 @@
       }
     }
   }
+
 }
 
 .text-bold {

@@ -9,6 +9,7 @@ import {
   dataFormAtom,
   dataFuntionAtom,
   dataTableAtom,
+  dataTableUserAtom,
   flagEdit,
   selectedItemsAtom,
   showDetail,
@@ -41,7 +42,7 @@ export const Sys_GroupPage = () => {
   const showError = useSetAtom(showErrorAtom);
   const setPopupVisible = useSetAtom(showPopup);
   const setShowDetail = useSetAtom(showDetail);
-  const setDataTable = useSetAtom(dataTableAtom);
+  const setDataTable = useSetAtom(dataTableUserAtom);
   const setDataForm = useSetAtom(dataFormAtom);
   const setDataFuntion = useSetAtom(dataFuntionAtom);
   const setFlag = useSetAtom(flagEdit);
@@ -121,18 +122,27 @@ export const Sys_GroupPage = () => {
     setShowInfoObj(false);
     setFlag(false);
     setShowDetail(false);
-    setPopupVisible(true);
     const resp = await api.Sys_GroupController_GetByGroupCode(
       e.row.data.GroupCode
     );
     if (resp.isSuccess) {
-      setDataTable(resp.Data?.Lst_Sys_UserInGroup);
+      setDataTable(
+        resp?.Data?.Lst_Sys_UserInGroup?.map((item: any) => {
+          return {
+            EMail: item.UserCode,
+            UserName: item.su_UserName,
+            PhoneNo: item.PhoneNo,
+            UserCode: item.UserCode,
+          };
+        })
+      );
       setDataForm({
         ...resp.Data?.Sys_Group,
         FlagActive: resp.Data?.Sys_Group.FlagActive === "1" ? true : false,
       });
       setDataFuntion(resp.Data?.Lst_Sys_Access);
     }
+    setPopupVisible(true);
   };
 
   const onModify = (id: string, data: Mst_Dealer) => {};
@@ -145,7 +155,7 @@ export const Sys_GroupPage = () => {
       });
       if (resp.isSuccess) {
         setPopupVisible(false);
-        toast.success(t("Create Successfully"));
+        toast.success(t("Update Successfully"));
         await refetch();
         return true;
       }

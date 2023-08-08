@@ -188,6 +188,7 @@ export const Cpn_CampaignPage = () => {
         editorOptions: {
           type: "date",
           format: "yyyy-MM-dd",
+          displayFormat: "yyyy-MM-dd",
         },
         // render: ({ component, dataField }: any) => {
         //   const formData = component.option("formData");
@@ -237,6 +238,7 @@ export const Cpn_CampaignPage = () => {
         editorOptions: {
           type: "date",
           format: "yyyy-MM-dd",
+          displayFormat: "yyyy-MM-dd",
         },
       },
       // {
@@ -272,6 +274,7 @@ export const Cpn_CampaignPage = () => {
         editorOptions: {
           type: "date",
           format: "yyyy-MM-dd",
+          displayFormat: "yyyy-MM-dd",
         },
       },
       // {

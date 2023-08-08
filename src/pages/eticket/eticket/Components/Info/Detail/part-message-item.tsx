@@ -136,7 +136,7 @@ export const PartMessageItem = ({
           <div
             className="format-text-html"
             dangerouslySetInnerHTML={{
-              __html: objDescription?.MessageSend ?? "----------------------",
+              __html: objDescription?.MessageSend ?? "--",
             }}
           />
         </div>

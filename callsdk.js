@@ -1,3 +1,6 @@
+
+
+
 function updateUI() { }
 
 const eventHandlers = {
@@ -41,6 +44,60 @@ const _SipPhone = {
     mediaConstraints: { audio: true, video: false }
   },
 
+  callNotify: () => {
+
+
+    var doNotify = function (msg) {
+      var icon = '/images/icons/logo.png';
+      var title = 'Skycs';
+      var msg = 'Cuộc gọi đến';
+
+      var audio = document.getElementById('audio_ring');
+
+
+      if (!audio) {
+        audio = document.createElement('span');
+        audio.setAttribute('id', 'audio_ring');
+
+        document.body.appendChild(audio);
+
+      }
+
+      audio.innerHTML = '<audio autoplay loop><source src="/audio/ring.wav"></audio>';
+
+      var n = new Notification("Skycs", { body: "Cuộc gọi đến", icon: '/images/icons/logo.png' });
+
+      n.onclick = function (x) {
+        window.focus(); this.close();
+
+
+      };
+    }
+
+    if (!("Notification" in window)) {
+      return alert("This browser does not support Desktop notifications");
+    }
+    if (Notification.permission === "granted") {
+      return doNotify();
+    }
+    if (Notification.permission !== "denied") {
+      Notification.requestPermission((permission) => {
+        if (permission === "granted") {
+
+
+          return doNotify();
+        }
+      });
+      return;
+    }
+
+  },
+
+  stopRinging: () => {
+    var audio = document.getElementById('audio_ring');
+    if (audio) audio.innerHTML = '';
+  },
+
   init: function (data, funcOk, funcFailed) {
     this.data = data;
     //var socket = new JsSIP.WebSocketInterface('wss://192.168.0.20:4443'); // FILL WSS SERVER
@@ -78,6 +135,20 @@ const _SipPhone = {
       if (window._onPhoneRegistered) window._onPhoneRegistered();
 
       _SipPhone.phoneStatus.isOnline = true;
+
+
+      // request permission on page load
+      if (!Notification) {
+        alert('Desktop notifications not available in your browser. Try Chromium.');
+
+      }
+      else if (Notification.permission !== 'granted') {
+        Notification.requestPermission();
+
+      }
+
+
+
     });
 
     this.phone.on('disconnected', function (ev) {
@@ -120,7 +191,7 @@ const _SipPhone = {
           //fromNumber: _SipPhone.session.remote_identity.uri.user,
         });
 
-
+        _SipPhone.stopRinging();
         // _SipPhone.hangup();
         // _SipPhone.session = null;
         //updateUI();
@@ -183,6 +254,9 @@ const _SipPhone = {
           // remoteAudio is <audio> element on pag
           _SipPhone.remoteAudio.srcObject = e.stream;
           _SipPhone.remoteAudio.play();
+          _SipPhone.stopRinging();
+
+
 
         };
 
@@ -200,10 +274,11 @@ const _SipPhone = {
         updateState('ringing');
 
         try {
-          //_SipPhone.incomingCallAudio.play();
+
+          _SipPhone.callNotify();
         }
         catch (exc) {
-          console.log('sound error');
+          console.log('sound error', exc.message);
         }
 
       }
@@ -217,7 +292,7 @@ const _SipPhone = {
 
           console.log("addstream", _SipPhone.session);
           try {
-            //_SipPhone.incomingCallAudio.pause();
+            _SipPhone.stopRinging();
           }
           catch (exc) {
 
@@ -336,7 +411,7 @@ const _SipPhone = {
     }
 
     try {
-      _SipPhone.incomingCallAudio.src = '';
+      _SipPhone.stopRinging();
 
     }
     catch (exc) {
@@ -380,6 +455,10 @@ const _SipPhone = {
 }
 
 window.Phone = _SipPhone;
+
+
+
+
 window.addEventListener("beforeunload", function (e) {
 
 

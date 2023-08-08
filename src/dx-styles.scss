@@ -606,4 +606,10 @@ body {
   }
 }
 
-
+.menu-container {
+  .dx-item-content.dx-treeview-item-content {
+    span {
+      text-wrap: initial;
+    }
+  }
+}

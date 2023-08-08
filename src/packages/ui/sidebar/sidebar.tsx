@@ -1,14 +1,15 @@
-import React, { useEffect, useRef, useCallback, useMemo } from 'react';
-import TreeView from 'devextreme-react/tree-view';
-import { useScreenSize } from '@/utils/media-query';
-import 'src/packages/ui/sidebar/sidebar.scss';
+import React, { useEffect, useRef, useCallback, useMemo } from "react";
+import TreeView from "devextreme-react/tree-view";
+import { useScreenSize } from "@/utils/media-query";
+import "src/packages/ui/sidebar/sidebar.scss";
 
-import * as events from 'devextreme/events';
-import dxTreeView, { ItemClickEvent } from 'devextreme/ui/tree_view';
+import * as events from "devextreme/events";
+import dxTreeView, { ItemClickEvent } from "devextreme/ui/tree_view";
 import { useLocation } from "react-router-dom";
-import { useI18n } from '@/i18n/useI18n';
+import { useI18n } from "@/i18n/useI18n";
 import ScrollView from "devextreme-react/scroll-view";
-import {useAuth} from "@packages/contexts/auth";
+import { useAuth } from "@packages/contexts/auth";
+import { ColumnChooserSelection } from "devextreme-react/data-grid";
 
 export interface SidebarProps {
   selectedItemChanged: (e: ItemClickEvent) => void;
@@ -24,50 +25,53 @@ export function Sidebar(props: React.PropsWithChildren<SidebarProps>) {
     openMenu,
     compactMode,
     onMenuReady,
-    items
+    items,
   } = props;
 
-  const {auth: {networkId} } = useAuth();
-  const { t } = useI18n("Common");
+  const {
+    auth: { networkId },
+  } = useAuth();
+  const { t } = useI18n("MENU");
   const { pathname: currentPath } = useLocation();
 
   const { isLarge } = useScreenSize();
   function normalizePath() {
-    return items.filter(item => !item.isHidden).map((item) => (
-      { 
+    return items
+      .filter((item) => !item.isHidden)
+      .map((item) => ({
         ...item,
         text: t(item.text),
         expanded: isLarge,
-        path: item.path && !(/^\//.test(item.path)) ? `/${item.path}` : item.path,
-        children: item.children?.filter((subItem: any) => !subItem.isHidden).map((subItem: any) => (
-          {
+        path: item.path && !/^\//.test(item.path) ? `/${item.path}` : item.path,
+        children: item.children
+          ?.filter((subItem: any) => !subItem.isHidden)
+          .map((subItem: any) => ({
             ...subItem,
-            path: subItem.subMenuTitle ? `${item.path}/${subItem.path}` : `/${subItem.path}`,
-          }
-        ))
-
-      }
-    ));
+            text: t(subItem.text),
+            path: subItem.subMenuTitle
+              ? `${item.path}/${subItem.path}`
+              : `/${subItem.path}`,
+          })),
+      }));
   }
-  const treeItems = useMemo(
-    normalizePath,
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [items]
-  );
+  const treeItems = useMemo(normalizePath, [items]);
 
   const treeViewRef = useRef<TreeView>(null);
   const wrapperRef = useRef<HTMLDivElement>();
-  const getWrapperRef = useCallback((element: HTMLDivElement) => {
-    const prevElement = wrapperRef.current;
-    if (prevElement) {
-      events.off(prevElement, 'dxclick');
-    }
+  const getWrapperRef = useCallback(
+    (element: HTMLDivElement) => {
+      const prevElement = wrapperRef.current;
+      if (prevElement) {
+        events.off(prevElement, "dxclick");
+      }
 
-    wrapperRef.current = element;
-    events.on(element, 'dxclick', (e: React.PointerEvent) => {
-      openMenu(e);
-    });
-  }, [openMenu]);
+      wrapperRef.current = element;
+      events.on(element, "dxclick", (e: React.PointerEvent) => {
+        openMenu(e);
+      });
+    },
+    [openMenu]
+  );
 
   useEffect(() => {
     const treeView = treeViewRef.current && treeViewRef.current.instance;
@@ -75,36 +79,70 @@ export function Sidebar(props: React.PropsWithChildren<SidebarProps>) {
       return;
     }
     if (currentPath !== undefined) {
-      treeView.expandAll()
-      const cleanedPath = currentPath.replace(`/${networkId}`, '');
+      //treeView.collapseAll();
+      const cleanedPath = currentPath.replace(`/${networkId}`, "");
       treeView.selectItem(cleanedPath);
-      // treeView.expandItem(cleanedPath);
+
+      var selectedParents = treeView.getSelectedNodes().map(function (node) {
+        return node.parent;
+      });
+
+      var selectedParent =
+        selectedParents.length > 0 ? selectedParents[0]?.itemData : null;
+
+      customerTreeItems.forEach((item) => {
+        if (selectedParent && item.key == selectedParent.key)
+          treeView.expandItem(item);
+        else treeView.collapseItem(item);
+      });
     }
 
     if (compactMode) {
       treeView.collapseAll();
     }
   }, [currentPath, compactMode, items]);
+
+  const customerTreeItems = treeItems.map((item) => {
+    if (item.children) {
+      return {
+        ...item,
+        text: t(item.text),
+        children: item.children.map((subItem: any) => {
+          return {
+            ...subItem,
+            text: t(subItem.text),
+            subMenuTitle: t(subItem.subMenuTitle),
+          };
+        }),
+      };
+    }
+    return {
+      ...item,
+      text: t(item.text),
+    };
+  });
+
   return (
     <div
-      className={'dx-swatch-additional side-navigation-menu'}
+      className={"dx-swatch-additional side-navigation-menu"}
       ref={getWrapperRef}
     >
       {children}
-      <div className={'menu-container pl-2'}>
-        <ScrollView className={'pb-4'} showScrollbar={'always'}>
+      <div className={"menu-container pl-2"}>
+        <ScrollView className={"pb-4"} showScrollbar={"always"}>
           <TreeView
-            className={'pb-4 mb-6 menu-list'}
+            className={"pb-4 mb-6 menu-list"}
             visible={!compactMode}
             ref={treeViewRef}
-            items={treeItems}
-            keyExpr={'path'}
-            selectionMode={'single'}
+            items={customerTreeItems}
+            keyExpr={"path"}
+            selectionMode={"single"}
             focusStateEnabled={false}
-            itemsExpr={'children'}
-            expandEvent={'click'}
+            itemsExpr={"children"}
+            expandEvent={"click"}
             onItemClick={selectedItemChanged}
             onContentReady={onMenuReady}
+            expandAllEnabled={false}
           />
         </ScrollView>
       </div>

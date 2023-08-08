@@ -41,6 +41,8 @@ export const AdminNoSidebarLayout = () => {
   const { hasMenuPermission } = usePermissions();
   const sidebarItems = useMemo(() => {
     const mainKey = location.pathname.split("/")[2];
+    console.log("protectedRoutes", protectedRoutes);
+
     return protectedRoutes
       .filter(
         (route) =>

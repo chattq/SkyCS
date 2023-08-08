@@ -78,8 +78,11 @@ export const useSideFormSettings = () => {
       hidden: false,
       items: [
         {
-          caption: t("Phân loại tùy chọn"),
+          caption: t("TicketCustomType"),
           dataField: "TicketCustomType",
+          label: {
+            text: t("TicketCustomType"),
+          },
           editorOptions: {
             dataSource:
               MstTicketEstablishInfo?.Data?.Lst_Mst_TicketCustomType ?? [],
@@ -90,7 +93,10 @@ export const useSideFormSettings = () => {
           visible: true,
         },
         {
-          caption: t("Nguồn"),
+          caption: t("TicketSource"),
+          label: {
+            text: t("TicketSource"),
+          },
           dataField: "TicketSource",
           editorOptions: {
             dataSource:
@@ -102,8 +108,11 @@ export const useSideFormSettings = () => {
           visible: true,
         },
         {
-          caption: t("Kênh tiếp nhận"),
+          caption: t("ReceptionChannel"),
           dataField: "ReceptionChannel",
+          label: {
+            text: t("ReceptionChannel"),
+          },
           editorOptions: {
             dataSource:
               MstTicketEstablishInfo?.Data?.Lst_Mst_ReceptionChannel ?? [],
@@ -114,8 +123,11 @@ export const useSideFormSettings = () => {
           visible: true,
         },
         {
-          caption: t("Kênh tiếp nhận mong muốn"),
+          caption: t("ContactChannel"),
           dataField: "ContactChannel",
+          label: {
+            text: t("ContactChannel"),
+          },
           editorOptions: {
             dataSource:
               MstTicketEstablishInfo?.Data?.Lst_Mst_ContactChannel ?? [],
@@ -126,8 +138,11 @@ export const useSideFormSettings = () => {
           visible: true,
         },
         {
-          caption: t("Tags mong muốn"),
+          caption: t("Tags"),
           dataField: "Tags",
+          label: {
+            text: t("Tags"),
+          },
           editorOptions: {
             dataSource: tagList?.Data?.Lst_Mst_Tag ?? [],
             valueExpr: "TagID",
@@ -137,8 +152,11 @@ export const useSideFormSettings = () => {
           visible: true,
         },
         {
-          caption: t("Người theo dõi"),
+          caption: t("TicketFollowers"),
           dataField: "TicketFollowers",
+          label: {
+            text: t("TicketFollowers"),
+          },
           editorOptions: {
             dataSource: followList ?? [],
             valueExpr: "UserCode",
@@ -148,8 +166,11 @@ export const useSideFormSettings = () => {
           visible: true,
         },
         {
-          caption: t("SLA"),
+          caption: t("SLAID"),
           dataField: "SLAID",
+          label: {
+            text: t("SLAID"),
+          },
           editorOptions: {
             // valueExpr: "SLAID",
             // displayExpr: "SLADesc",
@@ -160,8 +181,11 @@ export const useSideFormSettings = () => {
           render: (param: any) => <CustomSLAID param={param} />,
         },
         {
-          caption: t("Nhắc việc"),
+          caption: t("RemindWork"),
           dataField: "RemindWork",
+          label: {
+            text: t("RemindWork"),
+          },
           editorOptions: {
             placeholder: t("input"),
           },
@@ -169,8 +193,11 @@ export const useSideFormSettings = () => {
           visible: true,
         },
         {
-          caption: t("Vào lúc"),
+          caption: t("RemindDTimeUTC"),
           dataField: "RemindDTimeUTC",
+          label: {
+            text: t("RemindDTimeUTC"),
+          },
           editorOptions: {
             type: "datetime",
             displayFormat: "yyyy/MM/dd hh:mm",

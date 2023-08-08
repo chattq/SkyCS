@@ -388,14 +388,12 @@ export const Tab_CallHistory = ({ getListOrg }: { getListOrg: any }) => {
       <ReportLayout.Slot name={"Content"}>
         <ContentSearchPanelLayout>
           <ContentSearchPanelLayout.Slot name={"SearchPanel"}>
-            <div className={"w-[230px]"}>
-              <SearchPanelV2
-                storeKey="Post_Manager_Search"
-                conditionFields={formItems}
-                data={searchCondition}
-                onSearch={handleSearch}
-              />
-            </div>
+            <SearchPanelV2
+              storeKey="Post_Manager_Search"
+              conditionFields={formItems}
+              data={searchCondition}
+              onSearch={handleSearch}
+            />
           </ContentSearchPanelLayout.Slot>
           <ContentSearchPanelLayout.Slot name={"ContentPanel"}>
             {key !== "0" && !isLoading && (

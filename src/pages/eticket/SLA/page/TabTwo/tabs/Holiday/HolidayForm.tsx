@@ -49,7 +49,7 @@ const HolidayForm = () => {
       if (
         holidayList.some(
           (item: any) =>
-            item.Day == formValue.Day && item.Month == formValue.Month
+            item?.Day == formValue?.Day && item?.Month == formValue?.Month
         )
       ) {
         toast.error("Ngày bạn chọn đã tồn tại!");

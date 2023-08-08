@@ -261,8 +261,6 @@ export const Mst_CustomerPage = ({ bePopUp, isHideHeader = false }: Props) => {
         });
       });
 
-    console.log("value ", value);
-
     const obj = {
       ...list,
       CustomerCode: data["CUSTOMERCODE"] ?? null,
@@ -425,15 +423,13 @@ export const Mst_CustomerPage = ({ bePopUp, isHideHeader = false }: Props) => {
         <ContentSearchPanelLayout>
           {/* Search */}
           <ContentSearchPanelLayout.Slot name={"SearchPanel"}>
-            <div className={"w-[200px]"}>
-              {/* Search Component */}
-              <SearchPanelV2
-                conditionFields={getColumn}
-                storeKey="Mst_Customer_Search"
-                data={storeData}
-                onSearch={handleSearch}
-              />
-            </div>
+            {/* Search Component */}
+            <SearchPanelV2
+              conditionFields={getColumn}
+              storeKey="Mst_Customer_Search"
+              data={storeData}
+              onSearch={handleSearch}
+            />
           </ContentSearchPanelLayout.Slot>
           <ContentSearchPanelLayout.Slot name={"ContentPanel"}>
             <LoadPanel

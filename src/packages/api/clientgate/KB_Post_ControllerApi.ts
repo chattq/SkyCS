@@ -99,9 +99,15 @@ export const useKB_PostApi = (apiBase: AxiosInstance) => {
       );
     },
 
-    KB_PostData_SearchMore: async (keyWord: string) => {
+    KB_PostData_SearchMore: async () => {
       return await apiBase.post<SearchParam, ApiResponse<KB_PostData>>(
         "/KBPost/SearchMore",
+        {}
+      );
+    },
+    KB_PostData_SearchKeyWord: async (keyWord: string) => {
+      return await apiBase.post<SearchParam, ApiResponse<KB_PostData>>(
+        "/KBPost/SearchKeyword",
         {
           KeyWord: keyWord,
         }

@@ -64,6 +64,7 @@ export const useColumnSearch = ({
     {
       dataField: "FlagOutOfDate", // ticket quá hạn
       caption: t("FlagOutOfDate"),
+      visible: true,
       label: {
         text: t("FlagOutOfDate"),
       },
@@ -78,6 +79,7 @@ export const useColumnSearch = ({
     {
       dataField: "FlagNotRespondingSLA", // ticket không đáp ứng sla
       caption: t("FlagNotRespondingSLA"),
+      visible: true,
       label: {
         text: t("FlagNotRespondingSLA"),
       },
@@ -92,6 +94,7 @@ export const useColumnSearch = ({
     {
       dataField: "DepartmentCode", // phòng ban
       caption: t("DepartmentCode"),
+      visible: true,
       label: {
         text: t("DepartmentCode"),
       },
@@ -106,6 +109,7 @@ export const useColumnSearch = ({
     {
       dataField: "AgentCode", // agent
       caption: t("AgentCode"),
+      visible: true,
       label: {
         text: t("AgentCode"),
       },
@@ -120,6 +124,7 @@ export const useColumnSearch = ({
     {
       dataField: "TicketStatus", // trạng thái
       caption: t("TicketStatus"),
+      visible: true,
       label: {
         text: t("TicketStatus"),
       },
@@ -134,6 +139,7 @@ export const useColumnSearch = ({
     {
       dataField: "TicketPriority", // mức ưu tiên
       caption: t("TicketPriority"),
+      visible: true,
       label: {
         text: t("TicketPriority"),
       },
@@ -148,6 +154,7 @@ export const useColumnSearch = ({
     {
       dataField: "TicketDeadline", // dealine
       caption: t("TicketDeadline"),
+      visible: true,
       label: {
         text: t("TicketDeadline"),
       },
@@ -156,6 +163,7 @@ export const useColumnSearch = ({
       editorOptions: {
         type: "date",
         format: "yyyy-MM-dd",
+        displayFormat: "yyyy-MM-dd",
       },
     },
     // {
@@ -175,6 +183,7 @@ export const useColumnSearch = ({
     {
       dataField: "TicketType", // phân loại
       caption: t("TicketType"),
+      visible: true,
       label: {
         text: t("TicketType"),
       },
@@ -189,6 +198,7 @@ export const useColumnSearch = ({
     {
       dataField: "CustomerCodeSys", // khách hàng
       caption: t("CustomerCodeSys"),
+      visible: true,
       label: {
         text: t("CustomerCodeSys"),
       },
@@ -203,6 +213,7 @@ export const useColumnSearch = ({
     {
       dataField: "TicketDetail", // nội dung trao đổi
       caption: t("TicketDetail"),
+      visible: true,
       label: {
         text: t("TicketDetail"),
       },
@@ -213,6 +224,7 @@ export const useColumnSearch = ({
     {
       dataField: "TicketName", // tên ticket
       caption: t("TicketName"),
+      visible: true,
       label: {
         text: t("TicketName"),
       },
@@ -223,6 +235,7 @@ export const useColumnSearch = ({
     {
       dataField: "TicketID", // mã ticket
       caption: t("TicketID"),
+      visible: true,
       label: {
         text: t("TicketID"),
       },
@@ -233,6 +246,7 @@ export const useColumnSearch = ({
     {
       dataField: "CreateDTimeUTC", //
       caption: t("CreateDTimeUTC"),
+      visible: true,
       label: {
         text: t("CreateDTimeUTC"),
       },
@@ -240,6 +254,7 @@ export const useColumnSearch = ({
       editorOptions: {
         type: "date",
         format: "yyyy-MM-dd",
+        displayFormat: "yyyy-MM-dd",
       },
     },
     // {
@@ -258,6 +273,7 @@ export const useColumnSearch = ({
     {
       dataField: "LogLUDTimeUTC",
       caption: t("LogLUDTimeUTC"),
+      visible: true,
       label: {
         text: t("LogLUDTimeUTC"),
       },
@@ -265,6 +281,7 @@ export const useColumnSearch = ({
       editorOptions: {
         type: "date",
         format: "yyyy-MM-dd",
+        displayFormat: "yyyy-MM-dd",
       },
     },
     // {
@@ -283,6 +300,7 @@ export const useColumnSearch = ({
     {
       dataField: "TicketSource",
       caption: t("TicketSource"),
+      visible: true,
       label: {
         text: t("TicketSource"),
       },
@@ -310,10 +328,11 @@ export const useColumnSearch = ({
     //   editorType: "dxTagBox",
     // },
     {
-      dataField: "CustomerCodeSys", // Doanh nghiệp
-      caption: t("CustomerCodeSys"),
+      dataField: "CustomerCodeSysERP", // Doanh nghiệp
+      caption: t("CustomerCodeSysERP"),
+      visible: true,
       label: {
-        text: t("CustomerCodeSys"),
+        text: t("CustomerCodeSysERP"),
       },
       colSpan: 2,
       editorOptions: {
@@ -326,6 +345,7 @@ export const useColumnSearch = ({
     {
       dataField: "OrgID", // Chi nhánh
       caption: t("OrgID"),
+      visible: true,
       label: {
         text: t("OrgID"),
       },
@@ -340,6 +360,7 @@ export const useColumnSearch = ({
     {
       dataField: "Follower", // Người theo dõi
       caption: t("Follower"),
+      visible: true,
       label: {
         text: t("Follower"),
       },

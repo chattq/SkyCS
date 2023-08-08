@@ -7,9 +7,10 @@ import { nanoid } from "nanoid";
 import { LinkCell } from "@packages/ui/link-cell";
 import { StatusButton } from "@/packages/ui/status-button";
 import { flagEdit, showDetail, showPopup, viewingDataAtom } from "./store";
+import { filterByFlagActive } from "@/packages/common";
 
 interface Mst_DepartmentControlColumnsProps {
-  data?: Sys_GroupController | undefined;
+  data?: any;
 }
 
 export const useDepartMentGridColumns = ({
@@ -20,13 +21,13 @@ export const useDepartMentGridColumns = ({
   const setShowDetail = useSetAtom(showDetail);
   const setCheckEdit = useSetAtom(flagEdit);
   const viewRow = (rowIndex: number, data: any) => {
+    setPopupVisible(true);
     setShowDetail(true);
     setCheckEdit(false);
     setViewingItem({
       rowIndex,
       item: data,
     });
-    setPopupVisible(true);
   };
 
   const { t } = useI18n("Department_Control");
@@ -75,7 +76,12 @@ export const useDepartMentGridColumns = ({
       caption: t("Status"),
       editorType: "dxSwitch",
       columnIndex: 2,
-
+      headerFilter: {
+        dataSource: filterByFlagActive(data ?? [], {
+          true: t("Active"),
+          false: t("Inactive"),
+        }),
+      },
       groupKey: "BASIC_INFORMATION",
       visible: true,
       width: 100,

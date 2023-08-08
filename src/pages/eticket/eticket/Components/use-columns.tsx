@@ -1,17 +1,19 @@
-import NavNetworkLink from "@/components/Navigate";
 import { useI18n } from "@/i18n/useI18n";
-import { ETICKET_REPONSE } from "@/packages/api/clientgate/ET_TicketApi";
+import { useClientgateApi } from "@/packages/api";
+import { useApiHeaders } from "@/packages/api/headers";
 import { useNetworkNavigate } from "@/packages/hooks";
 import { LinkCell } from "@/packages/ui/link-cell";
-import { StatusButton } from "@/packages/ui/status-button";
 import { viewingDataAtom } from "@/pages/Mst_Customer/components/store";
 import { ColumnOptions } from "@packages/ui/base-gridview";
+import { FileUploader } from "devextreme-react";
 import { useSetAtom } from "jotai";
-import { nanoid } from "nanoid";
-import React, { memo, useMemo } from "react";
+import { useState } from "react";
+
+
+
 export const useColumn = ({ ticketDynamic }: { ticketDynamic: any[] }) => {
   const setViewingItem = useSetAtom(viewingDataAtom);
-  const { t } = useI18n("Mst_Customer");
+  const { t } = useI18n("Eticket_Manager_Column");
   const viewRow = (rowIndex: number, data: any) => {
     setViewingItem({
       rowIndex,
@@ -58,13 +60,22 @@ export const useColumn = ({ ticketDynamic }: { ticketDynamic: any[] }) => {
       return item.FlagIsDynamic !== "0";
     })
     .map((item) => {
+      if (item.TicketColCfgDataType === "FILE") {
+        return {
+          dataField: item.TicketColCfgCodeSys.split(".").join(""),
+          caption: t(item.TicketColCfgName),
+          width: 200,
+          visible: false,
+          editCellComponent: FileUploadCustom,
+        };
+      }
       if (
         item.TicketColCfgDataType === "MASTERDATA" ||
         item.TicketColCfgDataType === "MASTERDATASELECTMULTIPLE"
       ) {
         return {
           dataField: item.TicketColCfgCodeSys.split(".").join(""),
-          caption: item.TicketColCfgName,
+          caption: t(item.TicketColCfgName),
           editorType: "dxTextBox",
           width: 200,
           visible: false,
@@ -72,13 +83,19 @@ export const useColumn = ({ ticketDynamic }: { ticketDynamic: any[] }) => {
       } else {
         return {
           dataField: item.TicketColCfgCodeSys.split(".").join(""),
-          caption: item.TicketColCfgName,
+          caption: t(item.TicketColCfgName),
           editorType: "dxTextBox",
           width: 200,
           visible: false,
         };
       }
     });
+
+    const customerRender = () => {
+      
+    }
+
+
 
   const columns: ColumnOptions[] = [
     {
@@ -105,8 +122,8 @@ export const useColumn = ({ ticketDynamic }: { ticketDynamic: any[] }) => {
       visible: true,
     },
     {
-      dataField: "TicketType", // Phân loại
-      caption: t("TicketType"),
+      dataField: "CustomerTicketTypeName", // Phân loại
+      caption: t("CustomerTicketTypeName"),
       editorType: "dxTextBox",
       visible: true,
     },

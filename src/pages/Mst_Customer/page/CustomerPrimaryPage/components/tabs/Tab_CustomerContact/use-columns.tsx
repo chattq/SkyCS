@@ -38,8 +38,6 @@ export const useMst_CustomerContact_Column = ({ refetch }: any) => {
         "SCRTCS.CTM.CONTACT.2023"
       );
       if (response.isSuccess) {
-        console.log(response);
-
         return response?.DataList ?? [];
       } else {
         showError({

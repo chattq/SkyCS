@@ -103,7 +103,7 @@ const Tab_CustomerHistCall = () => {
     );
 
     return (
-      <div className="px-[10px] pt-[5px]">
+      <div className="px-[10px] pt-[5px] detail-customer-tab-content-item">
         <div className="mb-1 px-[35px] py-[10px] flex flex-col gap-3 relative bg-white">
           <div className="font-bold">
             Cuộc gọi {currentCallType(item?.CallType)} từ số{" "}

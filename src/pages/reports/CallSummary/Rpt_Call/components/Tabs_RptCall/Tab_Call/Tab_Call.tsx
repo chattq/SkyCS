@@ -213,14 +213,12 @@ const Tab_Call = ({ getListOrg }: { getListOrg: any }) => {
           <div className="w-full">
             <ContentSearchPanelLayout>
               <ContentSearchPanelLayout.Slot name={"SearchPanel"}>
-                <div className={"w-[230px]"}>
-                  <SearchPanelV2
-                    storeKey="ReportCall_Search"
-                    conditionFields={formSearch}
-                    data={formSearchData}
-                    onSearch={handleSearch}
-                  />
-                </div>
+                <SearchPanelV2
+                  storeKey="ReportCall_Search"
+                  conditionFields={formSearch}
+                  data={formSearchData}
+                  onSearch={handleSearch}
+                />
               </ContentSearchPanelLayout.Slot>
               <ContentSearchPanelLayout.Slot name={"ContentPanel"}>
                 <LoadPanel visible={isLoading} />

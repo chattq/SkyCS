@@ -21,7 +21,7 @@ const PartnerTypeField = ({ param, customOptions }: any) => {
     } else {
       if (data?.DataList?.length > 0) {
         setValue(["CUSTOMER"]);
-        component.updateData("PartnerType", ["CUSOMTER"]);
+        component.updateData("PartnerType", ["CUSTOMER"]);
       }
     }
   }, [data]);

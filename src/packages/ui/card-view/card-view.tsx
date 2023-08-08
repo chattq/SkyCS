@@ -169,13 +169,11 @@ export const PaginationCardView = ({
   //     })
   // );
 
-  console.log(dataSource);
-
   return (
     <div className="h-full">
       {dataSource && dataSource.length > 0 && (
         <>
-          <div className="flex justify-between px-2 items-center">
+          <div className="flex justify-between px-2 items-center grid-header-filter">
             <div className="">
               <Sort sortData={sortData} />
             </div>
@@ -241,35 +239,31 @@ export const PaginationCardView = ({
               </div>
             </div>
           </div>
-          <div className="separator mb-2 mt-2"></div>{" "}
+          <div className="separator separate-before-list-column mb-2 mt-2"></div>{" "}
         </>
       )}
 
-      {render}
-
-      {/* {dataSource && dataSource.length > 0 ? (
-        dataSource
-          .sort((a: any, b: any) =>
-            sortProcess(a, b, currentSort, currentSortType)
-          )
-          .map((item: any, index: any) => {
+      <div className="list-column">
+        {dataSource && dataSource.length > 0 ? (
+          dataSource.map((item: any, index: any) => {
             if (
               index >= pageIndex * pageSize &&
               index < pageIndex * pageSize + pageSize
             ) {
               return (
-                <div key={nanoid()}>
+                <div className="column-item" key={nanoid()}>
                   {customCard(item)}
                   <div className="separator"></div>
                 </div>
               );
             }
           })
-      ) : (
-        <div className="w-full flex items-center justify-center h-[300px]">
-          Không có dữ liệu!
-        </div>
-      )} */}
+        ) : (
+          <div className="w-full flex items-center justify-center h-[300px]">
+            Không có dữ liệu!
+          </div>
+        )}
+      </div>
     </div>
   );
 };

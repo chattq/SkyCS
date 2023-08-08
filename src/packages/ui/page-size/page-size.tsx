@@ -24,7 +24,7 @@ export const PageSize = ({
     options.push({ value: 9999999, text: showAllOptionText });
   }
   return (
-    <div className={"min-w-fit flex items-center"}>
+    <div className={"min-w-fit flex items-center page-size"}>
       <label className={"mr-2"}>{title}</label>
       <SelectBox
         items={options}

@@ -20,16 +20,22 @@ export const useFormSettings = ({
   );
 
   const formSettings: FormOptions = {
-    colCount: 1,
+    colCount: 2,
     labelLocation: "left",
-    visible: false,
     items: [
       {
         itemType: "group",
-        caption: t("BASIC_INFORMATION"),
+        caption: t(""),
         colSpan: 1,
-        cssClass: "collapsible form-group",
-        items: zip(basicInformationFirstColumn, basicInformationSecondColumn),
+        cssClass: "collapsible",
+        items: basicInformationFirstColumn,
+      },
+      {
+        itemType: "group",
+        caption: t(""),
+        colSpan: 1,
+        cssClass: "collapsible",
+        items: basicInformationSecondColumn,
       },
     ],
   };

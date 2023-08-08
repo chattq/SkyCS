@@ -95,7 +95,7 @@ export const HeaderPart = ({ onAddNew }: HeaderPartProps) => {
           text={t("AddNew")}
           onClick={onAddNew}
         />
-        <DropDownButton
+        {/* <DropDownButton
           showArrowIcon={false}
           keyExpr={"id"}
           className="menu-items"
@@ -119,7 +119,7 @@ export const HeaderPart = ({ onAddNew }: HeaderPartProps) => {
               return <div>{exportButton}</div>;
             }}
           />
-        </DropDownButton>
+        </DropDownButton> */}
 
         {uploadDialog}
         {exportDialog}

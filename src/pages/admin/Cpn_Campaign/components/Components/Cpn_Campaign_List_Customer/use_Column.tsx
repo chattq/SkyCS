@@ -1,19 +1,62 @@
 import { useI18n } from "@/i18n/useI18n";
+import { useClientgateApi } from "@/packages/api";
+import { useApiHeaders } from "@/packages/api/headers";
 import { Icon } from "@/packages/ui/icons";
 
 import {
   flagSelectorAtom,
   listCampaignAgentAtom,
 } from "@/pages/admin/Cpn_Campaign/components/store";
+import ContentFile from "@/pages/eticket/eticket/Components/Info/Detail/CustomizeJson/contentFIle";
 import { ColumnOptions } from "@/types";
 import { mapEditorOption, mapEditorType } from "@/utils/customer-common";
-import { Button } from "devextreme-react";
+import { Button, FileUploader } from "devextreme-react";
 import { useAtomValue } from "jotai";
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 interface Props {
   dataSource: any;
   dynamicField: any[];
 }
+
+export const FileUploadCustom = (props: any) => {
+  const { data } = props;
+  const { headers, baseURL } = useApiHeaders();
+  const [isUploading, setIsUploading] = useState(false);
+
+  const api = useClientgateApi();
+  const handleUploadFile = async (file: File, callback: any) => {
+    const resp = await api.File_UploadFile(file);
+    if (resp.isSuccess) {
+      const obj = {
+        FileSize: resp.Data?.FileSize ?? "",
+        FileType: resp.Data?.FileType ?? "",
+        FileUrlFS: resp.Data?.FileUrlFS ?? "",
+        FileFullName: resp.Data?.FileFullName ?? "",
+        FileUrlLocal: resp.Data?.FileUrlLocal ?? "",
+      };
+      data.setValue(obj);
+    }
+  };
+
+  return (
+    <FileUploader
+      ref={null}
+      selectButtonText="Select FILE"
+      labelText=""
+      uploadMode={"instantly"}
+      multiple={false}
+      name={"file"}
+      uploadHeaders={{
+        ...headers,
+        "Content-Type": "multipart/form-data",
+      }}
+      uploadUrl={`${baseURL}/File/UploadFile`}
+      disabled={isUploading}
+      uploadFile={handleUploadFile}
+    />
+  );
+};
 
 export interface UseCustomerGridColumnsProps {
   dataField: Props;
@@ -27,6 +70,7 @@ export const useColumn = ({
 }: UseCustomerGridColumnsProps) => {
   const { t } = useI18n("column");
   const param = useParams();
+
   let columnsDetail: ColumnOptions[] = [
     {
       dataField: "CustomerName", // tên khách hàng
@@ -151,7 +195,22 @@ export const useColumn = ({
         },
         visible: true,
       };
+    })
+    .map((item) => {
+      if (item.ColDataType === "FILE") {
+        return {
+          ...item,
+          width: 300,
+          cellRender: (param: any) => {
+            console.log("param ", param.displayValue);
+            return <ContentFile item={param.displayValue} />;
+          },
+          editCellComponent: FileUploadCustom,
+        };
+      }
     });
+
+  console.log("newColumn ", newColumn);
 
   const obj = {
     AgentCode: "",
@@ -244,9 +303,10 @@ export const useColumn = ({
     },
   ];
 
+  console.log("newColumn", newColumn);
+
   if (param?.flag === "detail") {
     const result = [...columnsDetail, ...newColumn, ...buttonShowWhenDetail];
-    console.log("result ", result);
     return [...columnsDetail, ...newColumn, ...buttonShowWhenDetail];
   }
   const response = [...columns, ...fieldCustomer, ...newColumn];

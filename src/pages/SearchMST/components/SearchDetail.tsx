@@ -118,7 +118,7 @@ export default function SearchDetail() {
 
   const handleBack = () => {
     queryClient.invalidateQueries({
-      queryKey: ["Post_Manager_History", tabResults],
+      queryKey: ["Search_Manager_History", tabResults],
     });
     navigate(-1);
   };
@@ -138,7 +138,7 @@ export default function SearchDetail() {
   };
 
   return (
-    <div>
+    <div className="relative h-[800px]">
       <LoadPanel
         container={".dx-viewport"}
         shadingColor="rgba(0,0,0,0.4)"
@@ -147,20 +147,20 @@ export default function SearchDetail() {
         showIndicator={true}
         showPane={true}
       />
-      <div className="relative h-[600px]">
-        <div className="px-[16px] py-[14px] shadow-md">
-          <div
-            className="fixed bg-[#00703C] right-[10px] top-[80%] rounded-full"
-            onClick={shopPopupEdit}
-          >
-            <div className="h-[40px] w-[40px] m-auto cursor-pointer">
-              <img
-                src="/images/icons/editIcon.png"
-                alt=""
-                className="h-[18px] absolute left-[13px] top-[10px] object-cover"
-              />
-            </div>
+      <div className="px-[16px] py-[14px] shadow-md">
+        <div
+          className="fixed bg-[#00703C] z-20 right-[10px] top-[80%] rounded-full"
+          onClick={shopPopupEdit}
+        >
+          <div className="h-[40px] w-[40px] m-auto cursor-pointer">
+            <img
+              src="/images/icons/editIcon.png"
+              alt=""
+              className="h-[18px] absolute left-[13px] top-[10px] object-cover"
+            />
           </div>
+        </div>
+        <div className="fixed shadow-md z-10 bg-white left-[0px] top-[60px] px-[16px] py-[14px] w-full">
           <div className="flex gap-2 items-center">
             <div className="h-[15px] cursor-pointer" onClick={handleBack}>
               <img
@@ -228,25 +228,26 @@ export default function SearchDetail() {
             </div>
           </div>
         </div>
-        <div>
-          <div className="px-[45px] py-[25px]">
-            <div
-              dangerouslySetInnerHTML={{
-                __html: data.Detail,
-              }}
-            />
-            <div>
-              <Form formData={dataCurrent} labelMode="hidden">
-                <GroupItem>
-                  {columns.map((item: any, index: number) => {
-                    return <SimpleItem key={index} {...item} />;
-                  })}
-                </GroupItem>
-              </Form>
-            </div>
+      </div>
+      <div className="relative top-[10%]">
+        <div className="px-[45px] py-[25px]">
+          <div
+            dangerouslySetInnerHTML={{
+              __html: data.Detail,
+            }}
+          />
+          <div>
+            <Form formData={dataCurrent} labelMode="hidden">
+              <GroupItem>
+                {columns.map((item: any, index: number) => {
+                  return <SimpleItem key={index} {...item} />;
+                })}
+              </GroupItem>
+            </Form>
           </div>
         </div>
       </div>
+
       <PopupEdit title={t("Chỉnh sửa bài viết")} />
     </div>
   );

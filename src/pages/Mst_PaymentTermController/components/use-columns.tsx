@@ -122,19 +122,7 @@ UseBankDealerGridColumnsProps) => {
       validationRules: [requiredType],
       columnIndex: 1,
     },
-    {
-      groupKey: "BASIC_INFORMATION",
-      dataField: "PTDesc", // Mã đại lý
-      caption: t("PTDesc"),
-      editorOptions: {
-        readOnly: false,
-        placeholder: t("Input"),
-        height: 70,
-      },
-      editorType: "dxTextArea",
-      columnIndex: 1,
-      validationRules: [requiredType],
-    },
+
     {
       groupKey: "BASIC_INFORMATION",
       dataField: "OwedDay", // Mã đại lý
@@ -166,20 +154,33 @@ UseBankDealerGridColumnsProps) => {
         placeholder: t("Input number"),
       },
       editorType: "dxNumberBox",
-      columnIndex: 1,
+      columnIndex: 2,
     },
     {
       dataField: "FlagActive",
       caption: t("FlagActive"),
       editorType: "dxSwitch",
       alignment: "center",
-      columnIndex: 1,
+      columnIndex: 2,
       groupKey: "BASIC_INFORMATION",
       visible: true,
       width: 100,
       cellRender: ({ data }: any) => {
         return <StatusButton key={nanoid()} isActive={data.FlagActive} />;
       },
+    },
+    {
+      groupKey: "BASIC_INFORMATION",
+      dataField: "PTDesc", // Mã đại lý
+      caption: t("PTDesc"),
+      editorOptions: {
+        readOnly: false,
+        placeholder: t("Input"),
+        height: 70,
+      },
+      editorType: "dxTextArea",
+      columnIndex: 1,
+      validationRules: [requiredType],
     },
   ];
   // return array of the first item only

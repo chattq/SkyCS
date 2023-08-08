@@ -34,13 +34,15 @@ export const useDepartMentGridColumns = ({
   const setUserAutoAssignTicket = useSetAtom(UserAutoAssignTicketAtom);
 
   const viewRow = async (rowIndex: number, data: any) => {
-    setPopupVisible(true);
-    setFlagEdit(false);
-    setShowDetail(true);
     const resp = await api.Mst_DepartmentControl_GetByDepartmentCode(
       data.DepartmentCode
     );
     if (resp.isSuccess) {
+      setDataForm({
+        ...resp?.Data?.Mst_Department,
+        FlagActive:
+          resp?.Data?.Mst_Department?.FlagActive === "1" ? true : false,
+      });
       setDataUser(
         resp?.Data?.Lst_Sys_UserMapDepartment.map((item: any) => {
           return {
@@ -60,12 +62,10 @@ export const useDepartMentGridColumns = ({
           };
         })
       );
-      setDataForm({
-        ...resp?.Data?.Mst_Department,
-        FlagActive:
-          resp?.Data?.Mst_Department?.FlagActive === "1" ? true : false,
-      });
     }
+    setPopupVisible(true);
+    setFlagEdit(false);
+    setShowDetail(true);
   };
 
   const { t } = useI18n("Department_Control");

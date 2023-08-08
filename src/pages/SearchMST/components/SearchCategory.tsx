@@ -21,12 +21,12 @@ export default function SearchCategory() {
     data,
     isLoading: isLoadingHistory,
     refetch,
-  } = useQuery(["Post_Manager_History"], () => api.KB_PostData_SearchMore(""));
+  } = useQuery(["Search_Category"], () => api.KB_PostData_SearchMore());
   const queryClient = useQueryClient();
   const auth = useAtomValue(authAtom);
   const [keyCategory, setkeyCategory] = useState<any>([]);
   const { data: dataCategory, isLoading } = useQuery(
-    ["Post_Manager_Category", keyCategory],
+    ["Search_Manager_Category", keyCategory],
     () => api.KB_PostData_GetByCategoryCode(keyCategory, auth.orgId)
   );
 

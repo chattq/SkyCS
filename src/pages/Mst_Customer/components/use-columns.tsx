@@ -43,11 +43,14 @@ export const useColumn = ({
   const expectedArray = [
     "CustomerCode",
     "CustomerName",
-    "COLD63062",
+    "C0LF",
     "CtmPhoneNo",
     "CtmEmail",
-    "COLD6D296",
+    "CustomerNameContact",
+    "C0KS",
   ];
+
+  // console.log(getColumnFieldByGroup);
 
   function sortInitByExpected(init: any, expected: any) {
     // Create a lookup object to store the index of each value in the 'expected' array
@@ -62,7 +65,6 @@ export const useColumn = ({
       index: expectedIndexLookup[obj?.dataField],
     }));
     sortedInit.sort((a: any, b: any) => a.index - b.index);
-    console.log("sortedInit", sortedInit);
     return sortedInit;
   }
 
@@ -80,6 +82,7 @@ export const useColumn = ({
         filterValue: null,
         visible: defaultVisible(item?.ColCodeSys),
         columnIndex: 1,
+        width: 200,
         cellRender: ({ data }: any) => {
           if (item.FlagIsColDynamic === "1") {
             if (item.ColDataType === "MASTERDATA") {
@@ -156,6 +159,29 @@ export const useColumn = ({
             return result;
           }
 
+          if (item.ColCodeSys === "CustomerType") {
+            return data?.mct_CustomerTypeName;
+          }
+
+          if (item.ColCodeSys === "CustomerGrpCode") {
+            const list = JSON.parse(data?.CustomerInCustomerGroupJson) ?? [];
+
+            const result = list?.map((item: any) =>
+              item?.Mst_CustomerGroup && item?.Mst_CustomerGroup[0]
+                ? item?.Mst_CustomerGroup[0]?.CustomerGrpName
+                : ""
+            );
+            return result?.join(",") ?? [];
+          }
+
+          if (item.ColCodeSys === "PartnerType") {
+            const list = JSON.parse(data?.CustomerInPartnerTypeJson) ?? [];
+            const result = list?.map(
+              (item: any) => item?.Mst_PartnerType[0]?.PartnerTypeName
+            );
+            return result?.join(",") ?? [];
+          }
+
           if (item.ColCodeSys === "CustomerAvatarPath") {
             return (
               <div className="w-full flex items-center justify-center">
@@ -190,9 +216,11 @@ const defaultVisible = (code: any) => {
   return match(code)
     .with("CustomerCode", () => true)
     .with("CustomerName", () => true)
-    .with("COLD63062", () => true)
+    .with("C0LF", () => true)
     .with("CtmPhoneNo", () => true)
     .with("CtmEmail", () => true)
-    .with("COLD6D296", () => true)
+    .with("CustomerNameContact", () => true)
+    .with("C0KS", () => true)
+
     .otherwise(() => false);
 };

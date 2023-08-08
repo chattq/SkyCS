@@ -137,6 +137,35 @@ export const Rpt_ETTicketDetailControllerPage = () => {
     ["listAgent"],
     () => api.Sys_User_GetAllActive() as any
   );
+  const { data: listCustomer } = useQuery(
+    ["listCustomer"],
+    () => api.Mst_Customer_GetAllActive() as any
+  );
+  const { data: getEnterprise, isLoading: isLoadingEnterprise } = useQuery({
+    queryKey: ["Mst_Customer_Search_Eticket_Manager"],
+    queryFn: async () => {
+      const response = await api.Mst_Customer_Search({
+        Ft_PageIndex: 0,
+        Ft_PageSize: 1000,
+        FlagActive: FlagActiveEnum.Active,
+        CustomerType: "TOCHUC",
+      });
+
+      if (response.isSuccess) {
+        return response.DataList;
+      } else {
+        showError({
+          message: t(response.errorCode),
+          debugInfo: response.debugInfo,
+          errorInfo: response.errorInfo,
+        });
+      }
+    },
+  });
+  const { data: listNNT }: any = useQuery(
+    ["listNNT"],
+    api.Mst_NNTController_GetAllActive
+  );
 
   const columns = useBankDealerGridColumns({
     data: data?.Data?.Rpt_Cpn_CampaignResultCall || [],
@@ -290,22 +319,28 @@ export const Rpt_ETTicketDetailControllerPage = () => {
       label: {
         text: t("Khách hàng"),
       },
-      editorType: "dxTextBox",
+      editorType: "dxSelectBox",
       editorOptions: {
         readOnly: false,
-        placeholder: t("Input"),
+        placeholder: t("Select"),
+        dataSource: listCustomer?.DataList ?? [],
+        valueExpr: "CustomerName",
+        displayExpr: "CustomerName",
+        searchEnabled: true,
       },
     },
     {
       caption: t("CustomerCompany"),
       dataField: "CustomerCompany",
       label: {
-        text: t("Công ty"),
+        text: t("Doanh nghiệp"),
       },
-      editorType: "dxTextBox",
+      editorType: "dxSelectBox",
       editorOptions: {
-        readOnly: false,
-        placeholder: t("Input"),
+        dataSource: getEnterprise,
+        displayExpr: "CustomerName",
+        valueExpr: "CustomerCodeSys",
+        searchEnabled: true,
       },
     },
     {
@@ -418,7 +453,7 @@ export const Rpt_ETTicketDetailControllerPage = () => {
   });
   const popupSettings: IPopupOptions = {
     showTitle: true,
-    title: t("Rpt_CpnCampaignStatisticCall Information"),
+    title: t("Rpt_CpnCampaignStatisticCall_Information"),
     className: "bank-dealer-information-popup",
     toolbarItems: [
       {

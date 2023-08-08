@@ -159,7 +159,7 @@ const Customer_Tabs = () => {
   )?.component;
 
   return (
-    <div>
+    <div className="customer-detail">
       <Tabs
         // dataSource={dataSource}
         selectedIndex={currentIndex}
@@ -176,7 +176,7 @@ const Customer_Tabs = () => {
           );
         })}
       </Tabs>
-      <div className="pr-2 pl-2">
+      <div className="detail-content-customer">
         {currentComponent}
       </div>
 

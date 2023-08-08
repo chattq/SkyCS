@@ -166,7 +166,7 @@ const Tab_All = () => {
 
   const renderEticket = (item: any) => {
     return (
-      <div className="px-[10px] pt-[5px]" key={nanoid()}>
+      <div className="px-[10px] pt-[5px] detail-customer-tab-content-item" key={nanoid()}>
         <div className="mb-1 px-[35px] py-[20px] grid grid-cols-3 gap-3 relative bg-white justify-between">
           <div className="flex flex-col gap-2">
             <div
@@ -238,7 +238,7 @@ const Tab_All = () => {
 
   const renderCampaign = (item: any) => {
     return (
-      <div className="px-[10px] pt-[5px]" key={nanoid()}>
+      <div className="px-[10px] pt-[5px] detail-customer-tab-content-item" key={nanoid()}>
         <div className="mb-1 px-[35px] py-[20px] grid grid-cols-3 gap-3 relative bg-white justify-between">
           <div className="flex flex-col gap-2">
             <div

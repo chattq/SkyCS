@@ -90,7 +90,7 @@ export const UserManangerPage = () => {
     ["MSTController"],
     () => api.Mst_NNTController_GetOrgCode(auth.orgId.toString()) as any
   );
-  const columns = useDealerGridColumns({ data: data?.Data?.DataList });
+  const columns = useDealerGridColumns({ data: data?.DataList });
   const formSettings = useFormSettings({
     dataMST: listMST?.Data?.Lst_Mst_NNT,
     dataListDepartment: listDepartMent?.DataList,

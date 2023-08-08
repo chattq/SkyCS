@@ -216,11 +216,10 @@ export const mapEditorOption = ({
 };
 
 export const mapValidationRules = (field: Partial<MdMetaColGroupSpecDto>) => {
-  const regexMST = /^(?:\d{10}|\d{9}-\d{3})$/;
+  const regexMST = /^(?:\d{10}|\d{10}-\d{3})$/;
 
   if (field?.ColCodeSys == "MST") {
     return [
-      requiredType,
       {
         type: "pattern",
         pattern: regexMST,
@@ -318,6 +317,8 @@ export const getListField = ({
           label: {
             text: field.ColCaption,
           },
+          OrderIdx: field?.OrderIdx,
+
           render: (param: any) => {
             const { component, formData } = param;
             // init data
@@ -352,6 +353,7 @@ export const getListField = ({
           },
           validationRules: mapValidationRules(field),
           validationMessagePosition: "bottom",
+          OrderIdx: field?.OrderIdx,
 
           // dataField: field.ColCodeSys,
           render: (param: any) => {
@@ -374,6 +376,8 @@ export const getListField = ({
           },
           validationRules: mapValidationRules(field),
           validationMessagePosition: "bottom",
+          OrderIdx: field?.OrderIdx,
+
           // dataField: field.ColCodeSys,
           render: (param: any) => {
             return (
@@ -395,6 +399,8 @@ export const getListField = ({
           },
           validationRules: mapValidationRules(field),
           validationMessagePosition: "bottom",
+          OrderIdx: field?.OrderIdx,
+
           // dataField: field.ColCodeSys,
           render: (param: any) => {
             return (
@@ -415,6 +421,8 @@ export const getListField = ({
           },
           validationRules: mapValidationRules(field),
           validationMessagePosition: "bottom",
+          OrderIdx: field?.OrderIdx,
+
           // dataField: field.ColCodeSys,
           render: (param: any) => {
             return (
@@ -437,6 +445,8 @@ export const getListField = ({
           label: {
             text: field.ColCaption,
           },
+          OrderIdx: field?.OrderIdx,
+
           // dataField: field.ColCodeSys,
           render: (param: any) => {
             const { component, formData } = param;
@@ -468,6 +478,8 @@ export const getListField = ({
             listDynamic: listDynamic ?? {},
             customOption: customOptions ?? {},
           }),
+          OrderIdx: field?.OrderIdx,
+
           validationRules: mapValidationRules(field),
           ...mapCustomOptions(field),
         };
@@ -508,6 +520,7 @@ export const getListField = ({
           label: {
             text: field.ColCaption,
           },
+          OrderIdx: field?.OrderIdx,
 
           // dataField: field.ColCodeSys,
           render: (param: any) => {
@@ -531,6 +544,7 @@ export const getListField = ({
           ColDataType: field.ColDataType,
           groupKeys: field.ColGrpCodeSys,
           ColCodeSys: field.ColCodeSys,
+          OrderIdx: field?.OrderIdx,
 
           itemType: "group",
           label: {
@@ -555,6 +569,8 @@ export const getListField = ({
           label: {
             text: field.ColCaption,
           },
+          OrderIdx: field?.OrderIdx,
+
           // dataField: field.ColCodeSys,
           render: (param: any) => {
             const { component, formData } = param;
@@ -580,6 +596,8 @@ export const getListField = ({
           label: {
             text: field.ColCaption,
           },
+          OrderIdx: field?.OrderIdx,
+
           // dataField: field.ColCodeSys,
           render: (param: any) => {
             const { component: formComponent, dataField } = param;
@@ -618,6 +636,8 @@ export const getListField = ({
           },
           validationRules: mapValidationRules(field),
           validationMessagePosition: "bottom",
+          OrderIdx: field?.OrderIdx,
+
           // dataField: field.ColCodeSys,
           render: (param: any) => {
             return (
@@ -644,6 +664,8 @@ export const getListField = ({
           },
           validationRules: mapValidationRules(field),
           validationMessagePosition: "bottom",
+          OrderIdx: field?.OrderIdx,
+
           // dataField: field.ColCodeSys,
           render: (param: any) => {
             return (
@@ -668,6 +690,8 @@ export const getListField = ({
           label: {
             text: field.ColCaption,
           },
+          OrderIdx: field?.OrderIdx,
+
           render: (param: any) => {
             return (
               <FlagField
@@ -690,6 +714,8 @@ export const getListField = ({
           label: {
             text: field.ColCaption,
           },
+          OrderIdx: field?.OrderIdx,
+
           validationRules: mapValidationRules(field),
           validationMessagePosition: "bottom",
           // dataField: field.ColCodeSys,
@@ -709,6 +735,8 @@ export const getListField = ({
           label: {
             text: field.ColCaption,
           },
+          OrderIdx: field?.OrderIdx,
+
           validationRules: mapValidationRules(field),
           validationMessagePosition: "bottom",
           // dataField: field.ColCodeSys,
@@ -735,6 +763,8 @@ export const getListField = ({
             customOption: customOptions ?? {},
             defaultValue: defaultValue ?? {},
           }),
+          OrderIdx: field?.OrderIdx,
+
           validationRules: mapValidationRules(field),
           ...mapCustomOptions(field, customOptions),
         };

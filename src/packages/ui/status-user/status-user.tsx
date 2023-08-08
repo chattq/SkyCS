@@ -23,7 +23,7 @@ export const StatusUser = memo(function StatusBtn({
               ? "bg-[#298EF2]"
               : status === "CONTINUED"
               ? "bg-[#E48203]"
-              : "bg-violet-400"
+              : "bg-[#E48203]"
           }`}
         >{`${
           status === "PENDING"
@@ -36,7 +36,7 @@ export const StatusUser = memo(function StatusBtn({
             ? "Kết thúc"
             : status === "CONTINUED"
             ? "Đang chạy"
-            : "Bắt đầu"
+            : "Đang chạy"
         }`}</div>
       </div>
     </div>

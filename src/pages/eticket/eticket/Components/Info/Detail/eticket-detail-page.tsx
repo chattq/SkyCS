@@ -380,12 +380,6 @@ export const EticketDetailPage = () => {
                   className="mr-1"
                   onClick={handleNavigate}
                 />
-                {/* <Button
-                stylingMode={"contained"}
-                type="default"
-                text={t("rate")}
-                className="mr-1"
-              /> */}
               </div>
             </div>
           </div>

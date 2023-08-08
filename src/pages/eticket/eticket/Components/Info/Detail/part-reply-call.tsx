@@ -118,7 +118,7 @@ export const PartReplyCall = ({
     setFile([]);
   };
   return (
-    <div className={"w-full box-reply message-reply mb-2"}>
+    <div className={"w-full box-reply message-reply part-reply-call mb-2"}>
       <center
         className="h-[200px] content-call flex align-items-center justify-center"
         style={{ marginTop: "10px", marginBottom: "10px" }}
@@ -137,7 +137,7 @@ export const PartReplyCall = ({
               // Cancel=5,						Agent hủy				Ko thay đổi trạng thái, chỉ lưu note. ko lưu lịch sử liên hệ
               // Complete=6,
               if (item.State === 6) {
-                flag === "call";
+                flag === "callin";
               } else {
                 if (item.Type === "Incoming") {
                   flag = "callmissedin";
@@ -175,7 +175,7 @@ export const PartReplyCall = ({
                       onClick={handleRemoveFile}
                     />
                   </div>
-                  <span className={`message-type callin`}>
+                  <span className={`message-type ${flag}`}>
                     <Icon name={`${flag}`} />
                   </span>
 

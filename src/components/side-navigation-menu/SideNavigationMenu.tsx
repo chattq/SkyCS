@@ -65,7 +65,7 @@ export default function SideNavigationMenu(
       treeView.collapseAll();
     }
   }, [currentPath, compactMode]);
-
+  debugger;
   return (
     <div
       className={"dx-swatch-additional side-navigation-menu"}

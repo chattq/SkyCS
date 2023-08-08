@@ -1,4 +1,5 @@
 import { useClientgateApi } from "@/packages/api";
+import { useConfiguration } from "@/packages/hooks";
 import { BaseGridView } from "@/packages/ui/base-gridview";
 import { useQuery } from "@tanstack/react-query";
 import { LoadPanel } from "devextreme-react";
@@ -15,12 +16,17 @@ const Tab_CustomerContract = () => {
 
   let gridRef: any = useRef(null);
 
+  const config = useConfiguration();
+
   const { data, isLoading, refetch }: any = useQuery(
-    ["CustomerContact", customerCodeSys],
+    ["Tab_CustomerContact", customerCodeSys],
     async () => {
       if (customerCodeSys) {
         const resp: any = await api.Mst_CustomerContact_Search({
           CustomerCodeSys: customerCodeSys,
+          FlagActive: 1,
+          Ft_PageIndex: 0,
+          Ft_PageSize: config.MAX_PAGE_ITEMS, // config.MAX_PAGE_ITEMS = 999999
         });
 
         if (resp?.isSuccess) {
@@ -34,7 +40,7 @@ const Tab_CustomerContract = () => {
 
             const result = list?.map((item: any) => {
               const curJson: any[] =
-                JSON.parse(item?.mc_JsonCustomerInfo) ?? [];
+                JSON.parse(item?.mcc_JsonCustomerInfo) ?? [];
 
               const fields = curJson?.reduce((prev: any, cur: any) => {
                 return { ...prev, [cur?.ColCodeSys]: cur?.ColValue };
@@ -42,7 +48,8 @@ const Tab_CustomerContract = () => {
 
               return {
                 ...item,
-                CustomerName: item?.mc_CustomerName,
+                CustomerName: item?.mcc_CustomerName,
+                CustomerCode: item?.mcc_CustomerCode,
                 ...fields,
               };
             });

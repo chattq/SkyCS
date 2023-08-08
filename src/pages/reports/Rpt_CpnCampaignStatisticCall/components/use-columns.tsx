@@ -112,6 +112,17 @@ UseBankDealerGridColumnsProps) => {
     },
     {
       groupKey: "BASIC_INFORMATION",
+      dataField: "QtySumCall", // Mã đại lý
+      caption: t("QtySumCall"),
+      editorOptions: {
+        readOnly: false,
+        placeholder: t("Input"),
+      },
+      editorType: "dxTextBox",
+      columnIndex: 2,
+    },
+    {
+      groupKey: "BASIC_INFORMATION",
       dataField: "QtyCallDone", // Mã đại lý
       caption: t("QtyCallDone"),
       editorOptions: {

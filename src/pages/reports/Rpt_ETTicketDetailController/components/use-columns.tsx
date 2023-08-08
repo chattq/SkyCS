@@ -146,6 +146,18 @@ UseBankDealerGridColumnsProps) => {
       editorType: "dxTextBox",
       columnIndex: 2,
     },
+    // {
+    //   groupKey: "BASIC_INFORMATION",
+    //   dataField: "TicketDetail", // Mã đại lý
+    //   caption: t("TicketDetail"),
+    //   editorOptions: {
+    //     readOnly: false,
+    //     placeholder: t("Input"),
+    //   },
+    //   editorType: "dxTextBox",
+    //   columnIndex: 2,
+    //   visible: false,
+    // },
   ];
   // return array of the first item only
 

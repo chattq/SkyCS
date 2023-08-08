@@ -94,7 +94,7 @@ export const HeaderPart = ({ onAddNew, searchCondition }: HeaderPartProps) => {
     <PageHeaderNoSearchLayout>
       <PageHeaderNoSearchLayout.Slot name={"Before"}>
         <div className="font-bold dx-font-m">
-          {t("Rpt_CpnCampaignStatisticCall manager")}
+          {t("Rpt_CpnCampaignStatisticCall_Manager")}
         </div>
       </PageHeaderNoSearchLayout.Slot>
       <PageHeaderNoSearchLayout.Slot name={"After"}>

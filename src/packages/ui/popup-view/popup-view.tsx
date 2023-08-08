@@ -64,7 +64,7 @@ export const PopupView = ({
         },
       ]}
     >
-      <ScrollView height={"70%"}>
+      <ScrollView height={"100%"}>
         <Form className={""} id={"view-form"} formData={data} readOnly={true}>
           {formSettings.items?.map((item) => {
             return (

@@ -230,6 +230,7 @@ const Cpn_Campaign_Info = () => {
                 FileName: item.FileFullName ?? "",
                 FilePath: item.FileUrlLocal ?? "",
                 FileType: revertEncodeFileType(item.FileType),
+                FileSize: item.FileSize ?? 0,
               };
             }
           ),

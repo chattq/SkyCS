@@ -48,11 +48,7 @@ export const Mst_CampaignTypePage = () => {
   let gridRef: any = useRef(null);
   const config = useConfiguration();
   const navigate = useNetworkNavigate();
-  const setListValue = useSetAtom(ListInfoDetailCampaignValue);
   const showError = useSetAtom(showErrorAtom);
-  const getDefaultValue = useAtomValue(defaultValue);
-  const setDataRow = useSetAtom(dataComponent);
-  const { auth } = useAuth();
   const [searchCondition] = useState<any>({
     FlagActive: FlagActiveEnum.All,
     Ft_PageIndex: 0,
@@ -293,14 +289,14 @@ export const Mst_CampaignTypePage = () => {
       <AdminContentLayout.Slot name={"Content"}>
         <ContentSearchPanelLayout>
           <ContentSearchPanelLayout.Slot name={"SearchPanel"}>
-            <div className={"w-[200px]"}>
+            {/* <div className={"w-[200px]"}> */}
               <SearchPanelV2
                 storeKey="Mst_CampaignTypePage_Search"
                 conditionFields={formItems}
                 data={searchCondition}
                 onSearch={handleSearch}
               />
-            </div>
+            {/* </div> */}
           </ContentSearchPanelLayout.Slot>
           <ContentSearchPanelLayout.Slot name={"ContentPanel"}>
             <GridViewPopup

@@ -19,7 +19,10 @@ export const calcMinuteToTime = (minutes: any) => {
 };
 
 export const getDay = (time: string) => {
-  const [day, month] = time.split("-");
+  if (!time) {
+    return;
+  }
+  const [day, month] = time?.split("-");
   return day;
 };
 
