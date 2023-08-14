@@ -31,13 +31,6 @@ export const PartDetailInfo = memo(
       Lst_ET_TicketHO,
     }: any = data;
 
-    console.log(
-      "Lst_ET_TicketCustomer ",
-      Lst_ET_TicketCustomer,
-      "Lst_ET_Ticket ",
-      Lst_ET_Ticket
-    );
-
     const dataRender = [
       ...Lst_ET_Ticket,
       ...Lst_ET_TicketCustomer,
@@ -45,6 +38,8 @@ export const PartDetailInfo = memo(
         Follower: [...Lst_ET_TicketFollower],
       },
     ];
+
+    console.log("dataRender ", dataRender);
 
     const dataRenderHO = [
       ...Lst_ET_Ticket,
@@ -81,7 +76,7 @@ export const PartDetailInfo = memo(
       "AgentTicketSourceName", // Nguồn
       "ReceptionDTimeUTC", // thời điểm tiếp nhận
       "AgentReceptionChannelName", // Kênh tiếp nhận
-      "SLADesc", // SLA
+      "SLALevel", // SLA
       "Tags", // Tags
       "Follower", // Người theo dõi
       "CreateBy", // Người tạo

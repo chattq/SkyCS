@@ -27,6 +27,7 @@ UseBankDealerGridColumnsProps) => {
       dataField: "SubFormCode", // Mã ngân hàng
       caption: t("SubFormCode"),
       editorType: "dxTextBox",
+      filterType: "exclude",
       editorOptions: {
         readOnly: false,
         placeholder: t("Input"),
@@ -41,6 +42,7 @@ UseBankDealerGridColumnsProps) => {
           </NavNetworkLink>
         );
       },
+      visible: true,
     },
     {
       groupKey: "BASIC_INFORMATION",
@@ -51,8 +53,9 @@ UseBankDealerGridColumnsProps) => {
         readOnly: false,
         placeholder: t("Input"),
       },
-
+      visible: true,
       columnIndex: 1,
+      filterType: "exclude",
     },
 
     {
@@ -65,6 +68,8 @@ UseBankDealerGridColumnsProps) => {
         placeholder: t("Input"),
       },
       columnIndex: 1,
+      visible: true,
+      filterType: "exclude",
     },
     {
       groupKey: "BASIC_INFORMATION",
@@ -76,6 +81,8 @@ UseBankDealerGridColumnsProps) => {
         placeholder: t("Input"),
       },
       columnIndex: 2,
+      visible: true,
+      filterType: "exclude",
     },
     {
       groupKey: "BASIC_INFORMATION",
@@ -87,6 +94,8 @@ UseBankDealerGridColumnsProps) => {
       },
       editorType: "dxTextBox",
       columnIndex: 2,
+      visible: true,
+      filterType: "exclude",
     },
     {
       dataField: "FlagActive",
@@ -96,6 +105,7 @@ UseBankDealerGridColumnsProps) => {
       columnIndex: 1,
       groupKey: "BASIC_INFORMATION",
       visible: true,
+      filterType: "exclude",
       width: 100,
       cellRender: ({ data }: any) => {
         return <StatusButton key={nanoid()} isActive={data.FlagActive} />;
@@ -117,6 +127,8 @@ UseBankDealerGridColumnsProps) => {
       },
       editorType: "dxTextBox",
       columnIndex: 2,
+      filterType: "exclude",
+      visible: true,
     },
   ];
   // return array of the first item only

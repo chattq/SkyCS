@@ -18,7 +18,7 @@ import List, { ItemDragging } from "devextreme-react/list";
 import { confirm } from "devextreme/ui/dialog";
 import { useSetAtom } from "jotai";
 import { nanoid } from "nanoid";
-import { useMemo, useReducer } from "react";
+import { useEffect, useMemo, useReducer } from "react";
 import { toast } from "react-toastify";
 import { EditForm } from "./components/edit-form";
 import { currentItemAtom, flagAtom, showPopupAtom } from "./components/store";
@@ -26,48 +26,13 @@ import "./list.scss";
 import { Response_TicketColumnConfig } from "@/packages/api/clientgate/Mst_TicketColumnConfigApi";
 import { useAuth } from "@/packages/contexts/auth";
 
-const FakeListDataField = [
-  {
-    TicketColCfgCodeSys: "TKCOLCFG.20230622A",
-    OrgID: "7206207001",
-    TicketColCfgCode: "CF01",
-    NetworkID: "7206207001",
-    TicketColCfgDataType: "Text",
-    TicketColCfgName: "Trường động 01",
-    TicketColCfgDateUse: "2023-06-22 17:00:00",
-    JsonListOption: "[]",
-    FlagCheckDuplicate: "1",
-    FlagCheckRequire: "0",
-    FlagIsDynamic: "0",
-    FlagActive: "1",
-    LogLUDTimeUTC: "2023-06-22 11:02:34",
-    LogLUBy: "0317844394@INOS.VN",
-    Lst_MD_OptionValue: null,
-  },
-];
-
-const fakeGroup = [
-  {
-    OrgID: "7206207001",
-    ColGrpCodeSys: "COLGRPCODESYS.2023.06",
-    NetworkID: "7206207001",
-    ScrTplCodeSys: "SCRTPLCODESYS.2023",
-    ColGrpCode: "COLGRPCODESYS.2023.02",
-    ColGrpName: "Thông tin hệ thống",
-    OrderIdx: 60,
-    FlagActive: true,
-    LogLUDTimeUTC: "2023-01-01",
-    LogLUBy: "SYS",
-  },
-];
-
 export const Eticket_Custom_Field_Dynamic = () => {
   const { t } = useI18n("Eticket_Custom_Field_Dynamic");
   const showError = useSetAtom(showErrorAtom);
   const api = useClientgateApi();
   const { auth } = useAuth();
   const { data, isLoading, refetch } = useQuery({
-    queryKey: [""],
+    queryKey: ["Mst_TicketColumnConfig_GetAll_Perform"],
     queryFn: async () => {
       const response = await api.Mst_TicketColumnConfig_GetAll();
       if (response.isSuccess) {
@@ -82,69 +47,11 @@ export const Eticket_Custom_Field_Dynamic = () => {
     },
   });
 
-  // const { data: listColGroups } = useQuery({
-  //   queryFn: async () => {
-  //     const resp = await api.MdMetaColGroupApi_Search({});
-  //     if (resp.isSuccess) {
-  //       return resp.DataList;
-  //     }
-  //     return [];
-  //   },
-  //   queryKey: ["MdMetaColGroupApi_Search"],
-  // });
+  // useEffect(() => {
+  //   refetch();
+  // }, []);
 
-  // const {
-  //   data: listFields,
-  //   isLoading,
-  //   refetch,
-  // } = useQuery({
-  //   queryFn: async () => {
-  //     const resp = await api.MdMetaColGroupSpec_Search(
-  //       {},
-  //       "SCRTPLCODESYS.2023"
-  //     );
-  //     if (resp.isSuccess) {
-  //       const fields = resp.DataList ?? [];
-  //       return fields?.map((item: any) => {
-  //         if (item?.Lst_MD_OptionValue) {
-  //           return {
-  //             ...item,
-  //             dataSource: {
-  //               type: "master",
-  //               sourceId: "province",
-  //             },
-  //             FlagIsNotNull: item?.FlagIsNotNull
-  //               ? item?.FlagIsNotNull === "1"
-  //               : false,
-  //             FlagIsCheckDuplicate: item?.FlagIsCheckDuplicate
-  //               ? item?.FlagIsCheckDuplicate === "1"
-  //               : false,
-  //             FlagIsQuery: item?.FlagIsQuery
-  //               ? item?.FlagIsQuery === "1"
-  //               : false,
-  //             OrderIdx: 2,
-  //           };
-  //         }
-
-  //         return {
-  //           ...item,
-  //           IsRequired: item?.FlagIsNotNull === "1",
-  //           IsUnique: item?.FlagIsCheckDuplicate === "1",
-  //           IsSearchable: item?.FlagIsQuery === "1",
-  //         };
-  //       });
-  //     } else {
-  //       showError({
-  //         message: resp.errorCode,
-  //         debugInfo: resp.debugInfo,
-  //         errorInfo: resp.errorInfo,
-  //       });
-  //     }
-  //   },
-  //   queryKey: ["Eticket_MdMetaColGroupSpec_Search"],
-  // });
-
-  const onSaved = async (data: MstTicketColumnConfig) => {
+  const onSaved = async () => {
     await refetch();
   };
 
@@ -196,7 +103,7 @@ export const Eticket_Custom_Field_Dynamic = () => {
 
 interface ContentProps {
   listFields: MstTicketColumnConfig[];
-  onSaved: (data: MstTicketColumnConfig) => void;
+  onSaved: () => void;
   onDelete: (data: MstTicketColumnConfig) => void;
 }
 
@@ -211,18 +118,17 @@ export const CustomFieldListPageContent = ({
 }: ContentProps) => {
   const setFlag = useSetAtom(flagAtom);
   const api = useClientgateApi();
+  const showError = useSetAtom(showErrorAtom);
 
   const setPopupVisible = useSetAtom(showPopupAtom);
   const setCurrentItem = useSetAtom(currentItemAtom);
   const handleSave = async (data: MdMetaColGroupSpecDto) => {
     logger.debug("saved item:", data);
-    onSaved(data);
+    onSaved();
     setPopupVisible(false);
   };
-  const [loadingKey, reloading] = useReducer(() => nanoid(), "0");
-
+  
   const handleEdit = (item: MstTicketColumnConfig) => {
-    console.log("item ", item);
     const obj = {
       ...item,
       ListOption: item.JsonListOption ? JSON.parse(item.JsonListOption) : "{}",
@@ -261,6 +167,30 @@ export const CustomFieldListPageContent = ({
     onDelete(item);
   };
 
+  const handleItemReordered = async ({ component: listComponent }: any) => {
+    const data = listComponent.instance().option("items");
+    let newOrderedData: any[] = [];
+    for (let i = 0; i < data.length; i++) {
+      newOrderedData.push({
+        ...data[i],
+        TicketColCfgIdx: i,
+      });
+    }
+    const resp = await api.Mst_TicketColumnConfig_UpdateTicketColCfgIdx(
+      newOrderedData
+    );
+    if (resp.isSuccess) {
+      toast.success("Update Success");
+      onSaved();
+    } else {
+      showError({
+        message: resp.errorCode,
+        debugInfo: resp.debugInfo,
+        errorInfo: resp.errorInfo,
+      });
+    }
+  };
+
   return (
     <AdminContentLayout>
       <AdminContentLayout.Slot name={"Header"}></AdminContentLayout.Slot>
@@ -285,6 +215,7 @@ export const CustomFieldListPageContent = ({
           <List
             dataSource={listFields}
             keyExpr="TicketColCfgCodeSys"
+            onItemReordered={handleItemReordered}
             allowItemDeleting={false}
             itemRender={(item) => {
               return (
@@ -340,7 +271,7 @@ export const CustomFieldListPageContent = ({
               );
             }}
           >
-            {/* <ItemDragging allowReordering={true}></ItemDragging> */}
+            <ItemDragging allowReordering={true}></ItemDragging>
           </List>
         </div>
       </AdminContentLayout.Slot>

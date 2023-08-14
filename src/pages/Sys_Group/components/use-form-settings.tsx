@@ -124,8 +124,18 @@ export const useFormSettings = ({
       typeForm: "TableForm",
       items: [
         {
+          dataField: "Idx",
+          caption: t("STT"),
+          alignment: "center",
+          columnIndex: 1,
+          visible: true,
+          cellRender: ({ data, rowIndex, value }: any) => {
+            return <div>{rowIndex + 1}</div>;
+          },
+          width: 85,
+        },
+        {
           dataField: "EMail",
-
           editorOptions: {
             placeholder: t("Input"),
           },

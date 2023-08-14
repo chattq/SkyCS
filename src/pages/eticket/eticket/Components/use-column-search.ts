@@ -1,7 +1,11 @@
+import { defatultValue } from "./../../../admin/Mst_CampaignColumnConfig/Setting/Components/store";
 import { defaultValue } from "./../../../admin/Mst_CampaignType/components/store";
 import { useI18n } from "@/i18n/useI18n";
 import { requiredType } from "@/packages/common/Validation_Rules";
+import { useAuth } from "@/packages/contexts/auth";
+import { authAtom } from "@/packages/store";
 import { IItemProps } from "devextreme-react/form";
+import { useAtomValue } from "jotai";
 
 interface Props {
   listAgent: any[];
@@ -25,6 +29,7 @@ export const useColumnSearch = ({
   ticketSourceList,
 }: Props) => {
   const { t } = useI18n("Eticket_Search");
+  const auth = useAtomValue(authAtom);
   const listStatus = [
     {
       label: t("NEW"),
@@ -100,7 +105,9 @@ export const useColumnSearch = ({
       },
       colSpan: 2,
       editorOptions: {
-        dataSource: listDepart,
+        dataSource: listDepart.filter(
+          (item: any) => item.OrgID === auth.orgId.toString()
+        ),
         valueExpr: "DepartmentCode",
         displayExpr: "DepartmentName",
       },
@@ -343,12 +350,13 @@ export const useColumnSearch = ({
       editorType: "dxTagBox",
     },
     {
-      dataField: "OrgID", // Chi nhánh
+      dataField: "OrgID", // Doanh nghiệp
       caption: t("OrgID"),
       visible: true,
       label: {
         text: t("OrgID"),
       },
+
       colSpan: 2,
       editorOptions: {
         dataSource: listOrg,
@@ -357,6 +365,21 @@ export const useColumnSearch = ({
       },
       editorType: "dxTagBox",
     },
+    // {
+    //   dataField: "OrgID", // Chi nhánh
+    //   caption: t("OrgID"),
+    //   visible: true,
+    //   label: {
+    //     text: t("OrgID"),
+    //   },
+    //   editorType: "dxTagBox",
+    //   colSpan: 2,
+    //   editorOptions: {
+    //     dataSource: listOrg ?? [],
+    //     displayExpr: "NNTFullName",
+    //     valueExpr: "OrgID",
+    //   },
+    // },
     {
       dataField: "Follower", // Người theo dõi
       caption: t("Follower"),

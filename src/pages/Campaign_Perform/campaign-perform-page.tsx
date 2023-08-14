@@ -79,7 +79,7 @@ export const Cpn_CampaignPerformPage = () => {
     Ft_PageSize: config.MAX_PAGE_ITEMS,
     CampaignTypeName: "",
     CampaignTypeDesc: "",
-    CampaignStatus: "",
+    CampaignStatus: "STARTED,CONTINUED",
   });
 
   const refetchCampaignList = async () => {
@@ -153,13 +153,6 @@ export const Cpn_CampaignPerformPage = () => {
   useEffect(() => {
     refetchCampaignList();
   }, []);
-
-  const [cpCustomerSearchConditions, setCpCustomerSearchConditions] =
-    useState<any>({
-      CampaignCode: null,
-      CampaignCustomerStatus: null,
-      CustomerCodeSys: null,
-    });
 
   const [campaignCustomerData, setCampaignCustomerData] = useState<
     (Cpn_CampaignCustomerData | undefined)[]
@@ -464,7 +457,7 @@ export const Cpn_CampaignPerformPage = () => {
                       height: windowSize.height - 120,
                     }}
                   >
-                    <div className="w-full p-2">
+                    <div className="w-full p-2 header-perform">
                       <span
                         className="block"
                         style={{
@@ -518,7 +511,7 @@ export const Cpn_CampaignPerformPage = () => {
                                 Danh sách khách hàng
                               </strong>
                               <span className="text-grey float-right">
-                                tổng: {renderCustomer.length}
+                                {t("totle")} {renderCustomer.length}
                               </span>
                             </div>
 

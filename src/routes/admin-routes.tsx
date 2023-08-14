@@ -1,19 +1,6 @@
-import {
-  AdminPage,
-  CustomFieldListPage,
-  DealerManagementPage,
-  FormRenderContainer,
-  ProvinceManagementPage,
-  Tab1Page,
-  Tab2Page,
-  TestGridPage,
-  TestTabsPage,
-  TestUploadPage,
-  TreeLikeGridPage,
-} from "@/pages";
+import { AdminPage, CustomFieldListPage } from "@/pages";
 import { Business_InformationPage } from "@/pages/Business_Information/list/Business_Information-page";
 import { Category_ManagerPage } from "@/pages/Category_Manager";
-import { Cpn_CampaignAgentPage } from "@/pages/Cpn_CampaignAgent/list/Cpn_CampaignAgent";
 import { Department_ControlPage } from "@/pages/Department_Control";
 import { Mst_AreaControllerPage } from "@/pages/Mst_AreaController/list/Mst_AreaController";
 import { Mst_CustomerGroupPage } from "@/pages/Mst_CustomerGroup/list/Mst_CustomerGroup";
@@ -23,28 +10,25 @@ import { Post_ManagerPage } from "@/pages/Post_Manager/list/Post_Manager";
 
 import { Sys_GroupPage } from "@/pages/Sys_Group";
 import { UserManangerPage } from "@/pages/User_Mananger/list/User_Mananger-page";
-import { Cpn_CampaignPage } from "@/pages/admin/Cpn_Campaign";
 import Cpn_Campaign_Info from "@/pages/admin/Cpn_Campaign/components/Components/Cpn_Campaign_Info";
 
 import { Mst_CampaignColumnConfig_Setting } from "@/pages/admin/Mst_CampaignColumnConfig/Setting/Mst_CampaignColumnConfig";
 import { Mst_CampaignTypePage } from "@/pages/admin/Mst_CampaignType";
 import Customize from "@/pages/admin/Mst_CampaignType/components/Components/Customize";
 import { RouteItem } from "@/types";
-import Cpn_Campaign_List_Customer from "@/pages/admin/Cpn_Campaign/components/Components/Cpn_Campaign_List_Customer/Cpn_Campaign_List_Customer";
 
-import OmiChanelPage from "@/pages/Omi-Chanel/list/Omi_Chanel";
-import { Content_ManagentPage } from "@/pages/Content_Managent/list/Content_Managent";
-import Content_Edit from "@/pages/Content_Managent/components/components/Content_Edit";
 import Content_Detail from "@/pages/Content_Managent/components/components/Content_Detail";
+import Content_Edit from "@/pages/Content_Managent/components/components/Content_Edit";
+import { Content_ManagentPage } from "@/pages/Content_Managent/list/Content_Managent";
+import OmiChanelPage from "@/pages/Omi-Chanel/list/Omi_Chanel";
 import Post_detail from "@/pages/Post_Manager/components/components/Post_detail";
 
 import Post_Edit from "@/pages/Post_Manager/components/components/Post_Edit";
-import { TestFormPage } from "@/pages/admin/test-form";
-import { ZaloConnect } from "@/pages/admin/zalo/zalo-connect";
 import { Eticket_Custom_Field_Dynamic } from "@/pages/eticket/Manager_Customer/Customer_DynamicField/list";
 import Mst_TicketEstablishInfo_Save from "@/pages/eticket/Mst_TicketEstablishInfo/components/Mst_TicketEstablishInfo_Save";
 import SLA_List from "@/pages/eticket/SLA/list/SLA_List";
 import SLA_Page from "@/pages/eticket/SLA/page/SLA_Page";
+import { TestFormPage } from "@/pages/admin/test-form";
 
 export const adminRoutes: RouteItem[] = [
   {
@@ -113,6 +97,14 @@ export const adminRoutes: RouteItem[] = [
     permissionCode: "",
     getPageElement: () => <Content_ManagentPage />,
   },
+  // {
+  //   key: "TestFormPage",
+  //   path: "admin/Content_Managent/TestFormPage",
+  //   subMenuTitle: "TestFormPage",
+  //   mainMenuKey: "admin",
+  //   permissionCode: "",
+  //   getPageElement: () => <TestFormPage />,
+  // },
   {
     key: "Content_Edit",
     path: "admin/Content_Managent/Content_Edit",
@@ -216,7 +208,7 @@ export const adminRoutes: RouteItem[] = [
       },
       {
         key: "SLA",
-        path: "admin/SLA/:SLAID",
+        path: "admin/SLA/:SLAID/:nav?",
         subMenuTitle: "",
         mainMenuKey: "admin",
         getPageElement: () => <SLA_Page />,
@@ -262,7 +254,7 @@ export const adminRoutes: RouteItem[] = [
       },
       // {
       //   key: "Cpn_CampaignPage",
-      //   path: "admin/Cpn_CampaignPage",
+      //   path: "campaign/Cpn_CampaignPage",
       //   subMenuTitle: "Cpn_CampaignPage",
       //   mainMenuKey: "admin",
       //   permissionCode: "",
@@ -271,17 +263,10 @@ export const adminRoutes: RouteItem[] = [
 
       {
         key: "Cpn_Campaign_Info",
-        path: "admin/Cpn_CampaignPage/Cpn_Campaign_Info",
+        path: "campaign/Cpn_CampaignPage/Cpn_Campaign_Info",
         subMenuTitle: "",
         mainMenuKey: "admin",
         getPageElement: () => <Cpn_Campaign_Info />,
-      },
-      {
-        key: "Mst_CampaignTypePage",
-        path: "campaign/Mst_CampaignTypePage",
-        subMenuTitle: "Mst_CampaignTypePage",
-        mainMenuKey: "admin",
-        getPageElement: () => <Mst_CampaignTypePage />,
       },
     ],
   },
@@ -344,7 +329,7 @@ export const adminRoutes: RouteItem[] = [
 
   // {
   //   key: "Cpn_Campaign_Info",
-  //   path: "admin/Cpn_CampaignPage/Cpn_Campaign_Info/:CampaignCode",
+  //   path: "campaign/Cpn_CampaignPage/Cpn_Campaign_Info/:CampaignCode",
   //   subMenuTitle: "",
   //   mainMenuKey: "admin",
   //   getPageElement: () => <Cpn_Campaign_Info />,

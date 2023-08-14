@@ -70,16 +70,6 @@ const Mst_TicketEstablishInfo_Save = () => {
     return () => {};
   }, []);
 
-  const defaultData = {
-    Lst_Mst_TicketStatus: [],
-    Lst_Mst_TicketPriority: [],
-    Lst_Mst_TicketType: [],
-    Lst_Mst_TicketSource: [],
-    Lst_Mst_ReceptionChannel: [],
-    Lst_Mst_ContactChannel: [],
-    Lst_Mst_TicketCustomType: [],
-  };
-
   const defaultFormData: IItemProps[] = [
     {
       dataField: "AgentTicket",
@@ -114,7 +104,6 @@ const Mst_TicketEstablishInfo_Save = () => {
   }, []);
 
   const CallSave = useCallback(async (param: any) => {
-    console.log("param ",param)
     const response = await api.Mst_TicketEstablishInfoApi_Save(param);
     if (response.isSuccess) {
       toast.success("Save successfully");
@@ -251,34 +240,6 @@ const Mst_TicketEstablishInfo_Save = () => {
     // getVisible(group);
   };
 
-  // const handleUpdate = async (title: string) => {
-  //   const { isValid } = formRef.current?.instance.validate();
-  //   if (isValid) {
-  //     const getListValueForm = valueApi.find((item) => {
-  //       return item.title === title;
-  //     });
-  //     console.log("data ", data);
-  //     const newData = data
-  //       ?.map((item) => {
-  //         if (item.title === title) {
-  //           return getListValueForm;
-  //         } else {
-  //           return item;
-  //         }
-  //       })
-  //       .reduce((acc: any, item: any) => {
-  //         return {
-  //           ...acc,
-  //           [item.title]: item.list,
-  //         };
-  //       }, {});
-
-  //     await CallSave(newData);
-  //   } else {
-  //     toast.error("Please input value !");
-  //   }
-  // };
-
   const handleUpdateAll = async () => {
     const { isValid } = formRef.current?.instance.validate();
     if (isValid) {
@@ -331,7 +292,11 @@ const Mst_TicketEstablishInfo_Save = () => {
             showIndicator={true}
             showPane={true}
           />
-          <Form ref={formRef} validationGroup="Mst_TicketEstablishInfo_Form">
+          <Form
+            ref={formRef}
+            className="form-ticket-info"
+            validationGroup="Mst_TicketEstablishInfo_Form"
+          >
             <SimpleItem
               render={() => {
                 return (
@@ -340,7 +305,7 @@ const Mst_TicketEstablishInfo_Save = () => {
                     collapsible={true}
                     multiple={true}
                     dataSource={valueApi}
-                    itemTitleRender={(item) => item.title}
+                    itemTitleRender={(item) => t(item.title)}
                     itemRender={(item) => {
                       let formList: any[] = [];
                       formList = match(item.title)
@@ -520,17 +485,10 @@ const Mst_TicketEstablishInfo_Save = () => {
                                             <SimpleItem
                                               key={nanoid()}
                                               {...itemForm}
-                                              // disable={
-                                              //   itemList.FlagUseType ===
-                                              //     "TYPE2" ||
-                                              //   itemList.FlagUseType === "TYPE1"
-                                              // }
                                               editorOptions={{
                                                 readOnly:
-                                                  // itemList.FlagUseType ===
-                                                  //   "TYPE2" ||
                                                   itemList.FlagUseType ===
-                                                    "TYPE1",
+                                                  "TYPE1",
                                                 value:
                                                   itemList.FlagActive === "1",
                                               }}
@@ -543,8 +501,6 @@ const Mst_TicketEstablishInfo_Save = () => {
                                               {...itemForm}
                                               editorOptions={{
                                                 readOnly:
-                                                  // itemList.FlagUseType ===
-                                                  //   "TYPE2" ||
                                                   itemList.FlagUseType ===
                                                   "TYPE1",
                                               }}

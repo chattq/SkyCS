@@ -1,10 +1,10 @@
 import React from "react";
-import {useAtomValue} from "jotai";
+import { useAtomValue } from "jotai";
 import {
   normalGridDeleteMultipleConfirmationBoxAtom,
-  normalGridSelectionKeysAtom
+  normalGridSelectionKeysAtom,
 } from "@packages/ui/base-gridview/store/normal-grid-store";
-import {PopupBox} from "@packages/ui/base-gridview/components/popup";
+import { PopupBox } from "@packages/ui/base-gridview/components/popup";
 
 interface DeleteMultipleConfirmationBoxProps {
   title: string;
@@ -14,14 +14,14 @@ interface DeleteMultipleConfirmationBoxProps {
 }
 
 export const DeleteMultipleConfirmationBox = ({
-                                                title,
-                                                message,
-                                                onNoClick,
-                                                onYesClick
-                                              }: DeleteMultipleConfirmationBoxProps) => {
-  const visible = useAtomValue(normalGridDeleteMultipleConfirmationBoxAtom)
-  const selectionKeys = useAtomValue(normalGridSelectionKeysAtom)
-  
+  title,
+  message,
+  onNoClick,
+  onYesClick,
+}: DeleteMultipleConfirmationBoxProps) => {
+  const visible = useAtomValue(normalGridDeleteMultipleConfirmationBoxAtom);
+  const selectionKeys = useAtomValue(normalGridSelectionKeysAtom);
+
   const handleYesClick = () => {
     onYesClick?.(selectionKeys);
   };
@@ -34,6 +34,9 @@ export const DeleteMultipleConfirmationBox = ({
     <PopupBox
       visible={visible}
       title={title}
-      message={message} onYesClick={handleYesClick} onNoClick={handleNoClick}/>
-  )
-}
+      message={message}
+      onYesClick={handleYesClick}
+      onNoClick={handleNoClick}
+    />
+  );
+};

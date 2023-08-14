@@ -18,6 +18,7 @@ import { GroupField } from "@/components/fields/GroupField";
 import { checkPhone } from "@/components/fields/PhoneField";
 import { useNetworkNavigate } from "@/packages/hooks";
 import { getListField } from "@/utils/customer-common";
+import "./components/style.scss";
 
 interface CheckErrorCustomer {
   Email: boolean;
@@ -31,6 +32,13 @@ const CustomerEditPage = () => {
   const navigate = useNetworkNavigate();
 
   const { t } = useI18n("Mst_Customer");
+
+  const { t: breadcrumb } = useI18n("Mst_Customer_Breadcrumb");
+
+  const { t: toastTranslate } = useI18n("Mst_Customer_Notify");
+
+  const { t: buttonTranslate } = useI18n("Mst_Customer_Button");
+
   const api = useClientgateApi();
   const ref = useRef(null);
   const auth = useAtomValue(authAtom);
@@ -293,16 +301,14 @@ const CustomerEditPage = () => {
     listCodeField,
   ]);
 
-  console.log(getFormField);
-
   const handleUpdate = async () => {
     if (!checkPhone(formValue["CtmPhoneNo"] ?? [])) {
-      toast.error("Vui lòng kiểm tra lại Số điện thoại!");
+      toast.error(toastTranslate("Please check your phone number again!"));
       return;
     }
 
     if (!checkEmail(formValue["CtmEmail"] ?? [])) {
-      toast.error("Vui lòng kiểm tra lại Email!");
+      toast.error(toastTranslate("Please check your email again!"));
       return;
     }
 
@@ -422,7 +428,7 @@ const CustomerEditPage = () => {
       });
 
       if (response.isSuccess) {
-        toast.success("Cập nhật thông tin khách hàng thành công!", {
+        toast.success(toastTranslate("Update successfully!"), {
           onClose: handleCancel,
           delay: 500,
         });
@@ -434,18 +440,18 @@ const CustomerEditPage = () => {
         });
       }
     } else {
-      toast.error("Vui lòng nhập đủ trường!");
+      toast.error(toastTranslate("Please enter all fields!"));
     }
   };
 
   const handleAdd = async () => {
     if (!checkPhone(formValue["CtmPhoneNo"] ?? [])) {
-      toast.error("Vui lòng kiểm tra lại Số điện thoại!");
+      toast.error(toastTranslate("Please check your phone number again!"));
       return;
     }
 
     if (!checkEmail(formValue["CtmEmail"] ?? [])) {
-      toast.error("Vui lòng kiểm tra lại Email!");
+      toast.error(toastTranslate("Please check your email again!"));
       return;
     }
 
@@ -522,7 +528,7 @@ const CustomerEditPage = () => {
         PartnerType: partnerType,
       });
       if (response.isSuccess) {
-        toast.success(t("Thêm thành công"), {
+        toast.success(toastTranslate("Create successfully!"), {
           onClose: handleCancel,
           delay: 500,
         });
@@ -534,7 +540,7 @@ const CustomerEditPage = () => {
         });
       }
     } else {
-      toast.error("Vui lòng nhập đủ trường");
+      toast.error(toastTranslate("Please enter all fields!"));
     }
   };
 
@@ -560,7 +566,7 @@ const CustomerEditPage = () => {
         NetworkID: auth?.networkId,
       });
       if (response.isSuccess) {
-        toast.success(t("Xoá khách hàng thành công!"), {
+        toast.success(toastTranslate("Delete successfully!"), {
           onClose: handleDelete,
         });
       } else {
@@ -583,43 +589,43 @@ const CustomerEditPage = () => {
                 to={`/customer/detail/${param?.CustomerCodeSys}`}
                 className="text-black"
               >
-                Chi tiết khách hàng
+                {breadcrumb("Detail Customer")}
               </NavNetworkLink>
             ) : (
               <NavNetworkLink to="/customer" className="text-black">
-                Khách hàng
+                {breadcrumb("List Customer")}
               </NavNetworkLink>
             )}
 
             <p>{`>`}</p>
             {param?.type == "add" ? (
-              <p>Thêm mới khách hàng</p>
+              <p> {breadcrumb("Add customer")}</p>
             ) : (
-              <p>Cập nhật thông tin khách hàng</p>
+              <p>{breadcrumb("Update customer")}</p>
             )}
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-2">
             {param?.type == "edit" ? (
               <Button
                 onClick={handleUpdate}
                 style={{
-                  background: "green",
+                  background: "#00703C",
                   color: "white",
                   padding: "10px 20px",
                 }}
               >
-                Cập nhật
+                {buttonTranslate("Update")}
               </Button>
             ) : (
               <Button
                 onClick={handleAdd}
                 style={{
-                  background: "green",
+                  background: "#00703C",
                   color: "white",
                   padding: "10px 20px",
                 }}
               >
-                Lưu
+                {buttonTranslate("Save")}
               </Button>
             )}
 
@@ -630,7 +636,7 @@ const CustomerEditPage = () => {
                   padding: "10px 20px",
                 }}
               >
-                Hủy
+                {buttonTranslate("Cancel")}
               </Button>
             ) : (
               <Button
@@ -639,7 +645,7 @@ const CustomerEditPage = () => {
                   padding: "10px 20px",
                 }}
               >
-                Xóa
+                {buttonTranslate("Delete")}
               </Button>
             )}
           </div>

@@ -129,41 +129,41 @@ export const Content_ManagentPage = () => {
     ],
   };
   const onModify = async (id: any, data: Partial<Mst_Area>) => {
-    const resp = await api.Mst_Area_Update({
-      ...id,
-      ...data,
-    });
-    if (resp.isSuccess) {
-      toast.success(t("Update Successfully"));
-      await refetch();
-      return true;
-    }
-    showError({
-      message: t(resp.errorCode),
-      debugInfo: resp.debugInfo,
-      errorInfo: resp.errorInfo,
-    });
-    throw new Error(resp.errorCode);
+    // const resp = await api.Mst_Area_Update({
+    //   ...id,
+    //   ...data,
+    // });
+    // if (resp.isSuccess) {
+    //   toast.success(t("Update Successfully"));
+    //   await refetch();
+    //   return true;
+    // }
+    // showError({
+    //   message: t(resp.errorCode),
+    //   debugInfo: resp.debugInfo,
+    //   errorInfo: resp.errorInfo,
+    // });
+    // throw new Error(resp.errorCode);
   };
   // Section: CRUD operations
   const onCreate = async (data: Mst_Area & { __KEY__: string }) => {
-    const { __KEY__, ...rest } = data;
-    // console.log(230, data);
-    const resp = await api.Mst_Area_Create({
-      ...rest,
-      FlagActive: rest.FlagActive ? "1" : "0",
-    });
-    if (resp.isSuccess) {
-      toast.success(t("Create Successfully"));
-      await refetch();
-      return true;
-    }
-    showError({
-      message: t(resp.errorCode),
-      debugInfo: resp.debugInfo,
-      errorInfo: resp.errorInfo,
-    });
-    throw new Error(resp.errorCode);
+    // const { __KEY__, ...rest } = data;
+    // // console.log(230, data);
+    // const resp = await api.Mst_Area_Create({
+    //   ...rest,
+    //   FlagActive: rest.FlagActive ? "1" : "0",
+    // });
+    // if (resp.isSuccess) {
+    //   toast.success(t("Create Successfully"));
+    //   await refetch();
+    //   return true;
+    // }
+    // showError({
+    //   message: t(resp.errorCode),
+    //   debugInfo: resp.debugInfo,
+    //   errorInfo: resp.errorInfo,
+    // });
+    // throw new Error(resp.errorCode);
   };
 
   const onDelete = async (id: any) => {
@@ -248,7 +248,13 @@ export const Content_ManagentPage = () => {
       <AdminContentLayout.Slot name={"Content"}>
         <GridViewCustomize
           isLoading={isLoading}
-          dataSource={data?.isSuccess ? data.DataList ?? [] : []}
+          dataSource={
+            data?.isSuccess
+              ? data?.DataList.filter(
+                  (item: any) => item.OrgID === auth.orgId.toString()
+                ) ?? []
+              : []
+          }
           columns={columns}
           keyExpr={["SubFormCode"]}
           popupSettings={popupSettings}

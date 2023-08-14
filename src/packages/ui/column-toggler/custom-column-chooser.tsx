@@ -6,7 +6,7 @@ import ScrollView from "devextreme-react/scroll-view";
 import { ItemReorderedEvent } from "devextreme/ui/list";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { SelectedColumn } from "./selected-column";
-
+import { compact, sortBy } from "lodash-es";
 interface CustomColumnChooserProps {
   title: string;
   applyText: string;
@@ -21,6 +21,9 @@ interface CustomColumnChooserProps {
   onApply: (columns: any[]) => void;
   storeKey?: string;
   position?: "left" | "right";
+  getColumnOptionCallback:
+    | ((dataField: string) => any)
+    | ((dataField: string, option: string) => any);
 }
 
 export default function CustomColumnChooser(props: CustomColumnChooserProps) {
@@ -37,12 +40,13 @@ export default function CustomColumnChooser(props: CustomColumnChooserProps) {
     title,
     selectAllText,
     position = "right",
+    getColumnOptionCallback,
   } = props;
   const { t } = useI18n("Common");
   const listRef = useRef<List>(null);
   const backUpColumns = useRef<ColumnOptions[]>(actualColumns);
   const onPopupHiding = useCallback(() => {
-    setSelectedItems(backUpColumns.current);
+    // setSelectedItems(backUpColumns.current);
     onHiding();
   }, [onHiding]);
 
@@ -51,10 +55,31 @@ export default function CustomColumnChooser(props: CustomColumnChooserProps) {
   );
 
   useEffect(() => {
+    if (!getColumnOptionCallback) {
+      return;
+    }
     // selected columns are not the same as actual columns
-    setSelectedItems(actualColumns.filter((c) => c.visible));
-    backUpColumns.current = actualColumns;
-  }, [actualColumns]);
+    // setSelectedItems(actualColumns.filter((c) => c.visible));
+    const currentVisibleColumns = compact(
+      columns.filter((c: ColumnOptions) => {
+        const isVisible = getColumnOptionCallback(c.dataField!, "visible");
+        if (isVisible) {
+          return c;
+        }
+        return undefined;
+      })
+    );
+    //order columns
+    const orderedColumns = sortBy(currentVisibleColumns, (c: ColumnOptions) => {
+      const order = getColumnOptionCallback(c.dataField!, "visibleIndex");
+      if (order) {
+        return order;
+      }
+      return undefined;
+    });
+    setSelectedItems(orderedColumns);
+    backUpColumns.current = orderedColumns;
+  }, [actualColumns, getColumnOptionCallback]);
 
   const onSelectionChanged = useCallback(
     (e: any) => {
@@ -67,9 +92,9 @@ export default function CustomColumnChooser(props: CustomColumnChooserProps) {
       text: applyText,
       stylingMode: "contained",
       onClick: () => {
-        const selectedItems =
-          listRef.current?.instance?.option("selectedItems");
-        onApply(selectedItems!);
+        const data = listRef.current?.instance?.option("selectedItems");
+        backUpColumns.current = data!;
+        onApply(data!);
       },
     };
   }, [listRef, columns, onApply]);
@@ -151,7 +176,13 @@ export default function CustomColumnChooser(props: CustomColumnChooserProps) {
         </ScrollView>
         <ScrollView className={"flex-1"} height={350} showScrollbar={"always"}>
           <div className="px-4 py-2 flex  items-center justify-center">
-            <div className="font-bold">
+            <div
+              className="font-bold"
+              style={{
+                fontSize: "14px",
+                fontWeight: 600,
+              }}
+            >
               {`${t("Selected")} (${
                 !!selectedItems ? selectedItems.length : 0
               })`}
@@ -159,6 +190,11 @@ export default function CustomColumnChooser(props: CustomColumnChooserProps) {
             <div className="ml-auto cursor-pointer text-[#FF0000]">
               <span
                 className="text-red"
+                style={{
+                  color: "#FF0000",
+                  fontSize: "14px",
+                  fontWeight: 600,
+                }}
                 onClick={() => removeAllSelectedItem()}
               >
                 {t("RemoveAll")}
@@ -189,6 +225,7 @@ export default function CustomColumnChooser(props: CustomColumnChooserProps) {
         widget="dxButton"
         location="center"
         toolbar="bottom"
+        cssClass="button-default"
         options={applyButtonOptions}
       />
 
@@ -196,6 +233,7 @@ export default function CustomColumnChooser(props: CustomColumnChooserProps) {
         widget="dxButton"
         location="center"
         toolbar="bottom"
+        cssClass="button-green"
         options={cancelButtonOptions}
       />
     </Popup>

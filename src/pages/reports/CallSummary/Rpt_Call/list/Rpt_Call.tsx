@@ -9,7 +9,7 @@ import { useAuth } from "@/packages/contexts/auth";
 import Tab_Call from "../components/Tabs_RptCall/Tab_Call/Tab_Call";
 import { Tab_CallHistory } from "../components/Tabs_RptCall/Tab_CallHistory/Tab_CallHistory";
 import { Tab_CallHistoryToAgent } from "../components/Tabs_RptCall/Tab_CallHistoryToAgent/Tab_CallHistoryToAgent";
-
+import "./Rpt_Call.scss";
 export const Report_CallPage = () => {
   const { t } = useI18n("Rpt_Call");
   const [currentTab, setCurrentTab] = useState(0);
@@ -42,16 +42,19 @@ export const Report_CallPage = () => {
   const { auth } = useAuth();
   useEffect(() => {
     callApi.getOrgInfo(auth.networkId).then((resp) => {
-      const customize = resp.Data;
-      customize.AgentList = [
-        // {
-        //   Name: "All",
-        // },
-        ...customize.AgentList,
-      ];
-      customize.Numbers = [...customize.Numbers];
 
-      setGetListOrg(customize);
+      if (resp.Success) {
+        const customize = resp.Data;
+        customize.AgentList = [
+          // {
+          //   Name: "All",
+          // },
+          ...customize.AgentList,
+        ];
+        customize.Numbers = [...customize.Numbers];
+
+        setGetListOrg(customize);
+      }
     });
   }, []);
 

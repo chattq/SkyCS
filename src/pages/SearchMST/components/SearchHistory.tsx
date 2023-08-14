@@ -45,7 +45,6 @@ export default function SearchHistory() {
     <div>
       <LoadPanel
         container={".dx-viewport"}
-        shadingColor="rgba(0,0,0,0.4)"
         position={"center"}
         visible={isLoading}
         showIndicator={true}

@@ -2,7 +2,7 @@ import { useI18n } from "@/i18n/useI18n";
 import { requiredType } from "@/packages/common/Validation_Rules";
 
 export const useFormSettings = () => {
-  const { t } = useI18n("SLA_Page");
+  const { t } = useI18n("SLA_Form");
 
   const formSettings: any = [
     {
@@ -12,20 +12,26 @@ export const useFormSettings = () => {
       hidden: false,
       items: [
         {
-          caption: t("Mức SLA"),
+          caption: t("SLALevel"),
           dataField: "SLALevel",
           editorOptions: {
             placeholder: t("Input"),
+          },
+          label: {
+            text: t("SLALevel"),
           },
           editorType: "dxTextBox",
           visible: true,
           validationRules: [requiredType],
         },
         {
-          caption: t("Thời gian phản hồi ban đầu"),
+          caption: t("FirstResTime"),
           dataField: "FirstResTime",
           editorOptions: {
             type: "time",
+          },
+          label: {
+            text: t("FirstResTime"),
           },
           editorType: "dxDateBox",
           visible: true,
@@ -36,14 +42,20 @@ export const useFormSettings = () => {
           editorOptions: {
             placeholder: t("Input"),
           },
+          label: {
+            text: t("SLADesc"),
+          },
           editorType: "dxTextArea",
-          caption: t("Mô tả"),
+          caption: t("SLADesc"),
           visible: true,
           validationRules: [requiredType],
         },
         {
-          caption: t("Thời gian xử lý"),
+          caption: t("ResolutionTime"),
           dataField: "ResolutionTime",
+          label: {
+            text: t("ResolutionTime"),
+          },
           editorOptions: {
             type: "time",
           },
@@ -53,7 +65,10 @@ export const useFormSettings = () => {
         },
         {},
         {
-          caption: t("Trạng thái"),
+          caption: t("SLAStatus"),
+          label: {
+            text: t("SLAStatus"),
+          },
           dataField: "SLAStatus",
           editorOptions: {},
           editorType: "dxSwitch",

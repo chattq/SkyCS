@@ -20,6 +20,7 @@ import { nanoid } from "nanoid";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import "src/pages/admin-page/admin-page.scss";
+import "./components/style.scss";
 import { Tab_Attachments } from "./components/tab-attachments";
 import { Tab_Detail } from "./components/tab-detail";
 
@@ -119,7 +120,6 @@ export const CustomerEticket_Popup = ({ TicketID }: any) => {
       }
     },
   });
-
   const { data: dataDynamicField, isLoading: isLoadingDynamicField } = useQuery(
     {
       queryFn: async () => {
@@ -129,10 +129,6 @@ export const CustomerEticket_Popup = ({ TicketID }: any) => {
           if (listData.length) {
             const filterMasterData = listData
               .filter((item: any) => {
-                // return (
-                //   item.TicketColCfgDataType === "MASTERDATA" ||
-                //   item.TicketColCfgDataType === "MASTERDATASELECTMULTIPLE"
-                // );
                 return (
                   item.TicketColCfgDataType === "MASTERDATASELECTMULTIPLE" ||
                   item.TicketColCfgDataType === "MASTERDATA"
@@ -141,36 +137,42 @@ export const CustomerEticket_Popup = ({ TicketID }: any) => {
               .map((item: any) => {
                 return item.TicketColCfgCodeSys;
               });
-            const responseListOption =
-              await api.Mst_TicketColumnConfig_GetListOption(
-                filterMasterData,
-                auth.orgData?.Id ?? ""
-              );
-            if (responseListOption.isSuccess) {
-              const responseData =
-                responseListOption?.Data.Lst_Mst_TicketColumnConfig;
-              const customizeDataResponse = listData.map((item: any) => {
-                const itemCheck = responseData.find((itemOption: any) => {
-                  return (
-                    itemOption.TicketColCfgCodeSys === item.TicketColCfgCodeSys
-                  );
+            if (filterMasterData.length) {
+              const responseListOption =
+                await api.Mst_TicketColumnConfig_GetListOption(
+                  filterMasterData,
+                  auth.orgData?.Id ?? ""
+                );
+              if (responseListOption.isSuccess) {
+                const responseData =
+                  responseListOption?.Data.Lst_Mst_TicketColumnConfig;
+                const customizeDataResponse = listData.map((item: any) => {
+                  const itemCheck = responseData.find((itemOption: any) => {
+                    return (
+                      itemOption.TicketColCfgCodeSys ===
+                      item.TicketColCfgCodeSys
+                    );
+                  });
+                  if (itemCheck) {
+                    return {
+                      ...item,
+                      dataSource: itemCheck.Lst_MD_OptionValue,
+                    };
+                  } else {
+                    return item;
+                  }
                 });
-                if (itemCheck) {
-                  return {
-                    ...item,
-                    dataSource: itemCheck.Lst_MD_OptionValue,
-                  };
-                } else {
-                  return item;
-                }
-              });
-              return customizeDataResponse;
+
+                return customizeDataResponse;
+              } else {
+                showError({
+                  message: t(responseListOption.errorCode),
+                  debugInfo: responseListOption.debugInfo,
+                  errorInfo: responseListOption.errorInfo,
+                });
+              }
             } else {
-              showError({
-                message: t(responseListOption.errorCode),
-                debugInfo: responseListOption.debugInfo,
-                errorInfo: responseListOption.errorInfo,
-              });
+              return response.Data.Lst_Mst_TicketColumnConfig;
             }
           }
 
@@ -183,7 +185,7 @@ export const CustomerEticket_Popup = ({ TicketID }: any) => {
           });
         }
       },
-      queryKey: ["Mst_TicketColumnConfig_GetAllActive", [TicketID]],
+      queryKey: ["Mst_TicketColumnConfig_GetAllActive", [param?.TicketID]],
     }
   );
 

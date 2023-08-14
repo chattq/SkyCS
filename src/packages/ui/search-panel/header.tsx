@@ -14,11 +14,11 @@ export const Header = ({onCollapse, onToggleSettings, enableColumnToggler=true}:
         <img src={'/images/icons/search.svg'} alt={'Search'} className={'w-[14px]'} />
         <span className={'ml-2 text-primary'}>{t('Search')}</span>
       </div>
-      <div className={'flex-end ml-auto'} >
+      <div className={'flex-end ml-auto search-header-button'} >
         {enableColumnToggler && 
         <Button icon={'/images/icons/settings.svg'} id={'toggle-search-settings'} onClick={onToggleSettings}/>
         }
-        <Button icon={'/images/icons/collapse-left.svg'} onClick={onCollapse} />
+        <Button icon={'/images/icons/collapse-left.svg'} className="button-collapse" onClick={onCollapse} />
       </div>
     </div>
   )

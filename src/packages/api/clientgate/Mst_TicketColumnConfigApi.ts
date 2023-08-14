@@ -29,6 +29,16 @@ export const use_MstTicketColumnConfigApi = (apiBase: AxiosInstance) => {
         }
       );
     },
+    Mst_TicketColumnConfig_UpdateTicketColCfgIdx: async (
+      param: any[]
+    ): Promise<ApiResponse<any[]>> => {
+      return await apiBase.post<{}, ApiResponse<any[]>>(
+        "MstTicketColumnConfig/UpdateTicketColCfgIdx",
+        {
+          strJson: JSON.stringify({ Lst_Mst_TicketColumnConfig: param }),
+        }
+      );
+    },
     Seq_GetTicketColCfgCodeSys: async (): Promise<ApiResponse<string>> => {
       return await apiBase.post<{}, ApiResponse<string>>(
         "Seq/GetTicketColCfgCodeSys",

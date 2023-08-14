@@ -2,6 +2,7 @@ import { useI18n } from "@/i18n/useI18n";
 import { useClientgateApi } from "@/packages/api";
 import { useApiHeaders } from "@/packages/api/headers";
 import { Icon } from "@/packages/ui/icons";
+import { LinkCell } from "@/packages/ui/link-cell";
 
 import {
   flagSelectorAtom,
@@ -9,7 +10,11 @@ import {
 } from "@/pages/admin/Cpn_Campaign/components/store";
 import ContentFile from "@/pages/eticket/eticket/Components/Info/Detail/CustomizeJson/contentFIle";
 import { ColumnOptions } from "@/types";
-import { mapEditorOption, mapEditorType } from "@/utils/customer-common";
+import {
+  FileUploadCustom,
+  mapEditorOption,
+  mapEditorType,
+} from "@/utils/customer-common";
 import { Button, FileUploader } from "devextreme-react";
 import { useAtomValue } from "jotai";
 import { useState } from "react";
@@ -19,44 +24,44 @@ interface Props {
   dynamicField: any[];
 }
 
-export const FileUploadCustom = (props: any) => {
-  const { data } = props;
-  const { headers, baseURL } = useApiHeaders();
-  const [isUploading, setIsUploading] = useState(false);
+// export const FileUploadCustom = (props: any) => {
+//   const { data } = props;
+//   const { headers, baseURL } = useApiHeaders();
+//   const [isUploading, setIsUploading] = useState(false);
 
-  const api = useClientgateApi();
-  const handleUploadFile = async (file: File, callback: any) => {
-    const resp = await api.File_UploadFile(file);
-    if (resp.isSuccess) {
-      const obj = {
-        FileSize: resp.Data?.FileSize ?? "",
-        FileType: resp.Data?.FileType ?? "",
-        FileUrlFS: resp.Data?.FileUrlFS ?? "",
-        FileFullName: resp.Data?.FileFullName ?? "",
-        FileUrlLocal: resp.Data?.FileUrlLocal ?? "",
-      };
-      data.setValue(obj);
-    }
-  };
+//   const api = useClientgateApi();
+//   const handleUploadFile = async (file: File, callback: any) => {
+//     const resp = await api.File_UploadFile(file);
+//     if (resp.isSuccess) {
+//       const obj = {
+//         FileSize: resp.Data?.FileSize ?? "",
+//         FileType: resp.Data?.FileType ?? "",
+//         FileUrlFS: resp.Data?.FileUrlFS ?? "",
+//         FileFullName: resp.Data?.FileFullName ?? "",
+//         FileUrlLocal: resp.Data?.FileUrlLocal ?? "",
+//       };
+//       data.setValue(obj);
+//     }
+//   };
 
-  return (
-    <FileUploader
-      ref={null}
-      selectButtonText="Select FILE"
-      labelText=""
-      uploadMode={"instantly"}
-      multiple={false}
-      name={"file"}
-      uploadHeaders={{
-        ...headers,
-        "Content-Type": "multipart/form-data",
-      }}
-      uploadUrl={`${baseURL}/File/UploadFile`}
-      disabled={isUploading}
-      uploadFile={handleUploadFile}
-    />
-  );
-};
+//   return (
+//     <FileUploader
+//       ref={null}
+//       selectButtonText="Select FILE"
+//       labelText=""
+//       uploadMode={"instantly"}
+//       multiple={false}
+//       name={"file"}
+//       uploadHeaders={{
+//         ...headers,
+//         "Content-Type": "multipart/form-data",
+//       }}
+//       uploadUrl={`${baseURL}/File/UploadFile`}
+//       disabled={isUploading}
+//       uploadFile={handleUploadFile}
+//     />
+//   );
+// };
 
 export interface UseCustomerGridColumnsProps {
   dataField: Props;
@@ -70,6 +75,11 @@ export const useColumn = ({
 }: UseCustomerGridColumnsProps) => {
   const { t } = useI18n("column");
   const param = useParams();
+  const handleNavigate = (code: any) => {
+    if (code) {
+      window.open(`${code}`, "_blank");
+    }
+  };
 
   let columnsDetail: ColumnOptions[] = [
     {
@@ -108,15 +118,24 @@ export const useColumn = ({
       },
     },
     {
-      dataField: "File Ghi ÂM ( chưa có trường )", // File ghi âm
-      caption: t("File Ghi ÂM ( chưa có trường )"),
+      dataField: "RecordFilePath", // File ghi âm
+      caption: t("RecordFilePath"),
       editorOptions: {
         readOnly: true,
       },
+      width: 200,
+      cellRender: (param: any) => {
+        return (
+          <LinkCell
+            value={param.displayValue}
+            onClick={() => handleNavigate(param.displayValue)}
+          ></LinkCell>
+        );
+      },
     },
     {
-      dataField: "CampaignCustomerCallStatus", // Trạng thái thực hiện
-      caption: t("CampaignCustomerCallStatus"),
+      dataField: "CampaignCustomerStatus", // Trạng thái thực hiện
+      caption: t("CampaignCustomerStatus"),
       editorOptions: {
         readOnly: true,
       },
@@ -202,15 +221,14 @@ export const useColumn = ({
           ...item,
           width: 300,
           cellRender: (param: any) => {
-            console.log("param ", param.displayValue);
             return <ContentFile item={param.displayValue} />;
           },
           editCellComponent: FileUploadCustom,
         };
+      } else {
+        return item;
       }
     });
-
-  console.log("newColumn ", newColumn);
 
   const obj = {
     AgentCode: "",

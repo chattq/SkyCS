@@ -190,12 +190,12 @@ export interface RptCallSummary {
     Outgoing_Missed?: number,
 
 
-    TalkTime?: number,
-    TalkTime_Incomming?: number,
-    TalkTime_Outgoing?: number,
-    TalkTime_Average?: number,
-    HoldTime_Average?: number,
-    WaitTime_Average?: number,
+    TalkTime?: string,
+    TalkTime_Incomming?: string,
+    TalkTime_Outgoing?: string,
+    TalkTime_Average?: string,
+    HoldTime_Average?: string,
+    WaitTime_Average?: string,
 
     DataList?:  RptCallCountByTime[]
 }

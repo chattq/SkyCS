@@ -60,6 +60,8 @@ UseBankDealerGridColumnsProps) => {
         placeholder: t("Input"),
       },
       columnIndex: 1,
+      filterType: "exclude",
+      visible: true,
     },
     {
       groupKey: "BASIC_INFORMATION",
@@ -71,6 +73,8 @@ UseBankDealerGridColumnsProps) => {
         placeholder: t("Input"),
       },
       columnIndex: 1,
+      filterType: "exclude",
+      visible: true,
     },
 
     {
@@ -84,6 +88,8 @@ UseBankDealerGridColumnsProps) => {
         placeholder: t("Input"),
       },
       columnIndex: 1,
+      filterType: "exclude",
+      visible: true,
     },
     {
       groupKey: "BASIC_INFORMATION",
@@ -98,6 +104,8 @@ UseBankDealerGridColumnsProps) => {
         return <StatusUser key={nanoid()} status={data.CampaignStatus} />;
       },
       columnIndex: 2,
+      visible: true,
+      filterType: "exclude",
     },
     {
       groupKey: "BASIC_INFORMATION",
@@ -109,6 +117,8 @@ UseBankDealerGridColumnsProps) => {
       },
       editorType: "dxTextBox",
       columnIndex: 2,
+      filterType: "exclude",
+      visible: true,
     },
     {
       groupKey: "BASIC_INFORMATION",
@@ -120,6 +130,8 @@ UseBankDealerGridColumnsProps) => {
       },
       editorType: "dxTextBox",
       columnIndex: 2,
+      filterType: "exclude",
+      visible: true,
     },
     {
       groupKey: "BASIC_INFORMATION",
@@ -131,6 +143,8 @@ UseBankDealerGridColumnsProps) => {
       },
       editorType: "dxTextBox",
       columnIndex: 2,
+      filterType: "exclude",
+      visible: true,
     },
     {
       groupKey: "BASIC_INFORMATION",
@@ -142,6 +156,8 @@ UseBankDealerGridColumnsProps) => {
       },
       editorType: "dxTextBox",
       columnIndex: 2,
+      filterType: "exclude",
+      visible: true,
     },
     {
       groupKey: "BASIC_INFORMATION",
@@ -153,6 +169,8 @@ UseBankDealerGridColumnsProps) => {
       },
       editorType: "dxTextBox",
       columnIndex: 2,
+      filterType: "exclude",
+      visible: true,
     },
     {
       groupKey: "BASIC_INFORMATION",
@@ -163,6 +181,7 @@ UseBankDealerGridColumnsProps) => {
         placeholder: t("Input"),
       },
       editorType: "dxTextBox",
+      filterType: "exclude",
       columnIndex: 2,
     },
     {
@@ -175,6 +194,7 @@ UseBankDealerGridColumnsProps) => {
       },
       editorType: "dxTextBox",
       columnIndex: 2,
+      filterType: "exclude",
     },
     {
       groupKey: "BASIC_INFORMATION",
@@ -186,6 +206,7 @@ UseBankDealerGridColumnsProps) => {
       },
       editorType: "dxTextBox",
       columnIndex: 2,
+      filterType: "exclude",
     },
     {
       groupKey: "BASIC_INFORMATION",
@@ -197,6 +218,7 @@ UseBankDealerGridColumnsProps) => {
       },
       editorType: "dxTextBox",
       columnIndex: 2,
+      filterType: "exclude",
     },
     {
       groupKey: "BASIC_INFORMATION",
@@ -207,6 +229,7 @@ UseBankDealerGridColumnsProps) => {
         placeholder: t("Input"),
       },
       editorType: "dxTextBox",
+      filterType: "exclude",
       columnIndex: 2,
     },
   ];

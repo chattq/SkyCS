@@ -72,6 +72,8 @@ UseBankDealerGridColumnsProps) => {
         placeholder: t("Input"),
       },
       columnIndex: 1,
+      visible: true,
+      filterType: "exclude",
     },
     {
       groupKey: "BASIC_INFORMATION",
@@ -93,6 +95,8 @@ UseBankDealerGridColumnsProps) => {
           />
         );
       },
+      visible: true,
+      filterType: "exclude",
     },
 
     {
@@ -106,6 +110,8 @@ UseBankDealerGridColumnsProps) => {
       },
       validationRules: [requiredType],
       columnIndex: 1,
+      visible: true,
+      filterType: "exclude",
     },
     {
       groupKey: "BASIC_INFORMATION",
@@ -121,6 +127,8 @@ UseBankDealerGridColumnsProps) => {
       },
       validationRules: [requiredType],
       columnIndex: 1,
+      visible: true,
+      filterType: "exclude",
     },
 
     {
@@ -133,6 +141,8 @@ UseBankDealerGridColumnsProps) => {
       },
       editorType: "dxNumberBox",
       columnIndex: 2,
+      visible: true,
+      filterType: "exclude",
     },
     {
       groupKey: "BASIC_INFORMATION",
@@ -144,6 +154,8 @@ UseBankDealerGridColumnsProps) => {
       },
       editorType: "dxNumberBox",
       columnIndex: 2,
+      visible: true,
+      filterType: "exclude",
     },
     {
       groupKey: "BASIC_INFORMATION",
@@ -153,8 +165,10 @@ UseBankDealerGridColumnsProps) => {
         readOnly: false,
         placeholder: t("Input number"),
       },
+      visible: true,
       editorType: "dxNumberBox",
       columnIndex: 2,
+      filterType: "exclude",
     },
     {
       dataField: "FlagActive",
@@ -168,6 +182,7 @@ UseBankDealerGridColumnsProps) => {
       cellRender: ({ data }: any) => {
         return <StatusButton key={nanoid()} isActive={data.FlagActive} />;
       },
+      filterType: "exclude",
     },
     {
       groupKey: "BASIC_INFORMATION",
@@ -180,7 +195,9 @@ UseBankDealerGridColumnsProps) => {
       },
       editorType: "dxTextArea",
       columnIndex: 1,
+      visible: true,
       validationRules: [requiredType],
+      filterType: "exclude",
     },
   ];
   // return array of the first item only

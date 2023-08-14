@@ -21,21 +21,46 @@ const CustomerGroupField = ({ param, customOptions }: any) => {
     }
   }, []);
 
+  const handleRenderTags = () => {
+    const result =
+      data?.DataList?.map((item: any) => {
+        if (value?.find((c: any) => c == item?.CustomerGrpCode)) {
+          return item?.CustomerGrpName;
+        }
+      }).filter((item: any) => item) ?? [];
+
+    return (
+      <div className="flex gap-2 flex-wrap">
+        {result?.map((item: any) => {
+          return (
+            <div className="bg-[#EAF9F2] p-[5px] rounded-[5px] font-semibold">
+              {item}
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   return (
     <>
-      <TagBox
-        dataSource={data?.DataList ?? []}
-        valueExpr="CustomerGrpCode"
-        displayExpr="CustomerGrpName"
-        onValueChanged={(e: any) => {
-          component.updateData("CustomerGrpCode", e.value);
-          setValue(e.value);
-        }}
-        value={value}
-        readOnly={customOptions?.editType == "detail"}
-        name="CustomerGrpCode"
-        validationMessagePosition="bottom"
-      ></TagBox>
+      {customOptions?.editType == "detail" ? (
+        <div className="font-semibold">{handleRenderTags() ?? ""}</div>
+      ) : (
+        <TagBox
+          dataSource={data?.DataList ?? []}
+          valueExpr="CustomerGrpCode"
+          displayExpr="CustomerGrpName"
+          onValueChanged={(e: any) => {
+            component.updateData("CustomerGrpCode", e.value);
+            setValue(e.value);
+          }}
+          value={value}
+          readOnly={customOptions?.editType == "detail"}
+          name="CustomerGrpCode"
+          validationMessagePosition="bottom"
+        ></TagBox>
+      )}
     </>
   );
 };

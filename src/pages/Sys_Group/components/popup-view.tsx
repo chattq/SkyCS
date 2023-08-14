@@ -41,6 +41,7 @@ import { showPopupUser } from "@/pages/User_Mananger/components/store";
 import { toast } from "react-toastify";
 import { useQuery } from "@tanstack/react-query";
 import { GridViewCustomize } from "@/packages/ui/base-gridview/gridview-customize";
+import { ColumnOptions } from "@/types";
 
 export interface DealerPopupViewProps {
   onEdit: any;
@@ -49,7 +50,8 @@ export interface DealerPopupViewProps {
   onCreate: any;
   dataAssigned?: any;
   dataUnassigned?: any;
-  actualColumns?: any;
+  isloadinglistGroup?: any;
+  isLoadingData?: any;
 }
 
 export const PopupViewDetail = ({
@@ -58,8 +60,9 @@ export const PopupViewDetail = ({
   title,
   formSettings,
   dataAssigned,
+  isloadinglistGroup,
+  isLoadingData,
   dataUnassigned,
-  actualColumns,
 }: DealerPopupViewProps) => {
   let gridRef: any = useRef<any>(null);
   const flagCheckCRUD = useAtomValue(flagEdit);
@@ -228,13 +231,6 @@ export const PopupViewDetail = ({
   };
 
   const removeSelectedItem = (item: any) => {
-    // const filteredAbc = backUpColumns.current.filter((value: any) => {
-    //   return ![item].some((elementBcd) => {
-    //     return JSON.stringify(value) === JSON.stringify(elementBcd);
-    //   });
-    // });
-
-    // backUpColumns.current = filteredAbc;
     // // uuncheckRow
     dataGrid.current.instance.deselectRows(item?.ObjectCode);
 
@@ -300,6 +296,20 @@ export const PopupViewDetail = ({
       userSelect?.filter((item: any) => item?.UserCode !== e.row.key.UserCode)
     );
   };
+  const columnsUser: ColumnOptions[] = [
+    {
+      dataField: "ObjectCode",
+      caption: t("ObjectCode"),
+      cellRender: ({ data, rowIndex, value }: any) => {
+        return <div>{data.ObjectName}</div>;
+      },
+    },
+    // {
+    //   dataField: "ObjectName",
+    //   caption: t("ObjectName"),
+    //   visible: false,
+    // },
+  ];
 
   return (
     <Popup
@@ -339,6 +349,13 @@ export const PopupViewDetail = ({
         },
       ]}
     >
+      <LoadPanel
+        container={".dx-viewport"}
+        position={"center"}
+        visible={isLoading || isLoadingData || isloadinglistGroup}
+        showIndicator={true}
+        showPane={true}
+      />
       <ScrollView height={"100%"}>
         <form ref={formRef} onSubmit={handleSubmitPopup}>
           <Form
@@ -412,23 +429,21 @@ export const PopupViewDetail = ({
                     !!dataUnassigned ? dataUnassigned?.length : 0
                   })`}
                 </div>
+
                 <DataGrid
                   id="grid-container"
+                  loadPanel={isLoading || isLoadingData || isloadinglistGroup}
                   ref={dataGrid}
-                  // loadPanel={isLoading}
-                  dataSource={dataUnassigned ?? []}
-                  noDataText={t("Loading")}
+                  dataSource={dataUnassigned}
+                  noDataText={t("No data")}
                   showBorders={false}
-                  keyExpr={"ObjectCode"}
+                  keyExpr={dataUnassigned ? "ObjectCode" : "ObjectCode"}
                   onSelectionChanged={handleSelectionChanged}
-                  // defaultSelectedRowKeys={[
-                  //   "BTN_ADMIN_BUSINESS_INFORMATION_CREATE",
-                  // ]}
                 >
                   <Paging enabled={true} />
                   <FilterRow visible={true} />
                   <Selection mode="multiple" selectAllMode={"page"} />
-                  {actualColumns.map((col: any) => (
+                  {columnsUser?.map((col: any) => (
                     <Column key={col.dataField} {...col} />
                   ))}
                 </DataGrid>
@@ -460,7 +475,7 @@ export const PopupViewDetail = ({
                     detailForm ? "justify-start" : "justify-between"
                   } `}
                 >
-                  {actualColumns.map((col: any) => (
+                  {columnsUser.map((col: any) => (
                     <div className="text-[13px] font-bold" key={col.dataField}>
                       {t(`${col.dataField}`)}
                     </div>
@@ -494,7 +509,7 @@ export const PopupViewDetail = ({
                         ) : (
                           <div
                             onClick={() => removeSelectedItem(item)}
-                            className="pr-2"
+                            className="pr-2 pt-[4px]"
                           >
                             <Icon
                               style={{ paddingTop: "-10px" }}
@@ -616,6 +631,7 @@ export const PopupViewDetail = ({
             })}
           </div>
         </Popup>
+
         <Popup
           visible={hidenTableInfor}
           onHiding={handleHiddenTableInfor}

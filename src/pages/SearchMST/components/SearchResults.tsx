@@ -1,8 +1,8 @@
 import NavNetworkLink from "@/components/Navigate";
 import { useI18n } from "@/i18n/useI18n";
-import { useAtomValue } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import React, { useEffect } from "react";
-import { dataSearchAtom, keySearchAtom } from "./store";
+import { dataSearchAtom, keySearchAtom, loadpaineAtom } from "./store";
 import { useClientgateApi } from "@/packages/api";
 import { authAtom } from "@/packages/store";
 import { formatText } from "@/pages/Post_Manager/components/components/FormatCategory";
@@ -19,6 +19,7 @@ export default function SearchResults() {
   const auth = useAtomValue(authAtom);
   const keySearch = useAtomValue(keySearchAtom);
   const dataSearch = useAtomValue(dataSearchAtom);
+  const [loadPaine, setLoadPaine] = useAtom(loadpaineAtom);
   const api = useClientgateApi();
   const queryClient = useQueryClient();
   const handleLastView = async (item: any) => {
@@ -41,21 +42,13 @@ export default function SearchResults() {
 
   return (
     <div>
-      <LoadPanel
-        container={".dx-viewport"}
-        shadingColor="rgba(0,0,0,0.4)"
-        position={"center"}
-        visible={dataSearch === undefined ? true : false}
-        showIndicator={true}
-        showPane={true}
-      />
       {keySearch !== "" ? (
         <>
           <div className="font-bold border-b pb-3 px-4 text-[15px]">
             {t(`Kết quả tìm kiếm cho từ khóa: "${keySearch ?? keySearch}"`)}
           </div>
           <div>
-            {dataSearch === undefined ? (
+            {dataSearch?.Lst_KB_Post?.length === 0 ? (
               <div className="mt-[145px] text-center">
                 {t("Không có dữ liệu")}
               </div>

@@ -14,6 +14,7 @@ import { LinkCell } from "@packages/ui/link-cell";
 import { flagSelectorAtom, viewingDataAtom } from "./store";
 import NavNetworkLink from "@/components/Navigate";
 import { match } from "ts-pattern";
+import { Search } from "devextreme-react/data-grid";
 
 interface UseBankDealerGridColumnsProps {
   data?: Mst_CustomerGroupData[] | any;
@@ -27,15 +28,13 @@ UseBankDealerGridColumnsProps) => {
   const setFlagSelector = useSetAtom(flagSelectorAtom);
 
   const FlagStatus = (value: string) => {
-    const html = match(value)
-      .with("PENDING", () => <>{t("PENDING")}</>)
-      .with("APPROVE", () => <>{t("APPROVE")}</>)
-      .with("STARTED", () => <>{t("STARTED")}</>)
-      .with("PAUSED", () => <>{t("PAUSED")}</>)
-      .with("CONTINUED", () => <>{t("CONTINUED")}</>)
-      .with("FINISH", () => <>{t("FINISH")}</>)
-      .otherwise(() => <p>""</p>);
-    return html;
+    return (
+      <div className="status-container flex justify-center">
+        <span className={`status ${value ? value.toLowerCase() : ""}`}>
+          {t(`${value}`)}
+        </span>
+      </div>
+    );
   };
 
   const columns: ColumnOptions[] = [

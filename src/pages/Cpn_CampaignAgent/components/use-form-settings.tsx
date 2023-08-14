@@ -12,23 +12,10 @@ export const useFormSettings = ({
 }: UseFormSettingsProps) => {
   const { t } = useI18n("Mst_PaymentTermController");
   const columns = inputColumns.map((c) => {
-    if (c.dataField === "BankCode") {
-      return {
-        ...c,
-        visible: true,
-        editorOptions: {
-          displayExpr: "BankCode",
-          valueExpr: "BankCode",
-          searchEnabled: true,
-          validationMessageMode: "always",
-        },
-      };
-    } else {
-      return {
-        ...c,
-        visible: true,
-      };
-    }
+    return {
+      ...c,
+      visible: true,
+    };
   });
 
   const basicInformationFirstColumn = columns.filter(

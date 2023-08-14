@@ -21,9 +21,9 @@ export const useDepartMentGridColumns = ({
   const setShowDetail = useSetAtom(showDetail);
   const setCheckEdit = useSetAtom(flagEdit);
   const viewRow = (rowIndex: number, data: any) => {
-    setPopupVisible(true);
     setShowDetail(true);
     setCheckEdit(false);
+    setPopupVisible(true);
     setViewingItem({
       rowIndex,
       item: data,
@@ -50,6 +50,7 @@ export const useDepartMentGridColumns = ({
           />
         );
       },
+      filterType: "exclude",
     },
     {
       dataField: "QtyUser",
@@ -60,6 +61,10 @@ export const useDepartMentGridColumns = ({
       columnIndex: 1,
       groupKey: "BASIC_INFORMATION",
       visible: true,
+      alignment: "left",
+      cssClass: "TextLeftGrid",
+      width: 120,
+      filterType: "exclude",
     },
     {
       dataField: "GroupDesc",
@@ -70,6 +75,7 @@ export const useDepartMentGridColumns = ({
       columnIndex: 1,
       groupKey: "BASIC_INFORMATION",
       visible: true,
+      filterType: "exclude",
     },
     {
       dataField: "FlagActive",
@@ -85,6 +91,7 @@ export const useDepartMentGridColumns = ({
       groupKey: "BASIC_INFORMATION",
       visible: true,
       width: 100,
+      filterType: "exclude",
       cellRender: ({ data }: any) => {
         return <StatusButton key={nanoid()} isActive={data.FlagActive} />;
       },

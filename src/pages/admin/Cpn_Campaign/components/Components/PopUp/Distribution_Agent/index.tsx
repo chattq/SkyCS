@@ -113,7 +113,7 @@ const DistrictBution_Agent = ({ onCancel, listCustomer, onSave }: Props) => {
       position={"center"}
       showCloseButton={true}
       onHiding={onCancel}
-      title={`Add Field`}
+      title={t("Distribute Agents")}
       width={700}
       height={450}
       visible={popupVisible}

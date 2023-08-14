@@ -23,6 +23,7 @@ export const CustomFieldListPage = () => {
   const showError = useSetAtom(showErrorAtom);
 
   const api = useClientgateApi();
+
   const { data: listColGroups } = useQuery({
     queryFn: async () => {
       const resp = await api.MdMetaColGroupApi_Search({});
@@ -84,6 +85,8 @@ export const CustomFieldListPage = () => {
     },
     queryKey: ["MdMetaColGroupSpec_Search"],
   });
+
+  console.log(listFields);
 
   const onSaved = async (data: MdMetaColGroupSpecDto) => {
     await refetch();
@@ -273,7 +276,10 @@ export const CustomFieldListPageContent = ({
             collapsible={true}
             multiple={true}
             dataSource={listColGroups}
-            itemTitleRender={(item) => item.ColGrpName}
+            itemTitleRender={(item) => {
+              return <div>{item.ColGrpName}</div>;
+            }}
+            className="custom-accordion"
             itemRender={(item) => {
               return (
                 <List

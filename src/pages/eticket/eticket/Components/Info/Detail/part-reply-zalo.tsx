@@ -173,12 +173,12 @@ export const PartReplyZalo = ({
           if (response.isSuccess) {
             if (response?.Data?.Lst_Mst_SubmissionFormZNS?.length) {
               const messageSend =
-                response?.Data?.Lst_Mst_SubmissionFormZNS[0]?.MessageSend;
+                response?.Data?.Lst_Mst_SubmissionFormZNS[0].MessageSend;
               setAddRemark((prev) => {
                 return {
                   ...prev,
                   MessageSend: messageSend ?? "",
-                  ZNS: response.Data.Lst_Mst_SubmissionFormZNS ?? [],
+                  ZNS: response?.Data?.Lst_Mst_SubmissionFormZNS ?? [],
                 };
               });
             }
@@ -298,7 +298,6 @@ export const PartReplyZalo = ({
               dataField="ObjCode"
               editorType="dxSelectBox"
               label={{
-                alignment: "center",
                 text: t("ObjCode"),
                 alignment: "left",
               }}
@@ -333,7 +332,6 @@ export const PartReplyZalo = ({
               }}
               editorOptions={{
                 height: 30,
-
                 dataSource: dataZalo,
                 displayExpr: "SubFormName",
                 valueExpr: "SubFormCode",

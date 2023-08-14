@@ -1,3 +1,4 @@
+import { useI18n } from "@/i18n/useI18n";
 import { Button, Form } from "devextreme-react";
 import { Item } from "devextreme-react/form";
 import { useAtomValue, useSetAtom } from "jotai";
@@ -7,6 +8,12 @@ import { toast } from "react-toastify";
 import { holidayListAtom } from "./store";
 
 const HolidayForm = () => {
+  const { t: placeholder } = useI18n("SLA_Holiday_Placeholder");
+
+  const { t: toastTranslate } = useI18n("SLA_Holiday_Notify");
+
+  const { t: buttonTranslate } = useI18n("SLA_Holiday_Button");
+
   const defaultFormValue = {
     id: nanoid(),
     Month: undefined,
@@ -52,7 +59,7 @@ const HolidayForm = () => {
             item?.Day == formValue?.Day && item?.Month == formValue?.Month
         )
       ) {
-        toast.error("Ngày bạn chọn đã tồn tại!");
+        toast.error(toastTranslate("The date you selected already exists!"));
         return;
       }
       setHolidayList([
@@ -84,7 +91,7 @@ const HolidayForm = () => {
         editorType="dxSelectBox"
         editorOptions={{
           dataSource: listMonth,
-          placeholder: "Tháng",
+          placeholder: placeholder("Month"),
         }}
         dataField="Month"
         validationRules={[
@@ -97,7 +104,7 @@ const HolidayForm = () => {
       <Item
         editorType="dxSelectBox"
         editorOptions={{
-          placeholder: "Ngày",
+          placeholder: placeholder("Day"),
           dataSource: dayList,
         }}
         dataField="Day"
@@ -111,7 +118,7 @@ const HolidayForm = () => {
       <Item
         editorType="dxTextBox"
         editorOptions={{
-          placeholder: "Sự kiện",
+          placeholder: placeholder("Event"),
         }}
         dataField="Event"
         cssClass="flex-grow"
@@ -128,7 +135,7 @@ const HolidayForm = () => {
             onClick={handleAdd}
             style={{ padding: 10, background: "green", color: "white" }}
           >
-            Thêm
+            {buttonTranslate("Add")}
           </Button>
         )}
       />

@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 export type VisibilityControl = {
   set: React.Dispatch<React.SetStateAction<boolean>>;
@@ -29,7 +29,8 @@ export const useVisibilityControl = (props?: Props) => {
   }, [onClose]);
 
   const toggle = React.useCallback(() => {
-    setVisible(prev => {
+    setVisible((prev) => {
+      console.log("prev", prev);
       if (prev) {
         onClose?.();
       } else {

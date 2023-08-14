@@ -4,8 +4,8 @@ export interface ErrorMessage {
   title?: string;
   message: string;
   debugInfo: object;
-  errorInfo?: object;
-  // errorInfo?: errorInfo;
+  // errorInfo?: object;
+  errorInfo?: errorInfo;
 }
 
 export interface errorInfo {

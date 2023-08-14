@@ -95,10 +95,10 @@ export const useToolbar = ({
       onclick: (data: ETICKET_REPONSE[]): any =>
         onShowPopUp("UpdateCustomer", data),
     },
-    {
-      title: t("Workflow"),
-      onclick: (data: ETICKET_REPONSE[]): any => {},
-    },
+    // {
+    //   title: t("Workflow"),
+    //   onclick: (data: ETICKET_REPONSE[]): any => {},
+    // },
     // {
     //   title: t("Đánh giá"),
     //   onclick: (data: ETICKET_REPONSE[]): any => {},
@@ -110,10 +110,10 @@ export const useToolbar = ({
       title: t("Closed"),
       onclick: onClose,
     },
-    {
-      title: t("Export Excel"),
-      onclick: (data: ETICKET_REPONSE[]): any => onExportExcel(data),
-    },
+    // {
+    //   title: t("Export Excel"),
+    //   onclick: (data: ETICKET_REPONSE[]): any => onExportExcel(data),
+    // },
   ];
 
   const listButtonMoreWhenCheck = (ref: any) => {
@@ -373,7 +373,7 @@ export const useToolbar = ({
             render={(item: any) => {
               return (
                 <Button onClick={() => onSetStatus("ONHOLD", ref)}>
-                  {t(`ONHOLD`)}({getValue.ONHOLD}){/* {t(`ONHOLD`)} */}
+                  {t(`ONHOLD`)}({getValue.ONHOLD})
                 </Button>
               );
             }}
@@ -430,7 +430,7 @@ export const useToolbar = ({
       shouldShow: (ref: any) => {
         let check = false;
         if (ref) {
-          if (ref.instance.getSelectedRowsData().length > 0) {
+          if (ref.instance.getSelectedRowsData().length > 0 && ref.instance.getSelectedRowsData().length < 2) {
             check = true;
           }
           return check;

@@ -7,15 +7,15 @@ import { PageHeaderLayout } from "@/packages/layouts/page-header-layout";
 import { showErrorAtom } from "@/packages/store";
 import { GridViewPopup } from "@/packages/ui/base-gridview";
 import { useQuery } from "@tanstack/react-query";
-import { useSetAtom } from "jotai";
-import { useEffect, useRef, useState } from "react";
+import { useAtomValue, useSetAtom } from "jotai";
+import { useEffect, useRef } from "react";
 import { toast } from "react-toastify";
 import { HeaderPart } from "../components/header-part";
-import { SLA_EditType } from "../components/store";
+import { SLA_EditType, keywordAtom } from "../components/store";
 import { useMst_SLAColumns } from "../components/use-columns";
 
 const SLA_List = () => {
-  const { t } = useI18n("SLA");
+  const { t } = useI18n("SLA_List");
 
   const api = useClientgateApi();
 
@@ -29,20 +29,26 @@ const SLA_List = () => {
 
   const setType = useSetAtom(SLA_EditType);
 
-  const [searchCondition, setSearchCondition] = useState<any>({
-    SLALevel: "",
-    SLADesc: "",
-    SLAStatus: "",
-    KeyWord: "",
-    Ft_PageIndex: 0,
-    Ft_PageSize: config.MAX_PAGE_ITEMS,
-  });
+  const keyword = useAtomValue(keywordAtom);
+
+  // const [searchCondition, setSearchCondition] = useState<any>({
+  //   SLALevel: "",
+  //   SLADesc: "",
+  //   SLAStatus: "",
+  //   KeyWord: "",
+  //   Ft_PageIndex: 0,
+  //   Ft_PageSize: config.MAX_PAGE_ITEMS,
+  // });
 
   const { data, isLoading, refetch }: any = useQuery(
-    ["Mst_SLA", JSON.stringify(searchCondition)],
+    ["Mst_SLA", JSON.stringify(keyword)],
 
     async () => {
-      return await api.Mst_SLA_Search({ ...searchCondition });
+      return await api.Mst_SLA_Search({
+        Ft_PageIndex: 0,
+        Ft_PageSize: config.MAX_PAGE_ITEMS,
+        KeyWord: keyword,
+      });
     }
   );
 
@@ -57,13 +63,12 @@ const SLA_List = () => {
     navigate(`/admin/SLA-Add`);
   };
 
-  const handleSearch = async (params: any) => {
-    setSearchCondition({
-      ...searchCondition,
-      KeyWord: params,
-    });
-    await refetch();
-  };
+  // const handleSearch = async (params: any) => {
+  //   setSearchCondition({
+  //     ...searchCondition,
+  //     KeyWord: params,
+  //   });
+  // };
 
   const columns = useMst_SLAColumns();
 
@@ -107,7 +112,7 @@ const SLA_List = () => {
 
   const handleOnEditRow = ({ row }: any) => {
     setType("edit");
-    navigate(`/admin/SLA/${row.key}`);
+    navigate(`/admin/SLA/${row.key}/direct`);
   };
 
   const customCard = (item: any) => {
@@ -132,14 +137,12 @@ const SLA_List = () => {
       <AdminContentLayout.Slot name={"Header"}>
         <PageHeaderLayout>
           <PageHeaderLayout.Slot name={"Before"}>
-            <div className="font-bold dx-font-m">{t("SLA Manager")}</div>
+            <div className="text-header font-bold dx-font-m">
+              {t("SLA Manager")}
+            </div>
           </PageHeaderLayout.Slot>
           <PageHeaderLayout.Slot name={"Center"}>
-            <HeaderPart
-              refetch={refetch}
-              onAddNew={handleAddNew}
-              onSearch={handleSearch}
-            />
+            <HeaderPart refetch={refetch} onAddNew={handleAddNew} />
           </PageHeaderLayout.Slot>
         </PageHeaderLayout>
       </AdminContentLayout.Slot>

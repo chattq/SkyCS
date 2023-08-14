@@ -6,7 +6,7 @@ import {
 } from "@packages/ui/base-gridview";
 import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { useI18n } from "@/i18n/useI18n";
-import { useAtom, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useQuery } from "@tanstack/react-query";
 import {
   FlagActiveEnum,
@@ -20,7 +20,7 @@ import { IFormOptions, IItemProps } from "devextreme-react/form";
 import { flagEditorOptionsSearch, zip } from "@packages/common";
 import { logger } from "@packages/logger";
 import { toast } from "react-toastify";
-import { showErrorAtom } from "@packages/store";
+import { authAtom, showErrorAtom } from "@packages/store";
 import { EditorPreparingEvent } from "devextreme/ui/data_grid";
 import {
   ContentSearchPanelLayout,
@@ -54,7 +54,7 @@ export const RptCpnCampaignResultCtmFeedbackPage = () => {
   } as any);
   const setSelectedItems = useSetAtom(selectedItemsAtom);
   const api = useClientgateApi();
-
+  const auth = useAtomValue(authAtom);
   const [searchConditionListType, setSearchCondition] = useState<any>({
     FlagActive: FlagActiveEnum.All,
     Ft_PageIndex: 0,
@@ -97,8 +97,8 @@ export const RptCpnCampaignResultCtmFeedbackPage = () => {
           ? searchCondition.CampaignCodeConditionList.join(",")
           : "",
         ReportDTimeFrom: searchCondition.MonthReport[0]
-          ? format(searchCondition.MonthReport[0], "yyyy-MM-dd")
-          : format(firstDayOfYear, "yyyy-MM-dd"),
+          ? format(searchCondition.MonthReport[0], "yyyy-MM-dd ")
+          : format(firstDayOfYear, "yyyy-MM-dd "),
         ReportDTimeTo: searchCondition.MonthReport[1]
           ? format(searchCondition.MonthReport[1], "yyyy-MM-dd")
           : format(endDate, "yyyy-MM-dd"),
@@ -106,14 +106,10 @@ export const RptCpnCampaignResultCtmFeedbackPage = () => {
       return resp;
     },
   });
-  const { data: CampaignList } = useQuery(["listMST"], () =>
+  const { data: CampaignList } = useQuery(["CampaignList"], () =>
     api.Cpn_CampaignAgent_GetActive()
   );
-
-  const { data: listUser } = useQuery(
-    ["listAgent"],
-    () => api.Sys_User_GetAllActive() as any
-  );
+  console.log(112, CampaignList);
 
   const columns = useBankDealerGridColumns({
     data:
@@ -178,6 +174,15 @@ export const RptCpnCampaignResultCtmFeedbackPage = () => {
           valueExpr: "CampaignTypeCode",
           placeholder: t("Input"),
           searchEnabled: true,
+          // onValueChanged: async (e: any) => {
+          //   const resp = await api.Mst_CampaignType_GetByCode(
+          //     e.value,
+          //     "7206207001"
+          //   );
+          //   if (resp.isSuccess) {
+          //     console.log(resp);
+          //   }
+          // },
         },
       },
       {
@@ -309,8 +314,8 @@ export const RptCpnCampaignResultCtmFeedbackPage = () => {
         ? searchCondition.CampaignCodeConditionList.join(",")
         : "",
       ReportDTimeFrom: searchCondition.MonthReport[0]
-        ? format(searchCondition.MonthReport[0], "yyyy-MM-dd")
-        : format(firstDayOfYear, "yyyy-MM-dd"),
+        ? format(searchCondition.MonthReport[0], "yyyy-MM-dd ")
+        : format(firstDayOfYear, "yyyy-MM-dd "),
       ReportDTimeTo: searchCondition.MonthReport[1]
         ? format(searchCondition.MonthReport[1], "yyyy-MM-dd")
         : format(endDate, "yyyy-MM-dd"),

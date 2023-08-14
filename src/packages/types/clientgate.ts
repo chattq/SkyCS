@@ -1,3 +1,5 @@
+import { errorInfo } from "../store";
+
 export interface ClientGateInfo {
   SolutionCode: string;
   NetworkID: string;
@@ -501,7 +503,7 @@ export interface Mst_CampaignTypeData {
 export interface ApiResponse<T> {
   isSuccess: boolean;
   errorCode: string;
-  errorInfo?: object;
+  errorInfo?: errorInfo;
   debugInfo: object;
   DataList?: T;
   Data?: T;
@@ -560,8 +562,8 @@ export interface Rpt_ETTicketDetailControllerSearchParam {
   TicketStatusConditionList: string;
   CreateDTimeUTCFrom: string;
   CreateDTimeUTCTo: string;
-  LogLUDTimeUTCFrom: string;
-  LogLUDTimeUTCTo: string;
+  LUDTimeUTCFrom: string;
+  LUDTimeUTCTo: string;
 }
 export interface Rpt_MissCallSearchParam {
   AgentCodeConditionList: string;

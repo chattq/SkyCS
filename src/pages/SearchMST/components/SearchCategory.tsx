@@ -50,7 +50,6 @@ export default function SearchCategory() {
     <div className="w-full">
       <LoadPanel
         container={".dx-viewport"}
-        shadingColor="rgba(0,0,0,0.4)"
         position={"center"}
         visible={isLoading || isLoadingHistory}
         showIndicator={true}
@@ -60,6 +59,7 @@ export default function SearchCategory() {
         <ScrollView height={320} showScrollbar="always">
           <div className="mt-[2px]">
             <TreeView
+              noDataText=""
               displayExpr="CategoryName"
               keyExpr="CategoryCode"
               id="simple-treeview"
@@ -67,62 +67,53 @@ export default function SearchCategory() {
               width={250}
               onItemClick={selectItem}
               activeStateEnabled={true}
-              expandNodesRecursive={false}
             />
           </div>
         </ScrollView>
         <div>
-          {dataCategory?.Data === undefined ? (
-            <div className="w-[780px] text-center py-[16px]">
-              {t("No Data")}
-            </div>
-          ) : (
-            <div className="border-l max-h-[320px] w-[780px] overflow-y-scroll">
-              {dataCategory?.Data?.KB_Post?.map((item: any, index: any) => {
-                return (
-                  <div key={index}>
-                    <div className="px-2 hover:bg-[#EAF9F2] cursor-pointer search_history-bg">
-                      <div className="w-[740px] border-b m-auto border-[#E3EBF1] py-[16px]">
-                        <div className="flex justify-center gap-2 ">
-                          <div className="h-[15px]">
-                            <img
-                              src={`/images/icons/${
-                                item.ShareType === "PRIVATE"
-                                  ? "lock.png"
-                                  : item.ShareType === "NETWORK"
-                                  ? "ORGANIZATION.png"
-                                  : item.ShareType === "ORGANIZATION"
-                                  ? "public.png"
-                                  : ""
-                              }`}
-                              alt=""
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                          <div>
-                            <NavNetworkLink
-                              to={`/search/SearchInformation/Detail/${item.PostCode}`}
+          <div className="border-l max-h-[320px] w-[780px] overflow-y-scroll">
+            {dataCategory?.Data?.KB_Post?.map((item: any, index: any) => {
+              return (
+                <div key={index}>
+                  <div className="px-2 hover:bg-[#EAF9F2] cursor-pointer search_history-bg">
+                    <div className="w-[740px] border-b m-auto border-[#E3EBF1] py-[16px]">
+                      <div className="flex justify-center gap-2 ">
+                        <div className="h-[15px]">
+                          <img
+                            src={`/images/icons/${
+                              item.ShareType === "PRIVATE"
+                                ? "lock.png"
+                                : item.ShareType === "NETWORK"
+                                ? "ORGANIZATION.png"
+                                : item.ShareType === "ORGANIZATION"
+                                ? "public.png"
+                                : ""
+                            }`}
+                            alt=""
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div>
+                          <NavNetworkLink
+                            to={`/search/SearchInformation/Detail/${item.PostCode}`}
+                          >
+                            <div
+                              className="text-[14px] w-[711px] search_history-title font-bold line-clamp-2"
+                              onClick={() => handleLastView(item.PostCode)}
                             >
-                              <div
-                                className="text-[14px] w-[711px] search_history-title font-bold line-clamp-2"
-                                onClick={() => handleLastView(item.PostCode)}
-                              >
-                                {item.Title}
-                              </div>
-                            </NavNetworkLink>
-                            <div className="flex justify-between mt-[12px]">
+                              {item.Title}
+                            </div>
+                          </NavNetworkLink>
+                          <div className="flex justify-between mt-[12px]">
+                            <div>
+                              {item.kbc_CategoryName
+                                ? item.kbc_CategoryName
+                                : null}
+                            </div>
+                            <div className="flex items-center">
+                              <div className="mr-1">{t(`Cập nhật:`)}</div>
                               <div>
-                                {item.kbc_CategoryName
-                                  ? item.kbc_CategoryName
-                                  : null}
-                              </div>
-                              <div className="flex items-center">
-                                <div className="mr-1">{t(`Cập nhật:`)}</div>
-                                <div>
-                                  {item.LogLUDTimeUTC
-                                    ? item.LogLUDTimeUTC
-                                    : null}
-                                </div>
+                                {item.LogLUDTimeUTC ? item.LogLUDTimeUTC : null}
                               </div>
                             </div>
                           </div>
@@ -130,10 +121,10 @@ export default function SearchCategory() {
                       </div>
                     </div>
                   </div>
-                );
-              })}
-            </div>
-          )}
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>

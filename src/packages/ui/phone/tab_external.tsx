@@ -1,26 +1,81 @@
-import { SetStateAction, useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import './phone.scss';
-import { SelectBox } from "devextreme-react";
-import { Item as TabItem } from 'devextreme-react/tabs';
-import { callApi } from "@/packages/api/call-api";
-import { useAuth } from "@/packages/contexts/auth";
+import { ScrollView, SelectBox } from "devextreme-react";
 import { CcCallingInfo } from "@/packages/types";
+import { useClientgateApi } from "@/packages/api";
+import { nanoid } from "nanoid";
 
+interface CustomerInfo {
+    CustomerCodeSys: string,
+    Name: string,
+    PhoneNo: string,
+}
 export const TabExternal = ({ callingInfo, onShowHistory }: { callingInfo: CcCallingInfo, onShowHistory: any }) => {
 
     const [selectedNumber, setSelectedNumber] = useState('');
-
+    const api = useClientgateApi();
     const onValueNumberChanged = useCallback((e: any) => {
         setSelectedNumber(e.value);
+
     }, []);
+    const [cmtSearchList, setCtmSearchList] = useState<CustomerInfo[] | null>(null);
+
+    const searchCustomer = async (keyword: string) => {
+
+
+        if (keyword == '' || keyword.length < 3) return setCtmSearchList(null);
+        var params: any = [{ CtmPhoneNo: keyword }];
+
+
+        var resp = await api.GetByCtmPhoneNoLike(params);
+        console.log(resp);
+        var list: CustomerInfo[] = [];
+        if (resp.isSuccess && resp.Data && resp.Data.Lst_Mst_Customer && resp.Data.Lst_Mst_Customer.length > 0
+            && resp.Data.Lst_Mst_CustomerPhone && resp.Data.Lst_Mst_CustomerPhone.length > 0) {
+            var ctmList = resp.Data.Lst_Mst_Customer;
+            var phoneNoList = resp.Data.Lst_Mst_CustomerPhone;
+
+            phoneNoList.forEach((phone: any) => {
+
+                var cus = ctmList.find((ii: any) => ii.CustomerCodeSys == phone.CustomerCodeSys);
+                if (cus && list.filter(i => i.CustomerCodeSys == cus.CustomerCodeSys).length == 0) {
+                    list.push({
+                        CustomerCodeSys: cus.CustomerCodeSys,
+                        PhoneNo: phone.CtmPhoneNo,
+                        Name: cus.CustomerName,
+                    });
+                }
+
+            });
+
+
+
+        }
+
+        setCtmSearchList(list);
+
+    };
 
 
     const [number2Dial, setNumber2Dial] = useState('');
 
     const numberClick = (number: string) => {
 
-        const newNum = number2Dial + number;
+        var newNum = number2Dial;
+        if (number == '-') {
+
+            if (newNum.length > 0) {
+                newNum = newNum.substring(0, newNum.length - 1);
+            }
+        }
+        else newNum += number;
+
+
+
         setNumber2Dial(newNum);
+        searchCustomer(newNum);
+
+
 
     }
 
@@ -32,17 +87,40 @@ export const TabExternal = ({ callingInfo, onShowHistory }: { callingInfo: CcCal
         if (callingInfo.CalloutNumbers && callingInfo.CalloutNumbers?.length > 0) {
             setSelectedNumber(callingInfo.CalloutNumbers[0]);
         }
-    }, [callingInfo])
+    }, [callingInfo]);
+
+    const CtmList = ({ list }: { list: CustomerInfo[] | null }) => {
+        if (!list || list.length == 0) return <></>;
+
+        return <>
+            <div className="w-full p-2 ctm-search-list float-left">
+
+                {list.map(ctm => {
+                    return <div className="ctm-search-item" key={nanoid()} onClick={() => {
+                        window.Phone.dial(ctm.PhoneNo);
+                    }}>
+                        <span className="float-left">{ctm.Name}</span>
+                        <span className="float-right">{ctm.PhoneNo}</span>
+                    </div>
+                })
+                }
+
+            </div>
+        </>;
+    }
 
     return <>
         <div className="w-full pl-5 pr-5">
+            <CtmList list={cmtSearchList} />
             <div className="w-full pl-5 pr-5">
+
                 <input className="dial-text" value={number2Dial} onChange={(e: any) => {
                     setNumber2Dial(e.target.value)
                 }}
 
                 />
             </div>
+
         </div>
         <div className="dial-pad">
             <div className="w-full">
@@ -88,12 +166,16 @@ export const TabExternal = ({ callingInfo, onShowHistory }: { callingInfo: CcCal
             </div>
         </div>
         <div className="w-full pl-5 pr-5 pb-5">
-            <div className="flex ml-5 mt-2 pl-5">
+            <div className="flex ml-5 mt-2 pl-4">
                 <button style={{ width: 40, height: 40 }} onClick={onShowHistory}><i className="dx-icon-bulletlist"></i></button>
                 <button className="rounded-btn btn-green ml-5"
                     onClick={handleCallBtn}
                 ><i className="dx-icon-tel"></i></button>
 
+                <button className="ml-4"
+                    style={{ width: 40, height: 40 }}
+                    onClick={() => numberClick('-')}
+                ><i className="icon-call-del-digit"></i></button>
             </div>
 
         </div>

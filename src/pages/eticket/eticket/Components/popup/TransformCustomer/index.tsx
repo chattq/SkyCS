@@ -141,17 +141,15 @@ const index = ({ onCancel, onSave, dataRow }: Props) => {
         <div className="tag flex items-center justify-between mb-4">
           <div className="left">
             <p className="strong">
-              {t(
-                `Hộ trợ tạo đơn hàng DMS cho khách hàng ${dataRow[0].CustomerCodeSys}`
-              )}
+              {t(`Hộ trợ tạo đơn hàng ${dataRow[0].CustomerCodeSys}`)}
             </p>
-            <p>{t(`Nguyễn Văn A - KH0001`)}</p>
+            <p>{t(`${dataRow[0].CustomerName ?? ""}`)}</p>
           </div>
           <div className="right">
             <p>{`${dataRow[0].TicketID}`}</p>
             <p>
               {t("Phone: ")}
-              {`0987654321`}
+              {`${dataRow[0].CustomerPhoneNo ?? ""}`}
             </p>
           </div>
         </div>

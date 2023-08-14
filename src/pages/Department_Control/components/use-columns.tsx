@@ -75,6 +75,7 @@ export const useDepartMentGridColumns = ({
       editorOptions: {
         placeholder: t("Input"),
       },
+      filterType: "exclude",
       caption: t("DepartmentCode"),
       columnIndex: 1,
       groupKey: "BASIC_INFORMATION",
@@ -98,6 +99,7 @@ export const useDepartMentGridColumns = ({
       columnIndex: 1,
       groupKey: "BASIC_INFORMATION",
       visible: true,
+      filterType: "exclude",
     },
     {
       dataField: "md_DepartmentNameParent",
@@ -108,6 +110,7 @@ export const useDepartMentGridColumns = ({
       columnIndex: 1,
       groupKey: "BASIC_INFORMATION",
       visible: true,
+      filterType: "exclude",
     },
     {
       dataField: "su_QtyUser",
@@ -118,6 +121,7 @@ export const useDepartMentGridColumns = ({
       columnIndex: 1,
       groupKey: "BASIC_INFORMATION",
       visible: true,
+      filterType: "exclude",
     },
     {
       dataField: "DepartmentDesc",
@@ -128,6 +132,7 @@ export const useDepartMentGridColumns = ({
       columnIndex: 1,
       groupKey: "BASIC_INFORMATION",
       visible: true,
+      filterType: "exclude",
     },
     {
       dataField: "FlagActive",
@@ -146,6 +151,7 @@ export const useDepartMentGridColumns = ({
       cellRender: ({ data }: any) => {
         return <StatusButton key={nanoid()} isActive={data.FlagActive} />;
       },
+      filterType: "exclude",
     },
   ];
   // return array of the first item only

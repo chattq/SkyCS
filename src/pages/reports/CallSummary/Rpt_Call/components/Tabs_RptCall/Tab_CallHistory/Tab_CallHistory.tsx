@@ -55,10 +55,11 @@ export const Tab_CallHistory = ({ getListOrg }: { getListOrg: any }) => {
   let gridRef: any = useRef(null);
   const config = useConfiguration();
   const showError = useSetAtom(showErrorAtom);
-  const [formartDate, setFormatDate] = useState("day");
+  const [formartDate, setFormatDate] = useState("month");
   const [searchCondition, setSearchCondition] = useState<any>({
-    period: "day",
+    period: "month",
     callType: "All",
+    fromDate: new Date(Date.now()),
   });
   const auth = useAtomValue(authAtom);
   const api = useClientgateApi();
@@ -67,7 +68,7 @@ export const Tab_CallHistory = ({ getListOrg }: { getListOrg: any }) => {
   }, "0");
 
   const { data, isLoading, refetch } = useQuery({
-    queryKey: ["rpt_GetCallHistoryFull", JSON.stringify(searchCondition)],
+    queryKey: ["rpt_GetCallHistoryFull", key],
     queryFn: async () => {
       if (key !== "0") {
         const condition = {
@@ -123,7 +124,18 @@ export const Tab_CallHistory = ({ getListOrg }: { getListOrg: any }) => {
         visible: true,
         validationRules: [requiredType],
         editorOptions: {
-          dataSource: ["day", "month"],
+          dataSource: [
+            {
+              title: t("Day"),
+              value: "day",
+            },
+            {
+              title: t("Month"),
+              value: "month",
+            },
+          ],
+          valueExpr: "value",
+          displayExpr: "title",
           onValueChanged: (param: any) => {
             setFormatDate(param.value);
           },
@@ -140,7 +152,7 @@ export const Tab_CallHistory = ({ getListOrg }: { getListOrg: any }) => {
         editorOptions: {
           type: "date",
           calendarOptions: {
-            maxZoomLevel: formartDate === "day" ? "date" : "year",
+            maxZoomLevel: formartDate === "day" ? "month" : "year",
             // minZoomLevel: "decade",
           },
           displayFormat: formartDate === "day" ? "yyyy-MM-dd" : "yyyy-MM",
@@ -376,13 +388,12 @@ export const Tab_CallHistory = ({ getListOrg }: { getListOrg: any }) => {
       ...data,
     });
     reloading();
-    await refetch();
+    // await refetch();
   };
   const handleExport = () => {};
-
+  const searchPanelVisibility = useAtomValue(searchPanelVisibleAtom);
   const handleEditRowChanges = () => {};
   const handleSelectionChanged = () => {};
-
   return (
     <ReportLayout className={"ReportCall_Manager"}>
       <ReportLayout.Slot name={"Content"}>
@@ -396,45 +407,54 @@ export const Tab_CallHistory = ({ getListOrg }: { getListOrg: any }) => {
             />
           </ContentSearchPanelLayout.Slot>
           <ContentSearchPanelLayout.Slot name={"ContentPanel"}>
-            {key !== "0" && !isLoading && (
-              <GridViewCustomize
-                isLoading={isLoading}
-                dataSource={data}
-                columns={columns}
-                keyExpr={["Id"]}
-                popupSettings={popupSettings}
-                formSettings={{}}
-                onReady={(ref) => (gridRef = ref)}
-                allowSelection={true}
-                onSelectionChanged={handleSelectionChanged}
-                onSaveRow={handleSavingRow}
-                onEditorPreparing={handleEditorPreparing}
-                allowInlineEdit={true}
-                onEditRowChanges={handleEditRowChanges}
-                onDeleteRows={handleDeleteRows}
-                isSingleSelection={false}
-                toolbarItems={[
-                  {
-                    location: "before",
-                    widget: "dxButton",
-                    options: {
-                      icon: "search",
-                      onClick: handleToggleSearchPanel,
+            <div className="flex align-items-flex-start">
+              {!searchPanelVisibility && (
+                <Button
+                  className="button_Search "
+                  icon={"/images/icons/search.svg"}
+                  onClick={handleToggleSearchPanel}
+                />
+              )}
+              {key !== "0" && !isLoading && (
+                <GridViewCustomize
+                  isLoading={isLoading}
+                  dataSource={data}
+                  columns={columns}
+                  keyExpr={["Id"]}
+                  popupSettings={popupSettings}
+                  formSettings={{}}
+                  onReady={(ref) => (gridRef = ref)}
+                  allowSelection={true}
+                  onSelectionChanged={handleSelectionChanged}
+                  onSaveRow={handleSavingRow}
+                  onEditorPreparing={handleEditorPreparing}
+                  allowInlineEdit={true}
+                  onEditRowChanges={handleEditRowChanges}
+                  onDeleteRows={handleDeleteRows}
+                  isSingleSelection={false}
+                  toolbarItems={[
+                    {
+                      location: "before",
+                      widget: "dxButton",
+                      options: {
+                        icon: "search",
+                        onClick: handleToggleSearchPanel,
+                      },
                     },
-                  },
-                ]}
-                storeKey={"Post_Manager-columns"}
-                customToolbarItems={[
-                  {
-                    text: "Export",
-                    onClick: () => handleExport,
-                    shouldShow: () => {
-                      return true;
+                  ]}
+                  storeKey={"Post_Manager-columns"}
+                  customToolbarItems={[
+                    {
+                      text: "Export",
+                      onClick: () => handleExport,
+                      shouldShow: () => {
+                        return true;
+                      },
                     },
-                  },
-                ]}
-              />
-            )}
+                  ]}
+                />
+              )}
+            </div>
           </ContentSearchPanelLayout.Slot>
         </ContentSearchPanelLayout>
       </ReportLayout.Slot>

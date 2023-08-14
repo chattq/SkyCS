@@ -20,6 +20,7 @@ import { ReactComponent as ReplyIcon } from "./svg/reply.svg";
 import { ReactComponent as Txt } from "./svg/txt.svg";
 import { ReactComponent as Pptx } from "./svg/Pptx.svg";
 import { ReactComponent as PhoneCall } from "./svg/phone_call.svg";
+import { ReactComponent as settingIcon } from "./svg/settingicon.svg";
 // eticket
 import { ReactComponent as SmsIcon } from "./svg/sms.svg";
 import { ReactComponent as LiveChatIcon } from "./svg/livechat.svg";
@@ -87,9 +88,10 @@ const ICONS = {
   zaloout: ZaloOut,
   emailin: MailIn,
   emailout: MailOut,
+  setting: settingIcon,
   clock: ClockIcon,
   send: SendIcon,
-  expandCampaign: ExpandCampaign
+  expandCampaign: ExpandCampaign,
 };
 
 // email, call, sms, livechat, zalo, fb

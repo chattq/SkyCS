@@ -91,13 +91,16 @@ export const HeaderPart = ({ onAddNew, searchCondition }: HeaderPartProps) => {
   return (
     <PageHeaderNoSearchLayout>
       <PageHeaderNoSearchLayout.Slot name={"Before"}>
-        <div className="font-bold dx-font-m">{t("Mst_AreaController")}</div>
+        <div className="text-header font-bold dx-font-m">
+          {t("Mst_AreaController")}
+        </div>
       </PageHeaderNoSearchLayout.Slot>
       <PageHeaderNoSearchLayout.Slot name={"After"}>
         <Button
           icon="/images/icons/plus-circle.svg"
           stylingMode={"contained"}
           type="default"
+          className="heder-part-button-add"
           text={t("Add New")}
           onClick={onAddNew}
         />

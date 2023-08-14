@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { useI18n } from "@/i18n/useI18n";
 import { useClientgateApi } from "@packages/api";
@@ -21,7 +21,10 @@ import { DataGrid } from "devextreme-react";
 import { EditorPreparingEvent } from "devextreme/ui/data_grid";
 import { useAtomValue, useSetAtom } from "jotai";
 import { toast } from "react-toastify";
-import { keywordAtom, selectedItemsAtom } from "src/pages/admin/province/components/screen-atom";
+import {
+  keywordAtom,
+  selectedItemsAtom,
+} from "src/pages/admin/province/components/screen-atom";
 import { HeaderPart } from "src/pages/admin/province/list/header-part";
 import "src/pages/admin/province/list/province-management.scss";
 
@@ -206,14 +209,14 @@ export const ProvinceManagementPage = () => {
       }
     }
   };
-  const [isProcessing, setProcessing] = useState(false)
+  const [isProcessing, setProcessing] = useState(false);
   const handleDeleteRows = async (rows: string[]) => {
-    setProcessing(true)
+    setProcessing(true);
     const resp = await api.Mst_Province_DeleteMultiple(rows);
     if (resp.isSuccess) {
       toast.success(t("DeleteSuccessfully"));
       await refetch();
-      setProcessing(false)
+      setProcessing(false);
       return true;
     } else {
       showError({
@@ -221,7 +224,7 @@ export const ProvinceManagementPage = () => {
         debugInfo: resp.debugInfo,
         errorInfo: resp.errorInfo,
       });
-      setProcessing(false)
+      setProcessing(false);
       return false;
     }
   };
@@ -290,7 +293,9 @@ export const ProvinceManagementPage = () => {
       <AdminContentLayout.Slot name={"Header"}>
         <PageHeaderLayout>
           <PageHeaderLayout.Slot name={"Before"}>
-            <div className="font-bold dx-font-m">{t("ProvinceManagement")}</div>
+            <div className="text-header font-bold dx-font-m">
+              {t("ProvinceManagement")}
+            </div>
           </PageHeaderLayout.Slot>
           <PageHeaderLayout.Slot name={"Center"}>
             <HeaderPart

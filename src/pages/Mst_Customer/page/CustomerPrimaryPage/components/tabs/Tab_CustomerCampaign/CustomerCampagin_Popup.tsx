@@ -128,7 +128,7 @@ const CustomerCampaign_Popup = ({ CampaignCode }: any) => {
   }, [CampaignCode]);
 
   const handleCancel = useCallback((): void => {
-    navigate("/admin/Cpn_CampaignPage");
+    navigate("/campaign/Cpn_CampaignPage");
   }, []);
 
   const onDelete = async () => {

@@ -28,6 +28,7 @@ const HeaderForm = forwardRef(({}, ref: any) => {
         onFieldDataChanged={({ dataField, value }: any) => {
           setFormValue({ ...formValue, [dataField]: value });
         }}
+        className="SLA-header"
       >
         {formSettings.map((value: any) => {
           return (

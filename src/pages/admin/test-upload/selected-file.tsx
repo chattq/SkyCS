@@ -74,8 +74,8 @@ export const SelectedFile = ({
   };
 
   const handleDownload = () => {
-    if (file?.FileUrlFS) {
-      window.open(file?.FileUrlFS, "_blank");
+    if (file?.FileUrlFS || file?.FileUrlLocal) {
+      window.open(file?.FileUrlFS || file?.FileUrlLocal, "_blank");
     }
   };
 
@@ -84,7 +84,7 @@ export const SelectedFile = ({
       <div className={"flex items-center"}>
         <Icon size={30} name={getIconName(file.FileType!)} />
         <span
-          className={"ml-1 cursor-pointer"}
+          className={"ml-1 cursor-pointer hover:underline hover:text-blue-500"}
           onClick={() => handleDownload()}
         >
           {file.FileFullName}

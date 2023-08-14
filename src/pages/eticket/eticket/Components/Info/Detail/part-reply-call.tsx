@@ -57,8 +57,6 @@ export const PartReplyCall = ({
           if (response.isSuccess) {
             toast.success(t("ET_Ticket_GetCallMessageByCallID success!"));
             const param = {
-              // ConvMessageType: "4",
-              // ChannelId: "2",
               ...response.Data,
             };
             setFile([param]);
@@ -126,18 +124,14 @@ export const PartReplyCall = ({
         {file.length ? (
           <div className="w-[100%] p-3">
             {file.map((item: CallItem, idx: number) => {
-              console.log(item);
-              let flag: IconName = "call";
-              // let flagI
-              // None=0,								Báo lỗi "Chưa kết thúc cuộc gọi"
-              // Ringing=1,								Báo lỗi "Chưa kết thúc cuộc gọi"
-              // InCall=2,								Báo lỗi "Chưa kết thúc cuộc gọi"
-              // Unavail=3,						Ko gọi được, sai số...							Giống Error
-              // NoAnswer=4,						KH ko nhấc máy							Giống Rejected
-              // Cancel=5,						Agent hủy				Ko thay đổi trạng thái, chỉ lưu note. ko lưu lịch sử liên hệ
-              // Complete=6,
+              let flag: IconName = "";
+              console.log("item ", item);
               if (item.State === 6) {
-                flag === "callin";
+                if (item.Type === "Incoming") {
+                  flag = "callin";
+                } else {
+                  flag = "callout";
+                }
               } else {
                 if (item.Type === "Incoming") {
                   flag = "callmissedin";
@@ -145,6 +139,16 @@ export const PartReplyCall = ({
                   flag = "callmissedout";
                 }
               }
+
+              console.log("flag", flag, "item.Type", item.Type);
+
+              // if (item.Type == "incoming") {
+              //   flag = item.Status != "Complete" ? "callmissedin" : "callin";
+              // } else {
+              //   flag =
+              //     item.Status != "Complete" ? "icon-call-noanswer" : "callout";
+              // }
+
               return (
                 <div key={idx} className="message-item call-item">
                   <div className="flex p-2 pop-up-use">

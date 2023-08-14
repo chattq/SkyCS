@@ -40,7 +40,7 @@ UseBankDealerGridColumnsProps) => {
       dataField: "OrgID", // Mã ngân hàng
       caption: t("OrgID"),
       editorType: "dxSelectBox",
-
+      filterType: "exclude",
       editorOptions: {
         dataSource: datalistOrgID,
         valueExpr: "OrgID",
@@ -48,7 +48,7 @@ UseBankDealerGridColumnsProps) => {
         readOnly: false,
         placeholder: t("Input"),
       },
-
+      visible: true,
       columnIndex: 1,
     },
     {
@@ -71,6 +71,8 @@ UseBankDealerGridColumnsProps) => {
           />
         );
       },
+      visible: true,
+      filterType: "exclude",
     },
 
     {
@@ -85,6 +87,8 @@ UseBankDealerGridColumnsProps) => {
         maxLength: 100,
       },
       columnIndex: 2,
+      visible: true,
+      filterType: "exclude",
     },
     {
       groupKey: "BASIC_INFORMATION",
@@ -100,6 +104,8 @@ UseBankDealerGridColumnsProps) => {
       },
       columnIndex: 2,
       validationRules: [requiredType],
+      visible: true,
+      filterType: "exclude",
     },
     {
       groupKey: "BASIC_INFORMATION",
@@ -112,6 +118,8 @@ UseBankDealerGridColumnsProps) => {
       },
       editorType: "dxTextArea",
       columnIndex: 1,
+      visible: true,
+      filterType: "exclude",
     },
     {
       groupKey: "BASIC_INFORMATION",
@@ -120,12 +128,12 @@ UseBankDealerGridColumnsProps) => {
       editorType: "dxSwitch",
       alignment: "center",
       columnIndex: 2,
-
       visible: true,
       width: 100,
       cellRender: ({ data }: any) => {
         return <StatusButton key={nanoid()} isActive={data.FlagActive} />;
       },
+      filterType: "exclude",
     },
   ];
   // return array of the first item only

@@ -25,7 +25,6 @@ const CustomerTypeField = ({ param, customOptions }: any) => {
       setCustomerTypeValue(formData["CustomerType"]);
     } else {
       if (data?.Data?.Lst_Mst_CustomerType?.length > 0) {
-        console.log(data?.Data?.Lst_Mst_CustomerType);
         setValue("CANHAN");
         setCustomerTypeValue("CANHAN");
         component.updateData("CustomerType", "CANHAN");
@@ -33,19 +32,29 @@ const CustomerTypeField = ({ param, customOptions }: any) => {
     }
   }, [data]);
 
+  const result: any = data?.Data?.Lst_Mst_CustomerType?.find(
+    (item: any) => item?.CustomerType == value
+  )?.CustomerTypeName;
+
   return (
-    <SelectBox
-      dataSource={data?.Data?.Lst_Mst_CustomerType ?? []}
-      valueExpr="CustomerType"
-      displayExpr="CustomerTypeName"
-      onValueChanged={(e: any) => {
-        component.updateData("CustomerType", e.value);
-        setValue(e.value);
-        setCustomerTypeValue(e.value);
-      }}
-      value={value}
-      readOnly={customOptions?.editType == "detail"}
-    ></SelectBox>
+    <>
+      {customOptions?.editType == "detail" ? (
+        <div className="font-semibold">{result ?? ""}</div>
+      ) : (
+        <SelectBox
+          dataSource={data?.Data?.Lst_Mst_CustomerType ?? []}
+          valueExpr="CustomerType"
+          displayExpr="CustomerTypeName"
+          onValueChanged={(e: any) => {
+            component.updateData("CustomerType", e.value);
+            setValue(e.value);
+            setCustomerTypeValue(e.value);
+          }}
+          value={value}
+          readOnly={customOptions?.editType == "detail"}
+        ></SelectBox>
+      )}
+    </>
   );
 };
 

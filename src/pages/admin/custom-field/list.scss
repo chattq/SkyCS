@@ -32,7 +32,28 @@
     background: #ffffff;
     .dx-accordion-item-title {
       background: #ffffff;
-      padding: 8px;
+      // padding: 8px;
+    }
+  }
+}
+
+.custom-accordion {
+  background-color: cadetblue;
+  .dx-accordion-item {
+    margin-bottom: 10px;
+  }
+
+  .dx-accordion-item-closed {
+    height: 50px !important;
+
+    .dx-accordion-item-title {
+      height: 100% !important;
+      display: flex;
+      align-items: center;
+
+      &::before {
+        top: 14px !important;
+      }
     }
   }
 }

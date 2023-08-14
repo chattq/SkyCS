@@ -13,7 +13,7 @@ import {
   useState,
 } from "react";
 import { useI18n } from "@/i18n/useI18n";
-import { useAtom, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useQuery } from "@tanstack/react-query";
 import {
   FlagActiveEnum,
@@ -27,7 +27,7 @@ import { IFormOptions, IItemProps } from "devextreme-react/form";
 import { flagEditorOptionsSearch, zip } from "@packages/common";
 import { logger } from "@packages/logger";
 import { toast } from "react-toastify";
-import { showErrorAtom } from "@packages/store";
+import { authAtom, showErrorAtom } from "@packages/store";
 import { EditorPreparingEvent } from "devextreme/ui/data_grid";
 import {
   ContentSearchPanelLayout,
@@ -74,7 +74,7 @@ export const Rpt_ETTicketDetailControllerPage = () => {
   const now = new Date();
   const startDate = new Date(now.getTime() - msInDay * 3);
   const endDate = new Date(now.getTime());
-
+  const auth = useAtomValue(authAtom);
   const setSelectedItems = useSetAtom(selectedItemsAtom);
 
   const api = useClientgateApi();
@@ -116,10 +116,10 @@ export const Rpt_ETTicketDetailControllerPage = () => {
         CreateDTimeUTCTo: searchCondition.MonthReport[1]
           ? format(searchCondition.MonthReport[1], "yyyy-MM-dd")
           : format(endDate, "yyyy-MM-dd"),
-        LogLUDTimeUTCFrom: searchCondition.MonthUpdate[0]
+        LUDTimeUTCFrom: searchCondition.MonthUpdate[0]
           ? format(searchCondition.MonthUpdate[0], "yyyy-MM-dd")
           : "",
-        LogLUDTimeUTCTo: searchCondition.MonthUpdate[1]
+        LUDTimeUTCTo: searchCondition.MonthUpdate[1]
           ? format(searchCondition.MonthUpdate[1], "yyyy-MM-dd")
           : "",
       });
@@ -264,7 +264,10 @@ export const Rpt_ETTicketDetailControllerPage = () => {
       },
       editorType: "dxTagBox",
       editorOptions: {
-        dataSource: getListDepart ?? [],
+        dataSource:
+          getListDepart?.filter(
+            (item: any) => item.OrgID === auth.orgId.toString()
+          ) ?? [],
         valueExpr: "DepartmentCode",
         displayExpr: "DepartmentName",
         searchEnabled: true,
@@ -548,10 +551,10 @@ export const Rpt_ETTicketDetailControllerPage = () => {
       CreateDTimeUTCTo: searchCondition.MonthReport[1]
         ? format(searchCondition.MonthReport[1], "yyyy-MM-dd")
         : format(endDate, "yyyy-MM-dd"),
-      LogLUDTimeUTCFrom: searchCondition.MonthUpdate[0]
+      LUDTimeUTCFrom: searchCondition.MonthUpdate[0]
         ? format(searchCondition.MonthUpdate[0], "yyyy-MM-dd")
         : "",
-      LogLUDTimeUTCTo: searchCondition.MonthUpdate[1]
+      LUDTimeUTCTo: searchCondition.MonthUpdate[1]
         ? format(searchCondition.MonthUpdate[1], "yyyy-MM-dd")
         : "",
     });

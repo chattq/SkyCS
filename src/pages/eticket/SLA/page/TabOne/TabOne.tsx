@@ -8,7 +8,7 @@ import { forwardRef, useMemo } from "react";
 import { SLA_EditType, ticketInfo } from "../../components/store";
 
 const TabOne = forwardRef(({}, ref: any) => {
-  const { t } = useI18n("SLA");
+  const { t } = useI18n("SLA_Form");
 
   const ticketInfoValue = useAtomValue(ticketInfo);
 
@@ -29,19 +29,31 @@ const TabOne = forwardRef(({}, ref: any) => {
     }
   );
 
-  const { data: listCustomer } = useQuery(["listCustomer"], async () => {
-    const resp = await api.Mst_Customer_GetAllActive();
+  const { data: listCustomerCN } = useQuery(["listCustomerCN"], async () => {
+    const resp: any = await api.Mst_Customer_Search({
+      FlagActive: 1,
+      Ft_PageIndex: 0,
+      Ft_PageSize: 1000,
+      CustomerType: "CANHAN",
+    });
+
+    return resp?.DataList ?? [];
+  });
+
+  const { data: listCustomerDN } = useQuery(["listCustomerDN"], async () => {
+    const resp: any = await api.Mst_Customer_Search({
+      FlagActive: 1,
+      Ft_PageIndex: 0,
+      Ft_PageSize: 1000,
+      CustomerType: "TOCHUC",
+    });
 
     return resp?.DataList ?? [];
   });
 
   const { data: listCustomerGroup } = useQuery(
     ["listCustomerGroup"],
-    async () => {
-      const resp = await api.Mst_CustomerGroup_GetAllActive();
-
-      return resp?.DataList ?? [];
-    }
+    api?.Mst_CustomerGroup_GetAllActive
   );
 
   const formSettings = useMemo(() => {
@@ -53,8 +65,11 @@ const TabOne = forwardRef(({}, ref: any) => {
         hidden: false,
         items: [
           {
-            caption: t("Loại Eticket"),
+            caption: t("TicketType"),
             dataField: "TicketType",
+            label: {
+              text: t("TicketType"),
+            },
             editorOptions: {
               dataSource: listTicket ?? [],
               displayExpr: "CustomerTicketTypeName",
@@ -64,8 +79,11 @@ const TabOne = forwardRef(({}, ref: any) => {
             visible: true,
           },
           {
-            caption: t("Phân loại tùy chọn"),
+            caption: t("TicketCustomType"),
             dataField: "TicketCustomType",
+            label: {
+              text: t("TicketCustomType"),
+            },
             editorOptions: {
               dataSource: listTicketCustomType ?? [],
               displayExpr: "CustomerTicketCustomTypeName",
@@ -77,17 +95,20 @@ const TabOne = forwardRef(({}, ref: any) => {
         ],
       },
       {
-        caption: "Cá nhân",
+        caption: t("Personal"),
         colCount: 1,
         labelLocation: "left",
         typeForm: "textForm",
         hidden: false,
         items: [
           {
-            caption: t("Khách hàng"),
+            caption: t("Customer"),
             dataField: "Customer",
+            label: {
+              text: t("Customer"),
+            },
             editorOptions: {
-              dataSource: listCustomer ?? [],
+              dataSource: listCustomerCN ?? [],
               valueExpr: "CustomerCodeSys",
               displayExpr: "CustomerName",
             },
@@ -95,10 +116,13 @@ const TabOne = forwardRef(({}, ref: any) => {
             visible: true,
           },
           {
-            caption: t("Nhóm khách hàng"),
+            caption: t("CustomerGroup"),
             dataField: "CustomerGroup",
+            label: {
+              text: t("CustomerGroup"),
+            },
             editorOptions: {
-              dataSource: listCustomerGroup ?? [],
+              dataSource: listCustomerGroup?.DataList ?? [],
               valueExpr: "CustomerGrpCode",
               displayExpr: "CustomerGrpName",
             },
@@ -108,17 +132,20 @@ const TabOne = forwardRef(({}, ref: any) => {
         ],
       },
       {
-        caption: "Doanh nghiệp",
+        caption: t("Organization"),
         colCount: 1,
         labelLocation: "left",
         typeForm: "textForm",
         hidden: false,
         items: [
           {
-            caption: t("Khách hàng"),
+            caption: t("CustomerEnterprise"),
             dataField: "CustomerEnterprise",
+            label: {
+              text: t("CustomerEnterprise"),
+            },
             editorOptions: {
-              dataSource: listCustomer ?? [],
+              dataSource: listCustomerDN ?? [],
               valueExpr: "CustomerCodeSys",
               displayExpr: "CustomerName",
             },
@@ -126,10 +153,13 @@ const TabOne = forwardRef(({}, ref: any) => {
             visible: true,
           },
           {
-            caption: t("Nhóm khách hàng"),
+            caption: t("CustomerEnterpriseGroup"),
             dataField: "CustomerEnterpriseGroup",
+            label: {
+              text: t("CustomerEnterpriseGroup"),
+            },
             editorOptions: {
-              dataSource: listCustomerGroup ?? [],
+              dataSource: listCustomerGroup?.DataList ?? [],
               valueExpr: "CustomerGrpCode",
               displayExpr: "CustomerGrpName",
             },
@@ -139,7 +169,13 @@ const TabOne = forwardRef(({}, ref: any) => {
         ],
       },
     ];
-  }, [listTicket, listTicketCustomType, listCustomer, listCustomerGroup]);
+  }, [
+    listTicket,
+    listTicketCustomType,
+    listCustomerCN,
+    listCustomerDN,
+    listCustomerGroup,
+  ]);
 
   const type = useAtomValue(SLA_EditType);
 

@@ -24,7 +24,6 @@ export const useMst_PaymentTermControllerApi = (apiBase: AxiosInstance) => {
     Mst_PaymentTermController_Create: async (
       data: Mst_PaymentTermData
     ): Promise<ApiResponse<Mst_PaymentTermData>> => {
-      console.log(27, data);
       return await apiBase.post("/MstPaymentTerm/Create", {
         strJson: JSON.stringify(data),
       });

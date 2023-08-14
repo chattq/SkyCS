@@ -12,6 +12,7 @@ export const useRpt_CpnCampaignResultCtmFeedbackApi = (
     Rpt_CpnCampaignResultCtmFeedback_Search: async (
       params: Rpt_CpnCampaignResultCtmFeedbackSearchParam
     ): Promise<ApiResponse<any>> => {
+      console.log(15, params);
       return await apiBase.post<
         Rpt_CpnCampaignResultCtmFeedbackSearchParam,
         ApiResponse<Rpt_CpnCampaignResultCtmFeedbackData>

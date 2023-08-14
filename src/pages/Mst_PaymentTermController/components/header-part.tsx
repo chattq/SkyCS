@@ -91,7 +91,7 @@ export const HeaderPart = ({ onAddNew, searchCondition }: HeaderPartProps) => {
   return (
     <PageHeaderNoSearchLayout>
       <PageHeaderNoSearchLayout.Slot name={"Before"}>
-        <div className="font-bold dx-font-m">
+        <div className="text-header font-bold dx-font-m">
           {t("Mst_PaymentTermController")}
         </div>
       </PageHeaderNoSearchLayout.Slot>
@@ -100,6 +100,7 @@ export const HeaderPart = ({ onAddNew, searchCondition }: HeaderPartProps) => {
           icon="/images/icons/plus-circle.svg"
           stylingMode={"contained"}
           type="default"
+          className="heder-part-button-add"
           text={t("Add New")}
           onClick={onAddNew}
         />

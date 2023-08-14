@@ -22,6 +22,7 @@ UseBankDealerGridColumnsProps) => {
         placeholder: t("Input"),
       },
       columnIndex: 1,
+      filterType: "exclude",
     },
     {
       groupKey: "BASIC_INFORMATION",
@@ -33,6 +34,7 @@ UseBankDealerGridColumnsProps) => {
         placeholder: t("Input"),
       },
       columnIndex: 1,
+      filterType: "exclude",
     },
 
     {
@@ -44,12 +46,17 @@ UseBankDealerGridColumnsProps) => {
         placeholder: t("Input"),
       },
       columnIndex: 1,
+      filterType: "exclude",
+      alignment: "left",
+      cssClass: "TextLeftSLA",
+      // width: 110,
     },
     {
       groupKey: "BASIC_INFORMATION",
       dataField: "QtySLAResponding", // Mã đại lý
       caption: t("QtySLAResponding"),
       editorType: "dxTextBox",
+      cssClass: "TextLeftSLA",
       editorOptions: {
         readOnly: false,
         placeholder: t("Input"),
@@ -57,18 +64,25 @@ UseBankDealerGridColumnsProps) => {
       // cellRender: ({ data }: any) => {
       //   return <StatusUser key={nanoid()} status={data.CampaignStatus} />;
       // },
+      // width: 150,
       columnIndex: 2,
+      filterType: "exclude",
+      alignment: "left",
     },
     {
       groupKey: "BASIC_INFORMATION",
       dataField: "QtySLANotResponding", // Mã đại lý
       caption: t("QtySLANotResponding"),
+      alignment: "left",
+      cssClass: "TextLeftSLA",
       editorOptions: {
         readOnly: false,
         placeholder: t("Input"),
       },
       editorType: "dxTextBox",
       columnIndex: 2,
+      filterType: "exclude",
+      // width: 190,
     },
     {
       groupKey: "BASIC_INFORMATION",
@@ -78,7 +92,11 @@ UseBankDealerGridColumnsProps) => {
         readOnly: false,
         placeholder: t("Input"),
       },
+      alignment: "left",
+      // width: 150,
+      cssClass: "TextLeftSLA",
       editorType: "dxTextBox",
+      filterType: "exclude",
       columnIndex: 2,
       cellRender: ({ data }: any) => {
         return <span>{`${data.SLARespondingRate}%`}</span>;

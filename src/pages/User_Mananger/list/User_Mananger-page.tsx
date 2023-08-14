@@ -34,6 +34,7 @@ import { GridViewCustomize } from "@/packages/ui/base-gridview/gridview-customiz
 import { showPopup } from "@/pages/User_Mananger/components/store";
 import { toast } from "react-toastify";
 import { HeaderPart } from "../components/header-part";
+import { callApi } from "@/packages/api/call-api";
 
 export const UserManangerPage = () => {
   const { t } = useI18n("User_Mananger");
@@ -69,14 +70,41 @@ export const UserManangerPage = () => {
   );
   useEffect(() => {
     if (data) {
-      setDataGrid(
-        data?.DataList?.filter((item: any) => {
-          const userCode = item.UserCode;
-          return !userCode.startsWith("SA.BG");
-        }) ?? []
-      );
+      callApi.getOrgAgentList(auth.networkId).then((resp) => {
+        if (resp.Success) {
+          const dataGridFormat = data?.DataList?.filter((item: any) => {
+            const userCode = item.UserCode;
+            return !userCode.startsWith("SA.BG");
+          })?.map((item: any, index: any) => {
+            const matchedUser = resp?.Data?.find(
+              (user: any) =>
+                user.Email.toLowerCase() === item.EMail.toLowerCase()
+            );
+            const Ext = matchedUser
+              ? matchedUser.Alias
+              : index ===
+                data?.DataList?.filter((item: any) => {
+                  const userCode = item.UserCode;
+                  return !userCode.startsWith("SA.BG");
+                })?.length -
+                  1
+              ? ""
+              : "";
+
+            return {
+              ...item,
+              UserCode: item.EMail.toUpperCase(),
+              UserName: matchedUser ? matchedUser.Name : item.UserName,
+              EMail: item.EMail.toLowerCase(),
+              Extension: Ext,
+            };
+          });
+          setDataGrid(dataGridFormat ?? []);
+        }
+      });
     }
   }, [data]);
+
   const { data: listMST } = useQuery(["listMST"], () =>
     api.Mst_NNTController_GetAllActive()
   );
@@ -353,7 +381,9 @@ export const UserManangerPage = () => {
       <AdminContentLayout.Slot name={"Header"}>
         <PageHeaderLayout>
           <PageHeaderLayout.Slot name={"Before"}>
-            <div className="font-bold dx-font-m">{t("User Manager")}</div>
+            <div className="text-header font-bold dx-font-m">
+              {t("User Manager")}
+            </div>
           </PageHeaderLayout.Slot>
           <PageHeaderLayout.Slot name={"Center"}>
             <HeaderPart
@@ -368,7 +398,13 @@ export const UserManangerPage = () => {
         {/* const output = input.filter(item => item.UserCode !== null || item.UserName !== null); */}
         <GridViewCustomize
           isLoading={isLoading}
-          dataSource={data?.isSuccess ? dataGrid : []}
+          dataSource={
+            data?.isSuccess
+              ? dataGrid.filter(
+                  (item: any) => item.OrgID === auth.orgId.toString()
+                )
+              : []
+          }
           columns={columns}
           keyExpr={"UserCode"}
           popupSettings={popupSettings}

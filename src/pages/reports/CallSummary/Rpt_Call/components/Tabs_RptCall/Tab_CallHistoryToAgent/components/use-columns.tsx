@@ -20,6 +20,7 @@ UseBankDealerGridColumnsProps) => {
       editorOptions: {
         readOnly: false,
         placeholder: t("Input"),
+        height: 50,
       },
     },
     {
@@ -30,6 +31,7 @@ UseBankDealerGridColumnsProps) => {
       editorOptions: {
         readOnly: false,
         placeholder: t("Input"),
+        height: 50,
       },
     },
     {
@@ -48,6 +50,7 @@ UseBankDealerGridColumnsProps) => {
       editorOptions: {
         readOnly: false,
         placeholder: t("Input"),
+        height: 50,
       },
     },
     {
@@ -58,6 +61,7 @@ UseBankDealerGridColumnsProps) => {
       editorOptions: {
         readOnly: false,
         placeholder: t("Input"),
+        height: 50,
       },
     },
     {
@@ -75,11 +79,13 @@ UseBankDealerGridColumnsProps) => {
       editorOptions: {
         readOnly: false,
         placeholder: t("Input"),
+        height: 50,
       },
       columns: [
         {
           dataField: "detail_RingDTime", // thời gian đổ chuông
           caption: t("RingDTime"),
+          width: 300,
         },
         {
           dataField: "detail_EndDTime", // thời gian cúp máy
@@ -112,6 +118,7 @@ UseBankDealerGridColumnsProps) => {
       editorOptions: {
         readOnly: false,
         placeholder: t("Input"),
+        height: 50,
       },
       columns: [
         {

@@ -21,8 +21,6 @@ export const EticketDetailPageFollow = () => {
 
   const ticketApi = useEticket_api();
 
-  console.log("follow =====================");
-
   //const [data, setData] = useState<Eticket | null>(ticketApi.getDemoEticket());
 
   const data = useMemo(() => {

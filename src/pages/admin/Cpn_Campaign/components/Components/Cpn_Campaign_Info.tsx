@@ -147,7 +147,7 @@ const Cpn_Campaign_Info = () => {
   }, []);
 
   const handleCancel = useCallback((): void => {
-    navigate("/admin/Cpn_CampaignPage");
+    navigate("/campaign/Cpn_CampaignPage");
   }, []);
 
   const onDelete = async () => {
@@ -482,7 +482,7 @@ const Cpn_Campaign_Info = () => {
           <div className="breakcrumb">
             <p>{t("Cpn_CampaignPage")}</p>
             <p className="mr-2 ml-2">{`>`}</p>
-            <p>{`${param?.flag ? param.flag : "add"} Customer`}</p>
+            <p>{t(`${param?.flag ? param.flag : "add"} campaign`)}</p>
           </div>
           <div className="list-button">
             {listButtonRender.map((item: any) => {

@@ -2,7 +2,7 @@ import { useAuth } from "@/packages/contexts/auth";
 import { TextBox } from "devextreme-react";
 import { useEffect, useState } from "react";
 
-const CreateByField = ({ param }: any) => {
+const CreateByField = ({ param, customOptions }: any) => {
   const { auth } = useAuth();
 
   const { component, formData } = param;
@@ -18,7 +18,15 @@ const CreateByField = ({ param }: any) => {
     }
   }, [auth]);
 
-  return <TextBox readOnly value={value}></TextBox>;
+  return (
+    <>
+      {customOptions?.editType == "detail" ? (
+        <div className="font-semibold">{value ?? ""}</div>
+      ) : (
+        <TextBox readOnly value={value}></TextBox>
+      )}
+    </>
+  );
 };
 
 export default CreateByField;

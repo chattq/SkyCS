@@ -377,8 +377,8 @@ export const Post_ManagerPage = () => {
 
   const showPopUpDelete = (data: any) => {
     let result = confirm(
-      `<i>${t("Bạn có muốn xóa bản ghi này ?")}</i>`,
-      `${t("Xóa bài viết")}`
+      `${t("Bạn có muốn xóa bản ghi này ?")}`,
+      `${t("THÔNG BÁO")}`
     );
     result.then((dialogResult) => {
       if (dialogResult) {
@@ -549,7 +549,9 @@ export const Post_ManagerPage = () => {
       <AdminContentLayout.Slot name={"Header"}>
         <PageHeaderNoSearchLayout>
           <PageHeaderNoSearchLayout.Slot name={"Before"}>
-            <div className="font-bold dx-font-m">{t("Post manager")}</div>
+            <div className="text-header font-bold dx-font-m">
+              {t("Post manager")}
+            </div>
           </PageHeaderNoSearchLayout.Slot>
           <PageHeaderNoSearchLayout.Slot
             name={"Center"}

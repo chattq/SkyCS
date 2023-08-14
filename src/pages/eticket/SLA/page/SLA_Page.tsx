@@ -1,6 +1,9 @@
+import NavNetworkLink from "@/components/Navigate";
+import { useI18n } from "@/i18n/useI18n";
 import { useClientgateApi } from "@/packages/api";
 import { useAuth } from "@/packages/contexts/auth";
 import { useNetworkNavigate } from "@/packages/hooks";
+import { AdminContentLayout } from "@/packages/layouts/admin-content-layout";
 import { authAtom, showErrorAtom } from "@/packages/store";
 import { getDay, getMonth } from "@/utils/time";
 import { useQuery } from "@tanstack/react-query";
@@ -11,6 +14,7 @@ import { nanoid } from "nanoid";
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
+import { match } from "ts-pattern";
 import HeaderForm from "../components/header-form";
 import {
   SLA_EditType,
@@ -19,6 +23,7 @@ import {
   headerForm,
   ticketInfo,
 } from "../components/store";
+import "../components/style.scss";
 import TabOne from "./TabOne/TabOne";
 import TabTwo from "./TabTwo/TabTwo";
 import { holidayListAtom } from "./TabTwo/tabs/Holiday/store";
@@ -36,7 +41,15 @@ interface formValue {
 }
 
 const SLA_Page = () => {
-  const { SLAID }: any = useParams();
+  const { SLAID, nav }: any = useParams();
+
+  const { t: tabTranslate } = useI18n("SLA_Tabs");
+
+  const { t: toastTranslate } = useI18n("SLA_Notify");
+
+  const { t: breadcrumb } = useI18n("SLA_Breadcrumb");
+
+  const { t: buttonTranslate } = useI18n("SLA_Button");
 
   const headerFormRef: any = useRef();
 
@@ -77,13 +90,12 @@ const SLA_Page = () => {
       }
       const resp: any = await api.Mst_SLA_GetBySLAID(SLAID);
 
-      console.log(resp);
-
       if (resp.isSuccess && SLAID && resp?.Data) {
-        const firstTime = (resp?.Data?.Mst_SLA?.FirstResTime - 420) * 60000;
+        const firstTime =
+          (resp?.Data?.Mst_SLA?.FirstResTime / 60 - 420) * 60000;
 
         const resolutionTime =
-          (resp?.Data?.Mst_SLA?.ResolutionTime - 420) * 60000;
+          (resp?.Data?.Mst_SLA?.ResolutionTime / 60 - 420) * 60000;
 
         setFormValue({
           ...resp?.Data?.Mst_SLA,
@@ -194,12 +206,12 @@ const SLA_Page = () => {
 
   const tabOptions = [
     {
-      text: "Thiết lập phạm vi áp dụng SLA",
+      text: tabTranslate("Set the scope of application of SLA"),
       key: 0,
       component: <TabOne ref={tabOneRef}></TabOne>,
     },
     {
-      text: "Thiết lập khung thời gian hỗ trợ",
+      text: tabTranslate("Establish a support timeframe"),
       key: 1,
       component: <TabTwo />,
     },
@@ -229,7 +241,7 @@ const SLA_Page = () => {
 
   const handleSave = async () => {
     if (!headerFormRef?.current?.instance?.validate()?.isValid) {
-      toast.error("Vui lòng nhập đủ các trường!");
+      toast.error(toastTranslate("Please enter all fields!"));
       return;
     }
 
@@ -318,8 +330,10 @@ const SLA_Page = () => {
       EveryResTime: "",
       ...headerFormValue,
       SLAStatus: headerFormValue.SLAStatus ? "1" : "0",
-      FirstResTime: Math.floor(headerFormValue.FirstResTime / 60000) + 420,
-      ResolutionTime: Math.floor(headerFormValue.ResolutionTime / 60000) + 420,
+      FirstResTime:
+        (Math.floor(headerFormValue.FirstResTime / 60000) + 420) * 60,
+      ResolutionTime:
+        (Math.floor(headerFormValue.ResolutionTime / 60000) + 420) * 60,
       FlagAllTicketCustomType:
         Lst_Mst_SLATicketCustomType.length > 0 ? "0" : "1",
       FlagAllTicketType: Lst_Mst_SLATicketType.length > 0 ? "0" : "1",
@@ -344,7 +358,7 @@ const SLA_Page = () => {
     const resp: any = await api.Mst_SLA_Create(result);
 
     if (resp.isSuccess) {
-      toast.success("Tạo mới thành công!", {
+      toast.success(toastTranslate("Create successfully!"), {
         onClose: handleCancel,
         delay: 500,
       });
@@ -452,8 +466,10 @@ const SLA_Page = () => {
       ...headerFormValue,
       SLAStatus: headerFormValue.SLAStatus ? "1" : "0",
 
-      FirstResTime: Math.floor(headerFormValue.FirstResTime / 60000) + 420,
-      ResolutionTime: Math.floor(headerFormValue.ResolutionTime / 60000) + 420,
+      FirstResTime:
+        (Math.floor(headerFormValue.FirstResTime / 60000) + 420) * 60,
+      ResolutionTime:
+        (Math.floor(headerFormValue.ResolutionTime / 60000) + 420) * 60,
       FlagAllTicketCustomType:
         Lst_Mst_SLATicketCustomType.length > 0 ? "0" : "1",
       FlagAllTicketType: Lst_Mst_SLATicketType.length > 0 ? "0" : "1",
@@ -478,7 +494,7 @@ const SLA_Page = () => {
     const resp: any = await api.Mst_SLA_Update(result);
 
     if (resp.isSuccess) {
-      toast.success("Cập nhật thành công!", {
+      toast.success(toastTranslate("Update successfully!"), {
         onClose: handleCancel,
         delay: 500,
       });
@@ -508,7 +524,7 @@ const SLA_Page = () => {
     const resp: any = await api.Mst_SLA_Delete(req);
 
     if (resp.isSuccess) {
-      toast.success("Xoá thành công!", {
+      toast.success(toastTranslate("Delete successfully!"), {
         onClose: handleCancel,
         delay: 500,
       });
@@ -521,105 +537,127 @@ const SLA_Page = () => {
     }
   };
 
+  const matchTitle = () => {
+    return match(type)
+      .with("create", () => <p>{breadcrumb("Add SLA")}</p>)
+      .with("edit", () => <p>{breadcrumb("Update SLA")}</p>)
+      .otherwise(() => <p>{breadcrumb("Detail SLA")}</p>);
+  };
+
   return (
-    <>
-      <div className="flex justify-end">
-        {SLAID && type == "detail" && (
-          <>
-            <Button
-              style={{
-                padding: 10,
-                margin: 10,
-                background: "green",
-                color: "white",
-              }}
-              onClick={handleEdit}
-            >
-              Chỉnh sửa
-            </Button>
-            <Button
-              style={{
-                padding: 10,
-                margin: 10,
-              }}
-              onClick={handleDelete}
-            >
-              Xóa
-            </Button>
-          </>
-        )}
+    <AdminContentLayout className={"province-management"}>
+      <AdminContentLayout.Slot name={"Header"}>
+        <div className="header flex justify-between items-center w-full px-2 py-2">
+          <div className="breakcrumb flex gap-1">
+            {nav ? (
+              <NavNetworkLink to={`/admin/SLA/${SLAID}`} className="text-black">
+                {breadcrumb("Detail SLA")}
+              </NavNetworkLink>
+            ) : (
+              <NavNetworkLink to="/admin/SLA" className="text-black">
+                {breadcrumb("SLA List")}
+              </NavNetworkLink>
+            )}
+            <p>{`>`}</p>
+            {matchTitle()}
+          </div>
+          {SLAID && type == "detail" && (
+            <div>
+              <Button
+                style={{
+                  padding: 10,
+                  margin: 5,
+                  color: "white",
+                  background: "#00703c",
+                }}
+                onClick={handleEdit}
+              >
+                {buttonTranslate("Edit")}
+              </Button>
+              <Button
+                style={{
+                  padding: 10,
+                  margin: 5,
+                }}
+                onClick={handleDelete}
+              >
+                {buttonTranslate("Delete")}
+              </Button>
+            </div>
+          )}
 
-        {SLAID && type == "edit" && (
-          <>
-            <Button
-              style={{
-                padding: 10,
-                margin: 10,
-                background: "green",
-                color: "white",
-              }}
-              onClick={handleUpdate}
-            >
-              Cập nhật
-            </Button>
-            <Button
-              style={{
-                padding: 10,
-                margin: 10,
-              }}
-              onClick={handleCancel}
-            >
-              Thoát
-            </Button>
-          </>
-        )}
+          {SLAID && type == "edit" && (
+            <div>
+              <Button
+                style={{
+                  padding: 10,
+                  margin: 5,
+                  color: "white",
+                  background: "#00703c",
+                }}
+                onClick={handleUpdate}
+              >
+                {buttonTranslate("Update")}
+              </Button>
+              <Button
+                style={{
+                  padding: 10,
+                  margin: 5,
+                }}
+                onClick={handleCancel}
+              >
+                {buttonTranslate("Cancel")}
+              </Button>
+            </div>
+          )}
 
-        {(!SLAID || type == "create") && (
-          <>
-            <Button
-              style={{
-                padding: 10,
-                margin: 10,
-                background: "green",
-                color: "white",
-              }}
-              onClick={handleSave}
-            >
-              Lưu
-            </Button>
-            <Button
-              style={{
-                padding: 10,
-                margin: 10,
-              }}
-              onClick={handleCancel}
-            >
-              Thoát
-            </Button>
-          </>
-        )}
-      </div>
+          {(!SLAID || type == "create") && (
+            <div>
+              <Button
+                style={{
+                  padding: 10,
+                  margin: 5,
+                  color: "white",
+                  background: "#00703c",
+                }}
+                onClick={handleSave}
+              >
+                {buttonTranslate("Save")}
+              </Button>
+              <Button
+                style={{
+                  padding: 10,
+                  margin: 5,
+                }}
+                onClick={handleCancel}
+              >
+                {buttonTranslate("Cancel")}
+              </Button>
+            </div>
+          )}
+        </div>
+      </AdminContentLayout.Slot>
+      <AdminContentLayout.Slot name={"Content"}>
+        <HeaderForm ref={headerFormRef} />
 
-      <HeaderForm ref={headerFormRef} />
+        <Tabs
+          selectedIndex={currentTab}
+          onItemClick={(value: any) => {
+            setCurrentTab(value.itemIndex);
+          }}
+        >
+          {tabOptions?.map((item: any) => {
+            return (
+              <Item
+                render={() => <div className="normal-case">{item?.text}</div>}
+              ></Item>
+            );
+          })}
+        </Tabs>
 
-      <Tabs
-        selectedIndex={currentTab}
-        onItemClick={(value: any) => {
-          setCurrentTab(value.itemIndex);
-        }}
-      >
-        {tabOptions?.map((item: any) => {
-          return (
-            <Item
-              render={() => <div className="normal-case">{item?.text}</div>}
-            ></Item>
-          );
-        })}
-      </Tabs>
-
-      {currentComponent}
-    </>
+        {currentComponent}
+      </AdminContentLayout.Slot>
+    </AdminContentLayout>
   );
 };
-
 export default SLA_Page;

@@ -241,6 +241,7 @@
     font-size: 13px;
     font-weight: 400;
     color: #5f7d95 !important;
+    text-wrap: initial;
   }
 }
 
@@ -343,4 +344,9 @@
     align-items: center;
     display: flex;
   }
+}
+
+.header-perform {
+  display: flex;
+  flex-direction: column;
 }

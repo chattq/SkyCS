@@ -24,9 +24,9 @@ import {
   flagCustomer,
   selecteItemsAtom,
 } from "@/pages/Mst_Customer/components/store";
-import { getFullTime } from "@/utils/time";
+import { getFullTime, getFullTimeMaxHour } from "@/utils/time";
 import { useQuery } from "@tanstack/react-query";
-import { DataGrid, LoadPanel } from "devextreme-react";
+import { DataGrid } from "devextreme-react";
 import { IPopupOptions } from "devextreme-react/popup";
 import { EditorPreparingEvent } from "devextreme/ui/data_grid";
 import { useSetAtom } from "jotai";
@@ -81,6 +81,8 @@ export const Mst_CustomerList = ({ bePopUp, isHideHeader = false }: Props) => {
   const widthSearch = windowSize.width / 5;
 
   const { t } = useI18n("Mst_Customer"); // file biên dịch
+
+  const { t: toastTranslate } = useI18n("Mst_Customer_Notify");
 
   const config = useConfiguration();
 
@@ -227,12 +229,13 @@ export const Mst_CustomerList = ({ bePopUp, isHideHeader = false }: Props) => {
         ...searchCondition,
         CustomerGrpCode: searchCondition?.CustomerGrpCode?.join(",") ?? "",
         PartnerType: searchCondition?.PartnerType?.join(",") ?? "",
-        KeyWord: searchCondition?.CustomerName ?? "",
+        KeyWord:
+          searchCondition?.CustomerName ?? searchCondition?.CustomerCode ?? "",
         CreateDTimeUTCFrom: searchCondition?.CreateDTimeUTC[0]
           ? getFullTime(searchCondition?.CreateDTimeUTC[0])
           : "",
         CreateDTimeUTCTo: searchCondition?.CreateDTimeUTC[1]
-          ? getFullTime(searchCondition?.CreateDTimeUTC[1])
+          ? getFullTimeMaxHour(searchCondition?.CreateDTimeUTC[1])
           : "",
         JsonColDynamicSearch: JSON.stringify(
           [
@@ -249,7 +252,7 @@ export const Mst_CustomerList = ({ bePopUp, isHideHeader = false }: Props) => {
       if (response.isSuccess) {
         const customizeResponse = {
           ...response,
-          DataList: response?.DataList?.map((item) => {
+          DataList: response?.DataList?.map((item: any) => {
             const listJson: any[] = item.JsonCustomerInfo
               ? JSON.parse(item.JsonCustomerInfo) ?? []
               : [];
@@ -260,14 +263,33 @@ export const Mst_CustomerList = ({ bePopUp, isHideHeader = false }: Props) => {
               };
             }, {});
 
+            const listEmailJson = JSON.parse(item?.CustomerEmailJson) ?? [];
+            const emailResult =
+              listEmailJson?.find((item: any) => item?.FlagDefault == "1")
+                ?.CtmEmail ?? "";
+
+            const listPhoneNoJson = JSON.parse(item?.CustomerPhoneJson) ?? [];
+            const phoneNoResult =
+              listPhoneNoJson?.find((item: any) => item?.FlagDefault == "1")
+                ?.CtmPhoneNo ?? "";
+
+            const listZalo =
+              JSON.parse(item?.CustomerZaloUserFollowerJson) ?? [];
+            const zaloResult =
+              listZalo?.find((item: any) => item?.FlagDefault == "1")
+                ?.ZaloUserFollowerId ?? "";
+
             return {
               ...item,
               ...customize,
+              CtmEmail: emailResult,
+              CtmPhoneNo: phoneNoResult,
+              ZaloUserFollowerId: zaloResult,
             };
           }),
         };
 
-        return customizeResponse;
+        return customizeResponse ?? [];
       } else {
         showError({
           message: response?.errorCode,
@@ -278,11 +300,17 @@ export const Mst_CustomerList = ({ bePopUp, isHideHeader = false }: Props) => {
     },
   });
 
+  const [isLoadingAll, setIsLoadingAll] = useState(true);
+
   useEffect(() => {
-    refetch();
-    refetchColumn();
-    refetchDynamic();
+    Promise.all([refetchColumn(), refetchDynamic(), refetch()]).then(() => {
+      setIsLoadingAll(false);
+    });
   }, []);
+
+  // useEffect(() => {
+  //   setIsLoadingAll(isLoading || isLoadingColumn || isLoadingDynamic);
+  // }, [isLoading, isLoadingColumn, isLoadingColumn]);
 
   const handleSearch = async (data: any) => {
     const staticValue = Object.entries(data)
@@ -405,7 +433,7 @@ export const Mst_CustomerList = ({ bePopUp, isHideHeader = false }: Props) => {
       const resp = await api.Mst_Customer_DeleteMultiple(list);
 
       if (resp.isSuccess) {
-        toast.success(t("Delete Success"));
+        toast.success(toastTranslate("Delete successfully!"));
         await refetch();
       } else {
         showError({
@@ -422,7 +450,7 @@ export const Mst_CustomerList = ({ bePopUp, isHideHeader = false }: Props) => {
       });
 
       if (response.isSuccess) {
-        toast.success(t("Delete Success"));
+        toast.success(toastTranslate("Delete successfully!"));
         await refetch();
       } else {
         showError({
@@ -536,58 +564,47 @@ export const Mst_CustomerList = ({ bePopUp, isHideHeader = false }: Props) => {
                 className={`w-[${widthSearch + ""}px]`}
                 style={{ minWidth: 300 }}
               >
-                <SearchPanelV2
-                  conditionFields={getColumn}
-                  storeKey="Mst_Customer_Search"
-                  data={searchCondition}
-                  onSearch={handleSearch}
-                />
+                {!isLoadingAll && (
+                  <SearchPanelV2
+                    conditionFields={getColumn}
+                    storeKey="Mst_Customer_Search"
+                    data={searchCondition}
+                    onSearch={handleSearch}
+                  />
+                )}
               </div>
             </ContentSearchPanelLayout.Slot>
             <ContentSearchPanelLayout.Slot name={"ContentPanel"}>
-              <LoadPanel
-                container={".dx-viewport"}
-                shadingColor="rgba(0,0,0,0.4)"
-                position={"center"}
-                visible={loadingControl.visible}
-                showIndicator={true}
-                showPane={true}
+              <BaseGridView
+                isLoading={isLoadingAll} // props dùng để render
+                dataSource={data?.isSuccess ? data?.DataList ?? [] : []} // dữ liệu của gridview lấy từ api
+                columns={columns} // các cột ở trong grid view
+                keyExpr={["CustomerCodeSys"]} // khóa chính
+                popupSettings={popupSettings} // popup editor
+                onReady={(ref) => (gridRef = ref)} // gắn ref
+                allowSelection={false} //cho phép chọn row hay không
+                onSelectionChanged={handleSelectionChanged} // dùng để lấy hàng khi tích chọn checkbox
+                onSaveRow={handleSavingRow} // thực hiện các action thêm sửa xóa
+                onEditorPreparing={handleEditorPreparing} // thực hiện hành động trước khi show màn hình thêm sửa xóa
+                // onEditRow={handleOnEditRow}
+                onCustomerEditing={handleCustomerEdit}
+                inlineEditMode="row"
+                onDeleteRows={handleDeleteRow} // hàm này để xóa multiple (  )
+                onEditRowChanges={handleEditRowChanges}
+                toolbarItems={[
+                  //  button search và action của nó
+                  {
+                    location: "before",
+                    widget: "dxButton",
+                    options: {
+                      icon: "search",
+                      onClick: handleToggleSearchPanel,
+                    },
+                  },
+                ]}
+                storeKey={"Mst_Customer_Column"} // key lưu trữ giá trị grid view trong localstorage
               />
-              {!isLoading && (
-                <>
-                  {/* GridView */}
-                  <BaseGridView
-                    isLoading={isLoading} // props dùng để render
-                    dataSource={data?.isSuccess ? data?.DataList ?? [] : []} // dữ liệu của gridview lấy từ api
-                    columns={columns} // các cột ở trong grid view
-                    keyExpr={["CustomerCodeSys"]} // khóa chính
-                    popupSettings={popupSettings} // popup editor
-                    onReady={(ref) => (gridRef = ref)} // gắn ref
-                    allowSelection={false} //cho phép chọn row hay không
-                    onSelectionChanged={handleSelectionChanged} // dùng để lấy hàng khi tích chọn checkbox
-                    onSaveRow={handleSavingRow} // thực hiện các action thêm sửa xóa
-                    onEditorPreparing={handleEditorPreparing} // thực hiện hành động trước khi show màn hình thêm sửa xóa
-                    // onEditRow={handleOnEditRow}
-                    onCustomerEditing={handleCustomerEdit}
-                    inlineEditMode="row"
-                    onDeleteRows={handleDeleteRow} // hàm này để xóa multiple (  )
-                    onEditRowChanges={handleEditRowChanges}
-                    toolbarItems={[
-                      //  button search và action của nó
-                      {
-                        location: "before",
-                        widget: "dxButton",
-                        options: {
-                          icon: "search",
-                          onClick: handleToggleSearchPanel,
-                        },
-                      },
-                    ]}
-                    storeKey={"Mst_Customer_Column"} // key lưu trữ giá trị grid view trong localstorage
-                  />
-                  {/* popup detail*/}
-                </>
-              )}
+              {/* popup detail*/}
             </ContentSearchPanelLayout.Slot>
           </ContentSearchPanelLayout>
         </AdminContentLayout.Slot>

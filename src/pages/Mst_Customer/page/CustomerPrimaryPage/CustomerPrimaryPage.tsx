@@ -12,7 +12,7 @@ import { Button, Form, LoadPanel } from "devextreme-react";
 import { GroupItem, Item } from "devextreme-react/form";
 import { useAtomValue, useSetAtom } from "jotai";
 import { nanoid } from "nanoid";
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { match } from "ts-pattern";
@@ -31,8 +31,6 @@ export const CustomerPrimaryPage = () => {
 
   const showError = useSetAtom(showErrorAtom);
 
-  const [customerInfo, setCustomerInfo]: any = useState<any>({});
-
   const { data: customer, isLoading } = useQuery({
     queryKey: ["CustomerInfo", currentCustomerCodeSys],
     queryFn: async () => {
@@ -40,31 +38,49 @@ export const CustomerPrimaryPage = () => {
         currentCustomerCodeSys,
       ]);
 
-      setCustomerInfo(resp?.Data?.Lst_Mst_Customer[0]);
-
       return resp?.Data;
     },
   });
 
-  const {
-    data: listCodeField,
-    isLoading: isLoadingCodeField,
-    refetch: refetchCodeField,
-  } = useQuery({
+  const matchIdx = (ColCodeSys: any) => {
+    return match(ColCodeSys)
+      .with("CustomerType", () => 0)
+      .with("CustomerCode", () => 1)
+      .with("CustomerName", () => 2)
+      .with("CtmPhoneNo", () => 3)
+      .with("PartnerType", () => 4)
+      .with("C0K7", () => 5)
+      .with("CustomerCodeSysERP", () => 6)
+      .with("CtmEmail", () => 7)
+
+      .otherwise(() => 9999);
+  };
+
+  const { data: listCodeField, isLoading: isLoadingCodeField } = useQuery({
     queryKey: ["ListCodeFieldAbout"],
     queryFn: async () => {
       const response = await api.MdMetaColGroupSpec_Search(
         {},
         "SCRTCS.CTM.DTL.2023"
       );
-      if (response.isSuccess) {
-        return response?.DataList;
+      if (response?.isSuccess) {
+        const list = response?.DataList;
+        return (
+          list?.map((item: any, index: number) => {
+            return {
+              ...item,
+              OrderIdx: matchIdx(item?.ColCodeSys),
+            };
+          }) ?? []
+        );
       } else {
         showError({
           message: response?.errorCode,
           debugInfo: response?.debugInfo,
           errorInfo: response?.errorInfo,
         });
+
+        return [];
       }
     },
   });
@@ -87,7 +103,7 @@ export const CustomerPrimaryPage = () => {
 
       return listDynamic;
     }
-  }, [isLoadingCodeField, customer, listCodeField]);
+  }, [isLoadingCodeField, customer, listCodeField, isLoading]);
 
   const getFormField = useMemo(() => {
     if (!isLoadingCodeField && customer && customer?.Lst_Mst_Customer[0]) {
@@ -109,23 +125,10 @@ export const CustomerPrimaryPage = () => {
         return {
           ...item,
           ColDataType: match(item?.ColDataType)
-            .with("EMAIL", () => "SELECTONEDROPDOWN")
-            .with("PARTNERTYPE", () => "SELECTMULTIPLEDROPDOWN")
             .with("PHONE", () => "CUSTOMIZEPHONE")
             .otherwise(() => item?.ColDataType),
 
           JsonListOption: match(item?.ColDataType)
-            .with("EMAIL", () =>
-              JSON.stringify(
-                customer?.Lst_Mst_CustomerEmail?.map((item: any) => {
-                  return {
-                    ...item,
-                    IsSelected: item.FlagDefault == "1",
-                    Value: item.CtmEmail,
-                  };
-                })
-              )
-            )
             .with("PHONE", () =>
               JSON.stringify(
                 customer?.Lst_Mst_CustomerPhone?.map((item: any) => {
@@ -140,11 +143,7 @@ export const CustomerPrimaryPage = () => {
             .with("PARTNERTYPE", () =>
               JSON.stringify(
                 customer?.Lst_Mst_CustomerInPartnerType?.map((item: any) => {
-                  return {
-                    ...item,
-                    IsSelected: true,
-                    Value: item.PartnerType,
-                  };
+                  return item.PartnerType;
                 })
               )
             )
@@ -156,7 +155,7 @@ export const CustomerPrimaryPage = () => {
         listField: listFieldCustom,
         listDynamic: listDynamic,
         customOptions: {
-          editType: "update",
+          editType: "detail",
         },
       });
 
@@ -181,9 +180,9 @@ export const CustomerPrimaryPage = () => {
     } else {
       return [];
     }
-  }, [isLoadingCodeField, customer, listCodeField]);
+  }, [isLoadingCodeField, customer, listCodeField, isLoading]);
 
-  const setEditType = useSetAtom(editTypeAtom);
+  console.log(getFormField);
 
   const navigate: any = useNetworkNavigate();
 
@@ -267,7 +266,7 @@ export const CustomerPrimaryPage = () => {
                 alt=""
                 className="w-full h-full object-cover"
                 src={
-                  customerInfo?.CustomerAvatarPath ??
+                  customer?.Lst_Mst_Customer[0]?.CustomerAvatarPath ??
                   "https://tse2.mm.bing.net/th?id=OIP.udoq18uxDpu6UHi2H__97gAAAA&pid=Api&P=0&h=180"
                 }
               />
@@ -306,7 +305,10 @@ const CustomerContent = ({
     ...customer?.Lst_Mst_Customer[0],
     CtmEmail: customer?.Lst_Mst_CustomerEmail ?? [],
     CtmPhoneNo: customer?.Lst_Mst_CustomerPhone ?? [],
-    PartnerType: customer?.Lst_Mst_CustomerInPartnerType ?? [],
+    PartnerType:
+      customer?.Lst_Mst_CustomerInPartnerType?.map(
+        (item: any) => item?.PartnerType
+      ) ?? [],
   };
 
   const editType = useAtomValue(editTypeAtom);

@@ -9,6 +9,8 @@ export const useSavedState = <T,>({ storeKey }: UseSavedStateProps) => {
   } = useAuth();
   const STORE_KEY = `${currentUser?.Email}_${storeKey}`;
   const saveState = (state: T) => {
+    
+
     localStorage.setItem(STORE_KEY, JSON.stringify(state));
   };
   const loadState = () => {
@@ -17,6 +19,9 @@ export const useSavedState = <T,>({ storeKey }: UseSavedStateProps) => {
       return JSON.parse(localStorageColumns) as T;
     }
   };
+
+  console.log("loadState ", loadState());
+
   return {
     saveState,
     loadState,

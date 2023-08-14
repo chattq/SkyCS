@@ -93,7 +93,7 @@ export const SearchPanelV2 = ({
       const data = formRef.current?.instance?.option("formData");
       onSearch?.(data);
     } else {
-      toast.error(t("Please Input Required Fields"));
+      // toast.error(t("Please Input Required Fields"));
     }
     e.preventDefault();
   };
@@ -114,6 +114,11 @@ export const SearchPanelV2 = ({
   }, []);
   const windowSize = useWindowSize();
   const htmlFormRef = useRef(null);
+
+  const handleChange = (e: any) => {
+    console.log("e ", e);
+  };
+
   return (
     <div
       className={`${
@@ -131,6 +136,7 @@ export const SearchPanelV2 = ({
         {!isLoading && (
           <form ref={htmlFormRef} className={""} onSubmit={handleSearch}>
             <Form
+              onFieldDataChanged={handleChange}
               ref={(r) => (formRef.current = r)}
               formData={data}
               labelLocation={"top"}
@@ -144,16 +150,14 @@ export const SearchPanelV2 = ({
               {items.map((item: any, idx: any) => {
                 return <Item key={idx} {...item} />;
               })}
-
               <Item cssClass="h-[50px]"> </Item>
             </Form>
             <div
-              className="absolute bottom-[0] w-full bg-red-400 flex items-end p-2 pb-5"
-              style={{ background: "white" }}
+              className={`absolute bottom-[0] bg-red-400 flex items-end p-2 pb-5`}
+              style={{ background: "white", minWidth: "300px" }}
             >
               <Button
                 text={t("Search")}
-                icon={"search"}
                 width={"100%"}
                 type={"default"}
                 useSubmitBehavior={true}

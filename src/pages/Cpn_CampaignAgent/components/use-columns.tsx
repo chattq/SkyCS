@@ -60,6 +60,7 @@ UseBankDealerGridColumnsProps) => {
         placeholder: t("Input"),
       },
       columnIndex: 1,
+      filterType: "exclude",
       cellRender: ({ data, rowIndex, value }) => {
         return (
           <LinkCell
@@ -82,6 +83,7 @@ UseBankDealerGridColumnsProps) => {
         placeholder: t("Input"),
       },
       columnIndex: 1,
+      filterType: "exclude",
     },
 
     {
@@ -99,6 +101,7 @@ UseBankDealerGridColumnsProps) => {
       cellRender: ({ data }: any) => {
         return <StatusUser key={nanoid()} status={data.CampaignStatus} />;
       },
+      filterType: "exclude",
     },
     {
       groupKey: "BASIC_INFORMATION",
@@ -110,6 +113,7 @@ UseBankDealerGridColumnsProps) => {
         readOnly: false,
         placeholder: t("Input"),
       },
+      filterType: "exclude",
       columnIndex: 2,
     },
     {
@@ -120,9 +124,11 @@ UseBankDealerGridColumnsProps) => {
         readOnly: false,
         placeholder: t("Input"),
       },
+      alignment: "center",
       visible: true,
       editorType: "dxTextBox",
       columnIndex: 2,
+      filterType: "exclude",
     },
     {
       groupKey: "BASIC_INFORMATION",
@@ -135,6 +141,7 @@ UseBankDealerGridColumnsProps) => {
       visible: true,
       editorType: "dxTextBox",
       columnIndex: 2,
+      filterType: "exclude",
     },
     {
       groupKey: "BASIC_INFORMATION",
@@ -147,6 +154,7 @@ UseBankDealerGridColumnsProps) => {
       visible: true,
       editorType: "dxTextBox",
       columnIndex: 2,
+      filterType: "exclude",
     },
   ];
   // return array of the first item only

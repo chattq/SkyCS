@@ -1,3 +1,4 @@
+import { useI18n } from "@/i18n/useI18n";
 import { useClientgateApi } from "@/packages/api";
 import { Icon } from "@/packages/ui/icons";
 import {
@@ -12,6 +13,8 @@ import { useRef, useState } from "react";
 import { toast } from "react-toastify";
 
 export const ZaloField = ({ component, formData, field, editType }: any) => {
+  const { t } = useI18n("StaticFieldCommon");
+
   // init data
   component.updateData(
     "ZaloUserFollowerId",
@@ -174,66 +177,82 @@ export const ZaloField = ({ component, formData, field, editType }: any) => {
     );
   };
 
+  const renderZalo = () => {
+    return (
+      <>
+        {ZaloUserFollowerId.map((item: any, index: any) => {
+          return (
+            <div key={item.id} className={"flex items-center my-2"}>
+              <input
+                type={"radio"}
+                className={"mr-2"}
+                onChange={async (e: any) => {
+                  handleCheck(item.id);
+                }}
+                checked={item.FlagDefault == "1"}
+                disabled={!item.ZaloUserFollowerId || editType == "detail"}
+              />
+              <TextBox
+                onValueChanged={async (e: any) =>
+                  handleEditItem(item.id, e.value)
+                }
+                validationMessageMode={"always"}
+                value={item.ZaloUserFollowerId}
+                readOnly={editType == "detail"}
+              />
+              {editType != "detail" && (
+                <Button
+                  onClick={() => handleRemoveItem(item.id)}
+                  stylingMode={"text"}
+                >
+                  <Icon name={"trash"} size={14} color={"#ff5050"} />
+                </Button>
+              )}
+            </div>
+          );
+        })}
+
+        {editType != "detail" && (
+          <Button
+            text={t("Add")}
+            type={"default"}
+            stylingMode={"contained"}
+            onClick={() => {
+              handleOpen();
+            }}
+            className={"w-[100px]"}
+          />
+        )}
+
+        <Popup
+          visible={openPopup}
+          hideOnOutsideClick={true}
+          onHiding={handleClose}
+          showCloseButton
+          width={500}
+          height={300}
+          title="ZaloUserFollowerId"
+          contentRender={() => (
+            <ScrollView showScrollbar="always" width="100%" height="100%">
+              <div>{renderListZalo()}</div>
+            </ScrollView>
+          )}
+        ></Popup>
+      </>
+    );
+  };
+
+  const renderZaloDetail = () => {
+    const result =
+      ZaloUserFollowerId?.find((item: any) => item?.FlagDefault == "1")
+        ?.ZaloUserFollowerId ?? "---";
+
+    return <div className="font-semibold">{result}</div>;
+  };
+
   return (
     <>
-      {ZaloUserFollowerId.map((item: any, index: any) => {
-        return (
-          <div key={item.id} className={"flex items-center my-2"}>
-            <input
-              type={"radio"}
-              className={"mr-2"}
-              onChange={async (e: any) => {
-                handleCheck(item.id);
-              }}
-              checked={item.FlagDefault == "1"}
-              disabled={!item.ZaloUserFollowerId || editType == "detail"}
-            />
-            <TextBox
-              onValueChanged={async (e: any) =>
-                handleEditItem(item.id, e.value)
-              }
-              validationMessageMode={"always"}
-              value={item.ZaloUserFollowerId}
-              readOnly={editType == "detail"}
-            />
-            {editType != "detail" && (
-              <Button
-                onClick={() => handleRemoveItem(item.id)}
-                stylingMode={"text"}
-              >
-                <Icon name={"trash"} size={14} color={"#ff5050"} />
-              </Button>
-            )}
-          </div>
-        );
-      })}
-
-      {editType != "detail" && (
-        <Button
-          text={"Add"}
-          type={"default"}
-          stylingMode={"contained"}
-          onClick={() => {
-            handleOpen();
-          }}
-          className={"mx-2 w-[100px]"}
-        />
-      )}
-
-      <Popup
-        visible={openPopup}
-        hideOnOutsideClick={true}
-        onHiding={handleClose}
-        showCloseButton
-        width={500}
-        height={300}
-        title="ZaloUserFollowerId"
-        contentRender={() => (
-          <ScrollView showScrollbar="always" width="100%" height="100%">
-            <div>{renderListZalo()}</div>
-          </ScrollView>
-        )}
-      ></Popup>
+      {editType == "detail" ? <>{renderZaloDetail()}</> : <>{renderZalo()}</>}
     </>
   );
 };

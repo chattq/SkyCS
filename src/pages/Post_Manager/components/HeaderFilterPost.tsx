@@ -1,6 +1,5 @@
 import { useI18n } from "@/i18n/useI18n";
-import DataSource from "devextreme/data/data_source";
-import React, { forwardRef, useState } from "react";
+import { forwardRef, useState } from "react";
 
 const HeaderFilter = (ref: any) => {
   const { dataRef, onSetStatus } = ref;
@@ -112,6 +111,8 @@ const HeaderFilter = (ref: any) => {
   );
 };
 
-export const HeaderFilterPost = forwardRef(({ dataRef, onSetStatus }: any) => {
-  return <HeaderFilter dataRef={dataRef} onSetStatus={onSetStatus} />;
-});
+export const HeaderFilterPost = forwardRef(
+  ({ dataRef, onSetStatus }: any, ref: any) => {
+    return <HeaderFilter dataRef={dataRef} onSetStatus={onSetStatus} />;
+  }
+);

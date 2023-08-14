@@ -9,7 +9,7 @@ import { HeaderPart, PopupView } from "@/pages/Business_Information/components";
 import { searchPanelVisibleAtom } from "@layouts/content-searchpanel-layout";
 import { useConfiguration, useVisibilityControl } from "@packages/hooks";
 import { logger } from "@packages/logger";
-import { showErrorAtom } from "@packages/store";
+import { authAtom, showErrorAtom } from "@packages/store";
 import {
   FlagActiveEnum,
   Mst_Dealer,
@@ -61,6 +61,7 @@ export const Business_InformationPage = () => {
   const setReadOnly = useSetAtom(readOnly);
   const setActiveInput = useSetAtom(activeInputAtom);
   const formRef = useRef<any>();
+  const auth = useAtomValue(authAtom);
   const [dataChangeOrgID, setDataChangeOrgID] = useState([]);
   const setSelectedItems = useSetAtom(selectedItemsAtom);
   const [dataGrid, setDataGrid] = useState<any>([]);
@@ -101,7 +102,7 @@ export const Business_InformationPage = () => {
   useEffect(() => {
     if (listOrgID) {
       setDataChangeOrgID(
-        listOrgID?.Data?.Lst_Mst_Org.map((item: any) => {
+        listOrgID?.Data?.Lst_Mst_Org?.map((item: any) => {
           return {
             ...item,
             OrgID: item.Id.toString(),
@@ -111,8 +112,6 @@ export const Business_InformationPage = () => {
       );
     }
   }, [listOrgID]);
-
-  console.log(115, listOrgID);
 
   const formSettings = useFormSettings({
     dataNNT: listNNT?.DataList,
@@ -320,7 +319,7 @@ export const Business_InformationPage = () => {
       <AdminContentLayout.Slot name={"Header"}>
         <PageHeaderLayout>
           <PageHeaderLayout.Slot name={"Before"}>
-            <div className="font-bold dx-font-m">
+            <div className="text-header font-bold dx-font-m">
               {t("Business_Information")}
             </div>
           </PageHeaderLayout.Slot>
@@ -338,7 +337,9 @@ export const Business_InformationPage = () => {
           isLoading={isLoading}
           dataSource={
             data?.isSuccess
-              ? dataGrid.filter((item: any) => item.OrgID !== "0") ?? []
+              ? dataGrid.filter(
+                  (item: any) => item.OrgID === auth.orgId.toString()
+                ) ?? []
               : []
           }
           columns={columns}

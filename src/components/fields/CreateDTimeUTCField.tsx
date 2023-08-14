@@ -5,7 +5,7 @@ import { DateBox } from "devextreme-react";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
-const CreateDTimeUTCField = ({ param }: any) => {
+const CreateDTimeUTCField = ({ param, customOptions }: any) => {
   const { component, formData } = param;
 
   const { CustomerCodeSys } = useParams();
@@ -36,12 +36,18 @@ const CreateDTimeUTCField = ({ param }: any) => {
   }, [currentTime]);
 
   return (
-    <DateBox
-      readOnly
-      value={new Date(value)}
-      type="datetime"
-      displayFormat="yyyy/MM/dd hh:mm:ss"
-    ></DateBox>
+    <>
+      {customOptions?.editType == "detail" ? (
+        <div className="font-semibold">{value ?? ""}</div>
+      ) : (
+        <DateBox
+          readOnly
+          value={new Date(value)}
+          type="datetime"
+          displayFormat="yyyy/MM/dd hh:mm:ss"
+        ></DateBox>
+      )}
+    </>
   );
 };
 

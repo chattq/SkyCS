@@ -46,10 +46,24 @@ const Tab_CustomerContract = () => {
                 return { ...prev, [cur?.ColCodeSys]: cur?.ColValue };
               }, {});
 
+              const emailListJson =
+                JSON.parse(item?.mcc_CustomerEmailJson) ?? [];
+              const email =
+                emailListJson?.find((item: any) => item?.FlagDefault == "1")
+                  ?.CtmEmail ?? "";
+
+              const phoneListJson =
+                JSON.parse(item?.mcc_CustomerPhoneJson) ?? [];
+              const phoneNo =
+                phoneListJson?.find((item: any) => item?.FlagDefault == "1")
+                  ?.CtmPhoneNo ?? "";
+
               return {
                 ...item,
                 CustomerName: item?.mcc_CustomerName,
                 CustomerCode: item?.mcc_CustomerCode,
+                CtmEmail: email,
+                CtmPhoneNo: phoneNo,
                 ...fields,
               };
             });
@@ -69,6 +83,8 @@ const Tab_CustomerContract = () => {
     refetch: refetch,
   });
 
+  console.log("columns outside ", columns);
+
   const popupView = usePopupCustomerContract({
     refetchList: refetch,
     listContact: data ?? [],
@@ -80,7 +96,7 @@ const Tab_CustomerContract = () => {
         isLoading={isLoading}
         dataSource={data ?? []}
         columns={columns}
-        keyExpr={"LUDTimeUTC"}
+        keyExpr={["CustomerName"]}
         popupSettings={{}}
         formSettings={{}}
         onReady={(ref) => (gridRef = ref)}
@@ -90,14 +106,14 @@ const Tab_CustomerContract = () => {
         onEditorPreparing={() => {}}
         onEditRowChanges={() => {}}
         onDeleteRows={() => {}}
-        storeKey={"Mst_CustomerHist-columns"}
+        storeKey={"Tab_CustomerContact-columns"}
         editable={false}
         showCheck="none"
       />
 
       {popupView}
 
-      <LoadPanel visible={isLoading} />
+      {/* <LoadPanel visible={isLoading} /> */}
 
       <PopupViewComponent />
     </div>

@@ -12,6 +12,7 @@ export const viewingRowAtom = atom<number | undefined>(undefined);
 export const viewingItemAtom = atom<Cpn_CampaignAgentData | undefined>(
   undefined
 );
+export const dataGridAtom = atom<any>([]);
 
 export const viewingDataAtom = atom(
   (get) => {

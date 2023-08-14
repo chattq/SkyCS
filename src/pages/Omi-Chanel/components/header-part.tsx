@@ -11,7 +11,9 @@ export const HeaderPart = ({ onSave }: any) => {
   return (
     <PageHeaderNoSearchLayout>
       <PageHeaderNoSearchLayout.Slot name={"Before"}>
-        <div className="font-bold dx-font-m">{t("Omni Chanel")}</div>
+        <div className="text-header font-bold dx-font-m">
+          {t("Omni Chanel")}
+        </div>
       </PageHeaderNoSearchLayout.Slot>
       <PageHeaderNoSearchLayout.Slot
         name={"Center"}

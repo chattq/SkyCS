@@ -31,7 +31,7 @@ import {
 import { useClientgateApi } from "@/packages/api";
 
 import { SearchPanelV2 } from "@/packages/ui/search-panel";
-import { ScrollView } from "devextreme-react";
+import { Button, ScrollView } from "devextreme-react";
 import { GridViewCustomize } from "@/packages/ui/base-gridview/gridview-customize";
 import { useNavigate } from "react-router-dom";
 import { useColumns } from "./components/use-columns";
@@ -49,10 +49,11 @@ import { nanoid } from "nanoid";
 export const Tab_CallHistoryToAgent = ({ getListOrg }: { getListOrg: any }) => {
   const { t } = useI18n("Post_Manager");
   const windowSize = useWindowSize();
-  const [formartDate, setFormatDate] = useState("day");
+  const [formartDate, setFormatDate] = useState("month");
   const [searchCondition, setSearchCondition] = useState<any>({
-    period: "day",
+    period: "month",
     callType: "All",
+    fromDate: new Date(Date.now()),
   });
   const [key, reloading] = useReducer(() => {
     return nanoid();
@@ -61,7 +62,7 @@ export const Tab_CallHistoryToAgent = ({ getListOrg }: { getListOrg: any }) => {
   let gridRef: any = useRef();
   const auth = useAtomValue(authAtom);
   const api = useClientgateApi();
-
+  const searchPanelVisibility = useAtomValue(searchPanelVisibleAtom);
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["rpt_GetCallHistoryFull", key],
     queryFn: async () => {
@@ -137,8 +138,6 @@ export const Tab_CallHistoryToAgent = ({ getListOrg }: { getListOrg: any }) => {
             };
           });
 
-          console.log("newResult", newResult);
-
           return newResult;
         } else {
           // showError({
@@ -173,7 +172,18 @@ export const Tab_CallHistoryToAgent = ({ getListOrg }: { getListOrg: any }) => {
         visible: true,
         validationRules: [requiredType],
         editorOptions: {
-          dataSource: ["day", "month"],
+          dataSource: [
+            {
+              title: t("Day"),
+              value: "day",
+            },
+            {
+              title: t("Month"),
+              value: "month",
+            },
+          ],
+          valueExpr: "value",
+          displayExpr: "title",
           onValueChanged: (param: any) => {
             setFormatDate(param.value);
           },
@@ -190,7 +200,7 @@ export const Tab_CallHistoryToAgent = ({ getListOrg }: { getListOrg: any }) => {
         editorOptions: {
           type: "date",
           calendarOptions: {
-            maxZoomLevel: formartDate === "day" ? "date" : "year",
+            maxZoomLevel: formartDate === "day" ? "month" : "year",
           },
           displayFormat: formartDate === "day" ? "yyyy-MM-dd" : "yyyy-MM",
         },
@@ -324,38 +334,47 @@ export const Tab_CallHistoryToAgent = ({ getListOrg }: { getListOrg: any }) => {
             />
           </ContentSearchPanelLayout.Slot>
           <ContentSearchPanelLayout.Slot name={"ContentPanel"}>
-            {key !== "0" && (
-              <ScrollView
-                showScrollbar={"always"}
-                height={windowSize.height - 150}
-                className={"mb-5 ScrollView_Customize"}
-              >
-                <div className="flex mt-2 overflow-x-auto w-full">
-                  <GridViewCustomize
-                    cssClass={"Tab_CallHistoryAgent"}
-                    isLoading={isLoading}
-                    dataSource={data}
-                    columns={columns}
-                    keyExpr={["PostCode", "OrgID"]}
-                    popupSettings={{}}
-                    formSettings={{}}
-                    onReady={(ref) => (gridRef = ref)}
-                    allowSelection={true}
-                    onSelectionChanged={handleSelectionChanged}
-                    onSaveRow={handleSavingRow}
-                    onEditorPreparing={handleEditorPreparing}
-                    allowInlineEdit={true}
-                    onEditRowChanges={handleEditRowChanges}
-                    onDeleteRows={handleDeleteRows}
-                    isSingleSelection={false}
-                    isHiddenCheckBox={true}
-                    toolbarItems={[]}
-                    storeKey={"tab_Call-columns"}
-                    customToolbarItems={[]}
-                  />
-                </div>
-              </ScrollView>
-            )}
+            <div className="flex align-items-start">
+              {!searchPanelVisibility && (
+                <Button
+                  className="button_Search "
+                  icon={"/images/icons/search.svg"}
+                  onClick={handleToggleSearchPanel}
+                />
+              )}
+              {key !== "0" && (
+                <ScrollView
+                  showScrollbar={"always"}
+                  height={windowSize.height - 150}
+                  className={"mb-5 ScrollView_Customize"}
+                >
+                  <div className="flex mt-2 overflow-x-auto w-full">
+                    <GridViewCustomize
+                      cssClass={"Tab_CallHistoryAgent"}
+                      isLoading={isLoading}
+                      dataSource={data}
+                      columns={columns}
+                      keyExpr={["PostCode", "OrgID"]}
+                      popupSettings={{}}
+                      formSettings={{}}
+                      onReady={(ref) => (gridRef = ref)}
+                      allowSelection={true}
+                      onSelectionChanged={handleSelectionChanged}
+                      onSaveRow={handleSavingRow}
+                      onEditorPreparing={handleEditorPreparing}
+                      allowInlineEdit={true}
+                      onEditRowChanges={handleEditRowChanges}
+                      onDeleteRows={handleDeleteRows}
+                      isSingleSelection={false}
+                      isHiddenCheckBox={true}
+                      toolbarItems={[]}
+                      storeKey={"tab_Call-columns"}
+                      customToolbarItems={[]}
+                    />
+                  </div>
+                </ScrollView>
+              )}
+            </div>
           </ContentSearchPanelLayout.Slot>
         </ContentSearchPanelLayout>
       </ReportLayout.Slot>

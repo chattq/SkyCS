@@ -179,10 +179,9 @@ export const Cpn_CampaignPerformPageTuyenBA = () => {
   }, [selectedCp]);
 
   const doCall = (phoneNo: any) => {
-    phoneNo='0983712383';
-    phone.call(phoneNo, (ret:CcCall)=>{
+    phoneNo = "0983712383";
+    phone.call(phoneNo, (ret: CcCall) => {
       console.log("new call", ret);
-
     });
   };
 
@@ -244,7 +243,9 @@ export const Cpn_CampaignPerformPageTuyenBA = () => {
       <AdminContentLayout.Slot name={"Header"}>
         <PageHeaderNoSearchLayout>
           <PageHeaderNoSearchLayout.Slot name={"Before"}>
-            <div className="font-bold dx-font-m">Thực hiện chiến dịch</div>
+            <div className="text-header font-bold dx-font-m">
+              Thực hiện chiến dịch
+            </div>
           </PageHeaderNoSearchLayout.Slot>
           <PageHeaderNoSearchLayout.Slot
             name={"Center"}

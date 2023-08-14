@@ -163,7 +163,6 @@ export const callApi = {
     return response.data;
   },
   snoop: async (networkId: string, data: any) => {
-    const token = localStorage.getItem("token");
     const response = await callApiBase.post<Response<CcCall>>(
       "/callapi/snoop",
       data,
@@ -177,7 +176,6 @@ export const callApi = {
   },
 
   redirect: async (networkId: string, data: any) => {
-    const token = localStorage.getItem("token");
     const response = await callApiBase.post<Response<CcCall>>(
       "/callapi/redirect",
       data,
@@ -191,7 +189,6 @@ export const callApi = {
   },
 
   rpt_GetCallHistoryFull: async (networkId: string, params: any) => {
-    const token = localStorage.getItem("token");
     const response = await callApiBase.post<Response<RptCall[]>>(
       "/callreport/getCallHistoryFull",
       params,
@@ -205,7 +202,6 @@ export const callApi = {
   },
 
   rpt_GetCallSummary: async (networkId: string, params: any) => {
-    const token = localStorage.getItem("token");
     const response = await callApiBase.post<Response<RptCallSummary>>(
       "/callreport/GetCallSummary",
       params,

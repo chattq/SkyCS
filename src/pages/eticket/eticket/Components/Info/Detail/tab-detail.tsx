@@ -18,14 +18,14 @@ import { PartMessageList } from "./part-message-list";
 import { PartDetailInfo } from "./part-detail-info";
 import { EticketT } from "@/packages/types";
 import { useI18n } from "@/i18n/useI18n";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { useEticket_api } from "@/packages/api/clientgate/Api_Eticket_Demo";
 import { useHub } from "@/packages/hooks/useHub";
 import { useClientgateApi } from "@/packages/api";
 import { showErrorAtom } from "@/packages/store";
 import { useSetAtom } from "jotai";
 import { toast } from "react-toastify";
-export const Tab_Detail = ({
+export const Tab_Detail = memo(({
   data,
   listMedia,
   dataDynamicField,
@@ -131,4 +131,4 @@ export const Tab_Detail = ({
       </Item>
     </ResponsiveBox>
   );
-};
+});

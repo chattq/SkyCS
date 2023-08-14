@@ -385,7 +385,6 @@ export const PartMessageItem = ({
       />
     );
   };
-  // console.log("data.IsPin ", data.IsPin , data);
   return (
     <div
       className={`w-full position-relative bg-white mb-3 pb-3 message-item ${flag} ${
@@ -411,60 +410,62 @@ export const PartMessageItem = ({
             </span>
           </div>
 
-          <div className="position-absolute" style={{ top: 0, right: 0 }}>
-            {data?.dataPin && data?.dataPin.length > 1 && (
-              <Button
-                onClick={showPopUp}
-                stylingMode="outlined"
-                type="default"
-                className="pin-show button-icon-detail-eticket"
-              >
-                {data?.dataPin.length - 1} <p>{t("Another pin")}</p>
-              </Button>
-            )}
+          {!isHidenButton && (
+            <div className="position-absolute" style={{ top: 0, right: 0 }}>
+              {data?.dataPin && data?.dataPin.length > 1 && (
+                <Button
+                  onClick={showPopUp}
+                  stylingMode="outlined"
+                  type="default"
+                  className="pin-show button-icon-detail-eticket"
+                >
+                  {data?.dataPin.length - 1} <p>{t("Another pin")}</p>
+                </Button>
+              )}
 
-            {isShowButton?.includes("reply") && (
-              <Button
-                stylingMode="outlined"
-                type="default"
-                className="btn-msg-action button-icon-detail-eticket"
-                // icon="custom-reply"
-                onClick={handleReply}
-              >
-                <Icon name="reply"></Icon>
-              </Button>
-            )}
+              {isShowButton?.includes("reply") && (
+                <Button
+                  stylingMode="outlined"
+                  type="default"
+                  className="btn-msg-action button-icon-detail-eticket"
+                  // icon="custom-reply"
+                  onClick={handleReply}
+                >
+                  <Icon name="reply"></Icon>
+                </Button>
+              )}
 
-            {isShowButton?.includes("pin") && (
-              <Button
-                stylingMode="outlined"
-                type="default"
-                className="btn-msg-action button-icon-detail-eticket"
-                icon={data.IsPin === "1" ? "unpin" : "pin"}
-                onClick={() => handleUpdatePin()}
-              >
-                <Icon name={data.IsPin === "1" ? "unpin" : "pin"} />
-              </Button>
-            )}
+              {isShowButton?.includes("pin") && (
+                <Button
+                  stylingMode="outlined"
+                  type="default"
+                  className="btn-msg-action button-icon-detail-eticket"
+                  icon={data.IsPin === "1" ? "unpin" : "pin"}
+                  onClick={() => handleUpdatePin()}
+                >
+                  <Icon name={data.IsPin === "1" ? "unpin" : "pin"} />
+                </Button>
+              )}
 
-            {isShowButton?.includes("delete") && (
-              <Button
-                stylingMode="outlined"
-                type="danger"
-                className="btn-msg-action button-icon-detail-eticket"
-                icon="trash"
-              />
-            )}
-            {isShowButton?.includes("customeDelete") && (
-              <Button
-                stylingMode="outlined"
-                type="danger"
-                className="btn-msg-action button-icon-detail-eticket"
-                icon="trash"
-                onClick={handleCustomerDelete}
-              />
-            )}
-          </div>
+              {isShowButton?.includes("delete") && (
+                <Button
+                  stylingMode="outlined"
+                  type="danger"
+                  className="btn-msg-action button-icon-detail-eticket"
+                  icon="trash"
+                />
+              )}
+              {isShowButton?.includes("customeDelete") && (
+                <Button
+                  stylingMode="outlined"
+                  type="danger"
+                  className="btn-msg-action button-icon-detail-eticket"
+                  icon="trash"
+                  onClick={handleCustomerDelete}
+                />
+              )}
+            </div>
+          )}
           {data?.ConvMessageType === "4" && data?.ChannelId === "2" ? (
             <div className="auto-file"></div>
           ) : (
@@ -479,7 +480,6 @@ export const PartMessageItem = ({
           ) : (
             <span className={`message-type ${flag}`}>
               <Icon name={`${flag ?? "remark"}`} />
-              {/* <i></i> */}
             </span>
           )}
         </>

@@ -62,7 +62,7 @@ export const UploadFilesField = ({
     files?.forEach((file: UploadedFile) => {
       dispatchFileAction({
         type: FileActionEnum.Init,
-        payload: file,
+        payload: { ...file, FileId: nanoid() },
       });
     });
   }, [formInstance]);
@@ -172,6 +172,7 @@ export const UploadFilesField = ({
       });
     }
   };
+
   return (
     <div className={`files-uploader ${className}`}>
       <form>

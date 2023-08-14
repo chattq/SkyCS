@@ -8,7 +8,7 @@ const PartnerTypeField = ({ param, customOptions }: any) => {
 
   const api = useClientgateApi();
 
-  const [value, setValue] = useState<any>(undefined);
+  const [value, setValue] = useState<any[]>([]);
 
   const { data }: any = useQuery(
     ["PartnerTypeField"],
@@ -26,20 +26,42 @@ const PartnerTypeField = ({ param, customOptions }: any) => {
     }
   }, [data]);
 
-  console.log(value);
+  const handleRenderTags = () => {
+    const result =
+      data?.DataList?.map((item: any) => {
+        if (value?.find((c: any) => c == item?.PartnerType)) {
+          return item?.PartnerTypeName;
+        }
+      }).filter((item: any) => item) ?? [];
+
+    return (
+      <div className="flex gap-2 flex-wrap">
+        {result?.map((item: any) => {
+          return (
+            <div className="bg-[#EAF9F2] p-[5px] rounded-[5px]">{item}</div>
+          );
+        })}
+      </div>
+    );
+  };
 
   return (
-    <TagBox
-      dataSource={data?.DataList ?? []}
-      valueExpr="PartnerType"
-      displayExpr="PartnerTypeName"
-      onValueChanged={(e: any) => {
-        component.updateData("PartnerType", e.value);
-        setValue(e.value);
-      }}
-      value={value}
-      readOnly={customOptions?.editType == "detail"}
-    ></TagBox>
+    <>
+      {customOptions?.editType == "detail" ? (
+        <div className="font-semibold">{handleRenderTags() ?? ""}</div>
+      ) : (
+        <TagBox
+          dataSource={data?.DataList ?? []}
+          valueExpr="PartnerType"
+          displayExpr="PartnerTypeName"
+          onValueChanged={(e: any) => {
+            component.updateData("PartnerType", e.value);
+            setValue(e.value);
+          }}
+          value={value}
+        ></TagBox>
+      )}
+    </>
   );
 };
 

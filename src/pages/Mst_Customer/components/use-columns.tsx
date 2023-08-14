@@ -1,12 +1,15 @@
 import NavNetworkLink from "@/components/Navigate";
 import { useI18n } from "@/i18n/useI18n";
+import { StatusButton } from "@/packages/ui/status-button";
 import {
   flagCustomer,
   viewingDataAtom,
 } from "@/pages/Mst_Customer/components/store";
 import { getDMY } from "@/utils/time";
 import { useSetAtom } from "jotai";
+import { nanoid } from "nanoid";
 import { match } from "ts-pattern";
+import PopoverCustomerContact from "./popover-customer-contact";
 interface UseDealerGridColumnsProps {
   data: any[];
   dataField: any[];
@@ -38,6 +41,7 @@ export const useColumn = ({
     .reduce((acc: any[], item: any) => {
       return [...acc, ...item.list];
     }, []);
+
   const { t } = useI18n("Mst_Customer");
 
   const expectedArray = [
@@ -83,7 +87,7 @@ export const useColumn = ({
         visible: defaultVisible(item?.ColCodeSys),
         columnIndex: 1,
         width: 200,
-        cellRender: ({ data }: any) => {
+        cellRender: ({ data, rowIndex }: any) => {
           if (item.FlagIsColDynamic === "1") {
             if (item.ColDataType === "MASTERDATA") {
               if (Array.isArray(JSON.parse(data.JsonCustomerInfo))) {
@@ -111,9 +115,22 @@ export const useColumn = ({
                 (itemJson: any) => itemJson.ColCodeSys === item.ColCodeSys
               );
               if (dataJson) {
+                if (
+                  typeof dataJson.ColValue === "string" &&
+                  item.ColDataType === "FLAG"
+                ) {
+                  return (
+                    <StatusButton
+                      key={nanoid()}
+                      isActive={dataJson.ColValue == "1"}
+                    />
+                  );
+                }
+
                 if (typeof dataJson.ColValue === "string") {
                   return <>{dataJson.ColValue}</>;
                 }
+
                 return <>{JSON.stringify(dataJson.ColValue)}</>;
               } else {
                 return <></>;
@@ -135,29 +152,31 @@ export const useColumn = ({
             );
           }
 
-          if (item.ColCodeSys === "CtmPhoneNo") {
-            const list = JSON.parse(data?.CustomerPhoneJson) ?? [];
-            const result =
-              list?.find((item: any) => item?.FlagDefault == "1")?.CtmPhoneNo ??
-              "";
-            return result;
-          }
+          // if (item.ColCodeSys === "CtmPhoneNo") {
+          //   const list = JSON.parse(data?.CustomerPhoneJson) ?? [];
+          //   const result =
+          //     list?.find((item: any) => item?.FlagDefault == "1")?.CtmPhoneNo ??
+          //     "";
+          //   return result;
+          // }
 
-          if (item.ColCodeSys === "CtmEmail") {
-            const list = JSON.parse(data?.CustomerEmailJson) ?? [];
-            const result =
-              list?.find((item: any) => item?.FlagDefault == "1")?.CtmEmail ??
-              "";
-            return result;
-          }
+          // if (item.ColCodeSys === "CtmEmail") {
+          //   const list = JSON.parse(data?.CustomerEmailJson) ?? [];
+          //   const result =
+          //     list?.find((item: any) => item?.FlagDefault == "1")?.CtmEmail ??
+          //     "";
+          //   return result;
+          // }
 
-          if (item.ColCodeSys === "ZaloUserFollowerId") {
-            const list = JSON.parse(data?.CustomerZaloUserFollowerJson) ?? [];
-            const result =
-              list?.find((item: any) => item?.FlagDefault == "1")
-                ?.ZaloUserFollowerId ?? "";
-            return result;
-          }
+          // console.log(data);
+
+          // if (item.ColCodeSys === "ZaloUserFollowerId") {
+          //   const list = JSON.parse(data?.CustomerZaloUserFollowerJson) ?? [];
+          //   const result =
+          //     list?.find((item: any) => item?.FlagDefault == "1")
+          //       ?.ZaloUserFollowerId ?? "";
+          //   return result;
+          // }
 
           if (item.ColCodeSys === "CustomerType") {
             return data?.mct_CustomerTypeName;
@@ -182,6 +201,35 @@ export const useColumn = ({
             return result?.join(",") ?? [];
           }
 
+          if (item.ColCodeSys === "CustomerNameContact") {
+            const list = JSON.parse(data?.CustomerContactJson ?? "[]");
+
+            if (list && list?.length > 1) {
+              const listCustomer = list?.map((item: any) => {
+                return {
+                  CustomerCodeSys: item?.CustomerCodeSysContact,
+                  CustomerName:
+                    item?.Mst_Customer && item?.Mst_Customer?.length > 0
+                      ? item?.Mst_Customer[0]?.CustomerName
+                      : "",
+                  CustomerAvatarPath:
+                    item?.Mst_Customer && item?.Mst_Customer?.length > 0
+                      ? item?.Mst_Customer[0]?.CustomerAvatarPath
+                      : "",
+                };
+              });
+
+              return (
+                <PopoverCustomerContact
+                  data={data}
+                  listCustomer={listCustomer}
+                />
+              );
+            }
+
+            return <div>{data?.CustomerNameContact}</div>;
+          }
+
           if (item.ColCodeSys === "CustomerAvatarPath") {
             return (
               <div className="w-full flex items-center justify-center">
@@ -204,7 +252,7 @@ export const useColumn = ({
             );
           }
 
-          return <>{data[item.ColCode]}</>;
+          return <>{data[item.ColCodeSys]}</>;
         },
       };
     });
@@ -221,6 +269,5 @@ const defaultVisible = (code: any) => {
     .with("CtmEmail", () => true)
     .with("CustomerNameContact", () => true)
     .with("C0KS", () => true)
-
     .otherwise(() => false);
 };

@@ -68,7 +68,7 @@ export const Department_ControlPage = () => {
     () =>
       api.Mst_DepartmentControl_Search({
         ...searchCondition,
-      })
+      }) as any
   );
   const { data: listUser } = useQuery(["listUser"], () =>
     api.Sys_User_GetAllActive()
@@ -290,7 +290,11 @@ export const Department_ControlPage = () => {
       <AdminContentLayout.Slot name={"Content"}>
         <GridViewCustomize
           isLoading={isLoading}
-          dataSource={data?.isSuccess ? data.DataList ?? [] : []}
+          dataSource={
+            data?.DataList?.filter(
+              (item: any) => item.OrgID === auth.orgId.toString()
+            ) ?? []
+          }
           columns={columns}
           keyExpr={["DepartmentCode"]}
           formSettings={formSettings}

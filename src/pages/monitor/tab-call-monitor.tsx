@@ -1,4 +1,5 @@
 
+import { useClientgateApi } from "@/packages/api";
 import { callApi } from "@/packages/api/call-api";
 import { useAuth } from "@/packages/contexts/auth";
 import { useHub } from "@/packages/hooks/useHub";
@@ -17,7 +18,7 @@ export const Tab_CallMonitor = () => {
     const { auth } = useAuth();
     const [reload, setReload] = useState(0);
 
-
+    const api = useClientgateApi();
 
 
     const hub = useHub("global");
@@ -32,6 +33,45 @@ export const Tab_CallMonitor = () => {
 
     const phone = usePhone();
 
+    const showCustomerInfo = async (items: any[]) => {
+
+        var params: any = [];
+
+        items.forEach(item => {
+            if (item.RemoteNumber && params.filter((p: any) => p.CtmPhoneNo == item.RemoteNumber).length == 0)
+                params.push({
+                    "CtmPhoneNo": item.RemoteNumber
+                });
+        });
+        var resp = await api.Mst_Customer_GetByCtmPhoneNo(params);
+
+        
+        if (resp.isSuccess && resp.Data && resp.Data.Lst_Mst_Customer && resp.Data.Lst_Mst_Customer.length > 0
+            && resp.Data.Lst_Mst_CustomerPhone && resp.Data.Lst_Mst_CustomerPhone.length > 0) {
+            var ctmList = resp.Data.Lst_Mst_Customer;
+            var phoneNoList = resp.Data.Lst_Mst_CustomerPhone;
+
+            items.forEach(item => {
+                if (item.RemoteNumber)
+
+                    var phone = phoneNoList.find((ii: any) => ii.CtmPhoneNo == item.RemoteNumber);
+
+                if (phone) {
+                    var cus = ctmList.find((ii: any) => ii.CustomerCodeSys == phone.CustomerCodeSys);
+                    if (cus)
+                        item.CustomerDesc = cus.CustomerName;
+                }
+
+            });
+
+
+
+        }
+
+        setList(items);
+
+    };
+
 
     useEffect(() => {
         console.log("reload", reload);
@@ -40,7 +80,9 @@ export const Tab_CallMonitor = () => {
 
             if (resp.Success && resp.Data) {
 
-                setList(resp.Data);
+                //setList(resp.Data);
+
+                showCustomerInfo(resp.Data);
 
             }
         });
@@ -72,9 +114,9 @@ export const Tab_CallMonitor = () => {
 
             callApi.redirect(auth.networkId, { callId: item.Id, target: phone.status.extension }).then((resp) => {
 
-                console.log(resp);
-                if (resp.Success && resp.Data) {
                 
+                if (resp.Success && resp.Data) {
+
                 }
                 else alert(resp.ErrorMessage)
             });
@@ -202,7 +244,7 @@ export const Tab_CallMonitor = () => {
             <td>
                 <i className="dx-icon-menu" id={`${menuId}`}></i>
                 <ContextMenu
-                    items={item.Type=='Incoming'? menuItems_in: menuItems_out}
+                    items={item.Type == 'Incoming' ? menuItems_in : menuItems_out}
                     target={`#${menuId}`}
                     showEvent={'dxclick'}
                     cssClass={'bg-white'}

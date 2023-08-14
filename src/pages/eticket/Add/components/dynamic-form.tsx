@@ -68,7 +68,6 @@ export const useDynamicForm = () => {
           dynamicFields ?? [],
           auth?.orgData?.Id ?? ""
         );
-        // console.log(response);
         if (response.isSuccess) {
           const result = response?.Data?.Lst_Mst_TicketColumnConfig?.reduce(
             (result: any, item: any) => {
@@ -151,10 +150,8 @@ export const dynamicFormValue = atom<any>({});
 export const DynamicForm = forwardRef(({}: any, ref: any) => {
   const formValue = useAtomValue(dynamicFormValue);
 
-  console.log(formValue);
-
   return (
-    <form className="mt-[50px]">
+    <form className="mt-[5px]">
       <Form
         ref={ref}
         onInitialized={(e) => {

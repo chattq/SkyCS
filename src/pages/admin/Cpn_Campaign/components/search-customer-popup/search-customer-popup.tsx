@@ -257,8 +257,6 @@ export const SearchCustomerPopup = ({
         });
       });
 
-    console.log("value ", value);
-
     const obj = {
       ...list,
       // CustomerCode: data["CUSTOMERCODE"] ?? null,
@@ -268,8 +266,6 @@ export const SearchCustomerPopup = ({
 
     // delete obj?.CUSTOMERCODE;
     // delete obj?.CUSTOMERNAME;
-
-    console.log("obj ", obj);
 
     setFormValue(obj);
   };
@@ -293,15 +289,15 @@ export const SearchCustomerPopup = ({
           //   width={"100%"}
           //   height={windowSize.height - 310}
           // >
-            <SearchCustomerResult
-              customizeClass={``}
-              ref={gridRef}
-              data={data?.DataList!}
-              listColumn={listColumn!}
-              listGroup={listGroup!}
-              listDynamic={listDynamic!}
-              onSearch={handleSearch}
-            />
+          <SearchCustomerResult
+            customizeClass={``}
+            ref={gridRef}
+            data={data?.DataList!}
+            listColumn={listColumn!}
+            listGroup={listGroup!}
+            listDynamic={listDynamic!}
+            onSearch={handleSearch}
+          />
           // </ScrollView>
         )}
       <ToolbarItem toolbar={"bottom"} location={"center"}>

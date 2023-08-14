@@ -52,6 +52,7 @@ UseBankDealerGridColumnsProps) => {
         readOnly: false,
         placeholder: t("Input"),
       },
+      filterType: "exclude",
       columnIndex: 1,
       cellRender: ({ data, rowIndex, value }) => {
         return (
@@ -71,6 +72,7 @@ UseBankDealerGridColumnsProps) => {
         readOnly: false,
         placeholder: t("Input"),
       },
+      filterType: "exclude",
       columnIndex: 1,
     },
 
@@ -87,6 +89,7 @@ UseBankDealerGridColumnsProps) => {
       cellRender: ({ data, rowIndex, value }) => {
         return <div>{formatText(value, 30)}</div>;
       },
+      filterType: "exclude",
     },
     {
       groupKey: "BASIC_INFORMATION",
@@ -98,6 +101,7 @@ UseBankDealerGridColumnsProps) => {
         placeholder: t("Input"),
       },
       columnIndex: 2,
+      filterType: "exclude",
     },
     {
       groupKey: "BASIC_INFORMATION",
@@ -109,6 +113,7 @@ UseBankDealerGridColumnsProps) => {
         placeholder: t("Input"),
       },
       columnIndex: 2,
+      filterType: "exclude",
     },
     {
       dataField: "PostStatus",
@@ -121,6 +126,7 @@ UseBankDealerGridColumnsProps) => {
       cellRender: ({ data }: any) => {
         return <StatusPost key={nanoid()} isActive={data.PostStatus} />;
       },
+      filterType: "exclude",
     },
     {
       groupKey: "BASIC_INFORMATION",
@@ -132,6 +138,7 @@ UseBankDealerGridColumnsProps) => {
       },
       editorType: "dxTextBox",
       columnIndex: 2,
+      filterType: "exclude",
     },
   ];
   // return array of the first item only

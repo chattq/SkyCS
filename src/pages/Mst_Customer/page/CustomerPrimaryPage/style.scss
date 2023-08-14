@@ -13,9 +13,16 @@
   }
 
   .form-customer-content {
-    .dx-field-item-label-content {
-      min-width: 150px;
+    .dx-field-item-label {
+      min-width: 200px;
+      width: 200px;
     }
+
+    .dx-field-item-label-content {
+      width: 100% !important;
+      white-space: pre-wrap;
+    }
+
     .dx-layout-manager {
       .dx-state-disabled {
         .dx-field-item {
@@ -102,5 +109,97 @@
   .detail-customer-tab-content-item {
     // padding-left: 34px;
     // padding-right: 16px;
+  }
+
+  .status {
+    background: rgba(41, 142, 242, 1);
+    color: #fff !important;
+  }
+
+  .status.open {
+    // background-color: ;
+    background: #cfb929;
+  }
+  .status.new {
+    background: rgba(15, 188, 43, 1);
+  }
+  .status.sloved {
+    background: rgba(41, 142, 242, 1);
+  }
+  .status.closed {
+    background: rgba(167, 167, 167, 1);
+  }
+  .status.processing {
+    background: rgba(228, 130, 3, 1);
+  }
+  .status.on-hold {
+    background: rgba(139, 98, 192, 1);
+  }
+  .status.waiting.on.customer {
+    background: rgba(255, 255, 255, 1);
+  }
+  .status.Waiting.on.third.party {
+    background: rgba(211, 72, 72, 1);
+  }
+}
+
+// .dx-field-item-label {
+//   min-width: 150px;
+// }
+
+.dx-sortable {
+  .dx-button-content {
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+}
+.status-container {
+  .status {
+    background: rgba(41, 142, 242, 1);
+    color: #fff !important;
+  }
+  &.approve {
+    background: #0fbc2b !important;
+  }
+  &.continued {
+    background: #e48203 !important;
+  }
+  &.started {
+    background: #0fbc2b !important;
+  }
+  &.pending {
+    background: #cfb929 !important;
+  }
+  &.finish {
+    background: #298ef2 !important;
+  }
+  &.paused {
+    background: #d62d2d !important;
+  }
+  &.open {
+    background: #cfb929 !important;
+  }
+  &.new {
+    background: rgba(15, 188, 43, 1) !important;
+  }
+  &.sloved {
+    background: rgba(41, 142, 242, 1) !important;
+  }
+  &.closed {
+    background: rgba(167, 167, 167, 1) !important;
+  }
+  &.callagain {
+    background: rgba(228, 130, 3, 1) !important;
+  }
+  &.on-hold {
+    background: rgba(139, 98, 192, 1) !important;
+  }
+  &.waiting.on.customer {
+    background: rgba(255, 255, 255, 1) !important;
+  }
+  &.waiting.on.third.party {
+    background: rgba(211, 72, 72, 1) !important;
   }
 }

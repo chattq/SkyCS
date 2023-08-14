@@ -48,6 +48,16 @@
         .dx-col-fixed {
           background: #ffffff;
         }
+        .TextLeftGrid {
+          text-align: right !important;
+        }
+        .TextLeftSLA[role="gridcell"] {
+          text-align: right !important;
+        }
+        .dx-column-indicators {
+          margin-left: 10px !important;
+          float: right !important;
+        }
       }
     }
   }
@@ -64,7 +74,7 @@
           }
 
           &:last-child {
-            width: 60px;
+            // width: 60px;
 
             .dx-toolbar-item-content {
               display: flex;

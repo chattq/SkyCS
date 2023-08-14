@@ -85,7 +85,7 @@ export const HeaderPart = ({ onAddNew }: HeaderPartProps) => {
   return (
     <PageHeaderNoSearchLayout>
       <PageHeaderNoSearchLayout.Slot name={"Before"}>
-        <div className="font-bold dx-font-m">
+        <div className="text-header font-bold dx-font-m">
           {t("DepartmentControlManager")}
         </div>
       </PageHeaderNoSearchLayout.Slot>

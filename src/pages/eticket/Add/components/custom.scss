@@ -1,3 +1,55 @@
 .dx-tagbox {
   height: auto !important;
 }
+
+.dx-field-item-label {
+  min-width: 200px !important;
+  width: 200px !important;
+}
+
+.dx-field-item-label-content {
+  width: 100% !important;
+}
+
+// .eticketAdd-form {
+//   .dx-group-colcount-2 {
+//     .dx-box-item-content {
+//       .dx-item:nth-child(2) {
+//         .dx-item-content {
+//           align-items: end;
+//         }
+//       }
+//     }
+//   }
+// }
+
+.leftside {
+  position: relative;
+  &::after {
+    content: "";
+    position: absolute;
+    height: 100%;
+    width: 8px;
+    background-color: #f5f5f5;
+    top: 0;
+    right: 0;
+  }
+}
+
+.dx-tagbox.dx-editor-filled .dx-tag-container {
+  padding: 3px 8px 3px 11px !important;
+}
+.dx-fileuploader-wrapper {
+  padding-left: 0 !important;
+}
+
+.upload-files {
+  align-items: center !important;
+}
+
+.dx-htmleditor-toolbar-wrapper
+  .dx-toolbar-button
+  .dx-button-has-text
+  .dx-button-content {
+  background-color: #efefef !important;
+}

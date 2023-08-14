@@ -47,9 +47,9 @@ export const Cpn_CampaignPage = () => {
     Ft_PageSize: config.MAX_PAGE_ITEMS,
     CampaignTypeName: "",
     CampaignTypeDesc: "",
-    CreateDTimeUTC: [null , null],
-    FinishDTimeUTC: [null , null],
-    StartDTimeUTC: [null , null],
+    DTimeStart: [null, null],
+    DTimeEnd: [null, null],
+    StartDTimeUTC: [null, null],
   });
 
   const setSelectedItems = useSetAtom(selectedItemsAtom);
@@ -61,17 +61,17 @@ export const Cpn_CampaignPage = () => {
     async () => {
       const param = {
         ...searchCondition,
-        CreateDTimeUTCFrom: searchCondition.CreateDTimeUTC[0]
-          ? getYearMonthDate(searchCondition.CreateDTimeUTC[0])
+        DTimeStartFrom: searchCondition.DTimeStart[0]
+          ? getYearMonthDate(searchCondition.DTimeStart[0])
           : "",
-        CreateDTimeUTCTo: searchCondition.CreateDTimeUTC[1]
-          ? getYearMonthDate(searchCondition.CreateDTimeUTC[1])
+        DTimeStartTo: searchCondition.DTimeStart[1]
+          ? getYearMonthDate(searchCondition.DTimeStart[1])
           : "",
-        FinishDTimeUTCFrom: searchCondition.FinishDTimeUTC[0]
-          ? getYearMonthDate(searchCondition.FinishDTimeUTC[0])
+        DTimeEndFrom: searchCondition.DTimeEnd[0]
+          ? getYearMonthDate(searchCondition.DTimeEnd[0])
           : "",
-        FinishDTimeUTCTo: searchCondition.FinishDTimeUTC[1]
-          ? getYearMonthDate(searchCondition.FinishDTimeUTC[1])
+        DTimeEndTo: searchCondition.DTimeEnd[1]
+          ? getYearMonthDate(searchCondition.DTimeEnd[1])
           : "",
         StartDTimeUTCFrom: searchCondition.StartDTimeUTC[0]
           ? getYearMonthDate(searchCondition.StartDTimeUTC[0])
@@ -97,7 +97,9 @@ export const Cpn_CampaignPage = () => {
   );
 
   useEffect(() => {
-    refetch();
+    if (!isLoading) {
+      refetch();
+    }
   }, []);
 
   const { data: listCampaignType, isLoading: isLoadingCampaignType } = useQuery(
@@ -181,6 +183,7 @@ export const Cpn_CampaignPage = () => {
       {
         dataField: "CreateDTimeUTC",
         caption: t("CreateDTimeUTC"),
+        visible: true,
         label: {
           text: t("CreateDTimeUTC"),
         },
@@ -190,49 +193,13 @@ export const Cpn_CampaignPage = () => {
           format: "yyyy-MM-dd",
           displayFormat: "yyyy-MM-dd",
         },
-        // render: ({ component, dataField }: any) => {
-        //   const formData = component.option("formData");
-        //   return (
-        //     <DateRangeField
-        //       formInstance={component}
-        //       dataField={dataField}
-        //       defaultValue={formData?.[dataField]}
-        //       allowEmpty={true}
-        //       onValueChanged={(e: any) => {
-        //         component.updateData(dataField, e.value);
-        //       }}
-        //     />
-        //   );
-        // },
       },
-      // {
-      //   dataField: "CreateDTimeUTCTo",
-      //   caption: t("CreateDTimeUTCTo"),
-      //   label: {
-      //     text: t("CreateDTimeUTCTo"),
-      //     visible: false,
-      //   },
-      //   editorType: "dxDateBox",
-      //   editorOptions: {
-      //     type: "date",
-      //     format: "yyyy-MM-dd",
-      //   },
-      //   validationRules: [
-      //     {
-      //       type: "custom",
-      //       ignoreEmptyValue: true,
-      //       validationCallback: ({ value }: any) => {
-      //         return !isBefore(value, searchCondition.CreateDTimeUTCFrom);
-      //       },
-      //       message: t("CreateDTimeUTCFrom"),
-      //     },
-      //   ],
-      // },
       {
-        dataField: "StartDTimeUTC",
-        caption: t("StartDTimeUTC"),
+        dataField: "DTimeStart",
+        caption: t("DTimeStart"),
+        visible: true,
         label: {
-          text: t("StartDTimeUTC"),
+          text: t("DTimeStart"),
         },
         editorType: "dxDateRangeBox",
         editorOptions: {
@@ -241,34 +208,12 @@ export const Cpn_CampaignPage = () => {
           displayFormat: "yyyy-MM-dd",
         },
       },
-      // {
-      //   dataField: "StartDTimeUTCTo",
-      //   caption: t("StartDTimeUTCTo"),
-      //   label: {
-      //     text: t("StartDTimeUTCTo"),
-      //     visible: false,
-      //   },
-      //   editorType: "dxDateBox",
-      //   editorOptions: {
-      //     type: "date",
-      //     format: "yyyy-MM-dd",
-      //   },
-      //   validationRules: [
-      //     {
-      //       type: "custom",
-      //       ignoreEmptyValue: true,
-      //       validationCallback: ({ value }: any) => {
-      //         return !isBefore(value, searchCondition.StartDTimeUTCFrom);
-      //       },
-      //       message: t("StartDTimeUTCFromMustBeforeStartDTimeUTCFrom"),
-      //     },
-      //   ],
-      // },
       {
-        dataField: "FinishDTimeUTC",
-        caption: t("FinishDTimeUTC"),
+        dataField: "DTimeEnd",
+        caption: t("DTimeEnd"),
+        visible: true,
         label: {
-          text: t("FinishDTimeUTC"),
+          text: t("DTimeEnd"),
         },
         editorType: "dxDateRangeBox",
         editorOptions: {
@@ -277,32 +222,10 @@ export const Cpn_CampaignPage = () => {
           displayFormat: "yyyy-MM-dd",
         },
       },
-      // {
-      //   dataField: "FinishDTimeUTCTo",
-      //   caption: t("FinishDTimeUTCTo"),
-      //   label: {
-      //     text: t("FinishDTimeUTCTo"),
-      //     visible: false,
-      //   },
-      //   editorType: "dxDateBox",
-      //   editorOptions: {
-      //     type: "date",
-      //     format: "yyyy-MM-dd",
-      //   },
-      //   validationRules: [
-      //     {
-      //       type: "custom",
-      //       ignoreEmptyValue: true,
-      //       validationCallback: ({ value }: any) => {
-      //         return !isBefore(value, searchCondition.FinishDTimeUTCFrom);
-      //       },
-      //       message: t("FinishDTimeUTCFrom"),
-      //     },
-      //   ],
-      // },
       {
         dataField: "CampaignStatus",
         caption: t("CampaignStatus"),
+        visible: true,
         label: {
           text: t("CampaignStatus"),
         },
@@ -317,6 +240,7 @@ export const Cpn_CampaignPage = () => {
       {
         dataField: "CampaignTypeCode",
         caption: t("CampaignTypeCode"),
+        visible: true,
         label: {
           text: t("CampaignTypeCode"),
         },

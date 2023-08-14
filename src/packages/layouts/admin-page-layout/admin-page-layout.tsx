@@ -34,6 +34,7 @@ export const AdminPageLayout = () => {
 
   const toggleSidebar = () => {
     setSidebarOpen(!isSidebarOpen);
+    
   };
   const openSidebar = () => {
     setSidebarOpen(true);
@@ -76,7 +77,7 @@ export const AdminPageLayout = () => {
       }
       navigate(itemData.path);
       scrollViewRef.current?.instance.scrollTo(0);
-      toggleSidebar();
+      //toggleSidebar();
     },
     [navigate, isLarge]
   );

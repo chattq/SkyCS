@@ -86,6 +86,9 @@
       display: inline-block;
     }
   }
+  .message-type.callout {
+    background: rgba(209, 232, 255, 1);
+  }
   .message-type.callmissedout {
     background: #ffeae1;
   }
@@ -155,10 +158,9 @@
 
   .part-reply-call {
     .message-type {
-      left: -12px;
+      left: -32px;
     }
   }
-
 
   .message-type.callMissedIn {
     background: rgba(255, 232, 238, 1);
@@ -259,6 +261,11 @@
       padding: 16px;
     }
 
+    .status {
+      background: rgba(41, 142, 242, 1);
+      color: #fff !important;
+    }
+
     .status.open {
       // background-color: ;
       background: #cfb929;
@@ -355,7 +362,7 @@
       font-size: 14px;
       font-weight: 600 !important;
       font-family: "Inter";
-      color: #0e223d !important;
+      color: #0e223d;
     }
 
     .phone-button {
@@ -858,7 +865,6 @@
       }
     }
   }
-
 }
 
 .text-bold {
@@ -914,5 +920,55 @@
 
   .dx-texteditor-input {
     padding: 0px !important;
+  }
+}
+
+.status-container {
+  .status {
+    // background: rgba(41, 142, 242, 1);
+    color: #fff !important;
+
+    &.approve {
+      background: #0fbc2b !important;
+    }
+    &.continued {
+      background: #e48203 !important;
+    }
+    &.started {
+      background: #0fbc2b !important;
+    }
+    &.pending {
+      background: #cfb929 !important;
+    }
+    &.finish {
+      background: #298ef2 !important;
+    }
+    &.paused {
+      background: #d62d2d !important;
+    }
+    &.open {
+      background: #cfb929 !important;
+    }
+    &.new {
+      background: rgba(15, 188, 43, 1) !important;
+    }
+    &.sloved {
+      background: rgba(41, 142, 242, 1) !important;
+    }
+    &.closed {
+      background: rgba(167, 167, 167, 1) !important;
+    }
+    &.callagain {
+      background: rgba(228, 130, 3, 1) !important;
+    }
+    &.on-hold {
+      background: rgba(139, 98, 192, 1) !important;
+    }
+    &.waiting.on.customer {
+      background: rgba(255, 255, 255, 1) !important;
+    }
+    &.waiting.on.third.party {
+      background: rgba(211, 72, 72, 1) !important;
+    }
   }
 }

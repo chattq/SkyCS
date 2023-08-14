@@ -9,6 +9,7 @@ import { useSetAtom } from "jotai";
 import { nanoid } from "nanoid";
 import { useMemo } from "react";
 import { toast } from "react-toastify";
+import { match } from "ts-pattern";
 import { viewingDataAtom } from "./store";
 
 interface Props {
@@ -30,15 +31,38 @@ export const useMst_CustomerContact_Column = ({ refetch }: any) => {
 
   const api = useClientgateApi();
 
+  const matchIdx = (colCodeSys: any) => {
+    return match(colCodeSys)
+      .with("CustomerName", () => 1)
+      .with("CustomerName", () => 2)
+      .with("CustomerName", () => 3)
+      .with("CustomerName", () => 4)
+      .with("CustomerName", () => 5)
+
+      .otherwise(() => 9999);
+  };
+
   const { data: listColumn, isLoading: isLoadingColumn } = useQuery({
-    queryKey: ["listCol"],
+    queryKey: ["listColTabContract"],
     queryFn: async () => {
       const response = await api.MdMetaColGroupSpec_Search(
         {},
         "SCRTCS.CTM.CONTACT.2023"
       );
+
+      console.log(response?.DataList);
+
       if (response.isSuccess) {
-        return response?.DataList ?? [];
+        return (
+          response?.DataList?.map((item: any, index: any) => {
+            return {
+              ...item,
+              visible: true,
+              OrderIdx: index,
+              // CtmEmail : item?.
+            };
+          }) ?? []
+        );
       } else {
         showError({
           message: response?.errorCode,
@@ -49,34 +73,42 @@ export const useMst_CustomerContact_Column = ({ refetch }: any) => {
     },
   });
 
-  // console.log(listColumn);
-
   const handleDetail = (data: any) => {
     navigate(`/customer/detail/${data?.CustomerCodeSysContact}`);
   };
 
   const { t } = useI18n("Tab_Mst_CustomerContact");
+
   const columns = useMemo(() => {
     const result: any[] =
       listColumn
-        ?.sort((a: any, b: any) => a?.OrderIdx - b?.OrderIdx)
+        ?.sort((a: any, b: any) => b?.OrderIdx - a?.OrderIdx)
         ?.map((item: any) => {
           return {
             dataField: item?.ColCodeSys,
             caption: item?.ColCaption,
             idx: item?.OrderIdx,
-            cellRender:
-              item?.ColCodeSys == "CustomerName"
-                ? ({ data, value }: any) => {
-                    return (
-                      <LinkCell
-                        key={nanoid()}
-                        onClick={() => handleDetail(data)}
-                        value={value}
-                      />
-                    );
-                  }
-                : null,
+            visible: true,
+            editorType: "dxTextBox",
+            editorOptions: {
+              readOnly: true,
+            },
+            filterType: "exclude",
+            filterValue: null,
+            width: 200,
+            cellRender: ({ data, value }: any) => {
+              if (item?.ColCodeSys == "CustomerName") {
+                return (
+                  <LinkCell
+                    key={nanoid()}
+                    onClick={() => handleDetail(data)}
+                    value={value}
+                  />
+                );
+              }
+
+              return data[item?.ColCodeSys];
+            },
           };
         }) ?? [];
 
@@ -140,8 +172,20 @@ export const useMst_CustomerContact_Column = ({ refetch }: any) => {
       },
     };
 
+    // const customerName = {
+    //   dataField: "CustomerCodeSysContact",
+    //   caption: "Tên khách hàng",
+    //   filter: false,
+    //   cellRender: ({ data }: any) => {
+    //     return data?.CustomerName;
+    //   },
+    // };
+
+    // return [editor, ...result];
     return [editor, ...result];
   }, [listColumn]);
+
+  console.log("column ", columns);
 
   return columns;
 };

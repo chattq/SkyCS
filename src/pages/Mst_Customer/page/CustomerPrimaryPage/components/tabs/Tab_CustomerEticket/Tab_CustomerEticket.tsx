@@ -102,7 +102,10 @@ const Tab_CustomerEticket = () => {
 
   const customCard = (item: any) => {
     return (
-      <div className="px-[10px] pt-[5px] detail-customer-tab-content-item" key={nanoid()}>
+      <div
+        className="px-[10px] pt-[5px] detail-customer-tab-content-item"
+        key={nanoid()}
+      >
         <div className="mb-1 px-[35px] py-[20px] grid grid-cols-3 gap-3 relative bg-white justify-between">
           <div className="flex flex-col gap-2">
             <div
@@ -129,11 +132,17 @@ const Tab_CustomerEticket = () => {
           </div>
 
           <div className="flex flex-col gap-2 items-end">
-            <div>
+            <div className="flex align-items-center">
               Trạng thái:{" "}
-              <span className="bg-teal-500 rounded-[5px] text-white p-[5px]">
-                {item?.TicketStatus}
-              </span>
+              <div className="status-container">
+                <span
+                  className={`bg-teal-500 rounded-[5px] text-white p-[5px] status ${
+                    item?.TicketStatus ? item?.TicketStatus.toLowerCase() : ""
+                  } `}
+                >
+                  {item?.TicketStatus}
+                </span>
+              </div>
             </div>
             <div>
               Deadline: <strong>{item?.TicketDeadline}</strong>
@@ -239,6 +248,8 @@ const Tab_CustomerEticket = () => {
         showCloseButton
         visible={open}
         onHiding={handleClose}
+        width="90%"
+        height="90%"
       >
         <ScrollView>
           <CustomerEticket_Popup TicketID={ticketID} />

@@ -27,10 +27,9 @@ export const sortByKey = (array: any[], key: string) => {
 };
 
 export const getYearMonthDate = (date: Date) => {
-  var month = date.getUTCMonth() + 1;
-  var day = date.getUTCDate() + 1;
-  var year = date.getUTCFullYear();
-
+  var month = date.getMonth() + 1;
+  var day = date.getDate();
+  var year = date.getFullYear();
   const result = `${year}-${checkNumberWith(month, 10)}-${checkNumberWith(
     day,
     10
@@ -39,7 +38,6 @@ export const getYearMonthDate = (date: Date) => {
 };
 
 export const distinguish = (a: any) => {
-  console.log("a", a);
   const getType = a.constructor;
   if (getType === Date) {
     return getYearMonthDate(a);
@@ -317,7 +315,6 @@ export const getFirstDateOfMonth = (dateParam: Date | string) => {
 
     //return `${year}-${month}-01`;
     const result = `${year}-${checkNumberWith(month, 10)}-01`;
-    console.log("result first date of month ", result);
     return result;
   }
 };

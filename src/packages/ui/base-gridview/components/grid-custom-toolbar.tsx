@@ -28,7 +28,7 @@ export const GridCustomToolbar = ({ items }: any) => {
               ) ?? <div key={`button-toolbar-${idx}`}></div>
             );
           } else {
-            return <></>;
+            return null;
           }
         } else if (item?.widget === "dxTextBox") {
           return (

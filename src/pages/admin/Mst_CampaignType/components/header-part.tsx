@@ -26,7 +26,9 @@ export const HeaderPart = () => {
   return (
     <PageHeaderNoSearchLayout>
       <PageHeaderNoSearchLayout.Slot name={"Before"}>
-        <div className="font-bold dx-font-m">{t("Mst_CampaignTypePage")}</div>
+        <div className="text-header font-bold dx-font-m">
+          {t("Mst_CampaignTypePage")}
+        </div>
       </PageHeaderNoSearchLayout.Slot>
       <PageHeaderNoSearchLayout.Slot
         name={"Center"}

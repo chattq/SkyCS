@@ -46,9 +46,9 @@ interface formValue {
 export const defaultSLAHeaderForm: formValue = {
   SLALevel: "",
   SLADesc: "",
-  FirstResTime: -25200000,
-  ResolutionTime: -25200000,
-  SLAStatus: false,
+  FirstResTime: -21600000,
+  ResolutionTime: -21600000,
+  SLAStatus: true,
 };
 
 export const headerForm = atom<formValue>(defaultSLAHeaderForm);

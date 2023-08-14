@@ -102,7 +102,7 @@ export default function PopupEdit({ title }: any) {
 
   const handleSubmitPopup = async () => {
     let result = confirm(
-      `<div className="h-[80px]">${t("Bạn có muốn cập nhật mới?")}</div>`,
+      `<div">${t("Bạn có muốn cập nhật mới?")}</div>`,
       `${t("Xác nhận")}`
     );
     result.then(async (dialogResult) => {
@@ -144,6 +144,8 @@ export default function PopupEdit({ title }: any) {
                 FilePath: item?.FileUrlFS || item.FilePath,
                 FileType: revertEncodeFileType(item?.FileType),
               }))
+            : dataCurrent?.uploadFiles[0]?.FileName === null
+            ? []
             : dataCurrent?.uploadFiles.map((item: any, index: any) => ({
                 Idx: (index + 1)?.toString(),
                 FileName: item?.FileName,
@@ -151,6 +153,7 @@ export default function PopupEdit({ title }: any) {
                 FileType: revertEncodeFileType(item?.FileType),
               })) ?? [],
         };
+
         if (
           dataSave.Lst_KB_PostCategory?.length !== 0 &&
           dataSave.KB_Post.Detail !== "" &&
@@ -239,7 +242,7 @@ export default function PopupEdit({ title }: any) {
   };
   const handleCancel = () => {
     let Cancel = confirm(
-      `<i>${t("Bạn muốn xóa hết dữ liệu đã chỉnh sửa?")}</i>`,
+      `<div>${t("Bạn muốn xóa hết dữ liệu đã chỉnh sửa?")}</div>`,
       `${t("Xác nhận")}`
     );
     Cancel.then((dialogResult) => {

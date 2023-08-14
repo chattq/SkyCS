@@ -80,6 +80,7 @@ export const useDealerGridColumns = ({
       columnIndex: 1,
       groupKey: "BASIC_INFORMATION",
       visible: true,
+      filterType: "exclude",
     },
     {
       dataField: "NNTFullName",
@@ -90,6 +91,7 @@ export const useDealerGridColumns = ({
       columnIndex: 1,
       groupKey: "BASIC_INFORMATION",
       visible: true,
+      filterType: "exclude",
       cellRender: ({ data, rowIndex, value }: any) => {
         return (
           <LinkCell
@@ -105,6 +107,7 @@ export const useDealerGridColumns = ({
       editorOptions: {
         readOnly: true,
       },
+      filterType: "exclude",
       caption: t("MST"),
       columnIndex: 1,
       groupKey: "BASIC_INFORMATION",
@@ -119,6 +122,7 @@ export const useDealerGridColumns = ({
       columnIndex: 1,
       groupKey: "BASIC_INFORMATION",
       visible: true,
+      filterType: "exclude",
     },
     {
       dataField: "NNTPosition",
@@ -129,6 +133,7 @@ export const useDealerGridColumns = ({
       columnIndex: 1,
       groupKey: "BASIC_INFORMATION",
       visible: true,
+      filterType: "exclude",
     },
     {
       dataField: "ContactName",
@@ -139,6 +144,7 @@ export const useDealerGridColumns = ({
       columnIndex: 1,
       groupKey: "BASIC_INFORMATION",
       visible: true,
+      filterType: "exclude",
     },
     {
       dataField: "ContactPhone",
@@ -149,6 +155,7 @@ export const useDealerGridColumns = ({
       columnIndex: 1,
       groupKey: "BASIC_INFORMATION",
       visible: true,
+      filterType: "exclude",
     },
     {
       dataField: "ContactEmail",
@@ -159,6 +166,7 @@ export const useDealerGridColumns = ({
       columnIndex: 1,
       groupKey: "BASIC_INFORMATION",
       visible: true,
+      filterType: "exclude",
     },
     {
       dataField: "FlagActive",
@@ -177,6 +185,7 @@ export const useDealerGridColumns = ({
       cellRender: ({ data }: any) => {
         return <StatusButton key={nanoid()} isActive={data.FlagActive} />;
       },
+      filterType: "exclude",
     },
   ];
   // return array of the first item only

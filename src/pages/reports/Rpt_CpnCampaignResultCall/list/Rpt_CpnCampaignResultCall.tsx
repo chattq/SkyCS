@@ -81,8 +81,8 @@ export const Rpt_CpnCampaignResultCallPage = () => {
           ? searchCondition.CampaignCodeConditionList.join(",")
           : "",
         ReportDTimeFrom: searchCondition.MonthReport[0]
-          ? format(searchCondition.MonthReport[0], "yyyy-MM-dd")
-          : format(firstDayOfYear, "yyyy-MM-dd"),
+          ? format(searchCondition.MonthReport[0], "yyyy-MM-dd ")
+          : format(firstDayOfYear, "yyyy-MM-dd "),
         ReportDTimeTo: searchCondition.MonthReport[1]
           ? format(searchCondition.MonthReport[1], "yyyy-MM-dd")
           : format(endDate, "yyyy-MM-dd"),
@@ -295,8 +295,8 @@ export const Rpt_CpnCampaignResultCallPage = () => {
         ? searchCondition.CampaignCodeConditionList.join(",")
         : "",
       ReportDTimeFrom: searchCondition.MonthReport[0]
-        ? format(searchCondition.MonthReport[0], "yyyy-MM-dd")
-        : format(firstDayOfYear, "yyyy-MM-dd"),
+        ? format(searchCondition.MonthReport[0], "yyyy-MM-dd ")
+        : format(firstDayOfYear, "yyyy-MM-dd "),
       ReportDTimeTo: searchCondition.MonthReport[1]
         ? format(searchCondition.MonthReport[1], "yyyy-MM-dd")
         : format(endDate, "yyyy-MM-dd"),
@@ -337,11 +337,7 @@ export const Rpt_CpnCampaignResultCallPage = () => {
               cssClass="Rpt_CpnCampaignResultCall_Grid"
               // isHidenHeaderFilter={false}
               isLoading={isLoading}
-              dataSource={
-                data?.isSuccess
-                  ? data?.Data?.Rpt_Cpn_CampaignResultCall ?? []
-                  : []
-              }
+              dataSource={data?.Data?.Rpt_Cpn_CampaignResultCall ?? []}
               columns={columns}
               keyExpr={"CampaignCode"}
               popupSettings={popupSettings}

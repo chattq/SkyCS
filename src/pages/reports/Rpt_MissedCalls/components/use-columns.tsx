@@ -35,6 +35,7 @@ UseBankDealerGridColumnsProps) => {
           />
         );
       },
+      filterType: "exclude",
     },
     {
       groupKey: "BASIC_INFORMATION",
@@ -46,6 +47,7 @@ UseBankDealerGridColumnsProps) => {
         placeholder: t("Input"),
       },
       columnIndex: 1,
+      filterType: "exclude",
     },
 
     {
@@ -57,6 +59,7 @@ UseBankDealerGridColumnsProps) => {
         placeholder: t("Input"),
       },
       columnIndex: 1,
+      filterType: "exclude",
     },
     {
       groupKey: "BASIC_INFORMATION",
@@ -67,6 +70,7 @@ UseBankDealerGridColumnsProps) => {
         readOnly: false,
         placeholder: t("Input"),
       },
+      filterType: "exclude",
       // cellRender: ({ data }: any) => {
       //   return <StatusUser key={nanoid()} status={data.CampaignStatus} />;
       // },
@@ -82,17 +86,20 @@ UseBankDealerGridColumnsProps) => {
       },
       editorType: "dxTextBox",
       columnIndex: 2,
+      filterType: "exclude",
     },
     {
       groupKey: "BASIC_INFORMATION",
       dataField: "FirstResTime", // Mã đại lý
       caption: t("FirstResTime"),
+      cssClass: "TextLeftSLA",
       editorOptions: {
         readOnly: false,
         placeholder: t("Input"),
       },
       editorType: "dxTextBox",
       columnIndex: 2,
+      filterType: "exclude",
     },
     {
       groupKey: "BASIC_INFORMATION",
@@ -105,6 +112,7 @@ UseBankDealerGridColumnsProps) => {
       editorType: "dxTextBox",
       columnIndex: 2,
       alignment: "right",
+      filterType: "exclude",
     },
     {
       groupKey: "BASIC_INFORMATION",
@@ -116,6 +124,7 @@ UseBankDealerGridColumnsProps) => {
       },
       editorType: "dxTextBox",
       columnIndex: 2,
+      filterType: "exclude",
     },
     {
       groupKey: "BASIC_INFORMATION",
@@ -127,6 +136,7 @@ UseBankDealerGridColumnsProps) => {
       },
       editorType: "dxTextBox",
       columnIndex: 2,
+      filterType: "exclude",
     },
     {
       groupKey: "BASIC_INFORMATION",
@@ -138,6 +148,7 @@ UseBankDealerGridColumnsProps) => {
       },
       editorType: "dxTextBox",
       columnIndex: 2,
+      filterType: "exclude",
     },
   ];
   // return array of the first item only

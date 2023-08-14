@@ -1,3 +1,4 @@
+import { useI18n } from "@/i18n/useI18n";
 import { SLA_EditType } from "@/pages/eticket/SLA/components/store";
 import { calcMinuteToTime } from "@/utils/time";
 import { Button, CheckBox, RangeSlider } from "devextreme-react";
@@ -6,14 +7,16 @@ import { nanoid } from "nanoid";
 import { flag247, workingTimeList } from "./store";
 
 const RangeTimeSlider = ({ item }: any) => {
+  const { t: dayTranslate } = useI18n("SLA_Days");
+
   const daysInTheWeek = [
-    "Chủ nhật",
-    "Thứ hai",
-    "Thứ ba",
-    "Thứ tư",
-    "Thứ năm",
-    "Thứ sáu",
-    "Thứ bảy",
+    dayTranslate("Sunday"),
+    dayTranslate("Monday"),
+    dayTranslate("Tuesday"),
+    dayTranslate("Wednesday"),
+    dayTranslate("Thursday"),
+    dayTranslate("Friday"),
+    dayTranslate("Saturday"),
   ];
 
   const currentFlag247 = useAtomValue(flag247);

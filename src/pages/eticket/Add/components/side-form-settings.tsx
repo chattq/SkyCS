@@ -58,7 +58,6 @@ export const useSideFormSettings = () => {
     return data;
   });
 
-  console.log(MstTicketEstablishInfo);
 
   // SLA
   const { data: SLAList } = useQuery(["SLADefaultList"], () =>

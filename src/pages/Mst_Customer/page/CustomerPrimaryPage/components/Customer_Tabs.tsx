@@ -13,7 +13,7 @@ import Tab_CustomerDetail from "./tabs/Tab_CustomerDetail/Tab_CustomerDetail";
 import Tab_CustomerEticket from "./tabs/Tab_CustomerEticket/Tab_CustomerEticket";
 import Tab_CustomerHist from "./tabs/Tab_CustomerHist/Tab_CustomerHist";
 import Tab_CustomerHistCall from "./tabs/Tab_CustomerHistCall/Tab_CustomerHistCall";
-
+import "@skycs-pages/eticket/eticket.scss";
 export const bagde = (number: number) => {
   return (
     <div className="bg-red-600 w-[20px] h-[20px] text-white flex items-center justify-center rounded-[50%]">
@@ -176,9 +176,7 @@ const Customer_Tabs = () => {
           );
         })}
       </Tabs>
-      <div className="detail-content-customer">
-        {currentComponent}
-      </div>
+      <div className="detail-content-customer">{currentComponent}</div>
 
       <LoadPanel
         container={".dx-viewport"}

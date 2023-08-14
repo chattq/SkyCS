@@ -21,8 +21,8 @@ UseBankDealerGridColumnsProps) => {
   const { t } = useI18n("Rpt_CpnCampaignStatisticCall");
   const dataFilter = Object.keys(data[0] || {}).map((key: any) => ({
     dataField: key,
-    // caption: key === "1" ? t("Quan tâm") : t("Không quan tâm"),
     caption: key,
+    visible: true,
   }));
 
   const columns: ColumnOptions[] = [
@@ -34,6 +34,8 @@ UseBankDealerGridColumnsProps) => {
         readOnly: false,
         placeholder: t("Input"),
       },
+      filterType: "exclude",
+      visible: true,
     },
     {
       dataField: "CAMPAIGNNAME", // Mã ngân hàng
@@ -43,6 +45,8 @@ UseBankDealerGridColumnsProps) => {
         readOnly: false,
         placeholder: t("Input"),
       },
+      filterType: "exclude",
+      visible: true,
     },
 
     {
@@ -54,6 +58,8 @@ UseBankDealerGridColumnsProps) => {
         readOnly: false,
         placeholder: t("Input"),
       },
+      filterType: "exclude",
+      visible: true,
     },
     {
       dataField: "CAMPAIGNSTATUS", // Mã đại lý
@@ -66,6 +72,8 @@ UseBankDealerGridColumnsProps) => {
       cellRender: ({ data }: any) => {
         return <StatusUser key={nanoid()} status={data.CAMPAIGNSTATUS} />;
       },
+      filterType: "exclude",
+      visible: true,
     },
     {
       dataField: "QTYSUMCTM", // Mã đại lý
@@ -75,6 +83,8 @@ UseBankDealerGridColumnsProps) => {
         placeholder: t("Input"),
       },
       editorType: "dxTextBox",
+      filterType: "exclude",
+      visible: true,
     },
     {
       dataField: "QTYDONE", // Mã đại lý
@@ -84,6 +94,8 @@ UseBankDealerGridColumnsProps) => {
         placeholder: t("Input"),
       },
       editorType: "dxTextBox",
+      filterType: "exclude",
+      visible: true,
     },
     ...dataFilter,
   ];

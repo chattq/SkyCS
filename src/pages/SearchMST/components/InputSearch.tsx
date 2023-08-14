@@ -8,11 +8,13 @@ import {
   checkIconAtom,
   dataSearchAtom,
   keySearchAtom,
+  loadpaineAtom,
   showInputhAtom,
 } from "./store";
 import { useNetworkNavigate } from "@/components/useNavigate";
 import { useQuery } from "@tanstack/react-query";
 import SearchHistory from "./SearchHistory";
+import { LoadPanel } from "devextreme-react";
 interface Window {
   webkitSpeechRecognition: any;
   SpeechRecognition: any;
@@ -25,6 +27,7 @@ export default function InputSearch(hidenInput: any) {
   const tabResults = pathname.split("/").pop();
   const [searchTerm, setSearchTerm] = useState("");
   const [dataSearch, setDataSearch] = useAtom(dataSearchAtom);
+  const [loadPaine, setLoadPaine] = useAtom(loadpaineAtom);
   const [searchQuery, setKeySearch] = useAtom(keySearchAtom);
   const navigate = useNetworkNavigate();
   const api = useClientgateApi();
@@ -101,8 +104,10 @@ export default function InputSearch(hidenInput: any) {
 
   const handleKeyPress = async (event: any) => {
     if (event.key === "Enter") {
+      setLoadPaine(true);
       const resp = await api.KB_PostData_SearchKeyWord(searchTerm);
       if (resp.isSuccess) {
+        setLoadPaine(false);
         setDataSearch(resp?.Data);
         navigate("search/SearchInformation/Results");
       }
@@ -124,105 +129,114 @@ export default function InputSearch(hidenInput: any) {
   }, [searchVoice, tabResults]);
 
   return (
-    <div className="flex justify-center ">
-      <div>
-        <div
-          className={`${
-            tabResults === "Results" ? "hidden" : ""
-          } w-[250px] m-auto`}
-        >
-          <img
-            src="https://igoss.ecore.vn/Content/images/myigoss_bg.png"
-            alt=""
-            className="w-full h-full object-cover"
-          />
-        </div>
-        <div
-          className={` ${
-            tabResults === "Results" ? "mt-3" : ""
-          }  border h-[44px] w-[600px] m-auto rounded-lg shadow-md`}
-        >
-          <div className={`flex items-center justify-between px-[12px]`}>
-            <div
-              className={`flex  ${
-                hidenInput ? "" : "hidden"
-              } items-center h-[43px]`}
-            >
-              <div className="h-[15px] w-[15px] ">
-                <img
-                  src="/images/icons/search.svg"
-                  alt=""
-                  className="h-full w-full"
-                />
-              </div>
-              <input
-                onChange={handleSearch}
-                onKeyPress={handleKeyPress}
-                defaultValue={tabResults === "Results" ? searchQuery : ""}
-                type="text"
-                placeholder={t("Search")}
-                className="w-[530px] SearchMST-input border-none focus:rounded-xl outline-none "
-              />
-            </div>
-            <div
-              className="h-[20px] w-[15px] cursor-pointer"
-              onClick={handleSpeechRecognition}
-            >
-              <img
-                src="/images/icons/micro.png"
-                alt=""
-                className="h-full w-full"
-              />
-            </div>
+    <>
+      <LoadPanel
+        container={".dx-viewport"}
+        position={"center"}
+        visible={loadPaine}
+        showIndicator={true}
+        showPane={true}
+      />
+      <div className="flex justify-center ">
+        <div>
+          <div
+            className={`${
+              tabResults === "Results" ? "hidden" : ""
+            } w-[250px] m-auto`}
+          >
+            <img
+              src="https://igoss.ecore.vn/Content/images/myigoss_bg.png"
+              alt=""
+              className="w-full h-full object-cover"
+            />
           </div>
-        </div>
-        <div className="text-center py-3">{select}</div>
-        <div className="flex items-center justify-center gap-3 mb-[30px]">
-          {tabResults === "Results" ? (
-            <NavNetworkLink to={"/search/SearchInformation/Results"}>
+          <div
+            className={` ${
+              tabResults === "Results" ? "mt-3" : ""
+            }  border h-[44px] w-[600px] m-auto rounded-lg shadow-md`}
+          >
+            <div className={`flex items-center justify-between px-[12px]`}>
               <div
-                className={`${
-                  tabResults === "Results"
-                    ? `bg-[#EAF9F2] text-[#63be95] border-[#a4e6c8]`
-                    : ""
-                } hover:bg-[#EAF9F2] hover:border-[#a4e6c8] hover:text-[#63be95] flex items-center border-[2px] rounded-md gap-1 px-2 py-[7px] cursor-pointer`}
+                className={`flex  ${
+                  hidenInput ? "" : "hidden"
+                } items-center h-[43px]`}
               >
-                <div className="h-[15px] w-[15px]">
+                <div className="h-[15px] w-[15px] ">
                   <img
-                    src={"/images/icons/search.svg"}
+                    src="/images/icons/search.svg"
                     alt=""
                     className="h-full w-full"
                   />
                 </div>
-                <div>{t("Search Results")}</div>
+                <input
+                  onChange={handleSearch}
+                  onKeyPress={handleKeyPress}
+                  defaultValue={tabResults === "Results" ? searchQuery : ""}
+                  type="text"
+                  placeholder={t("Search")}
+                  className="w-[530px] SearchMST-input border-none focus:rounded-xl outline-none "
+                />
               </div>
-            </NavNetworkLink>
-          ) : (
-            ""
-          )}
-          {nav.map((item) => {
-            return (
-              <NavNetworkLink to={item.pathName}>
+              <div
+                className="h-[20px] w-[15px] cursor-pointer"
+                onClick={handleSpeechRecognition}
+              >
+                <img
+                  src="/images/icons/micro.png"
+                  alt=""
+                  className="h-full w-full"
+                />
+              </div>
+            </div>
+          </div>
+          <div className="text-center py-3">{select}</div>
+          <div className="flex items-center justify-center gap-3 mb-[30px]">
+            {tabResults === "Results" ? (
+              <NavNetworkLink to={"/search/SearchInformation/Results"}>
                 <div
-                  onClick={() => handleItemClick(item.pathName)}
-                  key={item.id}
                   className={`${
-                    item.active || tabResults === item.title
-                      ? "bg-[#EAF9F2] text-[#63be95] border-[#a4e6c8]"
+                    tabResults === "Results"
+                      ? `bg-[#EAF9F2] text-[#63be95] border-[#a4e6c8]`
                       : ""
-                  } hover:bg-[#EAF9F2] flex items-center border-[2px] hover:text-[#63be95] rounded-md gap-1 px-2 py-[7px] cursor-pointer hover:border-[#a4e6c8]`}
+                  } hover:bg-[#EAF9F2] hover:border-[#a4e6c8] hover:text-[#63be95] flex items-center border-[2px] rounded-md gap-1 px-2 py-[7px] cursor-pointer`}
                 >
                   <div className="h-[15px] w-[15px]">
-                    <img src={item.icon} alt="" className="h-full w-full" />
+                    <img
+                      src={"/images/icons/search.svg"}
+                      alt=""
+                      className="h-full w-full"
+                    />
                   </div>
-                  <div>{item.title}</div>
+                  <div>{t("Search Results")}</div>
                 </div>
               </NavNetworkLink>
-            );
-          })}
+            ) : (
+              ""
+            )}
+            {nav.map((item) => {
+              return (
+                <NavNetworkLink to={item.pathName}>
+                  <div
+                    onClick={() => handleItemClick(item.pathName)}
+                    key={item.id}
+                    className={`${
+                      item.active || tabResults === item.title
+                        ? "bg-[#EAF9F2] text-[#63be95] border-[#a4e6c8]"
+                        : ""
+                    } hover:bg-[#EAF9F2] flex items-center border-[2px] hover:text-[#63be95] rounded-md gap-1 px-2 py-[7px] cursor-pointer hover:border-[#a4e6c8]`}
+                  >
+                    <div className="h-[15px] w-[15px]">
+                      <img src={item.icon} alt="" className="h-full w-full" />
+                    </div>
+                    <div>{item.title}</div>
+                  </div>
+                </NavNetworkLink>
+              );
+            })}
+          </div>
+          {tabResults === "SearchInformation" ? <SearchHistory /> : ""}
         </div>
-        {tabResults === "SearchInformation" ? <SearchHistory /> : ""}
       </div>
-    </div>
+    </>
   );
 }

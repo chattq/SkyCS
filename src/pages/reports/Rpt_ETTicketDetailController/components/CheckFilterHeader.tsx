@@ -1,6 +1,6 @@
 import { useI18n } from "@/i18n/useI18n";
 import { CheckBox } from "devextreme-react";
-import React, { forwardRef, useEffect, useState } from "react";
+import { forwardRef, useState } from "react";
 
 const CheckFilter = (ref: any) => {
   const { t } = useI18n("Rpt_ETTicketSynthesisController");
@@ -67,6 +67,8 @@ const CheckFilter = (ref: any) => {
   );
 };
 
-export const CheckFilterHeader = forwardRef(({ dataRef, onSetStatus }: any) => {
-  return <CheckFilter dataRef={dataRef} onSetStatus={onSetStatus} />;
-});
+export const CheckFilterHeader = forwardRef(
+  ({ dataRef, onSetStatus }: any, ref: any) => {
+    return <CheckFilter dataRef={dataRef} onSetStatus={onSetStatus} />;
+  }
+);

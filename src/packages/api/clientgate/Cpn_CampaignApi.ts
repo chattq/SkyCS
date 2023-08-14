@@ -49,7 +49,6 @@ export const useCpn_Campaign = (apiBase: AxiosInstance) => {
       param: any,
       key?: string
     ): Promise<ApiResponse<Partial<Cpn_Campaign>>> => {
-      console.log("param ", param);
       if (key) {
         return apiBase.post<Partial<any>, ApiResponse<Partial<Cpn_Campaign>>>(
           "/CpnCampaign/Update",

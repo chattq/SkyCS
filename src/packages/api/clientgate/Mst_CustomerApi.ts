@@ -53,6 +53,27 @@ export const useMst_Customer = (apiBase: AxiosInstance) => {
       });
     },
 
+    Mst_Customer_GetByCtmPhoneNo: async (
+      params: any
+    ): Promise<ApiResponse<any>> => {
+      var json = JSON.stringify(params);
+
+      console.log(json);
+      return await apiBase.post("/MstCustomer/GetByCtmPhoneNo", {
+        strJsonPhone: json,
+      });
+    },
+    GetByCtmPhoneNoLike: async (
+      params: any
+    ): Promise<ApiResponse<any>> => {
+      var json = JSON.stringify(params);
+
+      console.log(json);
+      return await apiBase.post("/MstCustomer/GetByCtmPhoneNoLike", {
+        strJsonPhone: json,
+      });
+    },
+
     Mst_Customer_Delete: async (
       key: Partial<Mst_Customer>
     ): Promise<ApiResponse<Mst_Customer>> => {
@@ -81,12 +102,12 @@ export const useMst_Customer = (apiBase: AxiosInstance) => {
       PartnerType: any;
       ScrTplCodeSys: any;
     }): // data: Partial<Mst_Customer>,
-    // ZaloUserFollower: any,
-    // Email: any,
-    // Phone: any,
-    // CustomerGroup: any,
-    // ScrTplCodeSys: string
-    Promise<ApiResponse<Partial<Mst_Customer>>> => {
+      // ZaloUserFollower: any,
+      // Email: any,
+      // Phone: any,
+      // CustomerGroup: any,
+      // ScrTplCodeSys: string
+      Promise<ApiResponse<Partial<Mst_Customer>>> => {
       return apiBase.post<Partial<any>, ApiResponse<Mst_Customer>>(
         "/MstCustomer/Create",
         {

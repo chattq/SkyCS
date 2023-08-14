@@ -135,12 +135,14 @@ export const PartMessageList = memo(
             }
             case "11": {
               if (item?.ChannelId === "2") {
-                if (item.State === "6") {
-                  flag = "call";
+                if (item.Status === "6") {
+                  flag = "call" + flagIncoming;
                 } else {
                   flag = "callmissed" + flagIncoming;
                 }
                 // flag = "call";
+
+                console.log("flag call", flag, item.Status, item);
               }
               break;
             }

@@ -34,4 +34,28 @@ mark {
 .dx-popup-content.dx-dialog-content {
   min-width: 300px !important;
   height: 80px !important;
+  padding: 0 16px 16px 16px !important;
+  display: flex;
+  align-items: center;
+}
+.dx-dialog-message > div {
+  height: 80px !important;
+  display: flex;
+  align-items: center;
+}
+.dx-dialog-buttons .dx-toolbar-center {
+  float: right !important;
+  margin: 0 !important;
+}
+.dx-dialog-buttons [aria-label="Không"] > .dx-button-content {
+  background: white !important;
+  color: black;
+  border: 1px solid;
+}
+.dx-dialog-buttons [aria-label="Có"] > .dx-button-content {
+  min-width: 70px;
+  border: 1px solid #00703c;
+}
+[role="dialog"] .dx-toolbar-label .dx-toolbar-item-content > div {
+  font-weight: 600 !important;
 }

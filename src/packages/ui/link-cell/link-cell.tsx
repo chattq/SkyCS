@@ -10,7 +10,7 @@ export const LinkCell = <T extends string, E>({
 }: LinkCellProps<T, E>) => {
   return useMemo(
     () => (
-      <div className="cursor-pointer hover:text-green-600" onClick={onClick}>
+      <div className="cursor-pointer hover-color-green" onClick={onClick}>
         {value}
       </div>
     ),

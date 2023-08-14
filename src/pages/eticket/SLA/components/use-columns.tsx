@@ -18,6 +18,7 @@ export const useMst_SLAColumns = () => {
   };
 
   const { t } = useI18n("Mst_SLA");
+
   const columns = [
     {
       dataField: "SLAID",
@@ -74,7 +75,6 @@ export const useMst_SLAColumns = () => {
       caption: t("SLAStatus"),
       columnIndex: 1,
       visible: true,
-      width: 300,
       cellRender: ({ data }: any) => {
         return <Switch value={data?.SLAStatus == "1"} />;
       },

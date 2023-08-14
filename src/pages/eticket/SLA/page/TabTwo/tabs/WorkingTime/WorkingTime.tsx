@@ -1,5 +1,6 @@
 import { Switch } from "devextreme-react";
 
+import { useI18n } from "@/i18n/useI18n";
 import { SLA_EditType } from "@/pages/eticket/SLA/components/store";
 import { useAtomValue, useSetAtom } from "jotai";
 import { nanoid } from "nanoid";
@@ -8,14 +9,17 @@ import { flag247, workingTimeList } from "./store";
 import "./style.scss";
 
 const WorkingTime = () => {
+  const { t: dayTranslate } = useI18n("SLA_Days");
+  const { t } = useI18n("SLA_WorkingTime");
+
   const daysInTheWeek = [
-    "Thứ hai",
-    "Thứ ba",
-    "Thứ tư",
-    "Thứ năm",
-    "Thứ sáu",
-    "Thứ bảy",
-    "Chủ nhật",
+    dayTranslate("Monday"),
+    dayTranslate("Tuesday"),
+    dayTranslate("Wednesday"),
+    dayTranslate("Thursday"),
+    dayTranslate("Friday"),
+    dayTranslate("Saturday"),
+    dayTranslate("Sunday"),
   ];
 
   const list = useAtomValue(workingTimeList);
@@ -57,7 +61,7 @@ const WorkingTime = () => {
           }}
           disabled={type == "detail"}
         />
-        <div>Làm việc 24/7</div>
+        <div>{t("Working 24/7")}</div>
       </div>
 
       {list.map((item: any, index: any) => {

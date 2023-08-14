@@ -238,77 +238,81 @@ export const SearchDataGrid = forwardRef(
         },
       ];
     }, [chooserVisible, realColumns, columns, gridState]);
-
+    console.log(
+      "windowSize.height - (windowSize.height - 630) ",
+      windowSize.height,
+      windowSize.height - (windowSize.height - 500)
+    );
     return (
-      <ScrollView
-      showScrollbar={"always"}
-      height={windowSize.height - 310}
-      className={"mb-5"}
-    >
       <DataGrid
-        keyExpr={keyExpr}
-        className={customizeClass ? customizeClass : ""}
-        ref={(r) => {
-          if (r) {
-            innerRef.current = r;
-          }
-          ref.current = r;
-        }}
-        id="gridContainer-searchGrid"
-        dataSource={dataSource}
-        showBorders
-        showColumnLines
-        showRowLines
-        columnResizingMode={"widget"}
-        allowColumnReordering={false}
-        allowColumnResizing
-        height={windowSize.height - 310}
-        columnAutoWidth={true}
-        selectedRowKeys={selectedRows}
-        onSelectionChanged={handleSelectionChanged}
-        onToolbarPreparing={onToolbarPreparing}
-        onContentReady={(e) => {
-          setGridAtom({
-            pageIndex: e.component.pageIndex() ?? 0,
-            pageSize: e.component.pageSize() ?? 0,
-            pageCount: e.component.pageCount() ?? 0,
-            totalCount: e.component.totalCount() ?? 0,
-          });
-        }}
-      >
-        <ColumnFixing enabled={true} />
-        <Paging enabled={true} defaultPageSize={config.PAGE_SIZE} />
-        <Pager visible={false} />
-        <ColumnChooser enabled={true} />
-        <HeaderFilter allowSearch={true} visible={true} />
-        <Scrolling
-          renderAsync={true}
-          mode={"standard"}
-          showScrollbar={"always"}
-        />
-        <Selection
-          mode="multiple"
-          selectAllMode="page"
-          showCheckBoxesMode={"always"}
-        />
-        <Toolbar>
-          {!!allToolbarItems &&
-            allToolbarItems.map((item, index) => {
-              return (
-                <ToolbarItem key={index} location={item.location}>
-                  {item.widget === "dxButton" && <Button {...item.options} />}
-                  {!!item.render && item.render()}
-                </ToolbarItem>
-              );
-            })}
-        </Toolbar>
+      keyExpr={keyExpr}
+      className={customizeClass ? customizeClass : ""}
+      ref={(r) => {
+        if (r) {
+          innerRef.current = r;
+        }
+        ref.current = r;
+      }}
+      id="gridContainer-searchGrid"
+      dataSource={dataSource}
+      showBorders
+      showColumnLines
+      showRowLines
+      columnResizingMode={"widget"}
+      allowColumnReordering={false}
+      allowColumnResizing
+      height={windowSize.height - (windowSize.height - 400)}
+      columnAutoWidth={true}
+      selectedRowKeys={selectedRows}
+      onSelectionChanged={handleSelectionChanged}
+      onToolbarPreparing={onToolbarPreparing}
+      onContentReady={(e) => {
+        setGridAtom({
+          pageIndex: e.component.pageIndex() ?? 0,
+          pageSize: e.component.pageSize() ?? 0,
+          pageCount: e.component.pageCount() ?? 0,
+          totalCount: e.component.totalCount() ?? 0,
+        });
+      }}
+    >
+      <ColumnFixing enabled={true} />
+      <Paging enabled={true} defaultPageSize={config.PAGE_SIZE} />
+      <Pager visible={false} />
+      <ColumnChooser enabled={true} />
+      <HeaderFilter allowSearch={true} visible={true} />
+      <Scrolling
+        renderAsync={true}
+        mode={"standard"}
+        showScrollbar={"always"}
+      />
+      <Selection
+        mode="multiple"
+        selectAllMode="page"
+        showCheckBoxesMode={"always"}
+      />
+      <Toolbar>
+        {!!allToolbarItems &&
+          allToolbarItems.map((item, index) => {
+            return (
+              <ToolbarItem key={index} location={item.location}>
+                {item.widget === "dxButton" && <Button {...item.options} />}
+                {!!item.render && item.render()}
+              </ToolbarItem>
+            );
+          })}
+      </Toolbar>
 
-        {realColumns.map((item, index) => {
-          return <Column key={index} {...item} />;
-        })}
-      </DataGrid>
-    </ScrollView>
+      {realColumns.map((item, index) => {
+        return <Column key={index} {...item} />;
+      })}
+    </DataGrid>
+      // <ScrollView
+      //   showScrollbar={"always"}
+      //   height={windowSize.height - (windowSize.height - 600)}
+      //   className={"mb-5"}
+      // >
 
+      // </ScrollView>
     );
   }
 );

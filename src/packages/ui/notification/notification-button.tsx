@@ -58,7 +58,7 @@ export function NotificationButton() {
     const viewItem = (item: any) => {
 
         notifApi.markAsRead(auth.networkId, [{ Id: item.Id }]).then((resp: any) => {
-            console.log(resp);
+            //console.log(resp);
             if (resp.Success) {
                 setReload((r) => { return r + 1; });
             }
@@ -79,7 +79,7 @@ export function NotificationButton() {
             if (pdata.length > 0) {
 
                 notifApi.markAsRead(auth.networkId, pdata).then((resp: any) => {
-                    console.log(resp);
+                    
                     if (resp.Success) {
                         setReload((r) => { return r + 1; });
                     }
@@ -94,7 +94,7 @@ export function NotificationButton() {
     useEffect(() => {
 
         notifApi.searchNotification(auth.networkId, { pageIndex: 0, pageSize: 100, status: readStatus, solutionCode: '' }).then((resp: any) => {
-            console.log(resp);
+            
             if (resp.Success) {
                 var d = resp.InosNotificationResult;
                 setData(d);
@@ -123,7 +123,7 @@ export function NotificationButton() {
 
         hub.onReceiveMessage("NewNotification", (c) => {
 
-            console.log("NewNotification", c);
+            //console.log("NewNotification", c);
             setReload((r) => { return r + 1; })
         });
 

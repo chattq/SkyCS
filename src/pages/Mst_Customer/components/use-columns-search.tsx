@@ -87,6 +87,22 @@ export const useColumnsSearch = () => {
     api.Mst_NNTController_GetAllActive
   );
 
+  const { data: listCustomerCodeSysERP }: any = useQuery(
+    ["listCustomerCodeSysERP"],
+    async () => {
+      const resp: any = await api.Mst_Customer_Search({
+        FlagActive: 1,
+        Ft_PageIndex: 0,
+        Ft_PageSize: 1000,
+        CustomerType: "TOCHUC",
+      });
+
+      return resp?.DataList ?? [];
+    }
+  );
+
+  console.log(listCustomerCodeSysERP);
+
   const { data: listCustomerSource }: any = useQuery(
     ["listCustomerSource"],
     async () => {
@@ -117,6 +133,7 @@ export const useColumnsSearch = () => {
     {
       dataField: "CustomerCode", // trạng thái
       caption: t("CustomerCode"),
+      visible: true,
       label: {
         text: "Mã khách hàng",
       },
@@ -125,6 +142,7 @@ export const useColumnsSearch = () => {
     {
       dataField: "CustomerName", // trạng thái
       caption: t("CustomerName"),
+      visible: true,
       label: {
         text: "Tên khách hàng",
       },
@@ -133,6 +151,7 @@ export const useColumnsSearch = () => {
     {
       dataField: "MST", // trạng thái
       caption: t("MST"),
+      visible: true,
       label: {
         text: "MST",
       },
@@ -141,6 +160,7 @@ export const useColumnsSearch = () => {
     {
       dataField: "CtmEmail", // trạng thái
       caption: t("CtmEmail"),
+      visible: true,
       label: {
         text: "Email",
       },
@@ -149,6 +169,7 @@ export const useColumnsSearch = () => {
     {
       dataField: "CtmPhoneNo", // trạng thái
       caption: t("CtmPhoneNo"),
+      visible: true,
       label: {
         text: "Số điện thoại",
       },
@@ -157,6 +178,7 @@ export const useColumnsSearch = () => {
     {
       dataField: "CustomerGrpCode", // trạng thái
       caption: t("CustomerGrpCode"),
+      visible: true,
       label: {
         text: "Nhóm khách hàng",
       },
@@ -170,6 +192,7 @@ export const useColumnsSearch = () => {
     {
       dataField: "PartnerType", // trạng thái
       caption: t("PartnerType"),
+      visible: true,
       label: {
         text: "Đối tượng",
       },
@@ -183,6 +206,7 @@ export const useColumnsSearch = () => {
     {
       dataField: "CustomerSource", // trạng thái
       caption: t("CustomerSource"),
+      visible: true,
       label: {
         text: "Nguồn khách",
       },
@@ -196,6 +220,7 @@ export const useColumnsSearch = () => {
     {
       dataField: "CustomerType", // trạng thái
       caption: t("CustomerType"),
+      visible: true,
       label: {
         text: "Loại khách hàng",
       },
@@ -207,21 +232,23 @@ export const useColumnsSearch = () => {
       editorType: "dxSelectBox",
     },
     {
-      dataField: "OrgId", // trạng thái
-      caption: t("OrgId"),
+      dataField: "CustomerCodeSysERP", // trạng thái
+      caption: t("CustomerCodeSysERP"),
+      visible: true,
       label: {
-        text: "Công ty",
+        text: "Doanh nghiệp",
       },
       editorOptions: {
-        dataSource: listNNT?.Data?.Lst_Mst_NNT ?? [],
-        valueExpr: "OrgID",
-        displayExpr: "NNTFullName",
+        dataSource: listCustomerCodeSysERP ?? [],
+        valueExpr: "CustomerCodeSys",
+        displayExpr: "CustomerName",
       },
       editorType: "dxSelectBox",
     },
     {
       dataField: "CreateDTimeUTC", // dealine
       caption: t("CreateDTimeUTC"),
+      visible: true,
       label: {
         text: "Ngày tạo mới",
       },

@@ -10,14 +10,9 @@ import { keywordAtom, selectedItemsAtom } from "./store";
 interface HeaderPartProps {
   onAddNew?: () => void;
   refetch: any;
-  onSearch: any;
 }
 
-export const HeaderPart = ({
-  onAddNew,
-  refetch,
-  onSearch,
-}: HeaderPartProps) => {
+export const HeaderPart = ({ onAddNew, refetch }: HeaderPartProps) => {
   const { t } = useI18n("Common");
 
   const selectedItems = useAtomValue(selectedItemsAtom);
@@ -27,7 +22,6 @@ export const HeaderPart = ({
   const api = useClientgateApi();
   const handleSearch = (keyword: string) => {
     setKeyword(keyword);
-    onSearch(keyword);
   };
 
   const handleExportExcel = async (selectedOnly: boolean) => {};

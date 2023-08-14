@@ -15,11 +15,11 @@ import { GroupField } from "@/components/fields/GroupField";
 import { useNetworkNavigate } from "@/packages/hooks";
 import { getListField } from "@/utils/customer-common";
 
+import "./style.scss";
+
 const Tab_CustomerDetail = () => {
   const param = useParams();
-
   const navigate = useNetworkNavigate();
-
   const { t } = useI18n("Mst_Customer");
   const api = useClientgateApi();
   const ref = useRef(null);
@@ -263,7 +263,7 @@ const Tab_CustomerDetail = () => {
   const handleSubmit = () => {};
 
   return (
-    <AdminContentLayout className={"province-management"}>
+    <AdminContentLayout className={"Tab_CustomerDetail"}>
       <AdminContentLayout.Slot name={"Header"}></AdminContentLayout.Slot>
       <AdminContentLayout.Slot name={"Content"}>
         <LoadPanel

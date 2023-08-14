@@ -33,7 +33,7 @@ const ErrorDetail = ({ error }: { error: ErrorMessage }) => {
     Lst_c_K_DT_SysInfo != null && Lst_c_K_DT_SysInfo.length > 0
       ? Lst_c_K_DT_SysInfo[0].ErrorCode
       : "";
-  const errorMessage = errorCode;
+  const errorMessage = t(errorCode);
 
   return (
     // <div
@@ -349,6 +349,8 @@ export default function Error() {
         <div className="error-body overflow-scroll">
           {errors.map((item, index) => {
             if (item) {
+              console.log("error ", item);
+
               return (
                 <div className="error-item" key={index}>
                   {/* <div
@@ -357,7 +359,9 @@ export default function Error() {
                       document.getElementById("editable").focus();
                     }}
                   > */}
-                  <div className="error__main">{item.message}</div>
+                  <div className="error__main">
+                    {item?.errorInfo?.Message ?? item.message}
+                  </div>
                   {size === "full" && (
                     <div className="error__detail">
                       <ErrorDetail error={item} />

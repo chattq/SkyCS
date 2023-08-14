@@ -15,14 +15,15 @@ import { ButtonItem, SimpleItem } from "devextreme-react/form";
 import { requiredType } from "@/packages/common/Validation_Rules";
 import { useQuery } from "@tanstack/react-query";
 import { useClientgateApi } from "@/packages/api";
-import { useConfiguration } from "@/packages/hooks";
+import { useConfiguration, useNetworkNavigate } from "@/packages/hooks";
 import { useAuth } from "@/packages/contexts/auth";
 import { showErrorAtom } from "@/packages/store";
 import "./style.scss";
-import { Icon } from "@/packages/ui/icons";
+import { Icon, IconName } from "@/packages/ui/icons";
 import { ETICKET_REPONSE } from "@/packages/api/clientgate/ET_TicketApi";
 import { P, match } from "ts-pattern";
 import { toast } from "react-toastify";
+import { PartMessageItem } from "../../Info/Detail/part-message-item";
 interface Props {
   onCancel: () => void;
   onSave: () => void;
@@ -63,6 +64,8 @@ const index = ({ onCancel, onSave, dataRow }: Props) => {
   const showError = useSetAtom(showErrorAtom);
   const formRef: any = useRef(null);
   const [formData, setFormData] = useState({});
+
+  const navigate = useNetworkNavigate();
 
   const getIcon = (type: string) => {
     // NONE = 0;
@@ -153,6 +156,7 @@ const index = ({ onCancel, onSave, dataRow }: Props) => {
     const response = await api.ET_Ticket_Split(obj);
     if (response.isSuccess) {
       toast.success(t("Split SuccessFully"));
+      navigate("/eticket/eticket_manager");
       onCancel();
     } else {
       showError({
@@ -175,6 +179,9 @@ const index = ({ onCancel, onSave, dataRow }: Props) => {
   });
 
   const dataRender = data ? data.Lst_ET_TicketMessage : [];
+  const customize = dataRender.filter((item: any) => {
+    return item.ChannelId != "0" && item?.ConvMessageType != "9";
+  });
 
   return (
     <Popup
@@ -209,7 +216,62 @@ const index = ({ onCancel, onSave, dataRow }: Props) => {
       </p>
       <div className="popup-content">
         <Form labelMode="hidden" formData={formData} ref={formRef}>
-          {dataRender.map((itemValue: any, index: number) => {
+          {customize.map((itemValue: any, index: number) => {
+            let flag: IconName | "eventlog" = "remark";
+            let flagIncoming = "";
+            if (itemValue.IsIncoming === "0") {
+              flagIncoming = "out";
+            }
+            if (itemValue.IsIncoming === "1") {
+              flagIncoming = "in";
+            }
+
+            switch (itemValue?.ConvMessageType) {
+              case "1": {
+                if (itemValue.ChannelId === "0") {
+                  flag = "note";
+                }
+                break;
+              }
+              case "9": {
+                if (itemValue.ChannelId === "0") {
+                  flag = "eventlog";
+                }
+                break;
+              }
+              case "3": {
+                if (itemValue?.ChannelId === "1") {
+                  flag = "email" + flagIncoming;
+                }
+                break;
+              }
+              case "11": {
+                if (itemValue?.ChannelId === "2") {
+                  if (itemValue.Status === "6") {
+                    flag = "call" + flagIncoming;
+                  } else {
+                    flag = "callmissed" + flagIncoming;
+                  }
+                  // flag = "call";
+
+                  console.log("flag call", flag, itemValue.Status, itemValue);
+                }
+                break;
+              }
+              case "8":
+              case "10": {
+                if (itemValue?.ChannelId === "6") {
+                  flag = "zalo" + flagIncoming;
+                }
+                break;
+              }
+
+              default: {
+                flag = "remark";
+                break;
+              }
+            }
+
             return (
               <SimpleItem
                 key={index}
@@ -217,13 +279,9 @@ const index = ({ onCancel, onSave, dataRow }: Props) => {
                 name={t("AutoId")}
                 editorType="dxCheckBox"
                 render={(param) => {
-                  const {
-                    component: formComponent,
-                    dataField,
-                    editorOptions,
-                  } = param;
+                  const { component: formComponent, dataField } = param;
                   return (
-                    <div className="flex items-center">
+                    <div className="flex items-center justify-space-between">
                       <CheckBox
                         onValueChanged={(e) => {
                           formComponent.updateData(
@@ -232,26 +290,14 @@ const index = ({ onCancel, onSave, dataRow }: Props) => {
                           );
                         }}
                       ></CheckBox>
-                      <div className="flex item-center justify-between mb-2 container-content">
-                        <div className="left">
-                          <p className="strong">{"title"}</p>
-                          <p className="flex item-center">
-                            {handleShowIcon(itemValue) === "none" ? (
-                              ""
-                            ) : (
-                              <Icon
-                                className="mr-2"
-                                size={14}
-                                name={handleShowIcon(itemValue)}
-                              />
-                            )}
-                            <MessageDesciption value={itemValue} />
-                          </p>
-                        </div>
-                        <div className="right">
-                          <p>{itemValue.TicketID ?? ""}</p>
-                          <p>{itemValue.CreateDTimeUTC ?? ""}</p>
-                        </div>
+                      <div className="w-[95%]">
+                        <PartMessageItem
+                          isHidenButton={true}
+                          onGim={() => {}}
+                          key={`part-message-item-${index}`}
+                          data={itemValue}
+                          flag={flag}
+                        />
                       </div>
                     </div>
                   );
@@ -301,7 +347,7 @@ export const MessageDesciption = memo(({ value }: any) => {
     if (type1 == "call") {
       return `${type1} ${value.Call?.Type?.toLocaleLowerCase()}`;
     }
-    return <p>Message</p>;
+    return <p></p>;
   };
 
   return handleConvertMessage(value);

@@ -58,10 +58,41 @@
   }
 }
 .message-type.emailin {
-  background-color: #ffeae1;
+  background-color: #d5f9e8 !important;
   i {
     background-image: url(/images/icons/email_in.svg);
   }
+}
+.message-type.call {
+  background-color: #d5f9e8;
+}
+
+.message-type.call.in {
+  background-color: #d5f9e8;
+  i {
+    background-image: url(/images/icons/call_in.svg);
+  }
+}
+.message-type.call.out {
+  background-color: #d1e8ff;
+  i {
+    background-image: url(/images/icons/call_out.svg);
+  }
+}
+.message-type.call.missed {
+  background-color: #ffe8ee;
+  i {
+    background-image: url(/images/icons/call_missed.svg);
+  }
+}
+.message-type.callout {
+  background: rgba(209, 232, 255, 1);
+}
+.message-type.callmissedout {
+  background: #ffeae1;
+}
+.message-type.callmissedin {
+  background-color: #ffe8ee;
 }
 .message-type.emailout {
   background-color: #d1e8ff;

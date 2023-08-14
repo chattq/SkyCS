@@ -46,6 +46,6 @@ export const architectureSources = [
   { value: "New", name: "Create", color: "#0FBC2B" },
   { value: "Open", name: "Open", color: "#CFB929" },
   { value: "Processing", name: "Processing", color: "#E48203" },
-  { value: "Closed", name: "Closed", color: "#298EF2" },
-  { value: "Resolved", name: "Resolved", color: "#A7A7A7" },
+  { value: "Closed", name: "Closed", color: "#A7A7A7" },
+  { value: "Resolved", name: "Resolved", color: "#298EF2" },
 ];

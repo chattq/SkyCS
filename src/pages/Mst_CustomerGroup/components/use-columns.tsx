@@ -83,6 +83,8 @@ UseBankDealerGridColumnsProps) => {
       editorType: "dxSelectBox",
       validationRules: [requiredType],
       columnIndex: 1,
+      visible: true,
+      filterType: "exclude",
     },
     {
       groupKey: "BASIC_INFORMATION",
@@ -100,6 +102,8 @@ UseBankDealerGridColumnsProps) => {
           />
         );
       },
+      visible: true,
+      filterType: "exclude",
     },
     {
       groupKey: "BASIC_INFORMATION",
@@ -110,6 +114,8 @@ UseBankDealerGridColumnsProps) => {
         readOnly: false,
       },
       columnIndex: 1,
+      visible: true,
+      filterType: "exclude",
     },
     {
       groupKey: "BASIC_INFORMATION",
@@ -123,6 +129,8 @@ UseBankDealerGridColumnsProps) => {
       cellRender: ({ data, rowIndex, value }) => {
         return <AvatarCustomerGroup key={nanoid()} data={data} />;
       },
+      visible: true,
+      filterType: "exclude",
     },
     {
       groupKey: "BASIC_INFORMATION",
@@ -130,6 +138,8 @@ UseBankDealerGridColumnsProps) => {
       caption: t("CustomerGrpDesc"),
       editorType: "dxTextBox",
       columnIndex: 2,
+      visible: true,
+      filterType: "exclude",
     },
     {
       dataField: "FlagActive",
@@ -149,6 +159,7 @@ UseBankDealerGridColumnsProps) => {
       cellRender: ({ data }: any) => {
         return <StatusButton key={nanoid()} isActive={data.FlagActive} />;
       },
+      filterType: "exclude",
     },
   ];
   // return array of the first item only

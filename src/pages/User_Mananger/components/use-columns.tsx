@@ -78,6 +78,7 @@ export const useDealerGridColumns = ({ data }: UseDealerGridColumnsProps) => {
       editorOptions: {
         placeholder: t("Input"),
       },
+      filterType: "exclude",
       caption: t("UserID"),
       columnIndex: 1,
       groupKey: "BASIC_INFORMATION",
@@ -107,6 +108,7 @@ export const useDealerGridColumns = ({ data }: UseDealerGridColumnsProps) => {
       editorOptions: {
         readOnly: true,
       },
+      filterType: "exclude",
       caption: t("EMail"),
       columnIndex: 1,
       groupKey: "BASIC_INFORMATION",
@@ -117,7 +119,21 @@ export const useDealerGridColumns = ({ data }: UseDealerGridColumnsProps) => {
       editorOptions: {
         readOnly: true,
       },
+      filterType: "exclude",
       caption: t("PhoneNo"),
+      columnIndex: 1,
+      groupKey: "BASIC_INFORMATION",
+      visible: true,
+    },
+    {
+      dataField: "Extension",
+      editorOptions: {
+        readOnly: true,
+      },
+      filterType: "exclude",
+      caption: t("Extension"),
+      width: 118,
+      alignment: "center",
       columnIndex: 1,
       groupKey: "BASIC_INFORMATION",
       visible: true,
@@ -127,6 +143,7 @@ export const useDealerGridColumns = ({ data }: UseDealerGridColumnsProps) => {
       editorOptions: {
         readOnly: true,
       },
+      filterType: "exclude",
       caption: t("DepartmentName"),
       columnIndex: 1,
       groupKey: "BASIC_INFORMATION",
@@ -137,6 +154,7 @@ export const useDealerGridColumns = ({ data }: UseDealerGridColumnsProps) => {
       editorOptions: {
         readOnly: true,
       },
+      filterType: "exclude",
       caption: t("GroupName"),
       columnIndex: 1,
       groupKey: "BASIC_INFORMATION",
@@ -147,6 +165,7 @@ export const useDealerGridColumns = ({ data }: UseDealerGridColumnsProps) => {
       editorOptions: {
         readOnly: true,
       },
+      filterType: "exclude",
       caption: t("AuthorizeDTimeStart"),
       columnIndex: 1,
       groupKey: "BASIC_INFORMATION",
@@ -163,6 +182,7 @@ export const useDealerGridColumns = ({ data }: UseDealerGridColumnsProps) => {
           false: t("Inactive"),
         }),
       },
+      filterType: "exclude",
       groupKey: "BASIC_INFORMATION",
       visible: true,
       width: 100,

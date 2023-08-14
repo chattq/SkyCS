@@ -7,30 +7,36 @@ import {
   ScrollView,
 } from "devextreme-react";
 import { useAtomValue, useSetAtom } from "jotai";
-import React, { memo, useMemo, useRef } from "react";
+import React, { memo, useCallback, useMemo, useRef } from "react";
 import { listCampaignAgentAtom, visiblePopupAtom } from "../../../store";
 import { ToolbarItem } from "devextreme-react/data-grid";
 import { useI18n } from "@/i18n/useI18n";
-import { GroupItem, Item, Label, SimpleItem } from "devextreme-react/form";
-import { readOnly } from "@/pages/Business_Information/components/store";
-import { toast } from "react-toastify";
 import { useClientgateApi } from "@/packages/api";
 import { useQuery } from "@tanstack/react-query";
 import { showErrorAtom } from "@/packages/store";
 import { ColumnOptions } from "@/types";
 import { GridViewCustomize } from "@/packages/ui/base-gridview/gridview-customize";
 import "./style.scss";
+import { useWindowSize } from "@/packages/hooks/useWindowSize";
+import {
+  FileUploadCustom,
+  mapEditorOption,
+  mapEditorType,
+} from "@/utils/customer-common";
+import ContentFile from "@/pages/eticket/eticket/Components/Info/Detail/CustomizeJson/contentFIle";
 interface Props {
   param: any;
+  listDynamicField: any;
   onCancel: () => void;
 }
 //listCampaign
-const History_Call = ({ onCancel, param }: Props) => {
+const History_Call = ({ onCancel, listDynamicField, param }: Props) => {
   const popupVisible = useAtomValue(visiblePopupAtom);
   const showError = useSetAtom(showErrorAtom);
   const { t } = useI18n("History_Call");
   const api = useClientgateApi();
   let gridRef: any = useRef<any>(null);
+  const windowSize = useWindowSize();
   const { data, isLoading } = useQuery({
     queryKey: ["Cpn_CampaignCustomer_GetCallHist", param.data],
     queryFn: async () => {
@@ -59,6 +65,37 @@ const History_Call = ({ onCancel, param }: Props) => {
       });
 
       if (response.isSuccess) {
+        const dataJSON = param.data.JsonCustomerInfo;
+        if (dataJSON) {
+          const isJsonString = (str: string) => {
+            try {
+              JSON.parse(str);
+            } catch (e) {
+              return false;
+            }
+            return true;
+          };
+          if (isJsonString(dataJSON)) {
+            const customizeResponse = {
+              ...response,
+              Data: response?.Data?.map((item: any, idx: number) => {
+                if (idx === 0) {
+                  return {
+                    ...item,
+                    ...JSON.parse(param.data.JsonCustomerInfo),
+                  };
+                }
+
+                return {
+                  ...item,
+                };
+              }),
+            };
+            return customizeResponse;
+          } else {
+            return response;
+          }
+        }
         return response;
       } else {
         showError({
@@ -70,41 +107,103 @@ const History_Call = ({ onCancel, param }: Props) => {
     },
   });
 
+  const handleNavigate = useCallback((path: string) => {
+    if (path) {
+      window.location.href = path;
+    }
+  }, []);
+
+  const dataMap = listDynamicField.dynamicField ?? [];
   const columns = useMemo(() => {
-    return [
+    const newColumn = dataMap
+      .map((item: any) => {
+        return {
+          ...item,
+          ColDataType: item.CampaignColCfgDataType,
+          ColCodeSys: item.CampaignColCfgCodeSys,
+          caption: item.CampaignColCfgName,
+          dataField: item.CampaignColCfgCodeSys,
+          visible: true,
+        };
+      })
+      .map((item: any) => {
+        return {
+          ...item,
+          editorType: mapEditorType(item.ColDataType),
+          editorOptions: {
+            ...mapEditorOption({
+              field: item,
+              listDynamic: listDynamicField.dataSource,
+            }),
+            // readOnly: true,
+            placeholder: "",
+            readOnly: param?.flag === "detail",
+            disabled: param?.flag === "detail",
+          },
+          visible: true,
+        };
+      })
+      .map((item: any) => {
+        if (item.ColDataType === "FILE") {
+          return {
+            ...item,
+            width: 300,
+            cellRender: (param: any) => {
+              return <ContentFile item={param.displayValue} />;
+            },
+            editCellComponent: FileUploadCustom,
+          };
+        } else {
+          return item;
+        }
+      });
+
+    const staticFielđ = [
       {
         dataField: "CallOutDTimeUTC",
-        caption: "CallOutDTimeUTC", // thời điểm gọi ra
+        caption: t("CallOutDTimeUTC"), // thời điểm gọi ra
       },
       {
         dataField: "AgentCode", // agent phụ trách
-        caption: "AgentCode",
+        caption: t("AgentCode"),
       },
       {
         dataField: "CustomerPhoneNo", // số điện thoại gọi ra
-        caption: "CustomerPhoneNo",
+        caption: t("CustomerPhoneNo"),
       },
       {
-        dataField: "RecordFileName", // file ghi âm
-        caption: "RecordFileName",
+        dataField: "RecordFilePath", // file ghi âm
+        caption: t("RecordFilePath"),
+        cellRender: (param: any) => {
+          return (
+            <div
+              className="cursor-pointer hover-color-green"
+              onClick={() => handleNavigate(param.displayValue)}
+            >
+              {param.displayValue ?? ""}
+            </div>
+          );
+        },
       },
       {
         dataField: "CallTime", // thời gian gọi
-        caption: "CallTime",
+        caption: t("CallTime"),
       },
       {
         dataField: "CampaignCustomerCallStatus", // trạng thái
-        caption: "CampaignCustomerCallStatus",
+        caption: t("CampaignCustomerCallStatus"),
       },
       {
         dataField: "CustomerFeedBack", // Khách hàng phản hồi
-        caption: "CustomerFeedBack",
+        caption: t("CustomerFeedBack"),
       },
       {
         dataField: "Remark", // ghi chú
-        caption: "Remark",
+        caption: t("Remark"),
       },
     ] as ColumnOptions[];
+
+    return [...staticFielđ, ...newColumn];
   }, [isLoading]);
 
   return (
@@ -115,7 +214,7 @@ const History_Call = ({ onCancel, param }: Props) => {
       onHiding={onCancel}
       title={`${param.data.CustomerName} - ${param.data.AgentName}`}
       width={900}
-      height={500}
+      height={600}
       visible={popupVisible}
     >
       <p className="popup-history-title">{t("History Call")}</p>
@@ -123,6 +222,7 @@ const History_Call = ({ onCancel, param }: Props) => {
       <div className="grid-history">
         <GridViewCustomize
           isLoading={isLoading}
+          id={"Grid-popup-history"}
           dataSource={data?.isSuccess ? data.Data : []}
           columns={columns}
           keyExpr={["CampaignCode", "AgentCode"]}
@@ -131,10 +231,11 @@ const History_Call = ({ onCancel, param }: Props) => {
           onSelectionChanged={() => {}}
           onSaveRow={() => {}}
           onEditorPreparing={() => {}}
+          customerHeight={windowSize.height - (windowSize.height - 470)}
           onEditRowChanges={() => {}}
           onDeleteRows={() => {}}
           onEditRow={() => {}}
-          storeKey={"popup-history"}
+          storeKey={"Grid-popup-history"}
           isSingleSelection
           toolbarItems={[]}
           isHiddenCheckBox={true}

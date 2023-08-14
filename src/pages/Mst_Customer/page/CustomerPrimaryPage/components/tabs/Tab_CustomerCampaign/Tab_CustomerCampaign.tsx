@@ -109,7 +109,10 @@ const Tab_CustomerCampaign = () => {
 
   const customCard = (item: any) => {
     return (
-      <div className="px-[10px] pt-[5px] detail-customer-tab-content-item" key={nanoid()}>
+      <div
+        className="px-[10px] pt-[5px] detail-customer-tab-content-item"
+        key={nanoid()}
+      >
         <div className="mb-1 px-[35px] py-[20px] grid grid-cols-3 gap-3 relative bg-white justify-between">
           <div className="flex flex-col gap-2">
             <div
@@ -127,11 +130,19 @@ const Tab_CustomerCampaign = () => {
           </div>
 
           <div className="flex flex-col gap-2">
-            <div>
+            <div className="flex align-items-center">
               Trạng thái chiến dịch:{" "}
-              <span className="bg-sky-500 p-[5px] text-white rounded-[5px]">
-                {item?.CampaignStatus}
-              </span>
+              <div className="status-container">
+                <span
+                  className={`bg-sky-500 p-[5px] text-white rounded-[5px] status ${
+                    item?.CampaignStatus
+                      ? item?.CampaignStatus.toLowerCase()
+                      : ""
+                  }`}
+                >
+                  {item?.CampaignStatus}
+                </span>
+              </div>
             </div>
             <div>
               Thời gian tạo:
@@ -143,11 +154,19 @@ const Tab_CustomerCampaign = () => {
             <div>
               Agent phụ trách: <strong>{item?.AgentName}</strong>
             </div>
-            <div>
+            <div className="flex align-items-center">
               Trạng thái thực hiện:{" "}
-              <span className="bg-green-500 p-[5px] text-white rounded-[5px]">
-                {item?.CampaignCustomerStatus}
-              </span>
+              <div className="status-container">
+                <span
+                  className={`bg-green-500 p-[5px] text-white rounded-[5px] status ${
+                    item?.CampaignCustomerStatus
+                      ? item?.CampaignCustomerStatus.toLowerCase()
+                      : ""
+                  }`}
+                >
+                  {item?.CampaignCustomerStatus}
+                </span>
+              </div>
             </div>
           </div>
 

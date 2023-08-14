@@ -431,6 +431,8 @@ export default function Post_Edit() {
             FilePath: item?.FileUrlFS || item.FilePath,
             FileType: revertEncodeFileType(item?.FileType),
           }))
+        : dataCurrent?.uploadFiles[0]?.FileName === null
+        ? []
         : dataCurrent?.uploadFiles.map((item: any, index: any) => ({
             Idx: (index + 1)?.toString(),
             FileName: item?.FileName,
@@ -477,7 +479,9 @@ export default function Post_Edit() {
                 {t("Post Manager")}
               </div>
               <div className="">{">"}</div>
-              <div className="font-bold dx-font-m">{t("Post Edit")}</div>
+              <div className="text-header font-bold dx-font-m">
+                {t("Post Edit")}
+              </div>
             </div>
           </PageHeaderNoSearchLayout.Slot>
           <PageHeaderNoSearchLayout.Slot

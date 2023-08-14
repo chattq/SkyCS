@@ -51,7 +51,7 @@ export const AvatarField = ({ component, formData, field, editType }: any) => {
   return (
     <div className="flex gap-3 items-center">
       <div
-        className="overflow-hidden h-[100px] w-[100px] rounded-lg shadow-xl mt-[10px] ml-[10px] cursor-pointer"
+        className="overflow-hidden h-[100px] w-[100px] rounded-lg shadow-xl cursor-pointer"
         style={{
           borderRadius: "50%",
           pointerEvents: editType == "detail" ? "none" : "unset",

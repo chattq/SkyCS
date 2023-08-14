@@ -13,7 +13,7 @@ import {
   useState,
 } from "react";
 import { useI18n } from "@/i18n/useI18n";
-import { useAtom, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useQuery } from "@tanstack/react-query";
 import {
   FlagActiveEnum,
@@ -27,7 +27,7 @@ import { IFormOptions, IItemProps } from "devextreme-react/form";
 import { flagEditorOptionsSearch, zip } from "@packages/common";
 import { logger } from "@packages/logger";
 import { toast } from "react-toastify";
-import { showErrorAtom } from "@packages/store";
+import { authAtom, showErrorAtom } from "@packages/store";
 import { EditorPreparingEvent } from "devextreme/ui/data_grid";
 import {
   ContentSearchPanelLayout,
@@ -75,7 +75,7 @@ export const Rpt_MissedCallsPage = () => {
   let gridRef: any = useRef(null);
   const config = useConfiguration();
   const showError = useSetAtom(showErrorAtom);
-
+  const auth = useAtomValue(authAtom);
   const [searchCondition] = useState<any>({
     AgentCodeConditionList: "",
     DepartmentCodeConditionList: "",
@@ -125,7 +125,7 @@ export const Rpt_MissedCallsPage = () => {
           : "",
         TicketStatusConditionList: searchCondition.TicketStatusConditionList
           ? searchCondition.TicketStatusConditionList.join(",")
-          : "",
+          : ["SOLVED", "CLOSED"].join(","),
         CreateDTimeUTCFrom: searchCondition.MonthReport[0]
           ? format(searchCondition.MonthReport[0], "yyyy-MM-dd")
           : getFirstDateOfMonth(endDate),
@@ -270,7 +270,10 @@ export const Rpt_MissedCallsPage = () => {
       },
       editorType: "dxTagBox",
       editorOptions: {
-        dataSource: getListDepart ?? [],
+        dataSource:
+          getListDepart?.filter(
+            (item: any) => item.OrgID === auth.orgId.toString()
+          ) ?? [],
         valueExpr: "DepartmentCode",
         displayExpr: "DepartmentName",
         searchEnabled: true,
@@ -309,12 +312,25 @@ export const Rpt_MissedCallsPage = () => {
         text: t("Trạng thái eTicket"),
       },
       editorType: "dxTagBox",
-      editorOptions: {
-        dataSource: listStatus ?? [],
-        valueExpr: "value",
-        displayExpr: "label",
-        readOnly: false,
-        placeholder: t("Select"),
+      editorOptions: {},
+      render: ({ editorOptions, component: formRef }: any) => {
+        return (
+          <TagBox
+            dataSource={listStatus ?? []}
+            valueExpr={"value"}
+            displayExpr={"label"}
+            defaultValue={
+              searchCondition.TicketStatusConditionList
+                ? searchCondition.TicketStatusConditionList
+                : ["SOLVED", "CLOSED"]
+            }
+            onValueChanged={(e: any) => {
+              formRef
+                .instance()
+                .updateData("TicketStatusConditionList", e.value);
+            }}
+          />
+        );
       },
     },
     {
@@ -543,7 +559,7 @@ export const Rpt_MissedCallsPage = () => {
         : "",
       TicketStatusConditionList: searchCondition.TicketStatusConditionList
         ? searchCondition.TicketStatusConditionList.join(",")
-        : "",
+        : ["SOLVED", "CLOSED"].join(","),
       CreateDTimeUTCFrom: searchCondition.MonthReport[0]
         ? format(searchCondition.MonthReport[0], "yyyy-MM-dd")
         : getFirstDateOfMonth(endDate),

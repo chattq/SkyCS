@@ -13,7 +13,7 @@ import {
   useState,
 } from "react";
 import { useI18n } from "@/i18n/useI18n";
-import { useAtom, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useQuery } from "@tanstack/react-query";
 import {
   FlagActiveEnum,
@@ -27,7 +27,7 @@ import { IFormOptions, IItemProps } from "devextreme-react/form";
 import { flagEditorOptionsSearch, zip } from "@packages/common";
 import { logger } from "@packages/logger";
 import { toast } from "react-toastify";
-import { showErrorAtom } from "@packages/store";
+import { authAtom, showErrorAtom } from "@packages/store";
 import { EditorPreparingEvent } from "devextreme/ui/data_grid";
 import {
   ContentSearchPanelLayout,
@@ -93,6 +93,7 @@ export const Rpt_SLAControllerPage = () => {
   const now = new Date();
   const startDate = new Date(now.getTime() - msInDay * 3);
   const endDate = new Date(now.getTime());
+  const auth = useAtomValue(authAtom);
 
   const setSelectedItems = useSetAtom(selectedItemsAtom);
 
@@ -140,6 +141,7 @@ export const Rpt_SLAControllerPage = () => {
       return resp;
     },
   });
+
   const { data: CampaignList } = useQuery(["listMST"], () =>
     api.Cpn_CampaignAgent_GetActive()
   );
@@ -254,6 +256,7 @@ export const Rpt_SLAControllerPage = () => {
       }
     },
   });
+
   const formItems: any[] = [
     {
       dataField: "AgentCodeConditionList",
@@ -278,7 +281,10 @@ export const Rpt_SLAControllerPage = () => {
       },
       editorType: "dxTagBox",
       editorOptions: {
-        dataSource: getListDepart ?? [],
+        dataSource:
+          getListDepart?.filter(
+            (item: any) => item.OrgID === auth.orgId.toString()
+          ) ?? [],
         valueExpr: "DepartmentCode",
         displayExpr: "DepartmentName",
         searchEnabled: true,

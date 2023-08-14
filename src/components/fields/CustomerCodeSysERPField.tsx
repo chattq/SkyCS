@@ -40,18 +40,28 @@ const CustomerCodeSysERPField = ({ param, customOptions }: any) => {
     }
   }, [formData["CustomerCodeSysERP"], data]);
 
+  const result: any = data?.find(
+    (item: any) => item?.CustomerCodeSys == value
+  )?.CustomerName;
+
   return (
-    <SelectBox
-      dataSource={data ?? []}
-      valueExpr="CustomerCodeSys"
-      displayExpr="CustomerName"
-      onValueChanged={(e: any) => {
-        component.updateData("CustomerCodeSysERP", e.value);
-        setValue(e.value);
-      }}
-      value={value}
-      readOnly={customOptions?.editType == "detail"}
-    ></SelectBox>
+    <>
+      {customOptions?.editType == "detail" ? (
+        <div className="font-semibold">{result ?? ""}</div>
+      ) : (
+        <SelectBox
+          dataSource={data ?? []}
+          valueExpr="CustomerCodeSys"
+          displayExpr="CustomerName"
+          onValueChanged={(e: any) => {
+            component.updateData("CustomerCodeSysERP", e.value);
+            setValue(e.value);
+          }}
+          value={value}
+          readOnly={customOptions?.editType == "detail"}
+        ></SelectBox>
+      )}
+    </>
   );
 };
 

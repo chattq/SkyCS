@@ -25,6 +25,7 @@ import { GroupItem, SimpleItem } from "devextreme-react/form";
 import { Group } from "devextreme-react/diagram";
 import { ColumnOptions } from "@/types";
 import { match } from "ts-pattern";
+import HistoryCallTable from "./history-call-table";
 
 export const Cpn_CampaignPerformDetail = forwardRef(
   (
@@ -67,7 +68,6 @@ export const Cpn_CampaignPerformDetail = forwardRef(
           response.Data &&
           response.Data.Lst_Mst_CustomColumnCampaignType
         ) {
-          // console.log("feedback ", response.Data);
           setListFeedback(response.Data.Lst_Mst_CustomerFeedBack);
           const Lst_Mst_CustomColumnCampaignType: DynamicField_Campaign[] =
             response?.Data?.Lst_Mst_CustomColumnCampaignType ?? [];
@@ -190,7 +190,6 @@ export const Cpn_CampaignPerformDetail = forwardRef(
         };
 
         const response = await api.Cpn_CampaignCustomer_GetCallHist(obj);
-        console.log("response _________ ", response);
         // if (response.isSuccess && response.Data) {
         //   setListCallHist(response.Data);
         // }
@@ -205,8 +204,6 @@ export const Cpn_CampaignPerformDetail = forwardRef(
         }
       }
     };
-
-    console.log("formNormal ", formNormal);
 
     useEffect(() => {
       refetchCallHist();
@@ -251,8 +248,6 @@ export const Cpn_CampaignPerformDetail = forwardRef(
         })
         .otherwise(() => {});
 
-      console.log("code ", code);
-
       return (
         <span
           style={{
@@ -260,7 +255,7 @@ export const Cpn_CampaignPerformDetail = forwardRef(
           }}
         >
           <i className={`${icon}`} />{" "}
-          {code === "" || !code ? t("PENDING") : code}
+          {code === "" || !code ? t("PENDING") : t(code)}
         </span>
       );
     };
@@ -270,7 +265,6 @@ export const Cpn_CampaignPerformDetail = forwardRef(
         dataField: "CustomerFeedBack",
         editorType: "dxSelectBox",
         colSpan: 2,
-        // cssClass: "w-60",
         editorOptions: {
           dataSource: listFeedBack,
           displayExpr: "CusFBName",
@@ -286,7 +280,6 @@ export const Cpn_CampaignPerformDetail = forwardRef(
                 displayExpr="CusFBName"
                 valueExpr="CusFBCode"
                 onValueChanged={(data: any) => {
-                  // console.log("data ", data.value);
                   formComponent.updateData(dataField, data.value);
                 }}
               ></SelectBox>
@@ -315,8 +308,6 @@ export const Cpn_CampaignPerformDetail = forwardRef(
       },
     ];
 
-    console.log("listCallHist ", listCallHist);
-
     return (
       <ScrollView style={{ height: windowSize.height - 150 }}>
         <div className="from-group p-2">
@@ -333,34 +324,7 @@ export const Cpn_CampaignPerformDetail = forwardRef(
               return <SimpleItem {...item} key={`normal-${index}`} />;
             })}
           </Form>
-          {/* <label>KH phản hồi</label>
-          <div className="input">
-            <div className="flex">
-              <SelectBox
-                width={200}
-                dataSource={listFeedBack}
-                displayExpr="CusFBName"
-                valueExpr="CusFBCode"
-              />
-              <span
-                className="ml-5 mt-1"
-                style={{ color: performStatus?.color }}
-              >
-                <i className={`${performStatus?.icon} mr-1`} />
-                {performStatus?.Title}
-              </span>
-            </div>
-          </div> */}
         </div>
-        {/* <div className="from-group p-2">
-          <label>Ghi chú</label>
-          <div className="input">
-            <TextBox placeholder="Nhập" />
-          </div>
-        </div> */}
-        {/* <div className="w-full p-2">
-          <strong>Thông tin chi tiết</strong>
-        </div> */}
         <Form ref={ref} formData={formData} labelLocation="left">
           <GroupItem caption={`${t("Info's Detail")}`} cssClass="pl-2 pr-2">
             {dynamicFields.map((item: any, index: any) => {
@@ -378,63 +342,11 @@ export const Cpn_CampaignPerformDetail = forwardRef(
             })}
           </GroupItem>
         </Form>
-
-        {/* <div className="from-group p-2">
-        <label>Ghi chú</label>
-        <div className="input">
-          <TextBox placeholder="Nhập" />
-        </div>
-      </div>
-      <div className="from-group p-2">
-        <label>Ghi chú</label>
-        <div className="input">
-          <TextBox placeholder="Nhập" />
-        </div>
-      </div>
-      <div className="from-group p-2">
-        <label>Ghi chú</label>
-        <div className="input">
-          <TextBox placeholder="Nhập" />
-        </div>
-      </div>
-
-      <div className="w-full p-2">
-        <strong>Lịch sử liên hệ</strong>
-      </div> */}
-        <div className="w-full p-2">
-          <table className="tb-list w-full">
-            <thead>
-              <tr className="table-row table-row-header">
-                <th className="table-header">Thời điểm gọi ra</th>
-                <th className="table-header">Agent phụ trách</th>
-                <th className="table-header">File ghi âm</th>
-                <th className="table-header">Thời gian gọi</th>
-                <th className="table-header">Trạng thái</th>
-              </tr>
-            </thead>
-            {listCallHist && listCallHist.length > 0 && (
-              <tbody>
-                {listCallHist.map((item, idx) => {
-                  return (
-                    <>
-                      {item && (
-                        <tr className="table-row table-content" key={idx}>
-                          <td className="table-content">
-                            {item.CallOutDTimeUTC}
-                          </td>
-                          <td className="table-content">{item.AgentCode}</td>
-                          <td className="table-content">{item.RecordFilePath}</td>
-                          <td className="table-content">{item.CallTime}</td>
-                          <td className="table-content">{item.CampaignCustomerCallStatus}</td>
-                        </tr>
-                      )}
-                    </>
-                  );
-                })}
-              </tbody>
-            )}
-          </table>
-        </div>
+        <HistoryCallTable
+          listCallHist={listCallHist}
+          dynamicFields={dynamicFields}
+          dataDynamic={formData}
+        />
       </ScrollView>
     );
   }

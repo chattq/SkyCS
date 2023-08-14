@@ -54,10 +54,10 @@ export const ListCustomerContent = forwardRef(
     }: any,
     ref
   ) => {
+    const { t } = useI18n("Detail_Campaign");
     const setVisiblePopup = useSetAtom(visiblePopupAtom);
     const param = useParams();
-    const handleShowPopup = (param: any) => {
-      console.log("param ", param);
+    const handleShowPopup = (paramValue: any) => {
       setVisiblePopup(true);
       setCurrentCode(
         <History_Call
@@ -65,7 +65,8 @@ export const ListCustomerContent = forwardRef(
             setCurrentCode(<></>);
             setVisiblePopup(false);
           }}
-          param={param}
+          listDynamicField={listDynamicField}
+          param={paramValue}
         />
       );
     };
@@ -123,7 +124,7 @@ export const ListCustomerContent = forwardRef(
                   <Button
                     stylingMode={"contained"}
                     type={"default"}
-                    text={"Select"}
+                    text={t("Select")}
                     onClick={() => {
                       handleShowSelectCustomer();
                     }}
@@ -138,7 +139,7 @@ export const ListCustomerContent = forwardRef(
                   <Button
                     type={"default"}
                     stylingMode={"contained"}
-                    text={"Import Excel"}
+                    text={t("Import Excel")}
                     onClick={handleImport}
                   />
                 );
@@ -152,7 +153,7 @@ export const ListCustomerContent = forwardRef(
                     stylingMode={"contained"}
                     type={"default"}
                     onClick={handleShowPopUpDistributionAgent}
-                    text={"Distribution Agent"}
+                    text={t("Distribution Agent")}
                   />
                 );
               },
@@ -485,7 +486,7 @@ const Cpn_Campaign_List_Customer = forwardRef(
         });
         if (fil) {
           toast.error(
-            "The customer is exist so please select different customer!"
+            t("The customer is exist so please select different customer!")
           );
         } else {
           const param = data.map((item) => {

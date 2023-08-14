@@ -4,12 +4,11 @@ import { useApiHeaders } from "@/packages/api/headers";
 import { useNetworkNavigate } from "@/packages/hooks";
 import { LinkCell } from "@/packages/ui/link-cell";
 import { viewingDataAtom } from "@/pages/Mst_Customer/components/store";
+import { FileUploadCustom } from "@/utils/customer-common";
 import { ColumnOptions } from "@packages/ui/base-gridview";
 import { FileUploader } from "devextreme-react";
 import { useSetAtom } from "jotai";
 import { useState } from "react";
-
-
 
 export const useColumn = ({ ticketDynamic }: { ticketDynamic: any[] }) => {
   const setViewingItem = useSetAtom(viewingDataAtom);
@@ -91,11 +90,7 @@ export const useColumn = ({ ticketDynamic }: { ticketDynamic: any[] }) => {
       }
     });
 
-    const customerRender = () => {
-      
-    }
-
-
+  const customerRender = () => {};
 
   const columns: ColumnOptions[] = [
     {
@@ -103,6 +98,7 @@ export const useColumn = ({ ticketDynamic }: { ticketDynamic: any[] }) => {
       caption: t("TicketID"),
       editorType: "dxTextBox",
       visible: true,
+      filterType: "exclude",
       cellRender: (column: any) => {
         return (
           <LinkCell
@@ -144,6 +140,19 @@ export const useColumn = ({ ticketDynamic }: { ticketDynamic: any[] }) => {
       caption: t("AgentTicketStatusName"),
       editorType: "dxTextBox",
       visible: true,
+      cellRender: (param: any) => {
+        return (
+          <div className={`status-container flex justify-content-center`}>
+            <span
+              className={`status ${
+                param?.displayValue ? param?.displayValue.toLowerCase() : ""
+              }`}
+            >
+              {param?.displayValue ?? ""}
+            </span>
+          </div>
+        );
+      },
     },
     {
       dataField: "ReceptionDTimeUTC", // Thời điểm tiếp nhận

@@ -2,7 +2,7 @@ import { AdminContentLayout } from "@layouts/admin-content-layout";
 
 import { useMemo, useRef, useState } from "react";
 import { useI18n } from "@/i18n/useI18n";
-import { useAtom, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useQuery } from "@tanstack/react-query";
 
 import { useConfiguration } from "@packages/hooks";
@@ -11,7 +11,7 @@ import { IFormOptions, IItemProps } from "devextreme-react/form";
 import { flagEditorOptionsSearch, zip } from "@packages/common";
 import { logger } from "@packages/logger";
 import { toast } from "react-toastify";
-import { showErrorAtom } from "@packages/store";
+import { authAtom, showErrorAtom } from "@packages/store";
 import { EditorPreparingEvent } from "devextreme/ui/data_grid";
 import {
   ContentSearchPanelLayout,
@@ -81,6 +81,7 @@ export const Rpt_ETTicketSynthesisControllerPage = () => {
   });
   const msInDay = 1000 * 60 * 60 * 24;
   const now = new Date();
+  const auth = useAtomValue(authAtom);
   const startDate = new Date(now.getTime());
   const endDate = new Date(now.getTime());
 
@@ -128,10 +129,10 @@ export const Rpt_ETTicketSynthesisControllerPage = () => {
         CreateDTimeUTCTo: searchCondition.MonthReport[1]
           ? format(searchCondition.MonthReport[1], "yyyy-MM-dd")
           : format(endDate, "yyyy-MM-dd"),
-        LogLUDTimeUTCFrom: searchCondition.MonthUpdate[0]
+        LUDTimeUTCFrom: searchCondition.MonthUpdate[0]
           ? format(searchCondition.MonthUpdate[0], "yyyy-MM-dd")
           : "",
-        LogLUDTimeUTCTo: searchCondition.MonthUpdate[1]
+        LUDTimeUTCTo: searchCondition.MonthUpdate[1]
           ? format(searchCondition.MonthUpdate[1], "yyyy-MM-dd")
           : "",
       });
@@ -267,7 +268,10 @@ export const Rpt_ETTicketSynthesisControllerPage = () => {
       },
       editorType: "dxTagBox",
       editorOptions: {
-        dataSource: getListDepart ?? [],
+        dataSource:
+          getListDepart?.filter(
+            (item: any) => item.OrgID === auth.orgId.toString()
+          ) ?? [],
         valueExpr: "DepartmentCode",
         displayExpr: "DepartmentName",
         searchEnabled: true,
@@ -454,7 +458,7 @@ export const Rpt_ETTicketSynthesisControllerPage = () => {
       LogLUDTimeUTCFrom: searchCondition.MonthUpdate[0]
         ? format(searchCondition.MonthUpdate[0], "yyyy-MM-dd")
         : "",
-      LogLUDTimeUTCTo: searchCondition.MonthUpdate[1]
+      LUDTimeUTCTo: searchCondition.MonthUpdate[1]
         ? format(searchCondition.MonthUpdate[1], "yyyy-MM-dd")
         : "",
     });
@@ -518,7 +522,12 @@ export const Rpt_ETTicketSynthesisControllerPage = () => {
                   </p>
                   <p className="text-center text-[20px] py-[15px] font-bold text-[#d7ca39]">
                     {data?.Data?.RT_Rpt_ET_Ticket_Synthesis
-                      ?.Rpt_ET_Ticket_Synthesis?.SLAResponseRate ?? 0}
+                      ?.Rpt_ET_Ticket_Synthesis?.SLAResponseRate !== 0
+                      ? `${
+                          data?.Data?.RT_Rpt_ET_Ticket_Synthesis
+                            ?.Rpt_ET_Ticket_Synthesis?.SLAResponseRate + "%"
+                        }`
+                      : 0}
                   </p>
                 </div>
                 <div className="border bg-[#eeececb0] px-2 py-1 leading-6 rounded-md">

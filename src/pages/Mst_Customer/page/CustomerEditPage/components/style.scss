@@ -1,3 +1,15 @@
 .dx-tagbox {
   height: auto !important;
 }
+
+.form-test {
+  .dx-form {
+    padding: 10px 24px !important;
+
+    .dx-field-item-label {
+      width: 200px;
+      min-width: 200px;
+      white-space: pre-wrap;
+    }
+  }
+}

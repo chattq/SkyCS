@@ -17,7 +17,7 @@ import { SearchPanelV2 } from "@/packages/ui/search-panel";
 import { useQuery } from "@tanstack/react-query";
 import { LoadPanel } from "devextreme-react";
 import { confirm } from "devextreme/ui/dialog";
-import { useSetAtom } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { match } from "ts-pattern";
@@ -32,6 +32,8 @@ import { useColumnSearch } from "./Components/use-column-search";
 import { useColumn } from "./Components/use-columns";
 import { useWindowSize } from "@/packages/hooks/useWindowSize";
 import { dynamicFields } from "@/pages/admin/Cpn_Campaign/components/store";
+import "./style.scss";
+import { normalGridSelectionKeysAtom } from "@/packages/ui/base-gridview/store/normal-grid-store";
 
 interface SearchProps {
   FlagOutOfDate: boolean;
@@ -68,8 +70,8 @@ const Eticket = () => {
   const setPopupVisible = useSetAtom(popupVisibleAtom);
   const navigate = useNetworkNavigate();
   const windowSize = useWindowSize();
+  let gridRef: any = useRef();
   const widthSearch = windowSize.width / 5;
-
   const { data: dataUser, isLoading: isLoadingUser } = useQuery({
     queryKey: ["GetForCurrentUser"],
     queryFn: async () => {
@@ -96,12 +98,12 @@ const Eticket = () => {
     CreateDTimeUTC: [null, null],
     LogLUDTimeUTC: [null, null],
     Ft_PageSize: config.MAX_PAGE_ITEMS,
+    // OrgID: [auth.orgData?.Id ?? ""],
   };
+
   const [searchCondition, setSearchCondition] = useState<Partial<SearchProps>>({
     ...defaultCondition,
   });
-
-  let gridRef: any = useRef();
 
   const { data: dataDynamic, isLoading: isLoadingDynamic } = useQuery({
     queryKey: ["Mst_TicketColumnConfig_GetAll"],
@@ -127,16 +129,8 @@ const Eticket = () => {
     queryFn: async () => {
       let conditionParam = {
         ...searchCondition,
-        FlagOutOfDate: searchCondition?.FlagOutOfDate
-          ? ""
-          : searchCondition?.FlagOutOfDate === true
-          ? "1"
-          : "",
-        FlagNotRespondingSLA: searchCondition?.FlagNotRespondingSLA
-          ? ""
-          : searchCondition?.FlagNotRespondingSLA === true
-          ? "1"
-          : "",
+        FlagOutOfDate: searchCondition?.FlagOutOfDate ? "1" : "",
+        FlagNotRespondingSLA: searchCondition?.FlagNotRespondingSLA ? "1" : "",
         TicketSource: searchCondition?.TicketSource
           ? searchCondition.TicketSource.join(",")
           : "",
@@ -498,7 +492,7 @@ const Eticket = () => {
 
   const showPopUpClose = (data: ETICKET_REPONSE[]) => {
     let result = confirm(
-      `<i>${t("Are you sure to change eTicket's status to closed ?")}</i>`,
+      `${t("Are you sure to change eTicket's status to closed ?")}`,
       `${t("Closed Ticket")}`
     );
     result.then((dialogResult) => {
@@ -510,7 +504,7 @@ const Eticket = () => {
 
   const showPopUpDelete = (data: ETICKET_REPONSE[]) => {
     let result = confirm(
-      `<i>${t("Are you sure to delete eticket ?")}</i>`,
+      `${t("Are you sure to delete eticket ?")}`,
       `${t("Delete Ticket")}`
     );
     result.then((dialogResult) => {
@@ -519,6 +513,12 @@ const Eticket = () => {
       }
     });
   };
+
+  useEffect(() => {
+    if (!isLoading) {
+      refetch();
+    }
+  }, []);
 
   const handleClose = async (data: ETICKET_REPONSE[]) => {
     const param = data.map((item: ETICKET_REPONSE) => {
@@ -611,7 +611,7 @@ const Eticket = () => {
   return (
     <AdminContentLayout className={"Category_Manager"}>
       <AdminContentLayout.Slot name={"Header"}>
-        <HeaderPart onAddNew={hanldeAdd} />
+        <HeaderPart searchCondition={searchCondition} onAddNew={hanldeAdd} />
       </AdminContentLayout.Slot>
       <AdminContentLayout.Slot name={"Content"}>
         <ContentSearchPanelLayout>
@@ -650,35 +650,37 @@ const Eticket = () => {
               showIndicator={true}
               showPane={true}
             />
-            <GridViewCustomize
-              isSingleSelection={false}
-              isLoading={isLoading}
-              dataSource={data?.isSuccess ? data?.DataList ?? [] : []}
-              columns={columns}
-              keyExpr={"TicketID"}
-              onReady={(ref) => {
-                gridRef = ref;
-              }}
-              allowSelection={true}
-              onSelectionChanged={() => {}}
-              hidenTick={true}
-              onSaveRow={() => {}}
-              onEditorPreparing={() => {}}
-              onEditRowChanges={() => {}}
-              onDeleteRows={() => {}}
-              storeKey={"Eticket-manage"}
-              toolbarItems={[
-                {
-                  location: "before",
-                  widget: "dxButton",
-                  options: {
-                    icon: "search",
-                    onClick: handleToggleSearchPanel,
+            <div className="eticket-manager">
+              <GridViewCustomize
+                isSingleSelection={false}
+                isLoading={isLoading}
+                dataSource={data?.isSuccess ? data?.DataList ?? [] : []}
+                columns={columns}
+                keyExpr={"TicketID"}
+                onReady={(ref) => {
+                  gridRef = ref;
+                }}
+                allowSelection={true}
+                onSelectionChanged={() => {}}
+                hidenTick={true}
+                onSaveRow={() => {}}
+                onEditorPreparing={() => {}}
+                onEditRowChanges={() => {}}
+                onDeleteRows={() => {}}
+                storeKey={"Eticket-manage"}
+                toolbarItems={[
+                  {
+                    location: "before",
+                    widget: "dxButton",
+                    options: {
+                      icon: "search",
+                      onClick: handleToggleSearchPanel,
+                    },
                   },
-                },
-              ]}
-              customToolbarItems={toolbar}
-            />
+                ]}
+                customToolbarItems={toolbar}
+              />
+            </div>
             {popUp}
           </ContentSearchPanelLayout.Slot>
         </ContentSearchPanelLayout>

@@ -99,6 +99,23 @@
 
   }
 
+  .ctm-search-list {
+    max-height: 60px;
+    overflow-y: auto;
+    background: #fff;
+
+
+    .ctm-search-item {
+      width: 100%;
+      padding: 5px;
+      cursor: pointer;
+      float: left;
+    }
+
+    .ctm-search-item:hover {
+      background: #EAF9F2;
+    }
+  }
 
   .countup {
     display: inline-block;
@@ -373,6 +390,16 @@
   width: 1rem;
 }
 
+.icon-call-del-digit {
+  background-image: url(/images/icons/call_del_digit.svg);
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: contain;
+  display: inline-block;
+  height: 1rem;
+  width: 1rem;
+}
+
 .icon-call-in {
   background-image: url(/images/icons/phone/in.svg);
   background-repeat: no-repeat;
@@ -451,4 +478,24 @@
   opacity: 0.8;
 }
 
-.bg-white{background: #fff;}
+.bg-white {
+  background: #fff;
+}
+
+.soft-phone.minimized {
+  .countup {
+    background: #e00;
+    color: #fff;
+    line-height: 20px;
+    margin: 0;
+    border-radius: 30px;
+
+  }
+
+  .number {
+    color: #333;
+    padding: 3px;
+    line-height: 20px;
+    margin: 0 0 0 30px;
+  }
+}

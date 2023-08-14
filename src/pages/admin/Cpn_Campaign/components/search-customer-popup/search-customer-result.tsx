@@ -8,6 +8,7 @@ import { useSetAtom } from "jotai";
 import { SearchPanelV2 } from "@packages/ui/search-panel";
 import { useColumnsSearch } from "@/pages/admin/Cpn_Campaign/components/Components/PopUp/Mst_Customer_Clone/components/use-columns-search";
 import { useColumn } from "../Components/PopUp/Mst_Customer_Clone/components/use-columns";
+import { useWindowSize } from "@/packages/hooks/useWindowSize";
 
 interface SearchCustomerResultProps {
   customizeClass: string;
@@ -36,6 +37,7 @@ export const SearchCustomerResult = forwardRef(
       dataField: listColumn ?? [],
       dataGroup: listGroup ?? [],
     });
+    const windowSize = useWindowSize();
 
     console.log("customizeClass ", customizeClass);
 

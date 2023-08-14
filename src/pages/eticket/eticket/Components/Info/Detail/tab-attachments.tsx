@@ -4,10 +4,10 @@ import { showErrorAtom } from "@/packages/store";
 import { GridViewCustomize } from "@/packages/ui/base-gridview/gridview-customize";
 import { ColumnOptions } from "@/types";
 import { useSetAtom } from "jotai";
-import { useRef } from "react";
+import { memo, useRef } from "react";
 import { toast } from "react-toastify";
 
-export const Tab_Attachments = ({ onReload, data }: any) => {
+export const Tab_Attachments = memo(({ onReload, data }: any) => {
   const { Lst_ET_TicketAttachFile } = data;
   const { t } = useI18n("Eticket_Detail");
   let gridRef = useRef(null);
@@ -148,7 +148,6 @@ export const Tab_Attachments = ({ onReload, data }: any) => {
             },
             {
               text: t(`Sign`),
-              // text: t(`Responsibility`),
               onClick: (e: any, ref: any) => {
                 handleSign(ref.instance.getSelectedRowsData());
               },
@@ -172,4 +171,4 @@ export const Tab_Attachments = ({ onReload, data }: any) => {
   } else {
     return <>No Data</>;
   }
-};
+});

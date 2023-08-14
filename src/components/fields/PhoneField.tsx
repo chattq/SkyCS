@@ -1,3 +1,4 @@
+import { useI18n } from "@/i18n/useI18n";
 import { useClientgateApi } from "@/packages/api";
 import { Icon } from "@/packages/ui/icons";
 import { Button, Popup, TextBox, Validator } from "devextreme-react";
@@ -21,6 +22,8 @@ export const checkPhone = (list: any[]) => {
 };
 
 export const PhoneField = ({ component, formData, field, editType }: any) => {
+  const { t } = useI18n("StaticFieldCommon");
+
   const api = useClientgateApi();
 
   const validatorRef: any = React.useRef(null);
@@ -160,138 +163,153 @@ export const PhoneField = ({ component, formData, field, editType }: any) => {
   //   return false;
   // };
 
-  return (
-    <div className="flex items-center">
-      <div>
-        {phones.map((item: any, index: any) => {
-          return (
-            <div key={item.id} className={"flex items-center my-4"}>
-              <input
-                type={"radio"}
-                className={"mr-2"}
-                onChange={async (e: any) => {
-                  handleCheck(item.id);
-                }}
-                checked={item.FlagDefault == "1"}
-                disabled={!item.CtmPhoneNo || editType == "detail"}
-              />
-              <TextBox
-                onValueChanged={async (e: any) =>
-                  handleEditItem(item.id, e.value)
-                }
-                validationMessageMode={"always"}
-                value={item.CtmPhoneNo}
-                readOnly={editType == "detail"}
-                onFocusOut={handleFocusOut}
-                maxLength={11}
-                className="w-full"
-              >
-                <Validator ref={validatorRef}>
-                  {/* Add any other validation rules if needed */}
-                  <RequiredRule message="Vui lòng nhập Số điện thoại!" />
-                  <CustomRule
-                    message="Vui lòng nhập đúng định dạng Số điện thoại!"
-                    validationCallback={(options) => {
-                      const value: any = options.value;
-                      return numberRegex.test(value);
-                    }}
-                  />
-                  <CustomRule
-                    message="Vui lòng nhập đúng định dạng Số điện thoại!"
-                    validationCallback={(options: any) => {
-                      const value = options.value;
-                      return numberRegex.test(value) && value.length >= 10;
-                    }}
-                  />
-                </Validator>
-              </TextBox>
-              {editType != "detail" && (
-                <Button
-                  onClick={() => handleRemoveItem(item.id)}
-                  stylingMode={"text"}
+  const renderPhone = () => {
+    return (
+      <div className="flex items-center">
+        <div>
+          {phones.map((item: any, index: any) => {
+            return (
+              <div key={item.id} className={"flex items-center my-4"}>
+                <input
+                  type={"radio"}
+                  className={"mr-2"}
+                  onChange={async (e: any) => {
+                    handleCheck(item.id);
+                  }}
+                  checked={item.FlagDefault == "1"}
+                  disabled={!item.CtmPhoneNo || editType == "detail"}
+                />
+                <TextBox
+                  onValueChanged={async (e: any) =>
+                    handleEditItem(item.id, e.value)
+                  }
+                  validationMessageMode={"always"}
+                  value={item.CtmPhoneNo}
+                  readOnly={editType == "detail"}
+                  onFocusOut={handleFocusOut}
+                  maxLength={11}
+                  className="w-full"
                 >
-                  <Icon name={"trash"} size={14} color={"#ff5050"} />
-                </Button>
-              )}
-            </div>
-          );
-        })}
+                  <Validator ref={validatorRef}>
+                    {/* Add any other validation rules if needed */}
+                    <RequiredRule message="Vui lòng nhập Số điện thoại!" />
+                    <CustomRule
+                      message="Vui lòng nhập đúng định dạng Số điện thoại!"
+                      validationCallback={(options) => {
+                        const value: any = options.value;
+                        return numberRegex.test(value);
+                      }}
+                    />
+                    <CustomRule
+                      message="Vui lòng nhập đúng định dạng Số điện thoại!"
+                      validationCallback={(options: any) => {
+                        const value = options.value;
+                        return numberRegex.test(value) && value.length >= 10;
+                      }}
+                    />
+                  </Validator>
+                </TextBox>
+                {editType != "detail" && (
+                  <Button
+                    onClick={() => handleRemoveItem(item.id)}
+                    stylingMode={"text"}
+                  >
+                    <Icon name={"trash"} size={14} color={"#ff5050"} />
+                  </Button>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {editType != "detail" && (
+          <Button
+            text={t("Add")}
+            type={"default"}
+            stylingMode={"contained"}
+            onClick={() => {
+              const formData = component.option("formData");
+              const data = formData["CtmPhoneNo"] || [];
+              component.updateData("CtmPhoneNo", [
+                ...phones,
+                {
+                  id: nanoid(),
+                  FlagDefault: phones.length == 0 ? "1" : "0",
+                  CtmPhoneNo: null,
+                },
+              ]);
+              setPhones([
+                ...phones,
+                {
+                  id: nanoid(),
+                  FlagDefault: phones.length == 0 ? "1" : "0",
+                  CtmPhoneNo: null,
+                },
+              ]);
+              // setFormValue(formData);
+              // console.log(formData);
+            }}
+            className={"w-[100px]"}
+          />
+        )}
+
+        <Popup
+          visible={open}
+          onHiding={handleClose}
+          hideOnOutsideClick={false}
+          showTitle={false}
+          position="center"
+          width={400}
+          height={150}
+          toolbarItems={[
+            {
+              visible: true,
+              widget: "dxButton",
+              toolbar: "bottom",
+              location: "after",
+              options: {
+                text: "Đồng ý",
+                type: "primary",
+                style: {
+                  padding: "10px 20px",
+                  marginRight: 5,
+                  background: "green",
+                  color: "white",
+                },
+                onClick: handleClose,
+              },
+            },
+            {
+              visible: true,
+              widget: "dxButton",
+              toolbar: "bottom",
+              location: "after",
+              options: {
+                text: "Hủy",
+                type: "default",
+                onClick: handleDecline,
+              },
+            },
+          ]}
+        >
+          <p className="text-base">
+            Thông tin số điện thoại {currentPhone} đã tồn tại, bạn vẫn muốn lưu?
+          </p>
+        </Popup>
       </div>
+    );
+  };
 
-      {editType != "detail" && (
-        <Button
-          text={"Add"}
-          type={"default"}
-          stylingMode={"contained"}
-          onClick={() => {
-            const formData = component.option("formData");
-            const data = formData["CtmPhoneNo"] || [];
-            component.updateData("CtmPhoneNo", [
-              ...phones,
-              {
-                id: nanoid(),
-                FlagDefault: phones.length == 0 ? "1" : "0",
-                CtmPhoneNo: null,
-              },
-            ]);
-            setPhones([
-              ...phones,
-              {
-                id: nanoid(),
-                FlagDefault: phones.length == 0 ? "1" : "0",
-                CtmPhoneNo: null,
-              },
-            ]);
-            // setFormValue(formData);
-            // console.log(formData);
-          }}
-          className={"mx-2 w-[100px]"}
-        />
-      )}
+  const renderPhoneDetail = () => {
+    const result =
+      phones?.find((item: any) => item?.FlagDefault == "1")?.CtmPhoneNo ??
+      "---";
+    return <div className="font-semibold">{result}</div>;
+  };
 
-      <Popup
-        visible={open}
-        onHiding={handleClose}
-        hideOnOutsideClick={false}
-        showTitle={false}
-        position="center"
-        width={400}
-        height={150}
-        toolbarItems={[
-          {
-            visible: true,
-            widget: "dxButton",
-            toolbar: "bottom",
-            location: "after",
-            options: {
-              text: "Đồng ý",
-              type: "primary",
-              style: {
-                padding: "10px 20px",
-                marginRight: 5,
-                background: "green",
-                color: "white",
-              },
-              onClick: handleClose,
-            },
-          },
-          {
-            visible: true,
-            widget: "dxButton",
-            toolbar: "bottom",
-            location: "after",
-            options: {
-              text: "Hủy",
-              type: "default",
-              onClick: handleDecline,
-            },
-          },
-        ]}
-      >
-        <p className="text-base">
-          Thông tin số điện thoại {currentPhone} đã tồn tại, bạn vẫn muốn lưu?
-        </p>
-      </Popup>
-    </div>
+  return (
+    <>
+      {editType == "detail" ? <>{renderPhoneDetail()}</> : <>{renderPhone()}</>}
+    </>
   );
 };

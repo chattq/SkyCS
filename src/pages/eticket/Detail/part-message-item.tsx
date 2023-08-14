@@ -94,7 +94,7 @@ export const PartMessageItem = ({ data }: { data: EticketMessage }) => {
   };
 
   const messageTypeCss = useMemo(() => {
-    var type1 = data.Type.toLowerCase();
+    var type1 = data.Type ? data.Type.toLowerCase() : "";
 
     if (type1 == "email") {
       return `${type1} ${data.Email?.Type?.toLocaleLowerCase()}`;
@@ -106,11 +106,13 @@ export const PartMessageItem = ({ data }: { data: EticketMessage }) => {
     return type1;
   }, [data]);
 
-  console.log("messages", messageTypeCss);
+  console.log("messages", data);
 
   return (
     <div
-      className={`w-full position-relative bg-white mb-3 pb-3 message-item ${data.Type.toLocaleLowerCase()}`}
+      className={`w-full position-relative bg-white mb-3 pb-3 message-item ${
+        data.Type ? data.Type.toLocaleLowerCase() : ""
+      }`}
     >
       {data.Type != "Event" ? (
         <>

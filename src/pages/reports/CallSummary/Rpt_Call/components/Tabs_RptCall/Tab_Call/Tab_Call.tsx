@@ -6,14 +6,14 @@ import {
   searchPanelVisibleAtom,
 } from "@/packages/layouts/content-searchpanel-layout";
 import { ReportLayout } from "@/packages/layouts/report-layout/report-content-layout";
-
+import "./style.scss";
 import { showErrorAtom } from "@/packages/store";
 import { FlagActiveEnum } from "@/packages/types";
 import { SearchPanelV2 } from "@/packages/ui/search-panel";
 import { useQuery } from "@tanstack/react-query";
 import { Button, CheckBox, DateBox, LoadPanel } from "devextreme-react";
 import Form, { IItemProps, SimpleItem } from "devextreme-react/form";
-import { useSetAtom } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import {
   Chart,
   Series,
@@ -21,7 +21,7 @@ import {
   Legend,
   Label,
 } from "devextreme-react/chart";
-import React, {
+import {
   memo,
   useCallback,
   useMemo,
@@ -29,7 +29,6 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { ColumnOptions } from "@/types";
 import { callApi } from "@/packages/api/call-api";
 import { useAuth } from "@/packages/contexts/auth";
 import { nanoid } from "nanoid";
@@ -39,22 +38,20 @@ import {
   getLastDateOfMonth,
   getYearMonthDate,
 } from "@/components/ulti";
-import { Icon } from "@/packages/ui/icons";
-import { Text } from "devextreme-react/linear-gauge";
 import { useWindowSize } from "@/packages/hooks/useWindowSize";
 
 const Tab_Call = ({ getListOrg }: { getListOrg: any }) => {
   const { t } = useI18n("Tab_Call");
   const showError = useSetAtom(showErrorAtom);
-  const [formartDate, setFormatDate] = useState("day");
+  const [formartDate, setFormatDate] = useState("month");
   const [active, setActive] = useState("Total");
 
   const [key, reloading] = useReducer(() => {
     return nanoid();
   }, "0");
   const [formSearchData, setFormSearchData] = useState<any>({
-    period: "day",
-    fromDate: "",
+    period: "month",
+    fromDate: new Date(Date.now()),
     toDate: "",
     agentId: 0,
     ccNumber: "",
@@ -73,7 +70,6 @@ const Tab_Call = ({ getListOrg }: { getListOrg: any }) => {
   };
 
   const windowSize = useWindowSize();
-  console.log("windowSize ", windowSize);
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["rpt_GetCallSummary", key],
     queryFn: async () => {
@@ -90,14 +86,12 @@ const Tab_Call = ({ getListOrg }: { getListOrg: any }) => {
               : getLastDateOfMonth(formSearchData.fromDate),
         };
 
-        console.log("condition", condition);
-
         const response: any = await callApi.rpt_GetCallSummary(auth.networkId, {
           ...condition,
         });
 
         if (response.Success) {
-          const customize = Object.keys(response.Data)
+          const customize: any[] = Object.keys(response.Data)
             .filter((item) => {
               return item !== "DataList";
             })
@@ -109,7 +103,7 @@ const Tab_Call = ({ getListOrg }: { getListOrg: any }) => {
             });
 
           return {
-            reportData: customize,
+            reportData: customize ?? [],
             DataList: response.Data.DataList.map((itemValue: any) => {
               return {
                 ...itemValue,
@@ -142,9 +136,23 @@ const Tab_Call = ({ getListOrg }: { getListOrg: any }) => {
         caption: "period",
         editorType: "dxSelectBox",
         visible: true,
+        label: {
+          text: t("period"),
+        },
         validationRules: [requiredType],
         editorOptions: {
-          dataSource: ["day", "month"],
+          dataSource: [
+            {
+              title: t("Day"),
+              value: "day",
+            },
+            {
+              title: t("Month"),
+              value: "month",
+            },
+          ],
+          valueExpr: "value",
+          displayExpr: "title",
           onValueChanged: (param: any) => {
             setFormatDate(param.value);
           },
@@ -153,26 +161,26 @@ const Tab_Call = ({ getListOrg }: { getListOrg: any }) => {
       {
         dataField: "fromDate", // dealine
         caption: t("fromDate"),
-        visible: true,
         label: {
-          text: t("Time"),
+          text: t("fromDate"),
         },
+        visible: true,
         validationRules: [requiredType],
         editorOptions: {
           type: "date",
           calendarOptions: {
-            maxZoomLevel: formartDate === "day" ? "date" : "year",
-            // minZoomLevel: "decade",
+            maxZoomLevel: formartDate === "day" ? "month" : "year",
           },
           displayFormat: formartDate === "day" ? "yyyy-MM-dd" : "yyyy-MM",
-          // pickerType: "calendar",
-          // useMaskBehavior: true,
         },
         editorType: "dxDateBox",
       },
       {
         dataField: "agentId",
         caption: t("agentId"),
+        label: {
+          text: t("agentId"),
+        },
         visible: true,
         editorType: "dxSelectBox",
         editorOptions: {
@@ -185,6 +193,9 @@ const Tab_Call = ({ getListOrg }: { getListOrg: any }) => {
       {
         dataField: "ccNumber",
         caption: t("ccNumber"),
+        label: {
+          text: t("ccNumber"),
+        },
         visible: true,
         editorType: "dxSelectBox",
         editorOptions: {
@@ -205,6 +216,7 @@ const Tab_Call = ({ getListOrg }: { getListOrg: any }) => {
     });
     reloading();
   }, []);
+  const searchPanelVisibility = useAtomValue(searchPanelVisibleAtom);
 
   return (
     <ReportLayout className={"ReportCall_Manager"}>
@@ -221,50 +233,65 @@ const Tab_Call = ({ getListOrg }: { getListOrg: any }) => {
                 />
               </ContentSearchPanelLayout.Slot>
               <ContentSearchPanelLayout.Slot name={"ContentPanel"}>
-                <LoadPanel visible={isLoading} />
-                {key !== "0" && !isLoading && (
-                  <div className="flex pr-5">
-                    <div className="border-r-2 " style={{ minWidth: "250px" }}>
-                      {data?.reportData.map((item: any) => {
-                        return (
-                          <div
-                            key={nanoid()}
-                            className={`flex items-center gap-1 button-item ${
-                              active === item.text ? "active" : ""
-                            }`}
-                            onClick={() => handleSetActive(item.text)}
-                          >
-                            <div className="w-[80%] font-semibold">
-                              {item.text}
-                            </div>
-                            <div className="font-semibold w-[20%] text-left">
-                              {item.number}
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                    <div className="pr-5 py-1" style={{ flex: "1" }}>
-                      <Button
-                        className="button_Search"
-                        icon={"/images/icons/search.svg"}
-                        onClick={handleToggleSearchPanel}
-                      />
-                      <Chart
-                        id="chart"
-                        dataSource={data?.DataList ?? []}
-                        className="pl-5 pr-5 flex-1"
-                        width={windowSize.width - 500}
+                <div className="flex align-items-flex-start">
+                  {!searchPanelVisibility && (
+                    <Button
+                      className="button_Search "
+                      icon={"/images/icons/search.svg"}
+                      onClick={handleToggleSearchPanel}
+                    />
+                  )}
+                  <LoadPanel visible={isLoading} />
+                  {key !== "0" && !isLoading && (
+                    <div className="flex pr-5">
+                      <div
+                        className="border-r-2 "
+                        style={{ minWidth: "300px" }}
                       >
-                        <Series argumentField="Time" />
-                        <ArgumentAxis>
-                          <Label wordWrap="none" overlappingBehavior="rotate" />
-                        </ArgumentAxis>
-                        <Legend visible={false} />
-                      </Chart>
+                        {data?.reportData?.map((item: any) => {
+                          return (
+                            <div
+                              key={nanoid()}
+                              className={`flex items-center gap-1 button-item ${
+                                active === item.text ? "active" : ""
+                              }`}
+                              onClick={() => handleSetActive(item.text)}
+                            >
+                              <div className="w-[85%] font-semibold">
+                                {t(item.text)}
+                              </div>
+                              <div className="font-semibold w-[15%] text-right">
+                                {t(item.number ?? "0")}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                      <div className="pr-5 py-1" style={{ flex: "1" }}>
+                        <Button
+                          className="button_Search"
+                          icon={"/images/icons/search.svg"}
+                          onClick={handleToggleSearchPanel}
+                        />
+                        <Chart
+                          id="chart"
+                          dataSource={data?.DataList ?? []}
+                          className="pl-5 pr-5 flex-1"
+                          width={windowSize.width - 500}
+                        >
+                          <Series argumentField="Time" />
+                          <ArgumentAxis>
+                            <Label
+                              wordWrap="none"
+                              overlappingBehavior="rotate"
+                            />
+                          </ArgumentAxis>
+                          <Legend visible={false} />
+                        </Chart>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </ContentSearchPanelLayout.Slot>
             </ContentSearchPanelLayout>
           </div>

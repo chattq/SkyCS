@@ -2,7 +2,7 @@ import { AdminContentLayout } from "@layouts/admin-content-layout";
 import { ColumnOptions, GridViewPopup } from "@packages/ui/base-gridview";
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { useI18n } from "@/i18n/useI18n";
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useQuery } from "@tanstack/react-query";
 import {
   FlagActiveEnum,
@@ -23,7 +23,7 @@ import {
   searchPanelVisibleAtom,
 } from "@layouts/content-searchpanel-layout";
 import { HeaderPart } from "../components/header-part";
-import { selectedItemsAtom } from "../components/store";
+import { dataGridAtom, selectedItemsAtom } from "../components/store";
 import { StatusButton } from "@/packages/ui/status-button";
 import "./Cpn_CampaignAgent.scss";
 import { useClientgateApi } from "@/packages/api";
@@ -38,6 +38,8 @@ import {
 import { nanoid } from "nanoid";
 import { GridViewCustomize } from "@/packages/ui/base-gridview/gridview-customize";
 import { LoadPanel, TagBox } from "devextreme-react";
+import { removeDuplicateCampaigns } from "../components/RemoveDataDuplicate";
+import { callApi } from "@/packages/api/call-api";
 
 export const Cpn_CampaignAgentPage = () => {
   const { t } = useI18n("Cpn_CampaignAgent");
@@ -46,7 +48,7 @@ export const Cpn_CampaignAgentPage = () => {
   const showError = useSetAtom(showErrorAtom);
   const setSelectedItems = useSetAtom(selectedItemsAtom);
   const api = useClientgateApi();
-  const [userCodeLogin, setUserCodeLogin] = useState("");
+  const [dataGrid, setDataGrid] = useAtom(dataGridAtom);
 
   const [searchCondition, setSearchCondition] = useState<any>({
     FlagActive: FlagActiveEnum.All,
@@ -61,14 +63,6 @@ export const Cpn_CampaignAgentPage = () => {
     ["listUser"],
     () => api.Sys_User_GetAllActive() as any
   );
-  useEffect(() => {
-    if (listUser) {
-      const userCode = listUser?.DataList.filter(
-        (item: any) => item.UserName === auth.currentUser.Name
-      );
-      setUserCodeLogin(userCode[0].UserCode);
-    }
-  }, [listUser]);
 
   const { data: getCampaing, isLoading: isLoadingGetCampaign } = useQuery({
     queryKey: ["Cpn_CampaignAgent_GetActive"],
@@ -76,65 +70,59 @@ export const Cpn_CampaignAgentPage = () => {
       return api.Cpn_CampaignAgent_Search({});
     },
   });
-  // async () => {
-  //   if (idInforSearch) {
-  //     const response = await api.KB_PostData_GetByPostCode(
-  //       idInforSearch,
-  //       auth.networkId
-  //     );
-
-  //     if (response.isSuccess) {
-  //       const listUpload = response?.Data?.Lst_KB_PostAttachFile ?? [];
-  //       const newUpdateLoading = listUpload.map((item: any) => {
-  //         return {
-  //           ...item,
-  //           FileFullName: item.FileName,
-  //           FileType: encodeFileType(item.FileType),
-  //           FileUrlLocal: item.FilePath,
-  //         };
-  //       });
-  //       setCurrentItemData({
-  //         uploadFiles: newUpdateLoading,
-  //       });
-  //       setData(response.Data?.KB_Post);
-  //       if (response.Data?.KB_Post.ShareType === "PRIVATE") {
-  //         setIconShare("lock.png");
-  //       } else if (response.Data?.KB_Post.ShareType === "ORGANIZATION") {
-  //         setIconShare("ORGANIZATION.png");
-  //       } else if (response.Data?.KB_Post.ShareType === "PUBLIC") {
-  //         setIconShare("public.png");
-  //       }
-
-  //       return response.Data;
-  //     } else {
-  //       showError({
-  //         message: t(response.errorCode),
-  //         debugInfo: response.debugInfo,
-  //         errorInfo: response.errorInfo,
-  //       });
-  //     }
-  //   } else {
-  //     return [] as any;
-  //   }
-  // },
 
   const { data, isLoading, refetch } = useQuery(
     ["Cpn_CampaignAgent", JSON.stringify(searchCondition)],
-    () =>
-      api.Cpn_CampaignAgent_Search({
-        ...searchCondition,
-        CampaignCode: searchCondition.CampaignCode
-          ? searchCondition.CampaignCode.join(",")
-          : null,
-        AgentCode: searchCondition.AgentCode
-          ? searchCondition.AgentCode.join(",")
-          : listUser?.DataList?.filter(
-              (item: any) => item.UserName === auth.currentUser.Name
-            ),
-      })
+    async () => {
+      const response = await api.Sys_User_GetAllActive();
+
+      if (response.isSuccess) {
+        const resp = api.Cpn_CampaignAgent_Search({
+          ...searchCondition,
+          CampaignCode: searchCondition.CampaignCode
+            ? searchCondition.CampaignCode.join(",")
+            : null,
+          AgentCode: searchCondition.AgentCode
+            ? searchCondition.AgentCode.join(",")
+            : response?.DataList?.filter(
+                (item: any) =>
+                  item.EMail.toLowerCase() ===
+                  auth.currentUser.Email.toLowerCase()
+              )
+            ? response?.DataList?.filter(
+                (item: any) =>
+                  item.EMail.toLowerCase() ===
+                  auth.currentUser.Email.toLowerCase()
+              )[0]?.UserCode
+            : "",
+        });
+        return resp;
+      }
+    }
   );
 
-  console.log(137, data);
+  useEffect(() => {
+    if (data) {
+      callApi.getOrgAgentList(auth.networkId).then((resp) => {
+        if (resp.Success) {
+          const dataGridFormat = data?.Data?.map((item: any, index: any) => {
+            const matchedUser = resp?.Data?.find(
+              (user: any) =>
+                user.Name?.toLowerCase() === item?.UserName?.toLowerCase()
+            );
+            const Ext = matchedUser ? matchedUser.Alias : "";
+            console.log(124, matchedUser);
+            console.log(125, Ext);
+            return {
+              ...item,
+              Extension: Ext,
+            };
+          });
+          setDataGrid(dataGridFormat ?? []);
+        }
+      });
+    }
+  }, [data]);
 
   const columns = useBankDealerGridColumns({ data: data?.Data || [] });
 
@@ -151,11 +139,13 @@ export const Cpn_CampaignAgentPage = () => {
         displayExpr: "CampaignName",
         valueExpr: "CampaignCode",
         searchEnabled: true,
-        dataSource: getCampaing?.Data ?? [],
+        dataSource: removeDuplicateCampaigns(getCampaing?.Data ?? []),
       },
+      visible: true,
     },
     {
       dataField: "AgentCode",
+      caption: t("AgentCode"),
       label: {
         text: t("Agent"),
       },
@@ -175,7 +165,19 @@ export const Cpn_CampaignAgentPage = () => {
             defaultValue={
               searchCondition.AgentCode
                 ? searchCondition.AgentCode
-                : [userCodeLogin]
+                : [
+                    listUser?.DataList?.filter(
+                      (item: any) =>
+                        item.EMail.toLowerCase() ===
+                        auth.currentUser.Email.toLowerCase()
+                    )
+                      ? listUser?.DataList?.filter(
+                          (item: any) =>
+                            item.EMail.toLowerCase() ===
+                            auth.currentUser.Email.toLowerCase()
+                        )[0]?.UserCode
+                      : "",
+                  ]
             }
             height={30}
             onValueChange={(data) => {
@@ -188,6 +190,7 @@ export const Cpn_CampaignAgentPage = () => {
           />
         );
       },
+      visible: true,
     },
   ];
 
@@ -336,7 +339,7 @@ export const Cpn_CampaignAgentPage = () => {
               cssClass="Cpn_CampaignAgent_Grid"
               // isHidenHeaderFilter={false}
               isLoading={isLoading || isLoadingGetCampaign}
-              dataSource={data?.isSuccess ? data.Data : []}
+              dataSource={dataGrid ?? []}
               columns={columns}
               keyExpr={"CampaignCode"}
               popupSettings={popupSettings}

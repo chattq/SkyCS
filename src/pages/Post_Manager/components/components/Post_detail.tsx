@@ -234,16 +234,31 @@ export default function Post_detail() {
                 readOnly: true,
               },
               render: (param: any) => {
-                const { component: formComponent, dataField } = param;
+                const {
+                  component: formComponent,
+                  dataField,
+                  editorOptions,
+                } = param;
+                const files = formComponent?.option("formData.uploadFiles");
                 return (
-                  <UploadFilesField
-                    readonly={true}
-                    className={"Upload_Detail_Post"}
-                    formInstance={formComponent}
-                    onValueChanged={(files: any) => {
-                      formComponent.updateData("UploadFiles", files);
-                    }}
-                  />
+                  <>
+                    {files ? (
+                      files[0]?.FileFullName === null || "" || undefined ? (
+                        <div>---</div>
+                      ) : (
+                        <UploadFilesField
+                          readonly={true}
+                          className={"Upload_Detail_Post"}
+                          formInstance={formComponent}
+                          onValueChanged={(files: any) => {
+                            formComponent.updateData("UploadFiles", files);
+                          }}
+                        />
+                      )
+                    ) : (
+                      <div>---</div>
+                    )}
+                  </>
                 );
               },
             },
@@ -528,7 +543,9 @@ export default function Post_detail() {
                 {t("Post Manager")}
               </div>
               <div className="">{">"}</div>
-              <div className="font-bold dx-font-m">{t("Post Detail")}</div>
+              <div className="text-header font-bold dx-font-m">
+                {t("Post Detail")}
+              </div>
             </div>
           </PageHeaderNoSearchLayout.Slot>
           <PageHeaderNoSearchLayout.Slot

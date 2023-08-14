@@ -8,6 +8,7 @@ import DataGrid, {
   ColumnChooser,
   HeaderFilter,
   Pager,
+  Search,
 } from "devextreme-react/data-grid";
 import { Icon } from "@packages/ui/icons";
 import { nanoid } from "nanoid";
@@ -46,6 +47,7 @@ import { authAtom, showErrorAtom } from "@/packages/store";
 import { toast } from "react-toastify";
 import { normalGridDeleteMultipleConfirmationBoxAtom } from "@/packages/ui/base-gridview/store/normal-grid-store";
 import { useWindowSize } from "@/packages/hooks/useWindowSize";
+import { confirm } from "devextreme/ui/dialog";
 
 export const Category_ManagerPage = () => {
   const { t } = useI18n("Category_Manager");
@@ -78,6 +80,7 @@ export const Category_ManagerPage = () => {
   const columns = [
     {
       dataField: "CategoryName",
+      filterType: "exclude",
       cellRender: ({ row: { data }, value }: any) => {
         console.log(data, value);
         return (
@@ -112,6 +115,7 @@ export const Category_ManagerPage = () => {
       caption: t("CategoryDesc"),
       columnIndex: 1,
       groupKey: "BASIC_INFORMATION",
+      filterType: "exclude",
       visible: true,
     },
     {
@@ -123,6 +127,7 @@ export const Category_ManagerPage = () => {
       columnIndex: 1,
       groupKey: "BASIC_INFORMATION",
       visible: true,
+      filterType: "exclude",
     },
     {
       dataField: "FlagActive",
@@ -133,6 +138,7 @@ export const Category_ManagerPage = () => {
       columnIndex: 1,
       groupKey: "BASIC_INFORMATION",
       visible: true,
+      filterType: "exclude",
       cellRender: ({ data }: any) => {
         return (
           <StatusButton key={nanoid()} isActive={data.FlagActive === "1"} />
@@ -242,26 +248,29 @@ export const Category_ManagerPage = () => {
   );
 
   const onDeleteMultiple = async (keys: string[]) => {
-    // console.log({
-    //   OrgID: auth.orgId?.toString(),
-    //   CategoryCode: keys,
-    // });
-    setConfirmBoxVisible(false);
-    const resp = await api.KB_Category_Delete({
-      OrgID: auth.orgId?.toString(),
-      CategoryCode: keys,
+    let result = confirm(
+      `<div>${t("Bạn có muốn xóa bản ghi này?")}</div>`,
+      `${t("Xác nhận")}`
+    );
+    result.then(async (dialogResult) => {
+      if (dialogResult) {
+        const resp = await api.KB_Category_Delete({
+          OrgID: auth.orgId?.toString(),
+          CategoryCode: keys,
+        });
+        if (resp.isSuccess) {
+          toast.success(t("Delete Successfully"));
+          await refetch();
+          return true;
+        }
+        showError({
+          message: t(resp.errorCode),
+          debugInfo: resp.debugInfo,
+          errorInfo: resp.errorInfo,
+        });
+        throw new Error(resp.errorCode);
+      }
     });
-    if (resp.isSuccess) {
-      toast.success(t("Delete Successfully"));
-      await refetch();
-      return true;
-    }
-    showError({
-      message: t(resp.errorCode),
-      debugInfo: resp.debugInfo,
-      errorInfo: resp.errorInfo,
-    });
-    throw new Error(resp.errorCode);
   };
   const innerSavingRowHandler = useCallback((e: any) => {
     if (e.changes && e.changes.length > 0) {
@@ -280,7 +289,9 @@ export const Category_ManagerPage = () => {
       <AdminContentLayout.Slot name={"Header"}>
         <PageHeaderLayout>
           <PageHeaderLayout.Slot name={"Before"}>
-            <div className="font-bold dx-font-m">{t("Category manager")}</div>
+            <div className="text-header font-bold dx-font-m">
+              {t("Category manager")}
+            </div>
           </PageHeaderLayout.Slot>
           <PageHeaderLayout.Slot name={"Center"}>
             <HeaderPart
@@ -330,8 +341,9 @@ export const Category_ManagerPage = () => {
                 flattenCategories(getCategories(data?.Data?.Lst_KB_Category)) ??
                 []
               }
-              allowSearch={true}
-            />
+            >
+              <Search enabled={true}></Search>
+            </HeaderFilter>
             <Editing
               mode={"row"}
               useIcons={true}
@@ -370,7 +382,7 @@ export const Category_ManagerPage = () => {
                 cssClass={"mx-1 cursor-pointer"}
                 name="delete"
                 icon={"/images/icons/trash.svg"}
-                // onClick={(e) => onDeleteMultiple?.(e.row.key)}
+                onClick={(e) => onDeleteMultiple?.(e.row.key)}
               />
               <DxButton
                 cssClass={"mx-1 cursor-pointer"}
@@ -388,12 +400,12 @@ export const Category_ManagerPage = () => {
               return <Column key={column.dataField} {...column} />;
             })}
           </DataGrid>
-          <DeleteMultipleConfirmationBox
+          {/* <DeleteMultipleConfirmationBox
             title={t("Delete")}
             message={t("DeleteMultipleConfirmationMessage")}
             onYesClick={onDeleteMultiple}
             onNoClick={onCancelDelete}
-          />
+          /> */}
         </div>
         {/* <DeleteSingleConfirmationBox
           title={t("Delete")}

@@ -14,6 +14,7 @@ export const viewingItemAtom = atom<Rpt_CpnCampaignResultCallData | undefined>(
 );
 export const dataSearchAtom = atom<any>(null);
 export const checkIconAtom = atom<any>("");
+export const loadpaineAtom = atom<any>(false);
 export const keySearchAtom = atom<any>("");
 export const showInputhAtom = atom<any>(undefined);
 export const currentInfo = atom<any>({

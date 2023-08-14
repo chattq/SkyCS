@@ -67,8 +67,9 @@ export const Sys_GroupPage = () => {
       })
   );
 
-  const { data: listGroup } = useQuery(["listGroup"], () =>
-    api.Sys_Access_GetAllActive()
+  const { data: listGroup, isLoading: isloadinglistGroup } = useQuery(
+    ["listGroup"],
+    () => api.Sys_Access_GetAllActive()
   );
 
   const { data: listUser } = useQuery(["listUser"], () =>
@@ -189,20 +190,7 @@ export const Sys_GroupPage = () => {
       throw new Error(resp.errorCode);
     }
   };
-  const onDelete = async (id: string) => {
-    // const resp = await api.Mst_Dealer_Delete(id);
-    // if (resp.isSuccess) {
-    //   toast.success(t("Delete Successfully"));
-    //   await refetch();
-    //   return true;
-    // }
-    // showError({
-    //   message: t(resp.errorCode),
-    //   debugInfo: resp.debugInfo,
-    //   errorInfo: resp.errorInfo,
-    // });
-    // throw new Error(resp.errorCode);
-  };
+  const onDelete = async (id: string) => {};
   const handleSavingRow = (e: any) => {
     // stop grid behaviour
     if (e.changes && e.changes.length > 0) {
@@ -253,13 +241,6 @@ export const Sys_GroupPage = () => {
     throw new Error(resp.errorCode);
   };
 
-  const columnsUser: ColumnOptions[] = [
-    {
-      dataField: "ObjectName",
-      caption: t("ObjectName"),
-    },
-  ];
-
   return (
     <AdminContentLayout className={"Sys_Group"}>
       <AdminContentLayout.Slot name={"Header"}>
@@ -287,8 +268,9 @@ export const Sys_GroupPage = () => {
           formSettings={formSettings}
           onCreate={onCreateNew}
           title={t("SysGroup Control Information")}
-          actualColumns={columnsUser}
           dataUnassigned={listGroup?.DataList}
+          isloadinglistGroup={isloadinglistGroup}
+          isLoadingData={isLoading}
         />
       </AdminContentLayout.Slot>
     </AdminContentLayout>

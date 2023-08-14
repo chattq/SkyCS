@@ -54,6 +54,7 @@ import {
   DeleteSingleConfirmationBox,
 } from "./components";
 import { listCampaignAgentAtom } from "@/pages/admin/Cpn_Campaign/components/store";
+import { differenceBy } from "lodash-es";
 
 interface GridViewProps {
   defaultPageSize?: number;
@@ -131,23 +132,34 @@ export const GridViewRaw = forwardRef(
     useEffect(() => {
       const savedState = loadState();
       if (savedState) {
-        console.log("Load saved state:", savedState);
-        const columnOrders = savedState.map(
-          (column: ColumnOptions) => column.dataField
+        // we need check the order of column from changes set
+        const shouldHideColumns = differenceBy<ColumnOptions, ColumnOptions>(
+          columns,
+          savedState,
+          "dataField"
         );
-        const outputColumns = columns.map((column: ColumnOptions) => {
-          const filterResult = savedState.find(
-            (c: ColumnOptions) => c.dataField === column.dataField
+        for (let i = 0; i < shouldHideColumns.length; i++) {
+          const column = shouldHideColumns[i];
+          datagridRef.current?.instance.columnOption(
+            column.dataField!,
+            "visible",
+            false
           );
-          column.visible = filterResult ? filterResult.visible : false;
-          return column;
+        }
+        // update column with new index
+        savedState.forEach((column: ColumnOptions, index: number) => {
+          datagridRef.current?.instance.columnOption(
+            column.dataField!,
+            "visibleIndex",
+            index + 1
+          );
+          datagridRef.current?.instance.columnOption(
+            column.dataField!,
+            "visible",
+            true
+          );
         });
-        outputColumns.sort(
-          (a, b) =>
-            columnOrders.indexOf(a.dataField) -
-            columnOrders.indexOf(b.dataField)
-        );
-        setColumnsState(outputColumns);
+        // setColumnsState(outputColumns);
       } else {
         // console.log("no saved state")
         const output = columns.map((c: ColumnOptions) => {
@@ -169,20 +181,36 @@ export const GridViewRaw = forwardRef(
     const onApply = useCallback(
       (changes: any) => {
         // we need check the order of column from changes set
-        const latest = [...changes];
-        realColumns.forEach((column: ColumnOptions) => {
-          const found = changes.find(
-            (c: ColumnOptions) => c.dataField === column.dataField
+        const shouldHideColumns = differenceBy<ColumnOptions, ColumnOptions>(
+          columns,
+          changes,
+          "dataField"
+        );
+        for (let i = 0; i < shouldHideColumns.length; i++) {
+          const column = shouldHideColumns[i];
+          datagridRef.current?.instance.columnOption(
+            column.dataField!,
+            "visible",
+            false
           );
-          if (!found) {
-            column.visible = false;
-            latest.push(column);
-          }
+        }
+        // update column with new index
+        changes.forEach((column: ColumnOptions, index: number) => {
+          datagridRef.current?.instance.columnOption(
+            column.dataField!,
+            "visibleIndex",
+            index + 1
+          );
+          datagridRef.current?.instance.columnOption(
+            column.dataField!,
+            "visible",
+            true
+          );
         });
-        setColumnsState(latest);
+        saveState(changes);
         chooserVisible.close();
       },
-      [setColumnsState]
+      [chooserVisible, saveState]
     );
     const onToolbarPreparing = useCallback((e: any) => {
       e.toolbarOptions.items.push({
@@ -261,7 +289,6 @@ export const GridViewRaw = forwardRef(
 
     const onDeleteMultiple = async (keys: string[]) => {
       setConfirmBoxVisible(false);
-      console.log("keys ", keys);
       const result = await onDeleteRows?.(keys);
       if (result) {
         setSelectionKeysAtom([]);
@@ -306,6 +333,9 @@ export const GridViewRaw = forwardRef(
           onHiding={onHiding}
           onApply={onApply}
           actualColumns={realColumns}
+          getColumnOptionCallback={
+            datagridRef.current?.instance.columnOption || (() => {})
+          }
         />
       );
     }, [chooserVisible, realColumns, columns]);
@@ -492,7 +522,7 @@ export const GridViewRaw = forwardRef(
               </Column>
             )}
             <Selection mode="multiple" selectAllMode="page" />
-            {realColumns.map((col: any) => {
+            {columns.map((col: any) => {
               return <Column key={col.dataField} {...col} />;
             })}
           </DataGrid>

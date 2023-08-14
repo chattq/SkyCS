@@ -1,7 +1,6 @@
 .Cpn_Campaign_Info {
   .header {
-    padding-top: 13px;
-    padding-bottom: 13px;
+    padding: 13px;
   }
   .dx-fileuploader-wrapper {
     padding: 0px;
@@ -26,7 +25,7 @@
   }
   .dx-tabs-wrapper {
     background-color: white;
-    padding-left: 22px;
+    padding-left: 0;
     padding-right: 22px;
     .dx-item {
       background-color: white;

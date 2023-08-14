@@ -421,7 +421,9 @@ export default function Post_add() {
                 {t("Post Manager")}
               </div>
               <div className="">{">"}</div>
-              <div className="font-bold dx-font-m">{t("Post add")}</div>
+              <div className="text-header font-bold dx-font-m">
+                {t("Post add")}
+              </div>
             </div>
           </PageHeaderNoSearchLayout.Slot>
           <PageHeaderNoSearchLayout.Slot

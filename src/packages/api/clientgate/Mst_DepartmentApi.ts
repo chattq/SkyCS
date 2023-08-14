@@ -37,6 +37,14 @@ export const useMst_DepartmentControlApi = (apiBase: AxiosInstance) => {
         OrgID: code,
       });
     },
+    Mst_DepartmentControl_GetByUserCode: async (): Promise<
+      ApiResponse<Mst_DepartmentControl>
+    > => {
+      return await apiBase.post<
+        SearchParam,
+        ApiResponse<Mst_DepartmentControl>
+      >("/MstDepartment/GetByUserCode", {});
+    },
     Mst_DepartmentControl_GetAllActive: async (): Promise<
       ApiResponse<Mst_DepartmentControl[]>
     > => {

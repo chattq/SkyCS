@@ -141,7 +141,6 @@ export default function SearchDetail() {
     <div className="relative h-[800px]">
       <LoadPanel
         container={".dx-viewport"}
-        shadingColor="rgba(0,0,0,0.4)"
         position={"center"}
         visible={isLoadingGetByCode}
         showIndicator={true}

@@ -9,7 +9,8 @@ import { showErrorAtom } from "@/packages/store";
 import { getFullTime } from "@/utils/time";
 import { useQuery } from "@tanstack/react-query";
 import { Button, LoadPanel, Popup } from "devextreme-react";
-import { atom, useAtomValue, useSetAtom } from "jotai";
+import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
+import { nanoid } from "nanoid";
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -23,10 +24,11 @@ interface FormValue {
   TicketStatus: string;
   OrgID: string | undefined;
   CustomerCodeSys: string;
+  CustomerCode: string;
   TicketName: string;
   TicketDetail: string;
   AgentCode: string | undefined;
-  DepartmentCode: string;
+  DepartmentCode: string | undefined;
   TicketType: string;
   TicketPriority: string;
   TicketJsonInfo: any;
@@ -55,6 +57,8 @@ export const ticketAddSLAID = atom<ticketAddSLAID>({
 
 export const ticketDeadline = atom<Date>(new Date());
 
+export const ticketDepartmentAtom = atom<any>(undefined);
+
 const EticketAdd = () => {
   const form_1: any = useRef();
   const form_2: any = useRef();
@@ -78,14 +82,18 @@ const EticketAdd = () => {
 
   const ticketAddSLAIDValue = useAtomValue(ticketAddSLAID);
 
+  // Department here
+  const [ticketDepartment, setTicketDepartment] = useAtom(ticketDepartmentAtom);
+
   const [formValue, setFormValue] = useState<FormValue>({
     TicketStatus: "OPEN",
     OrgID: auth?.orgData?.Id.toString(),
     CustomerCodeSys: "",
+    CustomerCode: "",
     TicketName: "",
     TicketDetail: "",
     AgentCode: auth?.currentUser?.Email?.toUpperCase(),
-    DepartmentCode: "",
+    DepartmentCode: ticketDepartment,
     TicketType: "",
     TicketPriority: "NORMAL",
     TicketJsonInfo: "",
@@ -100,6 +108,17 @@ const EticketAdd = () => {
     TicketFollowers: [],
     TicketCustomers: [],
   });
+
+  const { data: defaultDepartment, refetch: refetchDefaultDepartment } =
+    useQuery(["defaultDepartment"], async () => {
+      const resp: any = await api.Mst_DepartmentControl_GetByUserCode();
+
+      setTicketDepartment(
+        resp?.Data?.Sys_UserMapDepartment?.DepartmentCode ?? ""
+      );
+
+      return resp?.Data?.Sys_UserMapDepartment?.DepartmentCode ?? "";
+    });
 
   const setDynamicForm = useSetAtom(dynamicFormValue);
 
@@ -146,6 +165,8 @@ const EticketAdd = () => {
           ...formValue,
           ...resp?.Data?.Lst_ET_Ticket[0],
           CustomerCodeSys: resp?.Data?.Lst_ET_Ticket[0]?.CustomerCodeSys,
+          CustomerCode: resp?.Data?.Lst_ET_Ticket[0]?.CustomerCode,
+
           Tags: resp?.Data?.Lst_ET_Ticket[0]?.Tags?.split(",") ?? [],
           TicketFollowers:
             resp?.Data?.Lst_ET_TicketFollower?.map((item: any) => {
@@ -156,6 +177,7 @@ const EticketAdd = () => {
               (item: any, index: number) => {
                 return {
                   ...item,
+                  FileId: nanoid(),
                   Idx: index + 1,
                   FileFullName: item?.FileName,
                   FileType: encodeFileType(item?.FileType),
@@ -180,10 +202,15 @@ const EticketAdd = () => {
   });
 
   useEffect(() => {
-    refetch();
-  }, [TicketID]);
+    setFormValue({
+      ...formValue,
+      DepartmentCode: ticketDepartment,
+    });
+  }, [ticketDepartment]);
 
-  console.log(formValue);
+  useEffect(() => {
+    Promise.all([refetchDefaultDepartment(), refetch()]);
+  }, [TicketID]);
 
   const dynamicForm = useAtomValue(dynamicFormValue);
 
@@ -224,6 +251,7 @@ const EticketAdd = () => {
       formValue.uploadFiles?.map((item: any, index: number) => {
         return {
           Idx: index + 1,
+          FileId: nanoid(),
           FileName: item?.FileFullName,
           FileType: revertEncodeFileType(item?.FileType),
           FilePath: item?.FilePath ?? item?.FileUrlFS,
@@ -299,9 +327,11 @@ const EticketAdd = () => {
       formValue.uploadFiles?.map((item: any, index: number) => {
         return {
           Idx: index + 1,
+          FileId: nanoid(),
           FileName: item?.FileFullName,
           FileType: revertEncodeFileType(item?.FileType),
           FileSize: item?.FileSize ?? "",
+          FilePath: item.FilePath || item.FileUrlFS,
         };
       }) ?? [];
 
@@ -329,6 +359,7 @@ const EticketAdd = () => {
         onClose: handleCancel,
         delay: 500,
       });
+      handleCancel();
     } else {
       showError({
         message: resp?.errorCode,
@@ -363,13 +394,13 @@ const EticketAdd = () => {
             <p>{`>`}</p>
             {TicketID ? <p>Cập nhật eTicket</p> : <p>Tạo mới eTicket</p>}
           </div>
-          <div className="flex justify-end">
+          <div className="flex">
             {TicketID ? (
               <Button
                 style={{
                   padding: 10,
-                  margin: 10,
-                  background: "green",
+                  margin: "10px 5px",
+                  background: "#00703C",
                   color: "white",
                 }}
                 onClick={handleUpdate}
@@ -380,8 +411,8 @@ const EticketAdd = () => {
               <Button
                 style={{
                   padding: 10,
-                  margin: 10,
-                  background: "green",
+                  margin: "10px 5px",
+                  background: "#00703C",
                   color: "white",
                 }}
                 onClick={handleSave}
@@ -393,7 +424,7 @@ const EticketAdd = () => {
             <Button
               style={{
                 padding: 10,
-                margin: 10,
+                margin: "10px 5px",
               }}
               onClick={handleCancel}
             >
@@ -404,8 +435,8 @@ const EticketAdd = () => {
       </AdminContentLayout.Slot>
       <AdminContentLayout.Slot name={"Content"}>
         <LoadPanel visible={isLoading} />
-        <div className="flex">
-          <div className="p-2 w-[80%]">
+        <div className="flex h-full">
+          <div className="pt-2 pl-2 pr-[20px] w-[80%] leftside">
             <DefaultForm
               ref={form_1}
               formValue={formValue}
@@ -413,7 +444,7 @@ const EticketAdd = () => {
             />
             <DynamicForm ref={dynamic_ref} formValue={dynamicForm} />
           </div>
-          <div className="w-[20%] pr-2 pb-2">
+          <div className="w-[20%] pl-[10px] pr-2 pb-2">
             <SideForm ref={form_2} formValue={formValue} />
           </div>
         </div>

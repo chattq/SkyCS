@@ -44,7 +44,7 @@ export default function OmiChanelPage() {
       title: t("Email"),
       component: (
         <Email_Channel
-          data={dataChanel?.Data.Lst_Mst_ChannelEmail[0]}
+          data={dataChanel?.Data?.Lst_Mst_ChannelEmail[0]}
           setFlagEmail={EmailRef}
         />
       ),
@@ -53,7 +53,7 @@ export default function OmiChanelPage() {
       title: t("Zalo"),
       component: (
         <Zalo_channel
-          data={dataChanel?.Data.Lst_Mst_ChannelZalo[0]}
+          data={dataChanel?.Data?.Lst_Mst_ChannelZalo[0]}
           setFlagZalo={zaloRef}
           setAccessCodeZalo={ZaloAccessCodeRef}
         />

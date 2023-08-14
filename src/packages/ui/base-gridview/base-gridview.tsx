@@ -10,6 +10,7 @@ import {
   Pager,
   Paging,
   Scrolling,
+  Search,
   Selection,
   Toolbar,
   Item as ToolbarItem,
@@ -25,6 +26,7 @@ import {
   useMemo,
   useReducer,
   useRef,
+  useState,
 } from "react";
 
 import ScrollView from "devextreme-react/scroll-view";
@@ -54,6 +56,7 @@ import {
   useSavedState,
 } from "./components";
 import { ColumnOptions, ToolbarItemProps } from "./types";
+import { differenceBy } from "lodash-es";
 
 interface GridViewProps {
   defaultPageSize?: number;
@@ -87,7 +90,7 @@ const GridViewRaw = ({
   defaultPageSize = 100,
   onEditorPreparing,
   onSaveRow,
-  isLoading = false,
+  isLoading = true,
   keyExpr,
   onDeleteRows,
   onSelectionChanged,
@@ -129,27 +132,41 @@ const GridViewRaw = ({
     },
     columns
   );
+  const [isLoadingState, setIsLoadingState] = useState(true);
 
   useEffect(() => {
     const savedState = loadState();
     if (savedState) {
-      const columnOrders = savedState.map(
-        (column: ColumnOptions) => column.dataField
+      // we need check the order of column from changes set
+      const shouldHideColumns = differenceBy<ColumnOptions, ColumnOptions>(
+        columns,
+        savedState,
+        "dataField"
       );
-      const outputColumns = columns.map((column: ColumnOptions) => {
-        const filterResult = savedState.find(
-          (c: ColumnOptions) => c.dataField === column.dataField
+      for (let i = 0; i < shouldHideColumns.length; i++) {
+        const column = shouldHideColumns[i];
+        datagridRef.current?.instance.columnOption(
+          column.dataField!,
+          "visible",
+          false
         );
-        column.visible = filterResult ? filterResult.visible : false;
-        return column;
+      }
+      // update column with new index
+      savedState.forEach((column: ColumnOptions, index: number) => {
+        datagridRef.current?.instance.columnOption(
+          column.dataField!,
+          "visibleIndex",
+          index + 1
+        );
+        datagridRef.current?.instance.columnOption(
+          column.dataField!,
+          "visible",
+          true
+        );
       });
-      outputColumns.sort(
-        (a, b) =>
-          columnOrders.indexOf(a.dataField) - columnOrders.indexOf(b.dataField)
-      );
-      setColumnsState(outputColumns);
+      // setColumnsState(outputColumns);
     }
-  }, []);
+  }, [columns]);
 
   const onHiding = useCallback(() => {
     chooserVisible.close();
@@ -158,20 +175,36 @@ const GridViewRaw = ({
   const onApply = useCallback(
     (changes: any) => {
       // we need check the order of column from changes set
-      const latest = [...changes];
-      realColumns.forEach((column: ColumnOptions) => {
-        const found = changes.find(
-          (c: ColumnOptions) => c.dataField === column.dataField
+      const shouldHideColumns = differenceBy<ColumnOptions, ColumnOptions>(
+        columns,
+        changes,
+        "dataField"
+      );
+      for (let i = 0; i < shouldHideColumns.length; i++) {
+        const column = shouldHideColumns[i];
+        datagridRef.current?.instance.columnOption(
+          column.dataField!,
+          "visible",
+          false
         );
-        if (!found) {
-          column.visible = false;
-          latest.push(column);
-        }
+      }
+      // update column with new index
+      changes.forEach((column: ColumnOptions, index: number) => {
+        datagridRef.current?.instance.columnOption(
+          column.dataField!,
+          "visibleIndex",
+          index + 1
+        );
+        datagridRef.current?.instance.columnOption(
+          column.dataField!,
+          "visible",
+          true
+        );
       });
-      setColumnsState(latest);
+      saveState(changes);
       chooserVisible.close();
     },
-    [setColumnsState]
+    [chooserVisible, saveState]
   );
   const onToolbarPreparing = useCallback((e: any) => {
     e.toolbarOptions.items.push({
@@ -223,11 +256,9 @@ const GridViewRaw = ({
     switchEditMode(e, true);
   };
   const { t } = useI18n("Common");
-  let innerGridRef = useRef<DataGrid>(null);
 
   const setRef = (ref: any) => {
     datagridRef.current = ref;
-    innerGridRef = ref;
     onReady?.(ref);
   };
 
@@ -246,7 +277,6 @@ const GridViewRaw = ({
 
   const onDeleteMultiple = async (keys: string[]) => {
     setConfirmBoxVisible(false);
-    console.log("keys ", keys);
     const result = await onDeleteRows?.(keys);
     if (result) {
       setSelectionKeysAtom([]);
@@ -291,6 +321,9 @@ const GridViewRaw = ({
         onHiding={onHiding}
         onApply={onApply}
         actualColumns={realColumns}
+        getColumnOptionCallback={
+          datagridRef.current?.instance.columnOption || (() => {})
+        }
       />
     );
   }, [chooserVisible, realColumns, columns]);
@@ -375,7 +408,6 @@ const GridViewRaw = ({
           repaintChangesOnly
           showBorders
           onContentReady={(e) => {
-            // console.log("e ", e);
             setGridAtom({
               pageIndex: e.component.pageIndex() ?? 0,
               pageSize: e.component.pageSize() ?? 0,
@@ -407,7 +439,9 @@ const GridViewRaw = ({
           <Paging enabled={!hidePagination} defaultPageSize={defaultPageSize} />
           <Pager visible={false} />
           <ColumnChooser enabled={true} />
-          <HeaderFilter allowSearch={true} />
+          <HeaderFilter>
+            <Search enabled={true}></Search>
+          </HeaderFilter>
           <Scrolling
             renderAsync={true}
             mode={"standard"}
@@ -471,9 +505,9 @@ const GridViewRaw = ({
             selectAllMode="page"
             showCheckBoxesMode={showCheck}
           />
-          {realColumns.map((col: any) => (
-            <Column key={col.dataField} {...col} />
-          ))}
+          {columns.map((col: any) => {
+            return <Column key={col.dataField} {...col} />;
+          })}
         </DataGrid>
       </ScrollView>
       <DeleteMultipleConfirmationBox
@@ -494,7 +528,7 @@ const GridViewRaw = ({
 
 export const BaseGridView = forwardRef(
   (props: Omit<GridViewProps, "ref">, ref: any) => {
-    return props.isLoading ? null : <GridViewRaw ref={ref} {...props} />;
+    return <GridViewRaw ref={ref} {...props} />;
   }
 );
 BaseGridView.displayName = "BaseGridView";
